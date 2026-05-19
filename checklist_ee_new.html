@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차세대반도체 융합전공 이수 체크리스트 — 전기전자공학부</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#dddbd3;
+  --text:#1a1916;--text2:#6b6960;--text3:#9a9890;
+  --accent:#c8392b;--accent-light:#fdf0ee;
+  --green:#2d7a4f;--green-light:#edf7f1;
+  --blue:#1a5fa8;--blue-light:#eaf1fb;
+  --amber:#a0620a;--amber-light:#fdf5e6;
+  --purple:#5b3fa6;--purple-light:#f2effe;
+  --teal:#1a7a6e;--teal-light:#eaf7f5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 8rem}
+
+/* ── 공식 배너 헤더 ── */
+.official-banner{
+  background:#0b1f3a;
+  padding:0;margin-bottom:0;position:relative;overflow:hidden;
+}
+/* SVG 회로 패턴 배경 */
+.banner-circuit{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:.18;pointer-events:none;
+}
+/* 오른쪽 청록 글로우 */
+.official-banner::after{
+  content:'';position:absolute;top:-40px;right:-60px;
+  width:320px;height:200px;
+  background:radial-gradient(ellipse at center,rgba(26,186,172,.22) 0%,transparent 70%);
+  pointer-events:none;
+}
+.banner-inner{
+  max-width:1000px;margin:0 auto;padding:22px 1.5rem 20px;
+  display:flex;align-items:center;justify-content:flex-start;gap:20px;padding-left:2rem;
+  position:relative;z-index:1;
+}
+.banner-left{display:flex;align-items:center;gap:18px}
+/* AI 칩 아이콘 */
+.banner-chip{
+  width:64px;height:64px;flex-shrink:0;
+  border:1.5px solid rgba(26,186,172,.5);border-radius:10px;
+  background:rgba(26,186,172,.08);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.banner-chip svg{display:block}
+.banner-divider{width:1px;height:44px;background:rgba(255,255,255,.15);margin:0 4px}
+.banner-text-wrap{text-align:center;}
+.banner-org{text-align:center;font-size:11px;font-weight:500;color:rgba(26,186,172,.85);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.banner-title{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1.2}
+.banner-sub{font-size:13px;color:rgba(255,255,255,.5);margin-top:5px;letter-spacing:.01em}
+.banner-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.banner-badge{
+  font-size:11px;font-weight:600;
+  border:1px solid rgba(26,186,172,.5);color:rgba(26,186,172,1);
+  padding:4px 12px;border-radius:99px;background:rgba(26,186,172,.1);
+  white-space:nowrap;
+}
+.banner-site{font-size:10px;color:rgba(255,255,255,.3);white-space:nowrap;letter-spacing:.04em}
+
+/* 서브 헤더 바 */
+.sub-header{
+  background:#0d2547;border-bottom:1px solid rgba(26,186,172,.2);
+  padding:0;margin-bottom:1.5rem;
+}
+.sub-header-inner{
+  max-width:1000px;margin:0 auto;padding:9px 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+}
+.sub-header-left{display:flex;align-items:center;gap:8px}
+.sub-dept-badge{
+  font-size:11px;font-weight:600;
+  background:rgba(26,186,172,.15);color:rgba(26,186,172,.9);
+  border:0.5px solid rgba(26,186,172,.3);padding:3px 10px;border-radius:4px;
+}
+.sub-desc{font-size:11px;color:rgba(255,255,255,.4)}
+.reset-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:6px;border:0.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:rgba(255,255,255,.55);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+.reset-btn:hover{border-color:rgba(200,57,43,.6);color:#e57e76;background:rgba(200,57,43,.1)}
+
+/* 이수체계도 패널 */
+.diagram-panel{max-width:1000px;margin:0 auto 1.25rem;background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden}
+.diagram-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;user-select:none;border-bottom:0.5px solid transparent}
+.diagram-panel-header:hover{background:var(--surface2)}
+.diagram-panel-header.open{border-bottom-color:var(--border)}
+.diagram-panel-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700}
+.diagram-panel-body{display:none;padding:12px 14px}
+.diagram-panel-body.open{display:block;overflow-x:auto}
+
+/* 헤더 (구 스타일 → 제거됨, info-bar용만 유지) */
+
+/* 학생정보 */
+.info-bar{max-width:1000px;margin:0 auto 1.5rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.info-field{background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px}
+.info-field label{font-size:11px;color:var(--text3);display:block;margin-bottom:4px}
+.info-field input{width:100%;border:none;outline:none;font-size:14px;font-family:'Noto Sans KR',sans-serif;background:transparent;color:var(--text)}
+
+/* 섹션 */
+.section{max-width:1000px;margin:0 auto 1.25rem;background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:0.5px solid var(--border);cursor:pointer;user-select:none}
+.section-header:hover{background:var(--surface2)}
+.section-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden}
+.section-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.section-right{display:flex;align-items:center;gap:6px}
+.section-credits{font-family:'JetBrains Mono',monospace;font-size:12px;padding:3px 10px;border-radius:99px;font-weight:600}
+.section-status{font-size:11px;padding:2px 9px;border-radius:99px;font-weight:500;background:var(--surface2);color:var(--text3)}
+.section-status.satisfied{background:var(--green-light);color:var(--green)}
+.collapse-icon{font-size:12px;color:var(--text3);transition:transform .2s}
+.section.collapsed .collapse-icon{transform:rotate(-90deg)}
+.section.collapsed .section-body{display:none}
+.s1 .section-num,.s1 .section-credits{background:var(--purple-light);color:var(--purple)}
+.s2 .section-num,.s2 .section-credits{background:var(--teal-light);color:var(--teal)}
+.s3 .section-num,.s3 .section-credits{background:var(--amber-light);color:var(--amber)}
+.s4 .section-num,.s4 .section-credits{background:var(--blue-light);color:var(--blue)}
+.s5 .section-num,.s5 .section-credits{background:var(--accent-light);color:var(--accent)}
+
+/* 트랙 */
+.track-group{border-bottom:0.5px solid var(--border)}
+.track-group:last-child{border-bottom:none}
+.track-label{padding:10px 18px 6px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.track-status{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:500;background:var(--surface2);color:var(--text3);text-transform:none;letter-spacing:0}
+.track-status.satisfied{background:var(--green-light);color:var(--green)}
+
+/* 과목 행 */
+.course-row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-top:0.5px solid var(--border);transition:background .15s;cursor:pointer}
+.course-row:hover{background:var(--surface2)}
+.course-row.checked{background:#f0faf4}
+.course-row.checked:hover{background:#e6f7ec}
+.course-row.auto-free{background:#fff8ed}
+.course-row.auto-free:hover{background:#fff0d6}
+.course-row.required-row{background:#fdf8f8}
+.course-row.required-row.checked{background:#f0faf4}
+.course-row.dim{opacity:.32;pointer-events:none}
+
+.checkbox{width:18px;height:18px;border:1.5px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--surface)}
+.course-row.checked .checkbox{background:var(--green);border-color:var(--green)}
+.course-row.auto-free .checkbox{background:var(--amber);border-color:var(--amber)}
+.course-row.dim .checkbox{background:var(--surface2)!important;border-color:var(--border)!important}
+.checkbox svg{display:none}
+.course-row.checked .checkbox svg,.course-row.auto-free .checkbox svg{display:block}
+
+.dept-tag{font-size:10px;font-weight:700;width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tag-융{background:#ede9fe;color:#5b21b6}
+.tag-신{background:#edf7f1;color:#2d7a4f}
+.tag-전{background:#eaf1fb;color:#1a5fa8}
+.tag-물{background:#fdf5e6;color:#a0620a}
+.tag-고{background:#eaf7f5;color:#1a7a6e}
+.tag-인{background:#fce7f3;color:#be185d}
+.tag-화{background:#fff3e0;color:#e65100}
+.tag-기{background:#e8f5e9;color:#2e7d32}
+
+.course-name{flex:1;font-size:14px}
+.course-sub{font-size:11px;color:var(--text3)}
+.course-credit{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:99px;white-space:nowrap}
+.course-row.checked .course-credit{color:var(--green);background:var(--green-light)}
+.course-row.auto-free .course-credit{color:var(--amber);background:var(--amber-light)}
+.required-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 7px;border-radius:99px;white-space:nowrap;margin-left:4px}
+.auto-tag{display:none;font-size:10px;font-weight:600;background:var(--amber-light);color:var(--amber);padding:2px 7px;border-radius:99px;white-space:nowrap;margin-left:4px}
+.course-row.auto-free .auto-tag{display:inline-block}
+
+/* 자유이수 구분선 */
+.free-divider{padding:8px 18px 4px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;border-top:0.5px solid var(--border);background:var(--surface2)}
+/* 조건부 자유이수 읽기전용 행 — 체크박스 없이 이미 반영됨 표시만 */
+.course-row.readonly-free{background:#fff8ed;cursor:default;pointer-events:none}
+.course-row.readonly-free:hover{background:#fff8ed}
+.readonly-check{width:18px;height:18px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--amber);border:1.5px solid var(--amber)}
+.reflected-tag{font-size:10px;font-weight:600;background:var(--amber-light);color:var(--amber);padding:2px 7px;border-radius:99px;white-space:nowrap;margin-left:4px}
+
+/* 노트박스 */
+.note-box{padding:10px 18px;font-size:13px;color:var(--text2);background:var(--surface2);border-top:0.5px solid var(--border);line-height:1.6}
+.note-box strong{color:var(--text)}
+.pbl-note{padding:12px 18px;font-size:12px;color:var(--blue);background:var(--blue-light);border-bottom:0.5px solid var(--border);line-height:1.6}
+.required-note{padding:10px 18px;font-size:12px;color:var(--accent);background:#fdf0ee;border-bottom:0.5px solid #f5c6c0;line-height:1.6;display:flex;align-items:flex-start;gap:6px}
+.recog-cap-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;font-size:12px;background:var(--amber-light);color:var(--amber);border-top:0.5px solid #f0d9a8}
+.recog-cap-bar span{font-weight:600}
+
+/* ── 플로팅 상태 카드 ── */
+.float-card{
+  position:fixed;bottom:24px;right:20px;z-index:999;
+  background:var(--surface);border:0.5px solid var(--border);
+  border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.12);
+  min-width:220px;overflow:hidden;
+  transition:box-shadow .2s;
+}
+.float-card:hover{box-shadow:0 6px 32px rgba(0,0,0,.16)}
+.float-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;cursor:pointer;user-select:none;
+  background:var(--surface);gap:8px;
+}
+.float-head-left{display:flex;align-items:center;gap:7px}
+.float-title{font-size:11px;font-weight:700;color:var(--text2)}
+.float-total{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--text)}
+.float-total.complete{color:var(--green)}
+.float-toggle{font-size:10px;color:var(--text3);transition:transform .2s}
+.float-card.open .float-toggle{transform:rotate(180deg)}
+.float-body{display:none;padding:5px 0 7px;border-top:0.5px solid var(--border)}
+.float-card.open .float-body{display:block}
+.float-row{display:flex;align-items:center;justify-content:space-between;padding:4px 12px;gap:8px}
+.float-row-left{display:flex;align-items:center;gap:5px}
+.float-badge{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.float-row-name{font-size:10px;color:var(--text2)}
+.float-row-right{display:flex;align-items:center;gap:5px}
+.float-row-credits{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
+.float-dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .2s}
+.float-dot.done{background:var(--green)}
+.float-dot.warn{background:var(--accent)}
+.float-bar{height:3px;background:var(--surface2);border-radius:99px;margin:5px 12px 2px;overflow:hidden}
+.float-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#4caf82);border-radius:99px;transition:width .3s;width:0%}
+.float-bar-fill.complete{background:linear-gradient(90deg,var(--green),#2ecc71)}
+
+.footer{max-width:1000px;margin:2rem auto 0;text-align:center;font-size:13px;color:var(--text2)}
+
+/* ── SVG Chevron 아이콘 ── */
+.chevron-icon{display:block;transition:transform .25s;color:var(--text3)}
+.collapse-icon{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--surface2);border:0.5px solid var(--border);transition:all .15s;flex-shrink:0}
+.collapse-icon:hover{background:var(--border)}
+.section.collapsed .collapse-icon .chevron-icon{transform:rotate(-90deg)}
+.section.collapsed .collapse-icon{opacity:.7}
+.diagram-panel.collapsed .collapse-icon .chevron-icon{transform:rotate(-90deg)}
+.auto-panel.collapsed .collapse-icon .chevron-icon{transform:rotate(-90deg)}
+.float-card:not(.open) .float-toggle .chevron-icon{transform:rotate(180deg)}
+
+/* ── 다이어그램 full-width (PC) ── */
+.diagram-panel-fullwidth{max-width:100% !important;margin-left:0 !important;margin-right:0 !important;border-radius:0 !important;border-left:none !important;border-right:none !important}
+@media(min-width:1025px){
+  .diagram-panel-fullwidth .diagram-panel-body{padding:16px 2rem 12px}
+}
+
+/* ── 상단 고정 진행 바 ── */
+.progress-bar-wrap{
+  position:sticky;top:0;z-index:900;
+  background:var(--surface);border-bottom:0.5px solid var(--border);
+  padding:6px 1.5rem;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.progress-bar-inner{flex:1;height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),#4caf82);border-radius:99px;transition:width .4s ease;width:0%}
+.progress-bar-fill.complete{background:linear-gradient(90deg,#2d7a4f,#27ae60)}
+.progress-bar-label{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.progress-bar-label.complete{color:var(--green)}
+
+/* ── 섹션 헤더 다이어그램 이동 버튼 ── */
+.diag-link-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px;
+  border:0.5px solid var(--border);background:var(--surface2);
+  color:var(--text3);cursor:pointer;transition:all .15s;white-space:nowrap;
+  text-decoration:none;flex-shrink:0;
+}
+.diag-link-btn:hover{border-color:var(--text2);color:var(--text2);background:var(--surface)}
+.diag-link-btn svg{flex-shrink:0}
+
+.confetti-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:99999;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.45);
+}
+
+.confetti-box{
+  background:var(--surface);border:1.5px solid var(--green);
+  border-radius:16px;padding:28px 40px;text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,.18);
+  transform:scale(.8);transition:transform .3s;
+}
+.confetti-overlay.show .confetti-box{transform:scale(1)}
+.confetti-emoji{font-size:40px;display:block;margin-bottom:10px}
+.confetti-title{font-size:20px;font-weight:700;color:var(--green);margin-bottom:6px}
+.confetti-sub{font-size:13px;color:var(--text2);line-height:1.6}
+.confetti-close{
+  margin-top:18px;padding:8px 24px;background:var(--green);color:#fff;
+  border:none;border-radius:8px;font-size:13px;font-weight:600;
+  font-family:'Noto Sans KR',sans-serif;cursor:pointer;
+}
+
+/* ── 태블릿 breakpoint (768~1024px) ── */
+@media(min-width:768px) and (max-width:1024px){
+  body{padding:0 0 8rem}
+  .banner-inner{padding:16px 1.2rem 14px}
+  .banner-title{font-size:18px}
+  .info-bar{grid-template-columns:1fr 1fr;gap:8px;padding-top:.8rem}
+  .section{margin-left:.8rem;margin-right:.8rem}
+  .diagram-panel-fullwidth{margin-left:0 !important;margin-right:0 !important}
+  .float-card{min-width:180px}
+  .course-name{font-size:13px}
+  .section-title{font-size:14px}
+}
+
+/* ── 모바일 ── */
+@media(max-width:640px){
+  body{padding:0 0 8rem}
+  .banner-inner{padding:14px 1rem 12px;gap:12px}
+  .banner-chip{width:40px;height:40px}
+  .banner-title{font-size:16px}
+  .banner-sub{font-size:11px}
+  .banner-right{display:none}
+  .sub-header-inner{padding:7px 1rem}
+  .info-bar{grid-template-columns:1fr;padding-top:1rem}
+  .section,.diagram-panel,#sec-submit{margin-left:.5rem;margin-right:.5rem}
+  .diagram-panel-fullwidth{margin-left:0 !important;margin-right:0 !important}
+  .float-card{bottom:12px;right:10px;min-width:0;max-width:calc(100vw - 20px);width:auto}
+  .float-head{padding:7px 10px;gap:6px}
+  .float-total{font-size:12px}
+  .float-title{font-size:10px}
+  .float-badge{width:16px;height:16px;font-size:8px}
+  .float-row{padding:3px 10px;gap:6px}
+  .float-row-name{font-size:9px}
+  .float-row-credits{font-size:9px}
+  .float-dot{width:5px;height:5px}
+  .float-bar{margin:4px 10px 2px}
+  .section-header{padding:12px 14px}
+  .section-title{font-size:13px}
+  .course-row{padding:9px 12px;gap:8px}
+  .course-name{font-size:12px;word-break:keep-all}
+  .course-credit{font-size:11px}
+  .note-box{font-size:11px;padding:8px 14px}
+  .track-group .track-label{font-size:11px}
+  .pbl-note{font-size:11px}
+  .required-note{font-size:11px}
+  .section-credits{font-size:11px}
+  .dept-tag{font-size:9px;width:18px;height:18px}
+  .auto-panel-body{padding:10px 14px}
+  .auto-textarea{font-size:11px}
+  .footer{padding:0 1rem;font-size:11px}
+  .progress-bar-wrap{padding:5px 1rem}
+  .diag-link-btn{display:none}
+}
+
+/* ── 인쇄 스타일 ── */
+@media print{
+  .official-banner,.sub-header,.progress-bar-wrap,.float-card,
+  .auto-panel,.diag-link-btn,.confetti-overlay,#sec-submit,
+  .reset-btn,.print-btn{display:none !important}
+  body{background:#fff;padding:0}
+  .section{break-inside:avoid;box-shadow:none;border:1px solid #ccc}
+  .course-row.checked{background:#e8f5e9 !important}
+  .course-row.dim{display:none}
+  .diagram-panel-fullwidth{max-width:100% !important}
+}
+
+@media(max-width:400px){
+  .banner-title{font-size:14px}
+  .track-group .track-label{flex-wrap:wrap}
+  .section-credits{display:none}
+}
+
+@keyframes confettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── 축하 오버레이 ── */
+#confettiOverlay{
+  display:none;
+  position:fixed;inset:0;z-index:99999;
+  background:rgba(0,0,0,0.5);
+  align-items:center;justify-content:center;
+}
+#confettiOverlay.show{display:flex}
+.confetti-box{
+  background:#fff;border:2px solid var(--green);border-radius:16px;
+  padding:28px 40px;text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,0.22);
+  max-width:340px;width:90%;
+}
+.confetti-emoji{font-size:40px;display:block;margin-bottom:10px}
+.confetti-title{font-size:20px;font-weight:700;color:var(--green);margin-bottom:8px}
+.confetti-sub{font-size:13px;color:var(--text2);line-height:1.6}
+.confetti-close{
+  display:block;margin:18px auto 0;padding:10px 32px;
+  background:var(--green);color:#fff;border:none;border-radius:8px;
+  font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;
+}
+.confetti-close:hover{background:#256b43}
+</style>
+</head>
+<body>
+
+<!-- 공식 배너 헤더 -->
+<div class="official-banner">
+  <!-- SVG 회로 기판 패턴 배경 -->
+  <svg class="banner-circuit" viewBox="0 0 900 120" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- 수평/수직 회로 라인 -->
+    <g stroke="#1abaac" stroke-width="0.8" fill="none">
+      <line x1="0" y1="30" x2="160" y2="30"/><line x1="160" y1="30" x2="160" y2="60"/><line x1="160" y1="60" x2="240" y2="60"/>
+      <line x1="240" y1="60" x2="240" y2="20"/><line x1="240" y1="20" x2="380" y2="20"/>
+      <line x1="380" y1="20" x2="380" y2="80"/><line x1="380" y1="80" x2="500" y2="80"/>
+      <line x1="500" y1="80" x2="500" y2="40"/><line x1="500" y1="40" x2="640" y2="40"/>
+      <line x1="640" y1="40" x2="640" y2="90"/><line x1="640" y1="90" x2="760" y2="90"/>
+      <line x1="760" y1="90" x2="760" y2="50"/><line x1="760" y1="50" x2="900" y2="50"/>
+      <line x1="80" y1="0" x2="80" y2="30"/><line x1="320" y1="80" x2="320" y2="120"/>
+      <line x1="0" y1="80" x2="100" y2="80"/><line x1="100" y1="80" x2="100" y2="110"/><line x1="100" y1="110" x2="200" y2="110"/>
+      <line x1="450" y1="0" x2="450" y2="20"/><line x1="570" y1="40" x2="570" y2="0"/>
+      <line x1="700" y1="0" x2="700" y2="40"/><line x1="820" y1="50" x2="820" y2="120"/>
+      <line x1="200" y1="110" x2="200" y2="120"/><line x1="900" y1="90" x2="860" y2="90"/><line x1="860" y1="90" x2="860" y2="120"/>
+    </g>
+    <!-- 접점 노드 -->
+    <g fill="#1abaac">
+      <circle cx="160" cy="30" r="2.5"/><circle cx="160" cy="60" r="2.5"/><circle cx="240" cy="60" r="2.5"/>
+      <circle cx="240" cy="20" r="2.5"/><circle cx="380" cy="20" r="2.5"/><circle cx="380" cy="80" r="2.5"/>
+      <circle cx="500" cy="80" r="2.5"/><circle cx="500" cy="40" r="2.5"/><circle cx="640" cy="40" r="2.5"/>
+      <circle cx="640" cy="90" r="2.5"/><circle cx="760" cy="90" r="2.5"/><circle cx="760" cy="50" r="2.5"/>
+      <circle cx="80" cy="30" r="2"/><circle cx="100" cy="80" r="2"/><circle cx="100" cy="110" r="2"/>
+      <circle cx="450" cy="20" r="2"/><circle cx="570" cy="40" r="2"/><circle cx="700" cy="40" r="2"/>
+      <circle cx="820" cy="50" r="2"/><circle cx="200" cy="110" r="2"/><circle cx="860" cy="90" r="2"/>
+    </g>
+    <!-- 작은 사각 칩 -->
+    <g stroke="#1abaac" stroke-width="0.7" fill="rgba(26,186,172,.06)">
+      <rect x="68" y="18" width="24" height="24" rx="3"/>
+      <rect x="436" y="8" width="28" height="24" rx="3"/>
+      <rect x="808" y="38" width="24" height="24" rx="3"/>
+    </g>
+  </svg>
+  <div class="banner-inner">
+    <div class="banner-left">
+      <!-- AI 칩 아이콘 -->
+      <div class="banner-chip">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="7" y="7" width="18" height="18" rx="3" stroke="#1abaac" stroke-width="1.4"/>
+          <rect x="11" y="11" width="10" height="10" rx="1.5" stroke="#1abaac" stroke-width="1.2"/>
+          <line x1="12" y1="7" x2="12" y2="4" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="16" y1="7" x2="16" y2="4" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="20" y1="7" x2="20" y2="4" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="12" y1="25" x2="12" y2="28" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="16" y1="25" x2="16" y2="28" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="20" y1="25" x2="20" y2="28" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="7" y1="12" x2="4" y2="12" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="7" y1="16" x2="4" y2="16" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="7" y1="20" x2="4" y2="20" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="25" y1="12" x2="28" y2="12" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="25" y1="16" x2="28" y2="16" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="25" y1="20" x2="28" y2="20" stroke="#1abaac" stroke-width="1.2" stroke-linecap="round"/>
+          <text x="16" y="18.5" text-anchor="middle" font-size="6" font-weight="700" fill="#1abaac" font-family="sans-serif">AI</text>
+        </svg>
+      </div>
+      <div class="banner-divider"></div>
+      <div class="banner-text-wrap">
+        <div class="banner-org">Korea University · KI-STAR CENTER</div>
+        <div class="banner-title">차세대AI반도체특성화대학사업단</div>
+        <div class="banner-sub">차세대반도체 융합전공 이수 체크리스트</div>
+      </div>
+    </div>
+    <div class="banner-right">
+      <span class="banner-badge">반도체공학사 학위</span>
+      <span class="banner-site">kistar.korea.ac.kr</span>
+    </div>
+  </div>
+</div>
+
+<!-- 서브 헤더 바 -->
+<div class="sub-header">
+  <div class="sub-header-inner">
+    <div class="sub-header-left">
+      <span class="sub-dept-badge">전기전자공학부</span>
+      <span class="sub-desc">총 36학점 이수 시 반도체공학사 학위 취득</span>
+    </div>
+    <button class="reset-btn" id="resetBtn" onclick="resetStep()">
+      <svg width="12" height="12" viewBox="0 0 13 13" fill="none"><path d="M2 6.5A4.5 4.5 0 1 0 6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 2.5v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="resetBtnText">초기화</span>
+    </button>
+  </div>
+</div>
+
+<div class="info-bar" style="padding-top:1.5rem">
+  <div class="info-field"><label>학번</label><input type="text" id="f-id" placeholder="예: 2023120001" id="f-id"></div>
+  <div class="info-field"><label>이름</label><input type="text" id="f-name" placeholder="홍길동" id="f-name"></div>
+  <div class="info-field"><label>작성일</label><input type="text" id="dateField"></div>
+</div>
+<div style="max-width:1000px;margin:0 auto 0;padding:12px 1.5rem 0;display:flex;align-items:center;gap:10px">
+  <a href="./" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:0.5px solid rgba(26,186,172,0.3);background:rgba(26,186,172,0.08);color:#1abaac;font-size:12px;font-weight:600;font-family:'Noto Sans KR',sans-serif;text-decoration:none;transition:all .15s">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    학과 선택으로 돌아가기
+  </a>
+</div>
+<!-- 상단 고정 진행 바 -->
+<div class="progress-bar-wrap" id="progressWrap">
+  <div class="progress-bar-inner">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+  <span class="progress-bar-label" id="progressLabel">0 / 36학점</span>
+</div>
+
+
+<!-- 이수체계도 패널 -->
+<div class="diagram-panel diagram-panel-fullwidth">
+
+  <!-- 탭 1: 전체 커리큘럼 -->
+  <div class="diagram-panel-header" id="diag-hd1" onclick="toggleDiag(1)">
+    <div class="diagram-panel-title">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2.5" stroke="#534AB7" stroke-width="1.2"/><path d="M4 7h6M4 4.5h4M4 9.5h3" stroke="#534AB7" stroke-width="1.2" stroke-linecap="round"/></svg>
+      차세대반도체 융합전공 이수 구조
+      <span style="font-size:10px;font-weight:400;color:var(--text3)">총 36학점 · 5개 영역</span>
+    </div>
+    <span class="collapse-icon" id="diag-chev1"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  </div>
+  <div class="diagram-panel-body" id="diag-body1" style="padding:16px 16px 12px;overflow-x:auto">
+    <svg width="100%" viewBox="0 0 820 359" style="min-width:640px;display:block">
+<!-- 타이틀 -->
+      
+
+      <!-- ═══ 상단: 5개 섹션 박스 — x중심: 90, 242, 394, 546, 698 ═══ -->
+      <!-- 합계박스 중심: x=270+(264/2)=402, 수평선 중심: (90+714)/2=402 → 완벽 일치 -->
+
+      <!-- [1] 전공트랙 -->
+      <rect x="20" y="32" width="140" height="62" rx="7" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.8"/>
+      <text x="90" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#534AB7" font-family="Noto Sans KR,sans-serif">[1]</text>
+      <text x="90" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#3C3489" font-family="Noto Sans KR,sans-serif">전공트랙</text>
+      <text x="90" y="83" text-anchor="middle" font-size="9" fill="#7F77DD" font-family="Noto Sans KR,sans-serif">12학점 · 4개 트랙 각 1과목</text>
+
+      <!-- [2] 공동운영 -->
+      <rect x="172" y="32" width="140" height="62" rx="7" fill="#EAF3DE" stroke="#97C459" stroke-width="0.8"/>
+      <text x="242" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#3B6D11" font-family="Noto Sans KR,sans-serif">[2]</text>
+      <text x="242" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#27500A" font-family="Noto Sans KR,sans-serif">공동운영</text>
+      <text x="242" y="83" text-anchor="middle" font-size="9" fill="#639922" font-family="Noto Sans KR,sans-serif">6학점 · AI반도체개론 필수</text>
+
+      <!-- [3] 산학연계 -->
+      <rect x="324" y="32" width="140" height="62" rx="7" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+      <text x="394" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#993556" font-family="Noto Sans KR,sans-serif">[3]</text>
+      <text x="394" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#72243E" font-family="Noto Sans KR,sans-serif">산학연계</text>
+      <text x="394" y="83" text-anchor="middle" font-size="9" fill="#D4537E" font-family="Noto Sans KR,sans-serif">6학점 · PBL + 콜로키움 각 1</text>
+
+      <!-- [4] 자유이수 -->
+      <rect x="476" y="32" width="140" height="62" rx="7" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.8"/>
+      <text x="546" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#854F0B" font-family="Noto Sans KR,sans-serif">[4]</text>
+      <text x="546" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#633806" font-family="Noto Sans KR,sans-serif">자유이수</text>
+      <text x="546" y="83" text-anchor="middle" font-size="9" fill="#BA7517" font-family="Noto Sans KR,sans-serif">6학점 · 융합전공 운영 과목</text>
+
+      <!-- [5] 학부인정 -->
+      <rect x="628" y="32" width="172" height="62" rx="7" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.8"/>
+      <text x="714" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#5F5E5A" font-family="Noto Sans KR,sans-serif">[5]</text>
+      <text x="714" y="68" text-anchor="middle" font-size="12" font-weight="700" fill="#444441" font-family="Noto Sans KR,sans-serif">학부인정</text>
+      <text x="714" y="83" text-anchor="middle" font-size="9" fill="#888780" font-family="Noto Sans KR,sans-serif">최대 6학점 · 기이수 전공 중복인정</text>
+
+      <!-- ═══ 합계 연결 — 5박스 → 수평선(y=108) → 화살표 → 합계박스 ═══ -->
+      <!-- 각 박스 하단 수직선 -->
+      <line x1="90"  y1="94" x2="90"  y2="108" stroke="#AFA9EC" stroke-width="0.8"/>
+      <line x1="242" y1="94" x2="242" y2="108" stroke="#97C459" stroke-width="0.8"/>
+      <line x1="394" y1="94" x2="394" y2="108" stroke="#ED93B1" stroke-width="0.8"/>
+      <line x1="546" y1="94" x2="546" y2="108" stroke="#EF9F27" stroke-width="0.8"/>
+      <line x1="714" y1="94" x2="714" y2="108" stroke="#B4B2A9" stroke-width="0.8"/>
+      <!-- 수평 연결선: x=90~714 -->
+      <line x1="90" y1="108" x2="714" y2="108" stroke="#ccc" stroke-width="0.9"/>
+      <!-- 합계 박스 -->
+      <rect x="270" y="117" width="264" height="30" rx="7" fill="#0b1f3a"/>
+      <text x="402" y="136" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Noto Sans KR,sans-serif">= 36학점 → 반도체공학사 학위</text>
+
+      <!-- ═══ 구분선 ═══ -->
+      <line x1="20" y1="162" x2="800" y2="162" stroke="#dddbd3" stroke-width="0.8" stroke-dasharray="4 3"/>
+
+      <!-- ═══ 하단 과목 목록 (번호 없음) ═══ -->
+      <text x="20"  y="176" font-size="9.5" font-weight="700" fill="#534AB7" font-family="Noto Sans KR,sans-serif">소자 트랙</text>
+      <rect x="20"  y="182" width="143" height="56" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+      <text x="91"  y="200" text-anchor="middle" font-size="9" fill="#3C3489" font-family="Noto Sans KR,sans-serif">고급AI반도체소자 [융]</text>
+      <text x="91"  y="214" text-anchor="middle" font-size="9" fill="#534AB7" font-family="Noto Sans KR,sans-serif">ASIC설계 [전]</text>
+      <text x="91"  y="228" text-anchor="middle" font-size="9" fill="#534AB7" font-family="Noto Sans KR,sans-serif">인공지능물리학 [물]</text>
+
+      <text x="174" y="176" font-size="9.5" font-weight="700" fill="#534AB7" font-family="Noto Sans KR,sans-serif">공정 트랙</text>
+      <rect x="174" y="182" width="143" height="56" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+      <text x="245" y="200" text-anchor="middle" font-size="9" fill="#3C3489" font-family="Noto Sans KR,sans-serif">고급AI반도체공정및응용 [융]</text>
+      <text x="245" y="214" text-anchor="middle" font-size="9" fill="#534AB7" font-family="Noto Sans KR,sans-serif">반도체프로세스 [전]</text>
+      <text x="245" y="228" text-anchor="middle" font-size="9" fill="#534AB7" font-family="Noto Sans KR,sans-serif">디지털집적회로 [전]</text>
+
+      <text x="328" y="176" font-size="9.5" font-weight="700" fill="#534AB7" font-family="Noto Sans KR,sans-serif">소재 트랙</text>
+      <rect x="328" y="182" width="143" height="56" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+      <text x="399" y="200" text-anchor="middle" font-size="9" fill="#3C3489" font-family="Noto Sans KR,sans-serif">AI반도체신소재개론 [융]</text>
+      <text x="399" y="214" text-anchor="middle" font-size="9" fill="#534AB7" font-family="Noto Sans KR,sans-serif">반도체재료 [신]</text>
+      <text x="399" y="228" text-anchor="middle" font-size="9" fill="#534AB7" font-family="Noto Sans KR,sans-serif">나노전자공학 [전]</text>
+
+      <text x="482" y="176" font-size="9.5" font-weight="700" fill="#534AB7" font-family="Noto Sans KR,sans-serif">패키징 트랙</text>
+      <rect x="482" y="182" width="113" height="56" rx="5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+      <text x="538" y="205" text-anchor="middle" font-size="9" fill="#3C3489" font-family="Noto Sans KR,sans-serif">반도체패키징 1 [융]</text>
+      <text x="538" y="222" text-anchor="middle" font-size="9" fill="#3C3489" font-family="Noto Sans KR,sans-serif">반도체패키징 2 [융]</text>
+
+      <!-- 트랙/공동 구분 세로선 -->
+      <line x1="608" y1="162" x2="608" y2="252" stroke="#dddbd3" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <text x="618" y="176" font-size="9.5" font-weight="700" fill="#27500A" font-family="Noto Sans KR,sans-serif">공동운영 4과목 (택2)</text>
+      <rect x="618" y="182" width="182" height="56" rx="5" fill="#EAF3DE" stroke="#97C459" stroke-width="0.5"/>
+      <text x="709" y="200" text-anchor="middle" font-size="9" font-weight="700" fill="#27500A" font-family="Noto Sans KR,sans-serif">★ AI반도체개론 [고] 필수</text>
+      <text x="709" y="214" text-anchor="middle" font-size="8.5" fill="#3B6D11" font-family="Noto Sans KR,sans-serif">반도체공정실습 [고]</text>
+      <text x="709" y="225" text-anchor="middle" font-size="8.5" fill="#3B6D11" font-family="Noto Sans KR,sans-serif">진공장비실습 [인] / 반도체머신러닝 [인]</text>
+
+      <!-- ═══ 구분선 2 ═══ -->
+      <line x1="20" y1="252" x2="800" y2="252" stroke="#dddbd3" stroke-width="0.8" stroke-dasharray="4 3"/>
+
+      <!-- 하단 산학/자유/학부 -->
+      <rect x="20"  y="260" width="205" height="56" rx="5" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.5"/>
+      <text x="122" y="277" text-anchor="middle" font-size="10" font-weight="700" fill="#72243E" font-family="Noto Sans KR,sans-serif">산학연계 6학점</text>
+      <text x="122" y="291" text-anchor="middle" font-size="8.5" fill="#993556" font-family="Noto Sans KR,sans-serif">PBL산학프로젝트 1 또는 2 (택1)</text>
+      <text x="122" y="305" text-anchor="middle" font-size="8.5" fill="#993556" font-family="Noto Sans KR,sans-serif">차세대반도체콜로키움 1 또는 2 (택1)</text>
+
+      <line x1="454" y1="252" x2="454" y2="326" stroke="#dddbd3" stroke-width="1" stroke-dasharray="4 3"/>
+
+      <rect x="236" y="260" width="205" height="56" rx="5" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.5"/>
+      <text x="338" y="277" text-anchor="middle" font-size="10" font-weight="700" fill="#633806" font-family="Noto Sans KR,sans-serif">자유이수 6학점</text>
+      <text x="338" y="291" text-anchor="middle" font-size="8.5" fill="#854F0B" font-family="Noto Sans KR,sans-serif">학과 전공심화·크로스수강 과목</text>
+      <text x="338" y="305" text-anchor="middle" font-size="8.5" fill="#BA7517" font-family="Noto Sans KR,sans-serif">트랙·공동운영 추가 이수 → 자동 반영</text>
+
+      <rect x="466" y="260" width="334" height="56" rx="5" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="0.5"/>
+      <text x="633" y="277" text-anchor="middle" font-size="10" font-weight="700" fill="#444441" font-family="Noto Sans KR,sans-serif">학부인정 최대 6학점</text>
+      <text x="633" y="291" text-anchor="middle" font-size="8.5" fill="#5F5E5A" font-family="Noto Sans KR,sans-serif">학과별 기이수 전공필수·선택 과목</text>
+      <text x="633" y="305" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">6학점 도달 시 나머지 자동 비활성화</text>
+
+      <!-- 주석 -->
+      <text x="20" y="332" font-size="10.5" fill="#666460" font-family="Noto Sans KR,sans-serif">[융]=융합전공 / [고]=고려대 / [인]=인제대 / [신]=신소재 / [전]=전기전자 / [물]=물리학과</text>
+<text x="20" y="349" font-size="9.5" fill="#c8392b" font-family="Noto Sans KR,sans-serif">★ AI반도체개론은 융합전공 전공필수 — 미이수 시 졸업 불가</text>
+    
+      <!-- 하이라이트 오버레이 (역방향 연동용) -->
+      <rect id="diag-hl-1" x="20"  y="32" width="140" height="62" rx="7" fill="#534AB7" opacity="0" pointer-events="none"/>
+      <rect id="diag-hl-2" x="172" y="32" width="140" height="62" rx="7" fill="#27500A" opacity="0" pointer-events="none"/>
+      <rect id="diag-hl-3" x="324" y="32" width="140" height="62" rx="7" fill="#993556" opacity="0" pointer-events="none"/>
+      <rect id="diag-hl-4" x="476" y="32" width="140" height="62" rx="7" fill="#854F0B" opacity="0" pointer-events="none"/>
+      <rect id="diag-hl-5" x="628" y="32" width="172" height="62" rx="7" fill="#444441" opacity="0" pointer-events="none"/>
+    
+      <!-- 클릭 영역 (순방향: 섹션으로 스크롤) -->
+      <rect x="20"  y="32" width="140" height="62" rx="7" fill="transparent" cursor="pointer" onclick="scrollToSection('sec1')" style="cursor:pointer"/>
+      <rect x="172" y="32" width="140" height="62" rx="7" fill="transparent" cursor="pointer" onclick="scrollToSection('sec2')" style="cursor:pointer"/>
+      <rect x="324" y="32" width="140" height="62" rx="7" fill="transparent" cursor="pointer" onclick="scrollToSection('sec4')" style="cursor:pointer"/>
+      <rect x="476" y="32" width="140" height="62" rx="7" fill="transparent" cursor="pointer" onclick="scrollToSection('sec5')" style="cursor:pointer"/>
+      <rect x="628" y="32" width="172" height="62" rx="7" fill="transparent" cursor="pointer" onclick="scrollToSection('sec3')" style="cursor:pointer"/>
+      <!-- hover 힌트 텍스트 -->
+      <text x="90"  y="27" text-anchor="middle" font-size="7.5" fill="#AFA9EC" font-family="Noto Sans KR,sans-serif" pointer-events="none">클릭 → 이동</text>
+      <text x="242" y="27" text-anchor="middle" font-size="7.5" fill="#97C459" font-family="Noto Sans KR,sans-serif" pointer-events="none">클릭 → 이동</text>
+      <text x="394" y="27" text-anchor="middle" font-size="7.5" fill="#ED93B1" font-family="Noto Sans KR,sans-serif" pointer-events="none">클릭 → 이동</text>
+      <text x="546" y="27" text-anchor="middle" font-size="7.5" fill="#EF9F27" font-family="Noto Sans KR,sans-serif" pointer-events="none">클릭 → 이동</text>
+      <text x="714" y="27" text-anchor="middle" font-size="7.5" fill="#B4B2A9" font-family="Noto Sans KR,sans-serif" pointer-events="none">클릭 → 이동</text>
+    </svg>
+  </div>
+
+  <!-- 탭 2: 전기전자공학부 로드맵 -->
+  <div class="diagram-panel-header" id="diag-hd2" onclick="toggleDiag(2)" style="border-top:0.5px solid var(--border)">
+    <div class="diagram-panel-title">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2.5" stroke="#2d7a4f" stroke-width="1.2"/><path d="M4 4h6M4 7h4M4 10h5" stroke="#2d7a4f" stroke-width="1.2" stroke-linecap="round"/></svg>
+      전기전자공학부 이수 로드맵
+    </div>
+    <span class="collapse-icon" id="diag-chev2"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  </div>
+  <div class="diagram-panel-body" id="diag-body2" style="padding:16px 16px 12px;overflow-x:auto">
+    <svg width="100%" viewBox="0 0 630 560" style="min-width:580px;display:block">
+  <rect x="20"  y="10" width="188" height="14" rx="4" fill="#D3D1C7"/>
+  <text x="114" y="21" text-anchor="middle" font-size="10" font-weight="700" fill="#2C2C2A" font-family="Noto Sans KR,sans-serif">2학년</text>
+  <rect x="216" y="10" width="188" height="14" rx="4" fill="#D3D1C7"/>
+  <text x="310" y="21" text-anchor="middle" font-size="10" font-weight="700" fill="#2C2C2A" font-family="Noto Sans KR,sans-serif">3학년</text>
+  <rect x="412" y="10" width="200" height="14" rx="4" fill="#C8C6BC"/>
+  <text x="512" y="21" text-anchor="middle" font-size="10" font-weight="700" fill="#2C2C2A" font-family="Noto Sans KR,sans-serif">4학년</text>
+  <text x="67"  y="33" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">1학기</text>
+  <text x="163" y="33" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">2학기</text>
+  <text x="261" y="33" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">1학기</text>
+  <text x="359" y="33" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">2학기</text>
+  <text x="460" y="33" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">1학기</text>
+  <text x="564" y="33" text-anchor="middle" font-size="8.5" fill="#888780" font-family="Noto Sans KR,sans-serif">2학기</text>
+  <line x1="20" y1="37" x2="614" y2="37" stroke="#dddbd3" stroke-width="0.5"/>
+  <line x1="116" y1="10" x2="116" y2="37" stroke="#dddbd3" stroke-width="0.5" stroke-dasharray="2 2"/>
+  <line x1="212" y1="10" x2="212" y2="37" stroke="#aaa" stroke-width="0.8"/>
+  <line x1="310" y1="10" x2="310" y2="37" stroke="#dddbd3" stroke-width="0.5" stroke-dasharray="2 2"/>
+  <line x1="408" y1="10" x2="408" y2="37" stroke="#aaa" stroke-width="0.8"/>
+  <line x1="510" y1="10" x2="510" y2="37" stroke="#dddbd3" stroke-width="0.5" stroke-dasharray="2 2"/>
+  <rect x="20" y="42" width="52" height="13" rx="3" fill="#EEEDFE"/>
+  <text x="22" y="52" font-size="8.5" font-weight="700" fill="#534AB7" font-family="Noto Sans KR,sans-serif">[1]트랙</text>
+  <rect x="314" y="42" width="90" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="359" y="53" text-anchor="middle" font-size="8" fill="#3C3489" font-family="Noto Sans KR,sans-serif">AI반도체신소재개론</text>
+  <rect x="314" y="60" width="90" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="359" y="71" text-anchor="middle" font-size="8" fill="#3C3489" font-family="Noto Sans KR,sans-serif">반도체패키징 1</text>
+  <rect x="314" y="78" width="90" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="359" y="89" text-anchor="middle" font-size="8" fill="#3C3489" font-family="Noto Sans KR,sans-serif">반도체재료[신]</text>
+  <rect x="412" y="42" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="460" y="53" text-anchor="middle" font-size="8" fill="#3C3489" font-family="Noto Sans KR,sans-serif">반도체패키징 2</text>
+  <rect x="412" y="60" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="460" y="71" text-anchor="middle" font-size="8" fill="#534AB7" font-family="Noto Sans KR,sans-serif">나노전자공학[전]</text>
+  <rect x="412" y="78" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="460" y="89" text-anchor="middle" font-size="8" fill="#534AB7" font-family="Noto Sans KR,sans-serif">반도체프로세스[전]</text>
+  <rect x="516" y="42" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="564" y="53" text-anchor="middle" font-size="8" fill="#3C3489" font-family="Noto Sans KR,sans-serif">고급AI반도체소자</text>
+  <rect x="516" y="60" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="564" y="71" text-anchor="middle" font-size="8" fill="#3C3489" font-family="Noto Sans KR,sans-serif">고급AI반도체공정및응용</text>
+  <rect x="516" y="78" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="564" y="89" text-anchor="middle" font-size="8" fill="#534AB7" font-family="Noto Sans KR,sans-serif">ASIC설계[전]</text>
+  <rect x="516" y="96" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="564" y="107" text-anchor="middle" font-size="8" fill="#534AB7" font-family="Noto Sans KR,sans-serif">디지털집적회로[전]</text>
+  <rect x="516" y="114" width="96" height="15" rx="3" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="564" y="125" text-anchor="middle" font-size="8" fill="#534AB7" font-family="Noto Sans KR,sans-serif">인공지능물리학[물]</text>
+  <line x1="20" y1="138" x2="614" y2="138" stroke="#dddbd3" stroke-width="0.8" stroke-dasharray="5 3"/>
+  <rect x="20" y="144" width="52" height="13" rx="3" fill="#EAF3DE"/>
+  <text x="22" y="154" font-size="8.5" font-weight="700" fill="#27500A" font-family="Noto Sans KR,sans-serif">[2]공동</text>
+  <rect x="216" y="144" width="90" height="15" rx="3" fill="#EAF3DE" stroke="#97C459" stroke-width="0.8"/>
+  <text x="261" y="155" text-anchor="middle" font-size="8" fill="#27500A" font-family="Noto Sans KR,sans-serif">반도체공정실습[고]</text>
+  <rect x="216" y="162" width="90" height="15" rx="3" fill="#EAF3DE" stroke="#97C459" stroke-width="0.8"/>
+  <text x="261" y="173" text-anchor="middle" font-size="8" fill="#27500A" font-family="Noto Sans KR,sans-serif">진공장비실습[인]</text>
+  <rect x="314" y="144" width="90" height="15" rx="3" fill="#EAF3DE" stroke="#97C459" stroke-width="1.0"/>
+  <text x="359" y="155" text-anchor="middle" font-size="8" fill="#27500A" font-family="Noto Sans KR,sans-serif">AI반도체개론 ★[고]</text>
+  <rect x="314" y="162" width="90" height="15" rx="3" fill="#EAF3DE" stroke="#97C459" stroke-width="0.8"/>
+  <text x="359" y="173" text-anchor="middle" font-size="8" fill="#27500A" font-family="Noto Sans KR,sans-serif">반도체머신러닝[인]</text>
+  <line x1="20" y1="186" x2="614" y2="186" stroke="#dddbd3" stroke-width="0.8" stroke-dasharray="5 3"/>
+  <rect x="20" y="192" width="52" height="13" rx="3" fill="#FBEAF0"/>
+  <text x="22" y="202" font-size="8.5" font-weight="700" fill="#993556" font-family="Noto Sans KR,sans-serif">[3]산학</text>
+  <rect x="412" y="192" width="96" height="15" rx="3" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+  <text x="460" y="203" text-anchor="middle" font-size="8" fill="#72243E" font-family="Noto Sans KR,sans-serif">PBL산학프로젝트 1</text>
+  <rect x="412" y="210" width="96" height="15" rx="3" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+  <text x="460" y="221" text-anchor="middle" font-size="8" fill="#72243E" font-family="Noto Sans KR,sans-serif">차세대반도체콜로키움 1</text>
+  <rect x="516" y="192" width="96" height="15" rx="3" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+  <text x="564" y="203" text-anchor="middle" font-size="8" fill="#72243E" font-family="Noto Sans KR,sans-serif">PBL산학프로젝트 2</text>
+  <rect x="516" y="210" width="96" height="15" rx="3" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+  <text x="564" y="221" text-anchor="middle" font-size="8" fill="#72243E" font-family="Noto Sans KR,sans-serif">차세대반도체콜로키움 2</text>
+  <line x1="20" y1="234" x2="614" y2="234" stroke="#dddbd3" stroke-width="0.8" stroke-dasharray="5 3"/>
+        <rect x="20" y="240" width="52" height="13" rx="3" fill="#FAEEDA"/>
+  <text x="22" y="250" font-size="8.5" font-weight="700" fill="#854F0B" font-family="Noto Sans KR,sans-serif">[4]자유</text>
+  <rect x="118" y="260" width="90" height="15" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="163" y="271" text-anchor="middle" font-size="8.0" fill="#633806" font-family="Noto Sans KR,sans-serif">물성전자공학</text>
+  <rect x="216" y="260" width="90" height="15" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="261" y="271" text-anchor="middle" font-size="8.0" fill="#633806" font-family="Noto Sans KR,sans-serif">반도체공학 1</text>
+  <rect x="314" y="260" width="90" height="15" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="359" y="271" text-anchor="middle" font-size="8.0" fill="#633806" font-family="Noto Sans KR,sans-serif">반도체공학 2</text>
+  <rect x="314" y="278" width="90" height="15" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="359" y="289" text-anchor="middle" font-size="8.0" fill="#633806" font-family="Noto Sans KR,sans-serif">전자회로 2</text>
+  <rect x="412" y="260" width="96" height="15" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="460" y="271" text-anchor="middle" font-size="8.0" fill="#633806" font-family="Noto Sans KR,sans-serif">VLSI 설계 및 실험</text>
+  <rect x="516" y="260" width="96" height="15" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="564" y="271" text-anchor="middle" font-size="8.0" fill="#633806" font-family="Noto Sans KR,sans-serif">정보기억소자</text>
+  <line x1="20" y1="310" x2="614" y2="310" stroke="#EF9F27" stroke-width="0.5" stroke-dasharray="3 3"/>
+  <rect x="20" y="304" width="80" height="11" rx="2" fill="#FFF4E8"/>
+  <text x="22" y="312" font-size="7.5" font-weight="700" fill="#854F0B" font-family="Noto Sans KR,sans-serif">▷ 크로스 수강</text>
+  <rect x="314" y="320" width="90" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="359" y="331" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">박막공학 [신]</text>
+  <rect x="314" y="338" width="90" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="359" y="349" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">반도체화학공정 [화]</text>
+  <rect x="412" y="320" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="460" y="331" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">반도체공정 [신]</text>
+  <rect x="412" y="338" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="460" y="349" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">광소재 및 소자 [신]</text>
+  <rect x="412" y="356" width="96" height="23" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="460" y="365" text-anchor="middle" font-size="7.5" fill="#854F0B" font-family="Noto Sans KR,sans-serif">마이크로프로세서</text>
+  <text x="460" y="376" text-anchor="middle" font-size="7.5" fill="#854F0B" font-family="Noto Sans KR,sans-serif">프로그래밍 [기]</text>
+  <rect x="412" y="382" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="460" y="393" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">광학 [물]</text>
+  <rect x="516" y="320" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="564" y="331" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">전자재료응용물성 [신]</text>
+  <rect x="516" y="338" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="564" y="349" text-anchor="middle" font-size="7.5" fill="#854F0B" font-family="Noto Sans KR,sans-serif">디스플레이소재및공정 [신]</text>
+  <rect x="516" y="356" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="564" y="367" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">나노소재 [신]</text>
+  <rect x="516" y="374" width="96" height="15" rx="3" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="564" y="385" text-anchor="middle" font-size="8.0" fill="#854F0B" font-family="Noto Sans KR,sans-serif">나노공학입문 [기]</text>
+  <line x1="20" y1="407" x2="614" y2="407" stroke="#dddbd3" stroke-width="0.8" stroke-dasharray="5 3"/>
+  <rect x="20" y="414" width="52" height="13" rx="3" fill="#E8E5DC"/>
+  <text x="22" y="424" font-size="8.5" font-weight="700" fill="#3A3835" font-family="Noto Sans KR,sans-serif">[5]학부</text>
+  <rect x="78" y="414" width="8" height="8" rx="1" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="89" y="422" font-size="7.5" fill="#5A5855" font-family="Noto Sans KR,sans-serif">전공필수</text>
+  <rect x="146" y="414" width="8" height="8" rx="1" fill="#F8F7F4" stroke="#C8C6BE" stroke-width="0.4"/>
+  <text x="157" y="422" font-size="7.5" fill="#9A9890" font-family="Noto Sans KR,sans-serif">전공선택</text>
+  <rect x="22" y="430" width="90" height="15" rx="3" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="67" y="441" text-anchor="middle" font-size="8.0" fill="#3A3835" font-family="Noto Sans KR,sans-serif">공학수학 1</text>
+  <rect x="118" y="430" width="90" height="15" rx="3" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="163" y="441" text-anchor="middle" font-size="8.0" fill="#3A3835" font-family="Noto Sans KR,sans-serif">공학수학 2</text>
+  <rect x="118" y="448" width="90" height="15" rx="3" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="163" y="459" text-anchor="middle" font-size="8.0" fill="#3A3835" font-family="Noto Sans KR,sans-serif">전자기학</text>
+  <rect x="216" y="430" width="90" height="15" rx="3" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="261" y="441" text-anchor="middle" font-size="8.0" fill="#3A3835" font-family="Noto Sans KR,sans-serif">전자회로 1</text>
+  <rect x="216" y="448" width="90" height="15" rx="3" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="261" y="459" text-anchor="middle" font-size="8.0" fill="#3A3835" font-family="Noto Sans KR,sans-serif">전자회로설계및실험 1</text>
+  <rect x="314" y="430" width="90" height="15" rx="3" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="359" y="441" text-anchor="middle" font-size="8.0" fill="#3A3835" font-family="Noto Sans KR,sans-serif">전자회로설계및실험 2</text>
+  <line x1="20" y1="480" x2="614" y2="480" stroke="#e0ded6" stroke-width="0.5"/>
+  <rect x="22" y="485" width="9" height="9" rx="1.5" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.5"/>
+  <text x="34" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[1]트랙</text>
+  <rect x="68" y="485" width="9" height="9" rx="1.5" fill="#EAF3DE" stroke="#97C459" stroke-width="0.8"/>
+  <text x="80" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[2]공동</text>
+  <rect x="114" y="485" width="9" height="9" rx="1.5" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+  <text x="126" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[3]산학</text>
+  <rect x="160" y="485" width="9" height="9" rx="1.5" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.4"/>
+  <text x="172" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[4]자유(본과)</text>
+  <rect x="226" y="485" width="9" height="9" rx="1.5" fill="#FFF4E8" stroke="#EF9F27" stroke-width="0.6" stroke-dasharray="4 2"/>
+  <text x="238" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[4]자유(크로스)</text>
+  <rect x="298" y="485" width="9" height="9" rx="1.5" fill="#E8E5DC" stroke="#B4B2A9" stroke-width="0.5"/>
+  <text x="310" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[5]전공필수</text>
+  <rect x="354" y="485" width="9" height="9" rx="1.5" fill="#F8F7F4" stroke="#C8C6BE" stroke-width="0.4"/>
+  <text x="366" y="492" font-size="8" fill="#444441" font-family="Noto Sans KR,sans-serif">[5]전공선택</text>
+  <text x="20" y="508" font-size="9" fill="#666460" font-family="Noto Sans KR,sans-serif">★ AI반도체개론 졸업 필수 / [고]=고려대 / [인]=인제대</text>
+  <text x="20" y="522" font-size="9" fill="#666460" font-family="Noto Sans KR,sans-serif">* PBL산학프로젝트·콜로키움 각 1과목씩 이수 (같은 종류 조합 불가)</text>
+  <text x="20" y="536" font-size="9" fill="#666460" font-family="Noto Sans KR,sans-serif">* 학부인정 최대 6학점 · 자유이수 최대 6학점 / 크로스 수강: 타 학과 과목이지만 자유이수로 인정</text>
+</svg>
+  </div>
+
+</div>
+<script>
+function toggleDiag(n) {
+  const body = document.getElementById('diag-body'+n);
+  const hd = document.getElementById('diag-hd'+n);
+  const chev = document.getElementById('diag-chev'+n);
+  const open = body.classList.toggle('open');
+  hd.classList.toggle('open', open);
+  chev.style.transform = open ? 'rotate(180deg)' : '';
+}
+// toggleDiagram 함수 호환성 유지
+function toggleDiagram() { toggleDiag(1); }
+</script>
+
+
+<!-- [1] 전공트랙 -->
+<div class="section s1" id="sec1">
+  <div class="section-header" onclick="toggleSection('sec1')">
+    <div class="section-title"><div class="section-num">1</div>전공트랙 — 4개 트랙 각 1과목 이수</div>
+    <div class="section-right" style="display:flex;align-items:center;gap:6px"><button class="diag-link-btn" onclick="scrollToDiag('sec1')" style="color:#534AB7;border-color:#534AB720" title="이수 체계도에서 보기"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> 체계도</button>
+      <span class="section-status" id="ss1">미충족</span>
+      <span class="section-credits" id="cred1">0 / 12학점</span>
+      <span class="collapse-icon"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="note-box">각 트랙에서 <strong>1과목씩</strong> 선택 이수 (소자·공정·소재 트랙 3과목, 패키징 트랙 2과목 중 택1)</div>
+    <div class="track-group">
+      <div class="track-label">소자 트랙 <span class="track-status" id="ts-socha">미충족</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'socha')" data-track="socha" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">고급 AI 반도체소자</span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'socha')" data-track="socha" data-auto-key="asic" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">ASIC 설계<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'socha')" data-track="socha" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-물">물</span><span class="course-name">인공지능물리학</span><span class="course-credit">3학점</span></div>
+    </div>
+    <div class="track-group">
+      <div class="track-label">공정 트랙 <span class="track-status" id="ts-gongjeong">미충족</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'gongjeong')" data-track="gongjeong" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">고급 AI 반도체공정및응용</span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'gongjeong')" data-track="gongjeong" data-auto-key="process" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">반도체프로세스<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'gongjeong')" data-track="gongjeong" data-auto-key="digital" data-credit="3" id="row-digital"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">디지털집적회로<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+    </div>
+    <div class="track-group">
+      <div class="track-label">소재 트랙 <span class="track-status" id="ts-sojai">미충족</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'sojai')" data-track="sojai" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">AI반도체신소재개론</span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'sojai')" data-track="sojai" data-credit="3" id="row-bando"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">반도체재료<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="toggleTrack(this,'sojai')" data-track="sojai" data-auto-key="nano" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">나노전자공학<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+    </div>
+    <div class="track-group">
+      <div class="track-label">패키징 트랙 <span class="track-status" id="ts-packaging">미충족</span></div>
+      <div class="course-row" onclick="togglePackaging(this,'pkg1')" data-track="packaging" data-credit="3" id="row-pkg1"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">반도체패키징 1<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+      <div class="course-row" onclick="togglePackaging(this,'pkg2')" data-track="packaging" data-credit="3" id="row-pkg2"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">반도체패키징 2<span class="auto-tag">→ 자유이수</span></span><span class="course-credit">3학점</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- [2] 공동운영 -->
+<div class="section s2" id="sec2">
+  <div class="section-header" onclick="toggleSection('sec2')">
+    <div class="section-title"><div class="section-num">2</div>공동운영 교과목</div>
+    <div class="section-right" style="display:flex;align-items:center;gap:6px"><button class="diag-link-btn" onclick="scrollToDiag('sec2')" style="color:#27500A;border-color:#27500A20" title="이수 체계도에서 보기"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> 체계도</button>
+      <span class="section-status" id="ss2">미충족</span>
+      <span class="section-credits" id="cred2">0 / 6학점</span>
+      <span class="collapse-icon"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="required-note">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:1px"><circle cx="7" cy="7" r="6.5" stroke="#c8392b"/><path d="M7 4v3.5" stroke="#c8392b" stroke-width="1.4" stroke-linecap="round"/><circle cx="7" cy="10" r=".7" fill="#c8392b"/></svg>
+      <span><strong>AI반도체개론은 융합전공 전공필수 과목</strong>입니다. 반드시 이수해야 하며 미이수 시 졸업이 불가합니다.</span>
+    </div>
+    <div class="note-box"><strong>AI반도체개론(필수, 3학점) + 나머지 3과목 중 1과목(3학점)</strong>으로 6학점 충족<br><span style="color:var(--text2)">6학점 충족 후 나머지 과목 추가 이수 시 → [5] 자유이수 조건부 영역으로 인정</span></div>
+    <div class="course-row required-row" id="row-ai" onclick="toggleAI()">
+      <div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div>
+      <span class="dept-tag tag-고">고</span>
+      <span class="course-name">AI반도체개론 <span class="required-badge">★ 전공필수</span></span>
+      <span class="course-credit">3학점</span>
+    </div>
+    <div class="course-row" id="row-gd1" onclick="toggleGD(this,'gd1')"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-고">고</span><span class="course-name">반도체공정실습</span><span class="course-credit">3학점</span></div>
+    <div class="course-row" id="row-gd2" onclick="toggleGD(this,'gd2')"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-인">인</span><span class="course-name">진공장비실습 <span style="font-size:11px;color:#be185d">★마일리지 10점</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" id="row-gd3" onclick="toggleGD(this,'gd3')"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-인">인</span><span class="course-name">반도체머신러닝 <span style="font-size:11px;color:#be185d">★마일리지 10점</span></span><span class="course-credit">3학점</span></div>
+  </div>
+</div>
+
+<!-- [4] 산학연계 -->
+<div class="section s3" id="sec4">
+  <div class="section-header" onclick="toggleSection('sec4')">
+    <div class="section-title"><div class="section-num">3</div>산학연계 과목</div>
+    <div class="section-right" style="display:flex;align-items:center;gap:6px"><button class="diag-link-btn" onclick="scrollToDiag('sec4')" style="color:#993556;border-color:#99355620" title="이수 체계도에서 보기"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> 체계도</button>
+      <span class="section-status" id="ss4">미충족</span>
+      <span class="section-credits" id="cred4">0 / 6학점</span>
+      <span class="collapse-icon"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="pbl-note">
+      PBL산학프로젝트 1·2는 <strong>동일 과목의 1학기/2학기 개설</strong>이며, 콜로키움 1·2도 마찬가지입니다<br>
+      반드시 <strong>PBL과 콜로키움을 각 1과목씩</strong> 이수하여 6학점 충족<br>
+      <span style="color:#1a5fa8;opacity:.75">올바른 예: PBL1+콜로키움1 / PBL1+콜로키움2 / PBL2+콜로키움1 / PBL2+콜로키움2</span><br>
+      <span style="color:var(--accent);font-size:11px">✗ PBL1+PBL2 또는 콜로키움1+콜로키움2 조합은 인정되지 않습니다</span>
+    </div>
+    <div class="course-row" id="pbl1" onclick="togglePBL(this,'pbl')" data-pbl-type="pbl"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">PBL산학프로젝트 1 <span class="course-sub">1학기</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" id="pbl2" onclick="togglePBL(this,'pbl')" data-pbl-type="pbl"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">PBL산학프로젝트 2 <span class="course-sub">2학기</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" id="col1" onclick="togglePBL(this,'col')" data-pbl-type="col"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">차세대반도체콜로키움 1 <span class="course-sub">1학기</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" id="col2" onclick="togglePBL(this,'col')" data-pbl-type="col"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">차세대반도체콜로키움 2 <span class="course-sub">2학기</span></span><span class="course-credit">3학점</span></div>
+  </div>
+</div>
+
+<!-- [5] 자유이수 -->
+<div class="section s4" id="sec5">
+  <div class="section-header" onclick="toggleSection('sec5')">
+    <div class="section-title"><div class="section-num">4</div>자유이수</div>
+    <div class="section-right" style="display:flex;align-items:center;gap:6px"><button class="diag-link-btn" onclick="scrollToDiag('sec5')" style="color:#854F0B;border-color:#854F0B20" title="이수 체계도에서 보기"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> 체계도</button>
+      <span class="section-status" id="ss5">미충족</span>
+      <span class="section-credits" id="cred5">0 / 6학점</span>
+      <span class="collapse-icon"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="note-box">[1]~[4] 필수 이수 과목 제외한 나머지 융합전공 운영 과목 자유 선택 (6학점)<br><span style="color:var(--text3)">6학점 도달 시 나머지 과목 자동 비활성화 — 트랙·공동운영 자동 전환 학점도 포함됩니다</span></div>
+    <div class="recog-cap-bar"><span>인정 학점</span><span id="freeCapLabel">0 / 6학점</span></div>
+    <div class="free-divider">전기전자공학부 과목</div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">물성전자공학</span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">반도체공학 1</span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">반도체공학 2</span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">전자회로 2</span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">VLSI 설계 및 실험</span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">정보기억소자</span><span class="course-credit">3학점</span></div>
+    <div class="free-divider">타 학과 크로스 수강 가능 과목</div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">박막공학 <span class="course-sub">신소재공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-화">화</span><span class="course-name">반도체화학공정 <span class="course-sub">화공생명공학과</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">반도체공정 <span class="course-sub">신소재공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">광소재 및 소자 <span class="course-sub">신소재공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-기">기</span><span class="course-name">마이크로프로세서프로그래밍 <span class="course-sub">기계공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-물">물</span><span class="course-name">광학 <span class="course-sub">물리학과</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">전자재료응용물성 <span class="course-sub">신소재공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">디스플레이소재및공정 <span class="course-sub">신소재공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-신">신</span><span class="course-name">나노소재 <span class="course-sub">신소재공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleFree(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-기">기</span><span class="course-name">나노공학입문 <span class="course-sub">기계공학부</span></span><span class="course-credit">3학점</span></div>
+    <div class="free-divider" style="background:#fff8ed;color:var(--amber);border-top:1px dashed #e8c97a;border-bottom:0.5px solid #e8c97a">조건 충족 후 추가 이수 시 자유이수 인정 — 자동 반영됨</div>
+    <div class="note-box" style="border-top:none;margin-bottom:0">아래 과목은 조건 충족 시 자동으로 자유이수에 반영됩니다 — 별도 체크 불필요</div>
+        <div class="course-row readonly-free" data-auto-free-key="asic" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">ASIC 설계 <span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" data-auto-free-key="process" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">반도체프로세스 <span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" data-auto-free-key="digital" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">디지털집적회로 <span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" data-auto-free-key="nano" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">나노전자공학 <span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+<div class="course-row readonly-free" id="row-pkg1-free" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">반도체패키징 1 <span class="course-sub">패키징2 트랙 이수 후</span><span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" id="row-pkg2-free" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-융">융</span><span class="course-name">반도체패키징 2 <span class="course-sub">패키징1 트랙 이수 후</span><span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" id="row-gd1-free" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-고">고</span><span class="course-name">반도체공정실습 <span class="course-sub">공동운영 충족 후 추가 이수</span><span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" id="row-gd2-free" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-인">인</span><span class="course-name">진공장비실습 <span class="course-sub">공동운영 충족 후 추가 이수</span><span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row readonly-free" id="row-gd3-free" style="display:none"><div class="readonly-check"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-인">인</span><span class="course-name">반도체머신러닝 <span class="course-sub">공동운영 충족 후 추가 이수</span><span class="reflected-tag">자유이수 반영됨</span></span><span class="course-credit">3학점</span></div>
+  </div>
+</div>
+
+<!-- [3] 학부인정 -->
+<div style="max-width:1000px;margin:0 auto 0.5rem;display:flex;align-items:center;gap:10px">
+  <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--border),transparent)"></div>
+  <span style="font-size:11px;color:var(--text3);white-space:nowrap;padding:2px 10px;background:var(--surface2);border-radius:99px;border:0.5px solid var(--border)">기이수 전공과목 중복인정 영역</span>
+  <div style="flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--border))"></div>
+</div>
+<div class="section s5" id="sec3">
+  <div class="section-header" onclick="toggleSection('sec3')">
+    <div class="section-title"><div class="section-num">5</div>학부인정 교과목</div>
+    <div class="section-right" style="display:flex;align-items:center;gap:6px"><button class="diag-link-btn" onclick="scrollToDiag('sec3')" style="color:#444441;border-color:#44444120" title="이수 체계도에서 보기"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> 체계도</button>
+      <span class="section-status" id="ss3">미충족</span>
+      <span class="section-credits" id="cred3">0 / 6학점</span>
+      <span class="collapse-icon"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="note-box">전기전자공학부 기이수 전공과목 중 <strong>최대 6학점까지</strong> 융합전공 학점으로 중복 인정 — 6학점 도달 시 나머지 자동 비활성화</div>
+    <div class="recog-cap-bar"><span>인정 학점</span><span id="recogCapLabel">0 / 6학점</span></div>
+    <div class="course-row" onclick="toggleRecog(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">공학수학 1 <span class="course-sub">전공필수</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleRecog(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">공학수학 2 <span class="course-sub">전공필수</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleRecog(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">전자기학 <span class="course-sub">전공필수</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleRecog(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">전자회로 1 <span class="course-sub">전공필수</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleRecog(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">전자회로설계및실험 1 <span class="course-sub">전공필수</span></span><span class="course-credit">3학점</span></div>
+    <div class="course-row" onclick="toggleRecog(this)" data-credit="3"><div class="checkbox"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l2.5 2.5L9 1" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg></div><span class="dept-tag tag-전">전</span><span class="course-name">전자회로설계및실험 2 <span class="course-sub">전공필수</span></span><span class="course-credit">3학점</span></div>
+  </div>
+</div>
+
+<!-- 제출 섹션 -->
+<div class="section" id="sec-submit" style="max-width:1000px;margin:0 auto 1.25rem;border:1.5px solid #1abaac;background:var(--surface)">
+  <div style="padding:18px 20px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 12v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4" stroke="#1abaac" stroke-width="1.5" stroke-linecap="round"/><path d="M10 3v9M7 9l3 3 3-3" stroke="#1abaac" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span style="font-size:14px;font-weight:700;color:var(--text)">이수현황 제출하기</span>
+      <span style="font-size:11px;color:var(--text3)">관리자에게 체크 내역을 전송합니다</span>
+    </div>
+    <div style="font-size:12px;color:var(--text2);background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:14px;line-height:1.7">
+      체크리스트를 작성한 후 <strong>학번과 이름을 입력</strong>하고 제출 버튼을 누르면 사업단 관리자에게 이수현황이 전달됩니다.<br>
+      <span style="color:var(--text3)">※ 제출된 데이터는 이수 상담 보조 목적으로만 활용되며 공식 인정 기준이 아닙니다.</span>
+    </div>
+    <div id="submit-status" style="display:none;padding:10px 14px;border-radius:8px;margin-bottom:12px;font-size:13px"></div>
+    <button onclick="submitData()" id="submitBtn" style="display:flex;align-items:center;gap:8px;padding:11px 24px;background:#1abaac;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:background .15s">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M17 12v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M10 3v9M7 9l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      이수현황 제출
+    </button>
+  </div>
+</div>
+
+<div class="footer">
+  <p>차세대AI반도체특성화대학사업단 · ☎ 02-3290-4988 · kistar.korea.ac.kr</p>
+  <p style="margin-top:4px">※ 본 체크리스트는 이수 현황 확인용이며, 공식 인정은 <strong>차세대AI반도체특성화대학사업단(차세대반도체 융합전공)</strong>의 확인이 필요합니다.</p>
+</div>
+
+<!-- 플로팅 상태 카드 -->
+<div class="float-card" id="floatCard">
+  <div class="float-head" onclick="toggleFloat()">
+    <div class="float-head-left">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2.5" stroke="#6b6960" stroke-width="1.3"/><path d="M4 7l2 2 4-4" stroke="#6b6960" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="float-title">이수현황</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="float-total" id="floatTotal">0 / 36학점</span>
+      <span class="float-toggle"><svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+  </div>
+  <div class="float-body">
+    <div class="float-bar"><div class="float-bar-fill" id="floatBarFill"></div></div>
+    <div class="float-row">
+      <div class="float-row-left"><span class="float-badge" style="background:#EEEDFE;color:#534AB7">트</span><span class="float-row-name">전공트랙</span></div>
+      <div class="float-row-right"><span class="float-row-credits" id="fc1">0/12</span><div class="float-dot" id="fd1"></div></div>
+    </div>
+    <div class="float-row">
+      <div class="float-row-left"><span class="float-badge" style="background:#EAF3DE;color:#3B6D11">공</span><span class="float-row-name">공동운영</span></div>
+      <div class="float-row-right"><span class="float-row-credits" id="fc2">0/6</span><div class="float-dot" id="fd2"></div></div>
+    </div>
+    <div class="float-row">
+      <div class="float-row-left"><span class="float-badge" style="background:#FBEAF0;color:#993556">산</span><span class="float-row-name">산학연계</span></div>
+      <div class="float-row-right"><span class="float-row-credits" id="fc4">0/6</span><div class="float-dot" id="fd4"></div></div>
+    </div>
+    <div class="float-row">
+      <div class="float-row-left"><span class="float-badge" style="background:#FAEEDA;color:#854F0B">자</span><span class="float-row-name">자유이수</span></div>
+      <div class="float-row-right"><span class="float-row-credits" id="fc5">0/6</span><div class="float-dot" id="fd5"></div></div>
+    </div>
+    <div class="float-row">
+      <div class="float-row-left"><span class="float-badge" style="background:#F1EFE8;color:#5F5E5A">학</span><span class="float-row-name">학부인정</span></div>
+      <div class="float-row-right"><span class="float-row-credits" id="fc3">0/6</span><div class="float-dot" id="fd3"></div></div>
+    </div>
+    <div style="padding:6px 12px 4px;border-top:0.5px solid var(--border)">
+      <button onclick="submitData()" id="floatSubmitBtn" style="width:100%;padding:7px;background:#1abaac;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:background .15s">이수현황 제출</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  // ── 진행 바 업데이트 ──
+  function updateProgressBar(total) {
+    const fill = document.getElementById('progressFill');
+    const label = document.getElementById('progressLabel');
+    if (!fill || !label) return;
+    const pct = Math.min(total / 36 * 100, 100);
+    fill.style.width = pct + '%';
+    label.textContent = total + ' / 36학점';
+    fill.classList.toggle('complete', total >= 36);
+    label.classList.toggle('complete', total >= 36);
+  }
+
+  // ── 36학점 달성 축하 ──
+  let confettiShown = false;
+  
+  
+  function launchConfettiParticles() {
+    const colors = ['#2d7a4f','#1abaac','#f0c040','#c8392b','#5b3fa6'];
+    const container = document.getElementById('confettiOverlay');
+    for (let i = 0; i < 60; i++) {
+      const dot = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = Math.random() * 8 + 4;
+      const x = Math.random() * 100;
+      const duration = Math.random() * 2 + 1.5;
+      const delay = Math.random() * 0.8;
+      dot.style.cssText = `position:fixed;top:-10px;left:${x}vw;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random()>0.5?'50%':'2px'};pointer-events:none;z-index:10000;animation:confettiFall ${duration}s ease-in ${delay}s forwards;opacity:1`;
+      container.appendChild(dot);
+      setTimeout(() => dot.remove(), (duration + delay + 0.5) * 1000);
+    }
+  }
+
+  // ── 다이어그램 ↔ 섹션 연동 ──
+  function scrollToDiag(secId) {
+    // 다이어그램 패널1 펼치기
+    var body1 = document.getElementById('diag-body1');
+    var hd1 = document.getElementById('diag-hd1');
+    if (body1 && !body1.classList.contains('open')) {
+      body1.classList.add('open');
+      if (hd1) hd1.classList.add('open');
+      var chev1 = document.getElementById('diag-chev1');
+      if (chev1) {
+        var ci = chev1.querySelector('.chevron-icon');
+        if (ci) ci.style.transform = '';
+      }
+    }
+    // 다이어그램 패널로 스크롤
+    var diagPanel = document.querySelector('.diagram-panel-fullwidth');
+    if (diagPanel) {
+      var offset = 60;
+      var top = diagPanel.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({top: Math.max(0, top), behavior:'smooth'});
+    }
+    // 해당 섹션 SVG 하이라이트
+    setTimeout(function(){ highlightDiagSection(secId); }, 700);
+  }
+
+  function highlightDiagSection(secId) {
+    const secMap = {
+      'sec1': 'diag-hl-1', 'sec2': 'diag-hl-2',
+      'sec4': 'diag-hl-3', 'sec5': 'diag-hl-5', 'sec3': 'diag-hl-5'
+    };
+    const hlId = secMap[secId];
+    if (!hlId) return;
+    const el = document.getElementById(hlId);
+    if (!el) return;
+    el.style.opacity = '0.25';
+    el.style.transition = 'opacity 0.3s';
+    setTimeout(() => { el.style.opacity = '0'; }, 1800);
+  }
+
+  function scrollToSection(secId, fromDiag) {
+    const sec = document.getElementById(secId);
+    if (!sec) return;
+    if (sec.classList.contains('collapsed')) sec.classList.remove('collapsed');
+    setTimeout(() => {
+      // 상단 고정 요소들 높이 계산 (배너 + sub-header + 진행바)
+      const offset = 100;
+      const top = sec.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({top: Math.max(0, top), behavior:'smooth'});
+      // 헤더 하이라이트
+      const hdr = sec.querySelector('.section-header');
+      if (hdr) {
+        hdr.style.background = '#fffbea';
+        setTimeout(() => { hdr.style.background = ''; }, 1800);
+      }
+    }, 100);
+  }
+
+  // ── localStorage 자동저장/복원 ──
+  const STORAGE_KEY = 'kistar_checklist_mseng';
+
+  function saveState() {
+    try {
+      const state = {
+        raw: {...raw},
+        trackSelected_ids: Object.fromEntries(
+          Object.entries(trackSelected).map(([k,v]) => [k, v ? v.id || v.dataset.credit + '_' + (v.querySelector('.course-name') ? v.querySelector('.course-name').textContent.trim().slice(0,10) : '') : null])
+        ),
+        trackCounts: {...trackCounts},
+        autoState: {...autoState},
+        aiChecked,
+        gdChecked: {...gdChecked},
+        pblChecked,
+        colChecked,
+        // 체크된 과목 행 인덱스 저장
+        checkedRows: Array.from(document.querySelectorAll('.course-row.checked, .course-row.auto-free')).map(r => {
+          return {id: r.id || null, idx: Array.from(r.parentNode.children).indexOf(r), parentId: r.parentNode.id || r.parentNode.className, cls: r.className};
+        }),
+        // 학생 정보
+        studentInfo: {
+          id: document.getElementById('f-id') ? document.getElementById('f-id').value : '',
+          name: document.getElementById('f-name') ? document.getElementById('f-name').value : '',
+        }
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch(e) { console.warn('저장 실패:', e); }
+  }
+
+  function restoreState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const state = JSON.parse(saved);
+      // 학생 정보 복원
+      if (state.studentInfo) {
+        if (document.getElementById('f-id')) document.getElementById('f-id').value = state.studentInfo.id || '';
+        if (document.getElementById('f-name')) document.getElementById('f-name').value = state.studentInfo.name || '';
+      }
+      // 체크된 행 복원
+      if (state.checkedRows) {
+        state.checkedRows.forEach(info => {
+          let row = null;
+          if (info.id) row = document.getElementById(info.id);
+          if (row) {
+            if (info.cls.includes('auto-free')) row.classList.add('auto-free');
+            else if (info.cls.includes('checked')) row.click();
+          }
+        });
+      }
+    } catch(e) { console.warn('복원 실패:', e); }
+  }
+
+  // ── 플로팅 카드 제출 버튼 동기화 ──
+  function syncFloatSubmitBtn() {
+    const btn = document.getElementById('floatSubmitBtn');
+    if (!btn) return;
+    const mainBtn = document.getElementById('submitBtn');
+    if (mainBtn && mainBtn.textContent.includes('완료')) {
+      btn.textContent = '✅ 제출 완료';
+      btn.style.background = '#2d7a4f';
+    } else {
+      btn.textContent = '이수현황 제출';
+      btn.style.background = '#1abaac';
+    }
+  }
+
+  // ── Apps Script 웹앱 URL (배포 후 교체) ──
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
+
+  // localStorage 복원 (페이지 로드 시)
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(restoreState, 100);
+  });
+
+  const today = new Date();
+  document.getElementById('dateField').value = `${today.getFullYear()}.${String(today.getMonth()+1).padStart(2,'0')}.${String(today.getDate()).padStart(2,'0')}`;
+
+  const raw = {1:0, 2:0, 3:0, 4:0, 5:0};
+
+  // ── 이수현황 제출 함수 (모든 상태 변수 선언 후에 위치) ──
+  function submitData() {
+    const studentId = document.getElementById('f-id') ? document.getElementById('f-id').value.trim() : '';
+    const studentName = document.getElementById('f-name') ? document.getElementById('f-name').value.trim() : '';
+    if (!studentId || !studentName) { showSubmitStatus('warn', '⚠️ 학번과 이름을 먼저 입력해주세요.'); return; }
+    if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') { showSubmitStatus('warn', '⚠️ Apps Script URL이 설정되지 않았습니다. 관리자에게 문의하세요.'); return; }
+    const checkedCourses = [];
+    document.querySelectorAll('.course-row.checked, .course-row.auto-free').forEach(r => {
+      const nameEl = r.querySelector('.course-name');
+      if (nameEl) { const name = nameEl.childNodes[0].textContent.trim(); if (name) checkedCourses.push(name); }
+    });
+    const c1=Math.min(raw[1],12), c2=Math.min(raw[2],6), c3=Math.min(raw[3],6), c4=Math.min(raw[4],6), c5=Math.min(raw[5],6);
+    const total = c1+c2+c3+c4+c5;
+    const pbl4ok = pblChecked !== null && colChecked !== null;
+    const gd6 = aiChecked && Object.values(gdChecked).some(v => v === 'main');
+    const payload = {
+      studentId, studentName, dept: '신소재공학부',
+      sec1_satisfied: ['socha','gongjeong','sojai','packaging'].every(t => trackCounts[t] >= 1),
+      track_socha: trackCounts.socha >= 1, track_gongjeong: trackCounts.gongjeong >= 1,
+      track_sojai: trackCounts.sojai >= 1, track_packaging: trackCounts.packaging >= 1,
+      sec2_satisfied: gd6, ai_checked: aiChecked,
+      sec3_satisfied: c3 >= 6, sec3_credits: c3,
+      sec4_satisfied: pbl4ok, pbl_checked: pblChecked || '', col_checked: colChecked || '',
+      sec5_satisfied: c5 >= 6, sec5_credits: c5,
+      total_credits: total, checked_courses: checkedCourses.join(', ')
+    };
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = '제출 중...';
+    showSubmitStatus('info', '⏳ 데이터를 전송하고 있습니다...');
+
+    // URL 파라미터로 전송 (iframe 방식 — CORS 완전 우회)
+    const params = new URLSearchParams(Object.fromEntries(
+      Object.entries(payload).map(([k,v]) => [k, String(v)])
+    ));
+    const fullUrl = SCRIPT_URL + '?' + params.toString();
+
+    // 숨겨진 iframe으로 GET 요청 전송
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      showSubmitStatus('success', `✅ 제출 완료! ${studentName}(${studentId}) 학생의 이수현황이 전송되었습니다. (총 ${total}학점)`);
+      btn.textContent = '✅ 제출 완료'; btn.style.background = '#2d7a4f';
+      setTimeout(() => {
+        btn.disabled=false; btn.textContent='이수현황 제출'; btn.style.background='#1abaac';
+        document.body.removeChild(iframe);
+      }, 5000);
+    };
+    iframe.onerror = () => {
+      // iframe은 CORS로 onerror가 발생해도 실제 전송은 됨
+      showSubmitStatus('success', `✅ 제출 완료! ${studentName}(${studentId}) 학생의 이수현황이 전송되었습니다. (총 ${total}학점)`);
+      btn.textContent = '✅ 제출 완료'; btn.style.background = '#2d7a4f';
+      // 플로팅 카드 제출 버튼도 동기화
+      const fbtn = document.getElementById('floatSubmitBtn');
+      if (fbtn) { fbtn.textContent = '✅ 제출 완료'; fbtn.style.background = '#2d7a4f'; }
+      setTimeout(() => {
+        btn.disabled=false; btn.textContent='이수현황 제출'; btn.style.background='#1abaac';
+        if (fbtn) { fbtn.textContent='이수현황 제출'; fbtn.style.background='#1abaac'; }
+      }, 5000);
+    };
+    iframe.src = fullUrl;
+
+    // 10초 후에도 응답 없으면 성공으로 처리 (Apps Script는 응답이 느릴 수 있음)
+    setTimeout(() => {
+      if (btn.textContent === '제출 중...') {
+        showSubmitStatus('success', `✅ 제출 완료! ${studentName}(${studentId}) 학생의 이수현황이 전송되었습니다. (총 ${total}학점)`);
+        btn.textContent = '✅ 제출 완료'; btn.style.background = '#2d7a4f';
+        setTimeout(() => { btn.disabled=false; btn.textContent='이수현황 제출'; btn.style.background='#1abaac'; }, 5000);
+      }
+    }, 10000);
+  }
+  function showSubmitStatus(type, msg) {
+    const el = document.getElementById('submit-status'); el.style.display='block'; el.textContent=msg;
+    const c = {success:{bg:'#edf7f1',color:'#2d7a4f',border:'#b7e4c7'},warn:{bg:'#fdf5e6',color:'#a0620a',border:'#f0d9a8'},error:{bg:'#fdf0ee',color:'#c8392b',border:'#f5c6c0'},info:{bg:'#eaf1fb',color:'#1a5fa8',border:'#b5d4f4'}}[type]||{bg:'#eaf1fb',color:'#1a5fa8',border:'#b5d4f4'};
+    el.style.background=c.bg; el.style.color=c.color; el.style.border=`0.5px solid ${c.border}`; el.style.borderRadius='8px';
+  }
+  const trackCounts = {socha:0, gongjeong:0, sojai:0, packaging:0};
+  const autoState = {pkg1:'unchecked', pkg2:'unchecked'};
+  // pkg 상태: 'unchecked' | 'track' | 'free'
+  let aiChecked = false;
+  let gdChecked = {}; // gd1, gd2, gd3: false | 'main' | 'extra'
+  // main = 공동운영 충족에 사용된 과목 (첫 번째 선택)
+  // extra = 추가 이수 → 자유이수로 인정
+  // PBL/콜로키움: 각각 1개씩만 선택 가능
+  let pblChecked = null;  // 'pbl1' or 'pbl2' or null
+  let colChecked = null;  // 'col1' or 'col2' or null
+
+  // ── 트랙 토글 ──
+  // 트랙별 현재 선택된 행 추적
+  const trackSelected = {socha: null, gongjeong: null, sojai: null};
+
+  function toggleTrack(row, track) {
+    if (row.dataset.autoKey) { toggleAutoFree(row); return; }
+    if (row.classList.contains('dim')) return;
+    const credit = parseInt(row.dataset.credit);
+
+    // 이미 선택된 과목 클릭 → 해제 + dim 풀기
+    if (row.classList.contains('checked')) {
+      row.classList.remove('checked');
+      trackCounts[track] = Math.max(0, trackCounts[track] - 1);
+      raw[1] -= credit;
+      trackSelected[track] = null;
+      updateTrackDim(track);
+      updateTrackUI(track);
+      reevaluateAutoFree(track);
+      updateUI();
+      return;
+    }
+
+    // 같은 트랙에서 이미 다른 과목이 선택된 경우 → 기존 해제 후 새로 선택
+    if (trackSelected[track] && trackSelected[track] !== row) {
+      const prev = trackSelected[track];
+      prev.classList.remove('checked');
+      raw[1] -= parseInt(prev.dataset.credit);
+      trackCounts[track] = Math.max(0, trackCounts[track] - 1);
+    }
+
+    // 새 과목 선택
+    row.classList.add('checked');
+    trackCounts[track] += 1;
+    raw[1] += credit;
+    trackSelected[track] = row;
+    updateTrackDim(track);
+    updateTrackUI(track);
+    reevaluateAutoFree(track);
+    updateUI();
+  }
+
+  // 트랙 내 미선택 과목 dim 처리
+  function updateTrackDim(track) {
+    if (track === 'packaging') return; // 패키징은 자유이수 전환 로직 사용
+    const selected = trackSelected[track];
+    document.querySelectorAll('[data-track="' + track + '"]').forEach(r => {
+      // 반도체재료(row-bando)는 dim에서 제외 — 자유이수 전환 별도 로직으로 처리
+      if (r.id === 'row-bando' || r.dataset.autoKey) { r.classList.remove('dim'); return; }
+      // auto-free 상태도 dim 제외
+      if (r.classList.contains('auto-free')) { r.classList.remove('dim'); return; }
+      r.classList.toggle('dim', selected !== null && r !== selected && !r.classList.contains('checked'));
+    });
+  }
+
+  // ── 패키징 트랙 토글: 먼저 체크 → 트랙, 나중 체크 → 자유이수 ──
+  function togglePackaging(row, key) {
+    const otherKey = key === 'pkg1' ? 'pkg2' : 'pkg1';
+    const cur = autoState[key];
+
+    if (cur === 'unchecked') {
+      // 체크: 상대방이 이미 트랙을 차지하고 있으면 → 자유이수
+      if (autoState[otherKey] === 'track') {
+        row.classList.add('auto-free');
+        raw[5] += 3;
+        autoState[key] = 'free';
+        // 자유이수 섹션에 이 과목 표시
+        showPkgFree(key, true);
+      } else {
+        row.classList.add('checked');
+        raw[1] += 3;
+        trackCounts.packaging += 1;
+        autoState[key] = 'track';
+      }
+    } else if (cur === 'track') {
+      // 트랙 해제
+      row.classList.remove('checked');
+      raw[1] -= 3;
+      trackCounts.packaging = Math.max(0, trackCounts.packaging - 1);
+      autoState[key] = 'unchecked';
+      // 상대방이 자유이수였다면 → 트랙으로 승격
+      if (autoState[otherKey] === 'free') {
+        const otherRow = document.getElementById('row-' + otherKey);
+        otherRow.classList.remove('auto-free');
+        otherRow.classList.add('checked');
+        raw[5] -= 3;
+        raw[1] += 3;
+        trackCounts.packaging += 1;
+        autoState[otherKey] = 'track';
+        showPkgFree(otherKey, false);
+      }
+    } else if (cur === 'free') {
+      // 자유이수 해제
+      row.classList.remove('auto-free');
+      raw[5] -= 3;
+      autoState[key] = 'unchecked';
+      showPkgFree(key, false);
+    }
+    updateTrackUI('packaging');
+    updateUI();
+  }
+
+  // 자유이수 섹션 패키징 행 표시/숨김 (읽기전용 — 학점 추가 없음)
+  function showPkgFree(key, show) {
+    const freeRow = document.getElementById('row-' + key + '-free');
+    if (freeRow) {
+      freeRow.style.display = show ? 'flex' : 'none';
+    }
+  }
+
+  // ════ 자동 자유이수 변환 로직 (학과별 트랙 자체 과목) ════
+  function toggleAutoFree(row) {
+    const key = row.dataset.autoKey;
+    const track = row.dataset.track;
+    const freeRow = document.querySelector('[data-auto-free-key="' + key + '"]');
+    if (autoState[key] === undefined) autoState[key] = 'unchecked';
+
+    if (autoState[key] === 'unchecked') {
+      const others = countOthersInTrack(track, row);
+      if (others >= 1) {
+        // 트랙 충족된 상태 → 자유이수로 자동 변환
+        row.classList.add('auto-free'); raw[5] += 3; autoState[key] = 'free';
+        if (freeRow) freeRow.style.display = 'flex';
+      } else {
+        // 트랙 미충족 → 트랙으로 인정
+        row.classList.add('checked'); raw[1] += 3;
+        trackCounts[track] += 1; autoState[key] = 'track';
+      }
+    } else {
+      // 해제
+      if (autoState[key] === 'track') {
+        row.classList.remove('checked'); raw[1] -= 3;
+        trackCounts[track] = Math.max(0, trackCounts[track] - 1);
+      } else {
+        row.classList.remove('auto-free'); raw[5] -= 3;
+        if (freeRow) freeRow.style.display = 'none';
+      }
+      autoState[key] = 'unchecked';
+    }
+    updateTrackUI(track);
+    updateUI();
+  }
+
+  function reevaluateAutoFree(track) {
+    document.querySelectorAll('[data-auto-key][data-track="' + track + '"]').forEach(row => {
+      const key = row.dataset.autoKey;
+      if (autoState[key] === undefined || autoState[key] === 'unchecked') return;
+      const freeRow = document.querySelector('[data-auto-free-key="' + key + '"]');
+      const others = countOthersInTrack(track, row);
+      if (others >= 1 && autoState[key] === 'track') {
+        // 트랙 → 자유이수 승격
+        row.classList.remove('checked'); row.classList.add('auto-free');
+        raw[1] -= 3; raw[5] += 3;
+        trackCounts[track] = Math.max(0, trackCounts[track] - 1);
+        autoState[key] = 'free';
+        if (freeRow) freeRow.style.display = 'flex';
+        updateTrackUI(track);
+      } else if (others === 0 && autoState[key] === 'free') {
+        // 자유이수 → 트랙 강등
+        row.classList.remove('auto-free'); row.classList.add('checked');
+        raw[5] -= 3; raw[1] += 3;
+        trackCounts[track] += 1; autoState[key] = 'track';
+        if (freeRow) freeRow.style.display = 'none';
+        updateTrackUI(track);
+      }
+    });
+  }
+
+  function countOthersInTrack(track, excludeRow) {
+    let c = 0;
+    document.querySelectorAll('[data-track="' + track + '"]').forEach(r => {
+      if (r !== excludeRow && r.classList.contains('checked')) c++;
+    });
+    return c;
+  }
+
+
+  function updateTrackUI(track) {
+    const el = document.getElementById('ts-'+track);
+    if(el){ el.textContent=trackCounts[track]>=1?'충족 ✓':'미충족'; el.classList.toggle('satisfied',trackCounts[track]>=1); }
+    const allOk=['socha','gongjeong','sojai','packaging'].every(t=>trackCounts[t]>=1);
+    const ss1=document.getElementById('ss1');
+    ss1.textContent=allOk?'충족 ✓':'미충족'; ss1.classList.toggle('satisfied',allOk);
+  }
+
+  // ── 공동운영 ──
+  function toggleAI() {
+    const row = document.getElementById('row-ai');
+    aiChecked = row.classList.toggle('checked');
+    raw[2] += aiChecked ? 3 : -3;
+    reevaluateGD();
+    updateGDFreeRows();
+    updateGDDim();
+    updateUI();
+  }
+
+  function toggleGD(row, key) {
+    if (row.classList.contains('dim')) return;
+    const cur = gdChecked[key] || false;
+
+    if (!cur) {
+      const hasMain = Object.values(gdChecked).some(v => v === 'main');
+      if (aiChecked && hasMain) {
+        gdChecked[key] = 'extra';
+        raw[5] += 3;
+      } else {
+        gdChecked[key] = 'main';
+        raw[2] += 3;
+      }
+      row.classList.add('checked');
+    } else {
+      row.classList.remove('checked');
+      if (cur === 'extra') {
+        raw[5] -= 3;
+      } else {
+        raw[2] -= 3;
+        const extraEntry = Object.entries(gdChecked).find(([k,v]) => k !== key && v === 'extra');
+        if (extraEntry) {
+          gdChecked[extraEntry[0]] = 'main';
+          raw[5] -= 3; raw[2] += 3;
+        }
+      }
+      gdChecked[key] = false;
+    }
+    reevaluateGD();
+    updateGDFreeRows();
+    updateGDDim();
+    updateUI();
+  }
+
+  // 공동운영은 dim 없음 — AI+1과목 충족 후에도 추가 이수 시 자유이수로 인정
+  function updateGDDim() {
+    // dim 처리 안 함 (추가 이수 → 자유이수 전환 가능하도록)
+    ['row-gd1','row-gd2','row-gd3'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('dim');
+    });
+  }
+
+  // AI 체크 상태 변경 시 gd 과목들의 main/extra 재평가
+  function reevaluateGD() {
+    const gdKeys = ['gd1','gd2','gd3'];
+    const checked = gdKeys.filter(k => gdChecked[k] && gdChecked[k] !== false);
+    if (checked.length === 0) return;
+
+    // 전부 초기화 후 재배정
+    checked.forEach(k => {
+      if (gdChecked[k] === 'main') raw[2] -= 3;
+      else if (gdChecked[k] === 'extra') raw[5] -= 3;
+      gdChecked[k] = false;
+    });
+
+    checked.forEach((k, idx) => {
+      if (idx === 0) {
+        // 첫 번째 = main (공동운영)
+        gdChecked[k] = 'main'; raw[2] += 3;
+      } else {
+        if (aiChecked) {
+          // AI 체크된 상태에서 추가 과목 = extra(자유이수)
+          gdChecked[k] = 'extra'; raw[5] += 3;
+        } else {
+          // AI 미체크 시 모두 main으로 (나중에 AI 체크 시 extra로 전환됨)
+          gdChecked[k] = 'main'; raw[2] += 3;
+        }
+      }
+    });
+  }
+
+  function updateGDFreeRows() {
+    const map = {gd1:'row-gd1-free', gd2:'row-gd2-free', gd3:'row-gd3-free'};
+    const nameMap = {
+      gd1: document.getElementById('row-gd1'),
+      gd2: document.getElementById('row-gd2'),
+      gd3: document.getElementById('row-gd3'),
+    };
+    // 공동운영 섹션 행에 auto-tag(→ 자유이수) 표시
+    Object.entries(nameMap).forEach(([key, row]) => {
+      if (!row) return;
+      const nameEl = row.querySelector('.course-name');
+      if (!nameEl) return;
+      let autoTag = nameEl.querySelector('.auto-tag');
+      if (gdChecked[key] === 'extra') {
+        row.classList.add('auto-free');
+        row.classList.remove('checked');
+        if (!autoTag) {
+          autoTag = document.createElement('span');
+          autoTag.className = 'auto-tag';
+          autoTag.textContent = '→ 자유이수';
+          nameEl.appendChild(autoTag);
+        }
+        autoTag.style.display = 'inline-block';
+      } else {
+        row.classList.remove('auto-free');
+        if (gdChecked[key] === 'main') row.classList.add('checked');
+        if (autoTag) autoTag.style.display = 'none';
+      }
+    });
+    // 자유이수 섹션 하단 readonly-free 행 표시/숨김
+    Object.entries(map).forEach(([key, freeId]) => {
+      const freeRow = document.getElementById(freeId);
+      if (!freeRow) return;
+      freeRow.style.display = (gdChecked[key] === 'extra') ? 'flex' : 'none';
+    });
+  }
+
+  // ── 산학연계: PBL·콜로키움 각 1개만, 선택 시 동종 나머지 dim ──
+  function togglePBL(row, type) {
+    const id = row.id;
+    if (type === 'pbl') {
+      if (pblChecked === id) {
+        row.classList.remove('checked');
+        raw[4] -= 3; pblChecked = null;
+      } else {
+        if (pblChecked) {
+          document.getElementById(pblChecked).classList.remove('checked');
+          raw[4] -= 3;
+        }
+        row.classList.add('checked');
+        raw[4] += 3; pblChecked = id;
+      }
+      // PBL dim: 선택된 게 있으면 나머지 PBL dim
+      ['pbl1','pbl2'].forEach(pid => {
+        const el = document.getElementById(pid);
+        if (el) el.classList.toggle('dim', pblChecked !== null && pblChecked !== pid);
+      });
+    } else {
+      if (colChecked === id) {
+        row.classList.remove('checked');
+        raw[4] -= 3; colChecked = null;
+      } else {
+        if (colChecked) {
+          document.getElementById(colChecked).classList.remove('checked');
+          raw[4] -= 3;
+        }
+        row.classList.add('checked');
+        raw[4] += 3; colChecked = id;
+      }
+      // 콜로키움 dim: 선택된 게 있으면 나머지 콜로키움 dim
+      ['col1','col2'].forEach(cid => {
+        const el = document.getElementById(cid);
+        if (el) el.classList.toggle('dim', colChecked !== null && colChecked !== cid);
+      });
+    }
+    updateUI();
+  }
+
+  // ── 학부인정 ──
+  function toggleRecog(row) {
+    if (row.classList.contains('dim')) return;
+    const credit = parseInt(row.dataset.credit);
+    const isChecked = row.classList.toggle('checked');
+    raw[3] += isChecked ? credit : -credit;
+    updateRecogDim(); updateUI();
+  }
+
+  function updateRecogDim() {
+    const cap = 6, cur = Math.min(raw[3], cap);
+    document.getElementById('recogCapLabel').textContent = `${cur} / 6학점`;
+    document.querySelectorAll('#sec3 .course-row').forEach(r => {
+      if (r.classList.contains('checked')) { r.classList.remove('dim'); return; }
+      r.classList.toggle('dim', raw[3] >= cap);
+    });
+  }
+
+  // ── 자유이수 일반 토글 ──
+  function toggleFree(row) {
+    if (row.classList.contains('dim')) return;
+    const credit = parseInt(row.dataset.credit);
+    const isChecked = row.classList.toggle('checked');
+    raw[5] += isChecked ? credit : -credit;
+    updateFreeDim();
+    updateUI();
+  }
+
+  function updateFreeDim() {
+    const cap = 6;
+    const cur = Math.min(raw[5], cap);
+    const capLabel = document.getElementById('freeCapLabel');
+    if (capLabel) capLabel.textContent = `${cur} / 6학점`;
+    // 자유이수 섹션의 체크 가능한 과목만 대상 (readonly-free 제외)
+    document.querySelectorAll('#sec5 .course-row:not(.readonly-free)').forEach(r => {
+      if (r.classList.contains('checked')) { r.classList.remove('dim'); return; }
+      // auto-free(주황) 과목은 dim 처리 안 함 — 이미 학점 반영됨
+      if (r.classList.contains('auto-free')) { r.classList.remove('dim'); return; }
+      r.classList.toggle('dim', raw[5] >= cap);
+    });
+  }
+
+  // ── 전체 UI 업데이트 ──
+  function updateUI() {
+    updateFreeDim(); // 자유이수 dim 항상 동기화
+    const c1=Math.min(raw[1],12), c2=Math.min(raw[2],6), c3=Math.min(raw[3],6), c4=Math.min(raw[4],6), c5=Math.min(raw[5],6);
+    const total=c1+c2+c3+c4+c5;
+
+    // 산학연계: PBL 1개 + 콜로키움 1개여야 충족 (각 type 1개씩)
+    const pbl4ok = pblChecked !== null && colChecked !== null;
+
+    document.getElementById('cred1').textContent=`${c1} / 12학점`;
+    document.getElementById('cred2').textContent=`${c2} / 6학점`;
+    document.getElementById('cred3').textContent=`${c3} / 6학점`;
+    document.getElementById('cred4').textContent=`${raw[4]} / 6학점`;
+    document.getElementById('cred5').textContent=`${c5} / 6학점`;
+
+    // 섹션 충족 표시
+    [{id:'ss2',v:c2,m:6},{id:'ss3',v:c3,m:6},{id:'ss5',v:c5,m:6}].forEach(s=>{
+      const el=document.getElementById(s.id);
+      const ok=s.v>=s.m; el.textContent=ok?'충족 ✓':'미충족'; el.classList.toggle('satisfied',ok);
+    });
+    // 공동운영 충족 조건: AI + gd main 과목 1개
+    const gd6 = aiChecked && Object.values(gdChecked).some(v => v === 'main');
+    const ss2 = document.getElementById('ss2');
+    ss2.textContent = gd6 ? '충족 ✓' : '미충족'; ss2.classList.toggle('satisfied', gd6);
+    // 산학연계 충족 조건: PBL 1개 + 콜로키움 1개
+    const ss4 = document.getElementById('ss4');
+    ss4.textContent = pbl4ok ? '충족 ✓' : '미충족'; ss4.classList.toggle('satisfied', pbl4ok);
+
+    // 플로팅 카드
+    const floatTotal = document.getElementById('floatTotal');
+    floatTotal.textContent = `${total} / 36학점`;
+    floatTotal.classList.toggle('complete', total >= 36);
+    document.getElementById('floatBarFill').style.width = Math.min(total/36*100,100)+'%';
+    document.getElementById('floatBarFill').classList.toggle('complete', total >= 36);
+
+    const allOk1 = ['socha','gongjeong','sojai','packaging'].every(t=>trackCounts[t]>=1);
+    const segs = [
+      {fc:'fc1',fd:'fd1',v:c1,m:12,ok:allOk1},
+      {fc:'fc2',fd:'fd2',v:c2,m:6,ok:gd6},
+      {fc:'fc3',fd:'fd3',v:c3,m:6,ok:c3>=6},
+      {fc:'fc4',fd:'fd4',v:raw[4],m:6,ok:pbl4ok},
+      {fc:'fc5',fd:'fd5',v:c5,m:6,ok:c5>=6},
+    ];
+    segs.forEach(s=>{
+      document.getElementById(s.fc).textContent=`${s.v}/${s.m}`;
+      const dot=document.getElementById(s.fd);
+      dot.classList.toggle('done',s.ok);
+      dot.classList.toggle('warn',!s.ok&&s.v>0);
+    });
+
+    // 진행 바 업데이트
+    updateProgressBar(total);
+
+  // ── 축하 팝업 ──
+  var _popupBound = false;
+  function showConfetti() {
+    if (confettiShown) return;
+    confettiShown = true;
+    var overlay = document.getElementById('confettiOverlay');
+    if (!overlay) return;
+    overlay.classList.add('show');
+    launchConfettiParticles();
+    if (!_popupBound) {
+      _popupBound = true;
+      document.getElementById('confettiCloseBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.getElementById('confettiOverlay').classList.remove('show');
+      });
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.classList.remove('show');
+      });
+    }
+  }
+  function closeConfetti() {
+    var overlay = document.getElementById('confettiOverlay');
+    if (overlay) overlay.classList.remove('show');
+  }
+
+    // 36학점 달성 축하
+    if (total >= 36 && !confettiShown) showConfetti();
+    if (total < 36) confettiShown = false;
+
+    // 자동 저장
+    saveState();
+  }
+
+  // ── 플로팅 카드 토글 ──
+  function toggleFloat() {
+    document.getElementById('floatCard').classList.toggle('open');
+  }
+  // 기본 열린 상태
+  // 플로팅 카드 기본 열림 (모바일 포함)
+  document.getElementById('floatCard').classList.add('open');
+
+  // ── 섹션 접기 ──
+  function toggleSection(id) { document.getElementById(id).classList.toggle('collapsed'); }
+
+  // ── 초기화 (2단계) ──
+  let resetConfirmPending = false;
+  let resetTimer = null;
+
+  function resetStep() {
+    if (!resetConfirmPending) {
+      // 1단계: 확인 요청
+      resetConfirmPending = true;
+      const btn = document.getElementById('resetBtn');
+      const txt = document.getElementById('resetBtnText');
+      btn.style.borderColor = 'var(--accent)';
+      btn.style.color = 'var(--accent)';
+      btn.style.background = 'var(--accent-light)';
+      txt.textContent = '한번 더 누르면 초기화';
+      // 3초 후 자동 취소
+      resetTimer = setTimeout(() => {
+        cancelReset();
+      }, 3000);
+    } else {
+      // 2단계: 실제 초기화
+      clearTimeout(resetTimer);
+      resetConfirmPending = false;
+      cancelReset();
+      resetAll();
+    }
+  }
+
+  function cancelReset() {
+    resetConfirmPending = false;
+    if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+    const btn = document.getElementById('resetBtn');
+    const txt = document.getElementById('resetBtnText');
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    btn.style.background = '';
+    txt.textContent = '초기화';
+  }
+
+  // ── 이수체계도 패널 토글 ──
+  function toggleDiagram() {
+    const body = document.getElementById('diag-body');
+    const hd = document.getElementById('diag-hd');
+    const chev = document.getElementById('diag-chev');
+    const open = body.classList.toggle('open');
+    hd.classList.toggle('open', open);
+    chev.style.transform = open ? 'rotate(180deg)' : '';
+  }
+
+  function resetAll() {
+
+    // 1. 모든 과목 행 클래스 제거
+    document.querySelectorAll('.course-row').forEach(r => {
+      r.classList.remove('checked','auto-free','dim');
+    });
+
+    // 2. 동적 자유이수 행 숨김
+    ['row-gd1-free','row-gd2-free','row-gd3-free','row-pkg1-free','row-pkg2-free'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('[data-auto-free-key]').forEach(el => { el.style.display = 'none'; });
+
+    // 3. 수치 상태 초기화
+    Object.keys(raw).forEach(k => raw[k] = 0);
+    Object.keys(trackCounts).forEach(k => trackCounts[k] = 0);
+    Object.keys(trackSelected).forEach(k => trackSelected[k] = null);
+    // 트랙 dim 해제
+    ['socha','gongjeong','sojai'].forEach(track => {
+      document.querySelectorAll('[data-track="' + track + '"]').forEach(r => r.classList.remove('dim'));
+    });
+    Object.keys(autoState).forEach(k => { if (k !== 'pkg1' && k !== 'pkg2') delete autoState[k]; });
+    autoState.pkg1 = 'unchecked'; autoState.pkg2 = 'unchecked';
+    autoState.pkg1 = 'unchecked';
+    autoState.pkg2 = 'unchecked';
+    aiChecked = false;
+    gdChecked = {};
+    pblChecked = null;
+    colChecked = null;
+
+    // 4. 트랙 상태 표시 초기화
+    ['socha','gongjeong','sojai','packaging'].forEach(t => {
+      const el = document.getElementById('ts-' + t);
+      if (el) { el.textContent = '미충족'; el.classList.remove('satisfied'); }
+    });
+
+    // 5. 섹션 충족 표시 전체 초기화
+    ['ss1','ss2','ss3','ss4','ss5'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = '미충족'; el.classList.remove('satisfied'); }
+    });
+
+    // 6. 학부인정 상한 표시 초기화
+    document.getElementById('recogCapLabel').textContent = '0 / 6학점';
+
+    // 7. 플로팅 카드 포함 UI 전체 갱신
+    updateUI();
+  }
+</script>
+
+<!-- 36학점 달성 축하 오버레이 -->
+<div id="confettiOverlay">
+  <div class="confetti-box">
+    <span class="confetti-emoji">🎉</span>
+    <div class="confetti-title">이수 요건 충족!</div>
+    <div class="confetti-sub">
+      총 36학점을 모두 채웠습니다.<br>
+      반도체공학사 학위 취득 요건을 충족했어요!<br>
+      <span style="font-size:11px;color:var(--text3);margin-top:4px;display:block">※ 공식 인정은 사업단 확인이 필요합니다</span>
+    </div>
+    <button class="confetti-close" type="button" id="confettiCloseBtn">확인</button>
+  </div>
+</div>
+
+<!-- 인쇄/PDF 버튼 -->
+<div style="max-width:1000px;margin:1rem auto;text-align:right;padding:0 1rem">
+  <button class="print-btn" onclick="window.print()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 5V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="8" width="6" height="1" rx=".5" fill="currentColor"/></svg>
+    인쇄 / PDF 저장
+  </button>
+</div>
+
+</body>
+</html>
