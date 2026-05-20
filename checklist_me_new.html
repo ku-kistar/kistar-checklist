@@ -1209,7 +1209,7 @@ function toggleDiagram() { toggleDiag(1); }
     const pbl4ok = pblChecked !== null && colChecked !== null;
     const gd6 = aiChecked && Object.values(gdChecked).some(v => v === 'main');
     const payload = {
-      studentId, studentName, dept: '신소재공학부',
+      studentId, studentName, dept: '기계공학부',
       sec1_satisfied: ['socha','gongjeong','sojai','packaging'].every(t => trackCounts[t] >= 1),
       track_socha: trackCounts.socha >= 1, track_gongjeong: trackCounts.gongjeong >= 1,
       track_sojai: trackCounts.sojai >= 1, track_packaging: trackCounts.packaging >= 1,
