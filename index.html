@@ -252,10 +252,10 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
       </svg>
     </div>
     <div class="auth-title">KI-STAR 융합전공 체크리스트</div>
-    <div class="auth-sub">접속을 위해 학번과 생년월일을 입력해주세요<br>교직원은 사번과 생년월일을 입력하세요</div>
+    <div class="auth-sub">접속을 위해 학번과 생년월일을 입력해주세요<br>교직원은 교번과 생년월일을 입력하세요</div>
     <div class="auth-field">
-      <label>학번 / 사번</label>
-      <input type="text" id="auth-id" placeholder="학번 또는 사번 입력" maxlength="20" inputmode="numeric">
+      <label>학번 / 교번</label>
+      <input type="text" id="auth-id" placeholder="학번 또는 교번 입력" maxlength="20" inputmode="numeric">
     </div>
     <div class="auth-field">
       <label>생년월일 8자리</label>
@@ -446,7 +446,12 @@ function doAuth() {
         msg.className = 'auth-msg';
         msg.style.color = '#1abaac';
         msg.textContent = result.name + '님, 환영합니다!';
-        sessionStorage.setItem('kistar_auth', JSON.stringify({name: result.name, dept: result.dept}));
+        sessionStorage.setItem('kistar_auth', JSON.stringify({
+          name: result.name,
+          dept: result.dept,
+          studentId: sid,
+          isStaff: result.dept === '차세대AI반도체특성화대학사업단'
+        }));
         setTimeout(() => {
           document.getElementById('auth-overlay').classList.add('hidden');
         }, 800);

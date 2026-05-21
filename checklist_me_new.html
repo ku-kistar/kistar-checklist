@@ -1948,6 +1948,47 @@ function toggleDiagram() { toggleDiag(1); }
   // 페이지 로드 시 복원
   window.addEventListener('DOMContentLoaded', loadState);
 
+  // ── sessionStorage 인증 정보 자동 입력 ──
+  (function() {
+    try {
+      const auth = JSON.parse(sessionStorage.getItem('kistar_auth') || 'null');
+      if (!auth) return;
+
+      const idInput   = document.getElementById('f-id');
+      const nameInput = document.getElementById('f-name');
+      const myDept    = '기계공학부';
+      const isStaff   = auth.isStaff || false;
+
+      if (isStaff) {
+        // 교직원: 모든 학과 열려있음 (아무것도 안 함)
+        return;
+      }
+
+      if (auth.dept === myDept) {
+        // 본인 학과: 학번/이름 자동 입력
+        if (idInput)   { idInput.value   = auth.studentId || ''; }
+        if (nameInput) { nameInput.value = auth.name      || ''; }
+      } else {
+        // 타 학과: 학번/이름 입력창 비활성화
+        if (idInput) {
+          idInput.value       = '';
+          idInput.disabled    = true;
+          idInput.placeholder = '본인 학과 체크리스트를 이용해주세요';
+          idInput.style.color = 'var(--text3)';
+          idInput.style.cursor = 'not-allowed';
+        }
+        if (nameInput) {
+          nameInput.value       = '';
+          nameInput.disabled    = true;
+          nameInput.placeholder = '본인 학과 체크리스트를 이용해주세요';
+          nameInput.style.color = 'var(--text3)';
+          nameInput.style.cursor = 'not-allowed';
+        }
+      }
+    } catch(e) {}
+  })();
+
+
 </script>
 
 <!-- 36학점 달성 축하 오버레이 -->
