@@ -194,9 +194,78 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
   .dept-name{font-size:12.5px}
   .footer{padding:1rem;gap:5px 12px;font-size:10px}
 }
+
+/* ── 인증 오버레이 ── */
+#auth-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%);
+  display:flex;align-items:center;justify-content:center;padding:1.5rem;
+}
+#auth-overlay.hidden{display:none}
+.auth-card{
+  width:100%;max-width:400px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(26,186,172,.2);
+  border-radius:16px;padding:2rem 1.8rem;
+}
+.auth-logo{text-align:center;margin-bottom:1.5rem}
+.auth-logo svg{opacity:.85}
+.auth-title{font-size:17px;font-weight:700;color:#fff;text-align:center;margin-bottom:.4rem}
+.auth-sub{font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:1.6rem;line-height:1.6}
+.auth-field{margin-bottom:1rem}
+.auth-field label{display:block;font-size:11px;font-weight:600;color:rgba(26,186,172,.8);margin-bottom:.4rem;letter-spacing:.05em}
+.auth-field input{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;color:#fff;font-size:14px;
+  font-family:'Noto Sans KR',sans-serif;outline:none;
+  transition:border-color .15s;
+}
+.auth-field input:focus{border-color:rgba(26,186,172,.6)}
+.auth-field input::placeholder{color:rgba(255,255,255,.25)}
+.auth-btn{
+  width:100%;padding:12px;margin-top:.5rem;
+  background:linear-gradient(135deg,#1abaac,#0d8a80);
+  border:none;border-radius:8px;color:#fff;
+  font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;transition:opacity .15s;
+}
+.auth-btn:hover{opacity:.88}
+.auth-btn:disabled{opacity:.5;cursor:default}
+.auth-msg{margin-top:.9rem;font-size:12px;text-align:center;min-height:18px}
+.auth-msg.error{color:#f08070}
+.auth-msg.loading{color:rgba(255,255,255,.45)}
+
 </style>
 </head>
 <body>
+
+<!-- 인증 오버레이 -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
+        <rect x="13" y="13" width="46" height="46" rx="8" fill="rgba(26,186,172,0.08)" stroke="#1abaac" stroke-width="2"/>
+        <circle cx="36" cy="36" r="7" fill="rgba(200,57,43,0.2)" stroke="#c8392b" stroke-width="1"/>
+        <text x="36" y="39.5" text-anchor="middle" font-size="8" font-weight="900" fill="#e05040" font-family="Arial,sans-serif">KU</text>
+      </svg>
+    </div>
+    <div class="auth-title">KI-STAR 융합전공 체크리스트</div>
+    <div class="auth-sub">접속을 위해 학번과 생년월일을 입력해주세요<br>교직원은 사번과 생년월일을 입력하세요</div>
+    <div class="auth-field">
+      <label>학번 / 사번</label>
+      <input type="text" id="auth-id" placeholder="학번 또는 사번 입력" maxlength="20" inputmode="numeric">
+    </div>
+    <div class="auth-field">
+      <label>생년월일 8자리</label>
+      <input type="text" id="auth-birth" placeholder="예: 20010315" maxlength="8" inputmode="numeric">
+    </div>
+    <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
+    <div class="auth-msg" id="auth-msg"></div>
+  </div>
+</div>
+
 <div class="bg-wrap">
   <div class="bg-grid"></div>
   <div class="bg-g1"></div>
@@ -340,5 +409,72 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
   </div>
 
 </div>
+
+<script>
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
+
+// 엔터키 지원
+document.getElementById('auth-id').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('auth-birth').focus(); });
+document.getElementById('auth-birth').addEventListener('keydown', e => { if(e.key==='Enter') doAuth(); });
+
+function doAuth() {
+  const sid   = document.getElementById('auth-id').value.trim();
+  const birth = document.getElementById('auth-birth').value.trim();
+  const msg   = document.getElementById('auth-msg');
+  const btn   = document.getElementById('auth-btn');
+
+  if (!sid || !birth) {
+    msg.className = 'auth-msg error';
+    msg.textContent = '학번과 생년월일을 모두 입력해주세요.';
+    return;
+  }
+  if (birth.length !== 8 || !/^\d{8}$/.test(birth)) {
+    msg.className = 'auth-msg error';
+    msg.textContent = '생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)';
+    return;
+  }
+
+  btn.disabled = true;
+  msg.className = 'auth-msg loading';
+  msg.textContent = '확인 중...';
+
+  const url = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth);
+  const iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  iframe.src = url;
+  iframe.onload = () => {
+    try {
+      const text = iframe.contentDocument.body.innerText;
+      const result = JSON.parse(text);
+      if (result.status === 'ok') {
+        msg.className = 'auth-msg';
+        msg.style.color = '#1abaac';
+        msg.textContent = result.name + '님, 환영합니다!';
+        setTimeout(() => {
+          document.getElementById('auth-overlay').classList.add('hidden');
+          document.body.removeChild(iframe);
+        }, 800);
+      } else {
+        msg.className = 'auth-msg error';
+        msg.textContent = '학번 또는 생년월일이 일치하지 않습니다.';
+        btn.disabled = false;
+      }
+    } catch(e) {
+      msg.className = 'auth-msg error';
+      msg.textContent = '오류가 발생했습니다. 다시 시도해주세요.';
+      btn.disabled = false;
+    }
+    if(iframe.parentNode) document.body.removeChild(iframe);
+  };
+  iframe.onerror = () => {
+    msg.className = 'auth-msg error';
+    msg.textContent = '네트워크 오류입니다. 다시 시도해주세요.';
+    btn.disabled = false;
+    if(iframe.parentNode) document.body.removeChild(iframe);
+  };
+}
+</script>
+
 </body>
 </html>
