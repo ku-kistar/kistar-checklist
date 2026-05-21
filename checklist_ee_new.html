@@ -1765,6 +1765,8 @@ function toggleDiagram() { toggleDiag(1); }
 
     // 자동 저장
     saveState();
+  
+  saveState(); // localStorage 자동 저장
   }
 
   // ── 플로팅 카드 토글 ──
@@ -1873,8 +1875,90 @@ function toggleDiagram() { toggleDiag(1); }
     document.getElementById('recogCapLabel').textContent = '0 / 6학점';
 
     // 7. 플로팅 카드 포함 UI 전체 갱신
+    localStorage.removeItem(LS_KEY);
     updateUI();
   }
+
+  // ── localStorage 저장/복원 ──
+  const LS_KEY = 'kistar_ee';
+
+  function saveState() {
+    try {
+      const rows = [];
+      document.querySelectorAll('.course-row').forEach((r, i) => {
+        rows.push({
+          checked: r.classList.contains('checked'),
+          autoFree: r.classList.contains('auto-free'),
+        });
+      });
+      const state = {
+        studentId:   document.getElementById('f-id')   ? document.getElementById('f-id').value   : '',
+        studentName: document.getElementById('f-name') ? document.getElementById('f-name').value : '',
+        rows,
+        raw:         Object.assign({}, raw),
+        trackCounts: Object.assign({}, trackCounts),
+        autoState:   Object.assign({}, autoState),
+        aiChecked,
+        gdChecked:   Object.assign({}, gdChecked),
+        pblChecked,
+        colChecked,
+        freeRowDisplay: {
+          'row-bando-free': document.getElementById('row-bando-free') ? document.getElementById('row-bando-free').style.display : 'none',
+          'row-gd1-free':   document.getElementById('row-gd1-free')   ? document.getElementById('row-gd1-free').style.display   : 'none',
+          'row-gd2-free':   document.getElementById('row-gd2-free')   ? document.getElementById('row-gd2-free').style.display   : 'none',
+          'row-gd3-free':   document.getElementById('row-gd3-free')   ? document.getElementById('row-gd3-free').style.display   : 'none',
+          'row-pkg1-free':  document.getElementById('row-pkg1-free')  ? document.getElementById('row-pkg1-free').style.display  : 'none',
+          'row-pkg2-free':  document.getElementById('row-pkg2-free')  ? document.getElementById('row-pkg2-free').style.display  : 'none',
+        },
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (!saved) return;
+      const state = JSON.parse(saved);
+
+      // 학번/이름 복원
+      if (state.studentId   && document.getElementById('f-id'))   document.getElementById('f-id').value   = state.studentId;
+      if (state.studentName && document.getElementById('f-name')) document.getElementById('f-name').value = state.studentName;
+
+      // 내부 상태 변수 복원
+      Object.assign(raw, state.raw || {});
+      Object.assign(trackCounts, state.trackCounts || {});
+      Object.assign(autoState, state.autoState || {});
+      aiChecked  = state.aiChecked  || false;
+      gdChecked  = state.gdChecked  || {};
+      pblChecked = state.pblChecked || null;
+      colChecked = state.colChecked || null;
+
+      // 행 클래스 복원
+      const rows = document.querySelectorAll('.course-row');
+      (state.rows || []).forEach((s, i) => {
+        if (!rows[i]) return;
+        if (s.checked)  rows[i].classList.add('checked');
+        if (s.autoFree) rows[i].classList.add('auto-free');
+      });
+
+      // 동적 자유이수 행 표시 복원
+      Object.entries(state.freeRowDisplay || {}).forEach(([id, disp]) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = disp;
+      });
+
+      // 트랙 상태 UI 갱신
+      ['socha','gongjeong','sojai','packaging'].forEach(t => updateTrackUI(t));
+      updateRecogDim();
+      updateGDFreeRows();
+      updateUI();
+    } catch(e) {}
+  }
+
+  // 페이지 로드 시 복원
+  window.addEventListener('DOMContentLoaded', loadState);
+
 </script>
 
 <!-- 36학점 달성 축하 오버레이 -->
