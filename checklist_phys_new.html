@@ -1953,7 +1953,7 @@ function toggleDiagram() { toggleDiag(1); }
   // ── sessionStorage 인증 정보 자동 입력 ──
   (function() {
     try {
-      const auth = JSON.parse(sessionStorage.getItem('kistar_auth') || 'null');
+      const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
       if (!auth) return;
 
       const idInput   = document.getElementById('f-id');

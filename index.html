@@ -446,7 +446,7 @@ function doAuth() {
         msg.className = 'auth-msg';
         msg.style.color = '#1abaac';
         msg.textContent = result.name + '님, 환영합니다!';
-        sessionStorage.setItem('kistar_auth', JSON.stringify({
+        localStorage.setItem('kistar_auth', JSON.stringify({
           name: result.name,
           dept: result.dept,
           studentId: sid,
@@ -467,6 +467,17 @@ function doAuth() {
       btn.disabled = false;
     });
 }
+
+  // 이미 인증된 경우 오버레이 바로 숨기기
+  (function() {
+    try {
+      const auth = localStorage.getItem('kistar_auth');
+      if (auth) {
+        const overlay = document.getElementById('auth-overlay');
+        if (overlay) overlay.classList.add('hidden');
+      }
+    } catch(e) {}
+  })();
 </script>
 
 </body>
