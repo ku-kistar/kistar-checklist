@@ -415,7 +415,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
     </div>
 
     <div class="dept-list">
-      <a href="checklist_mseng_simple.html" class="dept-btn mseng" id="btn-mseng">
+      <a href="checklist_mseng_simple.html" class="dept-btn mseng" onclick="setPass()" id="btn-mseng">
         <div class="dept-icon">🔬</div>
         <div class="dept-text">
           <div class="dept-name">신소재공학부</div>
@@ -424,7 +424,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
         <span class="dept-badge">주관학과</span>
         <span class="dept-arr">›</span>
       </a>
-      <a href="checklist_ee_new.html" class="dept-btn ee" id="btn-ee">
+      <a href="checklist_ee_new.html" class="dept-btn ee" onclick="setPass()" id="btn-ee">
         <div class="dept-icon">⚡</div>
         <div class="dept-text">
           <div class="dept-name">전기전자공학부</div>
@@ -432,7 +432,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
         </div>
         <span class="dept-arr">›</span>
       </a>
-      <a href="checklist_cbe_new.html" class="dept-btn cbe" id="btn-cbe">
+      <a href="checklist_cbe_new.html" class="dept-btn cbe" onclick="setPass()" id="btn-cbe">
         <div class="dept-icon">⚗️</div>
         <div class="dept-text">
           <div class="dept-name">화공생명공학과</div>
@@ -440,7 +440,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
         </div>
         <span class="dept-arr">›</span>
       </a>
-      <a href="checklist_me_new.html" class="dept-btn me" id="btn-me">
+      <a href="checklist_me_new.html" class="dept-btn me" onclick="setPass()" id="btn-me">
         <div class="dept-icon">⚙️</div>
         <div class="dept-text">
           <div class="dept-name">기계공학부</div>
@@ -448,7 +448,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
         </div>
         <span class="dept-arr">›</span>
       </a>
-      <a href="checklist_phys_new.html" class="dept-btn phys" id="btn-phys">
+      <a href="checklist_phys_new.html" class="dept-btn phys" onclick="setPass()" id="btn-phys">
         <div class="dept-icon">🔭</div>
         <div class="dept-text">
           <div class="dept-name">물리학과</div>
@@ -611,6 +611,10 @@ function doAuth() {
       });
     } catch(e) {}
   })();
+
+  function setPass() {
+    sessionStorage.setItem('kistar_pass', 'true');
+  }
 </script>
 
 </body>

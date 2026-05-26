@@ -808,6 +808,21 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 
 </div>
 <script>
+  // ── 대문 통행증 체크 (직접 URL 접속 차단) ──
+  (function() {
+    try {
+      const auth  = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+      const pass  = sessionStorage.getItem('kistar_pass');
+      const isAdmin = auth && auth.isAdmin;
+      // 관리자는 통행증 없어도 허용
+      if (!isAdmin && !pass) {
+        window.location.replace('./');
+      }
+    } catch(e) {
+      window.location.replace('./');
+    }
+  })();
+
 function toggleDiag(n) {
   const body = document.getElementById('diag-body'+n);
   const hd = document.getElementById('diag-hd'+n);
