@@ -278,7 +278,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 
 
 <!-- 로그아웃 버튼 -->
-<div id="user-bar" style="display:none;position:fixed;top:14px;right:16px;z-index:100;display:none;align-items:center;gap:8px;">
+<div id="user-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:100;align-items:center;justify-content:flex-end;gap:8px;padding:8px 16px;background:rgba(11,31,58,0.92);backdrop-filter:blur(8px);">
   <span id="user-name-badge" style="font-size:11px;font-weight:600;color:rgba(26,186,172,.85);background:rgba(26,186,172,.1);border:1px solid rgba(26,186,172,.25);padding:5px 10px;border-radius:99px;white-space:nowrap;"></span>
   <button class="logout-btn" id="logout-btn" onclick="doLogout()" style="position:static;">
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -584,6 +584,9 @@ function doAuth() {
       }
     } catch(e) {}
     bar.style.display = 'flex';
+    // 모바일에서 user-bar 높이만큼 페이지 상단 패딩 추가
+    const page = document.querySelector('.page') || document.body;
+    if (page) page.style.paddingTop = '44px';
   }
 
   // 학생 로그인 시 본인 학과 외 버튼 비활성화
