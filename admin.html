@@ -706,30 +706,13 @@ function renderChecklist(dept, wrap) {
   </div>
 </div>
 
-<!-- [3] 학부인정 -->
-<div class="section s3" id="${dept}-sec3">
+<!-- [3] 산학연계 -->
+<div class="section s4" id="${dept}-sec3">
   <div class="section-header" onclick="toggleSection('${dept}-sec3')">
-    <div class="section-title"><div class="section-num">3</div>학부인정 교과목</div>
+    <div class="section-title"><div class="section-num">4</div>산학연계 과목</div>
     <div class="section-right">
       <span class="section-status" id="${dept}-ss3">미충족</span>
       <span class="section-credits" id="${dept}-cred3">0 / 6학점</span>
-      <span class="collapse-icon">▾</span>
-    </div>
-  </div>
-  <div class="section-body">
-    <div class="note-box">기이수 전공과목 중 <strong>최대 6학점까지</strong> 융합전공 학점으로 인정</div>
-    <div class="recog-cap-bar"><span>인정 학점</span><span id="recogCapLabel">0 / 6학점</span></div>
-    ${recog.map(c => `<div class="course-row" onclick="toggleRecog(this)" data-credit="3">${chk()}${tag(deptTag)}<span class="course-name">${c.name} <span class="course-sub">${c.sub}</span></span>${cred(3)}</div>`).join('')}
-  </div>
-</div>
-
-<!-- [4] 산학연계 -->
-<div class="section s4" id="${dept}-sec4">
-  <div class="section-header" onclick="toggleSection('${dept}-sec4')">
-    <div class="section-title"><div class="section-num">4</div>산학연계 과목</div>
-    <div class="section-right">
-      <span class="section-status" id="${dept}-ss4">미충족</span>
-      <span class="section-credits" id="${dept}-cred4">0 / 6학점</span>
       <span class="collapse-icon">▾</span>
     </div>
   </div>
@@ -742,13 +725,13 @@ function renderChecklist(dept, wrap) {
   </div>
 </div>
 
-<!-- [5] 자유이수 -->
-<div class="section s5" id="${dept}-sec5">
-  <div class="section-header" onclick="toggleSection('${dept}-sec5')">
+<!-- [4] 자유이수 -->
+<div class="section s5" id="${dept}-sec4">
+  <div class="section-header" onclick="toggleSection('${dept}-sec4')">
     <div class="section-title"><div class="section-num">5</div>자유이수</div>
     <div class="section-right">
-      <span class="section-status" id="${dept}-ss5">미충족</span>
-      <span class="section-credits" id="${dept}-cred5">0 / 6학점</span>
+      <span class="section-status" id="${dept}-ss4">미충족</span>
+      <span class="section-credits" id="${dept}-cred4">0 / 6학점</span>
       <span class="collapse-icon">▾</span>
     </div>
   </div>
@@ -915,11 +898,11 @@ function updateUI(){
 
   document.getElementById(currentDept+'-cred1').textContent=`${c1} / 12학점`;
   document.getElementById(currentDept+'-cred2').textContent=`${c2} / 6학점`;
-  document.getElementById(currentDept+'-cred3').textContent=`${c3} / 6학점`;
-  document.getElementById(currentDept+'-cred4').textContent=`${raw[4]} / 6학점`;
-  document.getElementById(currentDept+'-cred5').textContent=`${c5} / 6학점`;
+  document.getElementById(currentDept+'-cred3').textContent=`${raw[4]} / 6학점`;
+  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`;
+  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`;
 
-  [{id:currentDept+'-ss2',ok:gd6},{id:currentDept+'-ss3',ok:c3>=6},{id:currentDept+'-ss5',ok:c5>=6}].forEach(s=>{
+  [{id:currentDept+'-ss2',ok:gd6},{id:currentDept+'-ss3',ok:c3>=6},{id:currentDept+'-ss4',ok:c5>=6}].forEach(s=>{
     const el=document.getElementById(s.id);if(el){el.textContent=s.ok?'충족 ✓':'미충족';el.classList.toggle('satisfied',s.ok);}
   });
   const ss4=document.getElementById(currentDept+'-ss4');
@@ -966,8 +949,8 @@ function runAutoCheck(){
   const activeWrap=document.getElementById('cl-'+currentDept);
   const freeRows=activeWrap.querySelectorAll('.section-body .course-row:not(.readonly-free)');
   // 섹션5 자과 행들
-  const sec5=document.getElementById(currentDept+'-sec5');
-  const sec5FreeRows=sec5?Array.from(sec5.querySelectorAll('.course-row:not(.readonly-free)')):[];
+  const sec4=document.getElementById(currentDept+'-sec4');
+  const sec4FreeRows=sec4?Array.from(sec4.querySelectorAll('.course-row:not(.readonly-free)')):[];
 
   foundCodes.forEach(code=>{
     const info=CMAP[code];if(!info)return;
@@ -996,12 +979,12 @@ function runAutoCheck(){
         const row=document.getElementById(info.id);
         if(row&&!row.classList.contains('checked')){togglePBL(row,info.type);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim());}break;}
       case 'free':{
-        const row=sec5FreeRows[info.freeIndex];
+        const row=sec4FreeRows[info.freeIndex];
         if(row&&!row.classList.contains('checked')){toggleFree(row);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim());}break;}
       case 'crossFree':{
         // 크로스 수강: self 과목 다음
         const selfCount=FREE_DATA[currentDept].self.length;
-        const allFree=sec5FreeRows;
+        const allFree=sec4FreeRows;
         const row=allFree[selfCount+info.crossIndex];
         if(row&&!row.classList.contains('checked')){toggleFree(row);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim().split('\n')[0].trim());}break;}
     }
@@ -1058,12 +1041,12 @@ function saveResult(){
     sec2_satisfied:String(gd6),
     sec3_satisfied:String(c3>=6),
     sec4_satisfied:String(pbl4ok),
-    sec5_satisfied:String(c5>=6),
+    sec4_satisfied:String(c5>=6),
     ai_checked:String(aiChecked),
     sec3_credits:String(c3),
     pbl_checked:pblChecked||'',
     col_checked:colChecked||'',
-    sec5_credits:String(c5),
+    sec4_credits:String(c5),
     total_credits:String(total),
     satisfied:String(satisfied),
   });
@@ -1122,7 +1105,7 @@ function resetAll(){
     const el=document.getElementById(currentDept+'-ts-'+t);
     if(el){el.textContent='미충족';el.classList.remove('satisfied');}
   });
-  ['ss1','ss2','ss3','ss4','ss5'].forEach(id=>{
+  ['ss1','ss2','ss3','ss4','ss4'].forEach(id=>{
     const el=document.getElementById(currentDept+'-'+id);
     if(el){el.textContent='미충족';el.classList.remove('satisfied');}
   });
@@ -1132,4 +1115,21 @@ function resetAll(){
 }
 </script>
 </body>
-</html>
+</html><!-- [5] 학부인정 -->
+<div class="section s3" id="${dept}-sec5">
+  <div class="section-header" onclick="toggleSection('${dept}-sec5')">
+    <div class="section-title"><div class="section-num">3</div>학부인정 교과목</div>
+    <div class="section-right">
+      <span class="section-status" id="${dept}-ss5">미충족</span>
+      <span class="section-credits" id="${dept}-cred5">0 / 6학점</span>
+      <span class="collapse-icon">▾</span>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="note-box">기이수 전공과목 중 <strong>최대 6학점까지</strong> 융합전공 학점으로 인정</div>
+    <div class="recog-cap-bar"><span>인정 학점</span><span id="recogCapLabel">0 / 6학점</span></div>
+    ${recog.map(c => `<div class="course-row" onclick="toggleRecog(this)" data-credit="3">${chk()}${tag(deptTag)}<span class="course-name">${c.name} <span class="course-sub">${c.sub}</span></span>${cred(3)}</div>`).join('')}
+  </div>
+</div>
+
+
