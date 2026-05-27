@@ -1977,9 +1977,16 @@ function toggleDiagram() { toggleDiag(1); }
       if (!saved) return;
       const state = JSON.parse(saved);
 
-      // 학번/이름 복원
-      if (state.studentId   && document.getElementById('f-id'))   document.getElementById('f-id').value   = state.studentId;
-      if (state.studentName && document.getElementById('f-name')) document.getElementById('f-name').value = state.studentName;
+      // 학번/이름 복원 - 현재 로그인 사용자와 일치할 때만
+      try {
+        const currentAuth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+        const isStaff = currentAuth && (currentAuth.isStaff || currentAuth.isAdmin);
+        const isSameUser = currentAuth && currentAuth.studentId === state.studentId;
+        if (!isStaff && isSameUser) {
+          if (state.studentId   && document.getElementById('f-id'))   document.getElementById('f-id').value   = state.studentId;
+          if (state.studentName && document.getElementById('f-name')) document.getElementById('f-name').value = state.studentName;
+        }
+      } catch(e2) {}
 
       // 내부 상태 변수 복원
       Object.assign(raw, state.raw || {});
