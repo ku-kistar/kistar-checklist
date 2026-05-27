@@ -288,9 +288,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <div class="float-bar"><div class="float-bar-fill" id="floatBarFill"></div></div>
     <div class="float-row"><span class="float-row-name">[1] 전공트랙</span><div class="float-row-right"><span class="float-row-credits" id="fc1">0/12</span><div class="float-dot" id="fd1"></div></div></div>
     <div class="float-row"><span class="float-row-name">[2] 공동운영</span><div class="float-row-right"><span class="float-row-credits" id="fc2">0/6</span><div class="float-dot" id="fd2"></div></div></div>
-    <div class="float-row"><span class="float-row-name">[3] 학부인정</span><div class="float-row-right"><span class="float-row-credits" id="fc3">0/6</span><div class="float-dot" id="fd3"></div></div></div>
-    <div class="float-row"><span class="float-row-name">[4] 산학연계</span><div class="float-row-right"><span class="float-row-credits" id="fc4">0/6</span><div class="float-dot" id="fd4"></div></div></div>
-    <div class="float-row"><span class="float-row-name">[5] 자유이수</span><div class="float-row-right"><span class="float-row-credits" id="fc5">0/6</span><div class="float-dot" id="fd5"></div></div></div>
+    <div class="float-row"><span class="float-row-name">[3] 산학연계</span><div class="float-row-right"><span class="float-row-credits" id="fc3">0/6</span><div class="float-dot" id="fd3"></div></div></div>
+    <div class="float-row"><span class="float-row-name">[4] 자유이수</span><div class="float-row-right"><span class="float-row-credits" id="fc4">0/6</span><div class="float-dot" id="fd4"></div></div></div>
+    <div class="float-row"><span class="float-row-name">[5] 학부인정</span><div class="float-row-right"><span class="float-row-credits" id="fc5">0/6</span><div class="float-dot" id="fd5"></div></div></div>
   </div>
 </div>
 
@@ -751,6 +751,7 @@ function renderChecklist(dept, wrap) {
     <div class="course-row readonly-free" id="row-gd3-free" style="display:none">${roChk()}${tag('인')}<span class="course-name">반도체머신러닝 <span class="reflected-tag">자유이수 반영됨</span></span>${cred(3)}</div>
   </div>
 </div>
+
 <!-- [5] 학부인정 -->
 <div class="section s5" id="${dept}-sec5">
   <div class="section-header" onclick="toggleSection('${dept}-sec5')">
@@ -766,10 +767,7 @@ function renderChecklist(dept, wrap) {
     <div class="recog-cap-bar"><span>인정 학점</span><span id="recogCapLabel">0 / 6학점</span></div>
     ${buildRecogRows(recog, deptTag)}
   </div>
-</div>
-
-
-`;
+</div>`;
 }
 
 // 초기 신소재 렌더링
@@ -917,9 +915,9 @@ function updateUI(){
 
   document.getElementById(currentDept+'-cred1').textContent=`${c1} / 12학점`;
   document.getElementById(currentDept+'-cred2').textContent=`${c2} / 6학점`;
-  document.getElementById(currentDept+'-cred3').textContent=`${raw[4]} / 6학점`;
-  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`;
-  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`;
+  document.getElementById(currentDept+'-cred3').textContent=`${raw[4]} / 6학점`; // 산학연계
+  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`; // 자유이수
+  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`; // 자유이수
 
   [{id:currentDept+'-ss2',ok:gd6},{id:currentDept+'-ss3',ok:c3>=6},{id:currentDept+'-ss4',ok:c5>=6}].forEach(s=>{
     const el=document.getElementById(s.id);if(el){el.textContent=s.ok?'충족 ✓':'미충족';el.classList.toggle('satisfied',s.ok);}
