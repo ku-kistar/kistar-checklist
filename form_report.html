@@ -259,7 +259,7 @@ const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVP
 let courseCardCount = 1;
 let extraCardCount = 1;
 
-(function(){
+window.addEventListener('DOMContentLoaded', function() {
   try {
     const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
     if (!auth || !auth.isAdmin) {
@@ -277,7 +277,7 @@ let extraCardCount = 1;
   } catch(e) {
     document.getElementById('access-denied').style.display = 'block';
   }
-})();
+});
 
 function addCourseCard() {
   courseCardCount++;

@@ -496,7 +496,7 @@ function getCoursePlan() {
 }
 
 // 접근 권한 체크 + 초기화
-(function(){
+window.addEventListener('DOMContentLoaded', function() {
   try {
     const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
     if (!auth || !auth.isAdmin) {
@@ -527,7 +527,7 @@ function getCoursePlan() {
   } catch(e) {
     document.getElementById('access-denied').style.display = 'block';
   }
-})();
+});
 
 // 제출
 function submitForm() {
