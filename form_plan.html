@@ -151,6 +151,25 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 }
 
 @media(max-width:600px){.doc-meta{flex-direction:column;gap:4px}.submit-area{flex-direction:column}}
+
+/* 이수 현황 카드 */
+.status-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.status-card-title{background:linear-gradient(135deg,#0b1f3a,#1a3a5c);color:#fff;padding:12px 20px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.status-card-body{padding:14px 20px}
+.status-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.status-item{text-align:center;padding:10px 6px;border-radius:8px;border:0.5px solid var(--border)}
+.status-item.ok{background:var(--green-light);border-color:#b7e4c7}
+.status-item.fail{background:var(--surface2)}
+.status-item-num{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;margin-bottom:2px}
+.status-item.ok .status-item-num{color:var(--green)}
+.status-item.fail .status-item-num{color:var(--text3)}
+.status-item-label{font-size:10px;color:var(--text2)}
+.status-item-sub{font-size:9px;color:var(--text3);margin-top:2px}
+.status-total{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:8px}
+.status-total-label{font-size:12px;color:var(--text2)}
+.status-total-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.status-total-val.complete{color:var(--green)}
+.status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 </style>
 </head>
 <body>
@@ -185,6 +204,19 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <div class="doc-meta">
     <span>작성일: <span id="docDate"></span></span>
     <span>작성자: <span id="docWriter"></span></span>
+  </div>
+</div>
+
+<!-- 이수 현황 자동 표시 -->
+<div class="status-card" id="checklistStatusCard">
+  <div class="status-card-title">
+    <span>📊 현재 이수 현황 (체크리스트 기준)</span>
+    <span style="font-size:11px;opacity:.7">체크리스트 저장 데이터 자동 표시</span>
+  </div>
+  <div class="status-card-body">
+    <div id="checklistStatusWrap">
+      <div class="status-no-data">학과를 선택하면 이수 현황이 표시됩니다.</div>
+    </div>
   </div>
 </div>
 
@@ -245,6 +277,9 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
               <option value="2027">2027년</option>
               <option value="2028">2028년</option>
               <option value="2029">2029년</option>
+              <option value="2030">2030년</option>
+              <option value="2031">2031년</option>
+              <option value="2032">2032년</option>
             </select>
             <select id="f-grad-month" style="border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
               <option value="">월 선택</option>
@@ -614,6 +649,9 @@ window.addEventListener('DOMContentLoaded', function() {
     if (auth.dept && DEPT_COURSES[auth.dept]) {
       deptSelect.value = auth.dept;
       currentDept = auth.dept;
+      loadChecklistStatus(auth.dept);
+    } else {
+      loadChecklistStatus('');
     }
     // 학기는 학생이 직접 선택
 
@@ -637,10 +675,55 @@ window.addEventListener('DOMContentLoaded', function() {
   // 학과 변경 시 과목 드롭다운 갱신
   function onDeptChange(dept) {
     currentDept = dept;
+    loadChecklistStatus(dept);
     // 기존 테이블 초기화 후 재생성
     const tbody = document.getElementById('coursePlanBody');
     tbody.innerHTML = '';
     addCourseRow(); addCourseRow(); addCourseRow();
+  }
+
+
+  // 이수 현황 localStorage에서 읽기
+  const DEPT_KEY_MAP = {
+    '신소재공학부': 'mseng',
+    '전기전자공학부': 'ee',
+    '화공생명공학과': 'cbe',
+    '기계공학부': 'me',
+    '물리학과': 'phys',
+  };
+
+  function loadChecklistStatus(dept) {
+    const wrap = document.getElementById('checklistStatusWrap');
+    if (!wrap) return;
+    const key = DEPT_KEY_MAP[dept];
+    if (!key) { wrap.innerHTML = '<div class="status-no-data">체크리스트 데이터 없음 (학과 미선택)</div>'; return; }
+    try {
+      const saved = localStorage.getItem('kistar_' + key);
+      if (!saved) { wrap.innerHTML = '<div class="status-no-data">체크리스트 미작성 또는 저장 데이터 없음</div>'; return; }
+      const state = JSON.parse(saved);
+      const raw = state.raw || {1:0,2:0,3:0,4:0,5:0};
+      const c1=Math.min(raw[1]||0,12), c2=Math.min(raw[2]||0,6),
+            c3=Math.min(raw[3]||0,6), c4=Math.min(raw[4]||0,6), c5=Math.min(raw[5]||0,6);
+      const total = c1+c2+c3+c4+c5;
+      const labels = ['[1]전공트랙','[2]공동운영','[3]산학연계','[4]자유이수','[5]학부인정'];
+      const maxes = [12,6,6,6,6];
+      const vals = [c1,c2,c3,c4,c5];
+      wrap.innerHTML = '<div class="status-grid">' +
+        vals.map((v,i) => {
+          const ok = v >= maxes[i];
+          return '<div class="status-item ' + (ok?'ok':'fail') + '">' +
+            '<div class="status-item-num">' + v + '</div>' +
+            '<div class="status-item-label">' + labels[i] + '</div>' +
+            '<div class="status-item-sub">/ ' + maxes[i] + '학점 ' + (ok?'✓':'') + '</div>' +
+            '</div>';
+        }).join('') + '</div>' +
+        '<div class="status-total">' +
+          '<span class="status-total-label">총 이수학점</span>' +
+          '<span class="status-total-val ' + (total>=36?'complete':'') + '">' + total + ' / 36학점</span>' +
+        '</div>';
+    } catch(e) {
+      wrap.innerHTML = '<div class="status-no-data">데이터 읽기 오류</div>';
+    }
   }
 
   // 제출

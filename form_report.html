@@ -85,6 +85,36 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .course-card-grid{grid-template-columns:1fr}
   .submit-area{flex-direction:column}
 }
+
+/* 5점 척도 */
+.rating-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rating-group label{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--text2)}
+.rating-group label:hover{border-color:var(--navy);color:var(--navy);background:var(--surface2)}
+.rating-group input[type=radio]{display:none}
+.rating-group input[type=radio]:checked + label{background:var(--navy);border-color:var(--navy);color:#fff}
+.rating-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.rating-row:last-child{border-bottom:none}
+.rating-label{font-size:13px;font-weight:600;min-width:100px;color:var(--text)}
+.rating-desc{font-size:11px;color:var(--text3);margin-left:4px}
+
+/* 이수 현황 카드 */
+.status-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.status-card-title{background:linear-gradient(135deg,#0b1f3a,#1a3a5c);color:#fff;padding:12px 20px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.status-card-body{padding:14px 20px}
+.status-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.status-item{text-align:center;padding:10px 6px;border-radius:8px;border:0.5px solid var(--border)}
+.status-item.ok{background:var(--green-light);border-color:#b7e4c7}
+.status-item.fail{background:var(--surface2)}
+.status-item-num{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;margin-bottom:2px}
+.status-item.ok .status-item-num{color:var(--green)}
+.status-item.fail .status-item-num{color:var(--text3)}
+.status-item-label{font-size:10px;color:var(--text2)}
+.status-item-sub{font-size:9px;color:var(--text3);margin-top:2px}
+.status-total{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:8px}
+.status-total-label{font-size:12px;color:var(--text2)}
+.status-total-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.status-total-val.complete{color:var(--green)}
+.status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 </style>
 </head>
 <body>
@@ -122,6 +152,19 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   </div>
 </div>
 
+<!-- 이수 현황 자동 표시 -->
+<div class="status-card" id="checklistStatusCard">
+  <div class="status-card-title">
+    <span>📊 현재 이수 현황 (체크리스트 기준)</span>
+    <span style="font-size:11px;opacity:.7">체크리스트 저장 데이터 자동 표시</span>
+  </div>
+  <div class="status-card-body">
+    <div id="checklistStatusWrap">
+      <div class="status-no-data">학과를 선택하면 이수 현황이 표시됩니다.</div>
+    </div>
+  </div>
+</div>
+
 <!-- 1. 기본정보 -->
 <div class="form-section">
   <div class="section-title"><div class="section-num">1</div>기본정보</div>
@@ -135,7 +178,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <td class="lbl">대 학</td><td><input type="text" id="f-univ" value="고려대학교" readonly style="color:var(--text3)"></td>
         <td class="lbl">학과(부)</td>
         <td>
-          <select id="f-dept" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
+          <select id="f-dept" onchange="loadChecklistStatus(this.value)" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
             <option value="">선택 (관리자: 학과 선택)</option>
             <option value="신소재공학부">신소재공학부</option>
             <option value="전기전자공학부">전기전자공학부</option>
@@ -176,16 +219,62 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="form-section">
   <div class="section-title"><div class="section-num">2</div>전공 이해 및 역량 변화</div>
   <div class="section-body">
+
     <div class="field">
-      <div class="field-label">전공 이해도 <span class="field-hint">※ 전공 이해도 측면에서의 스스로에 대한 평가</span></div>
+      <div class="field-label" style="margin-bottom:12px">자기평가 <span class="field-hint">※ 융합전공 참여 후 각 역량에 대한 5점 척도 자기평가</span></div>
+      <div style="background:var(--surface2);border-radius:10px;padding:12px 16px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text3)">
+          <span style="min-width:100px"></span>
+          <span style="width:36px;text-align:center">①</span>
+          <span style="width:36px;text-align:center">②</span>
+          <span style="width:36px;text-align:center">③</span>
+          <span style="width:36px;text-align:center">④</span>
+          <span style="width:36px;text-align:center">⑤</span>
+          <span style="font-size:11px;color:var(--text3)">① 매우 낮음 → ⑤ 매우 높음</span>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">전공 이해도</span>
+          <div class="rating-group">
+            <input type="radio" name="r-major" id="r-major-1" value="1"><label for="r-major-1">①</label>
+            <input type="radio" name="r-major" id="r-major-2" value="2"><label for="r-major-2">②</label>
+            <input type="radio" name="r-major" id="r-major-3" value="3"><label for="r-major-3">③</label>
+            <input type="radio" name="r-major" id="r-major-4" value="4"><label for="r-major-4">④</label>
+            <input type="radio" name="r-major" id="r-major-5" value="5"><label for="r-major-5">⑤</label>
+          </div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">실무 역량</span>
+          <div class="rating-group">
+            <input type="radio" name="r-skill" id="r-skill-1" value="1"><label for="r-skill-1">①</label>
+            <input type="radio" name="r-skill" id="r-skill-2" value="2"><label for="r-skill-2">②</label>
+            <input type="radio" name="r-skill" id="r-skill-3" value="3"><label for="r-skill-3">③</label>
+            <input type="radio" name="r-skill" id="r-skill-4" value="4"><label for="r-skill-4">④</label>
+            <input type="radio" name="r-skill" id="r-skill-5" value="5"><label for="r-skill-5">⑤</label>
+          </div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-label">진로 인식</span>
+          <div class="rating-group">
+            <input type="radio" name="r-career" id="r-career-1" value="1"><label for="r-career-1">①</label>
+            <input type="radio" name="r-career" id="r-career-2" value="2"><label for="r-career-2">②</label>
+            <input type="radio" name="r-career" id="r-career-3" value="3"><label for="r-career-3">③</label>
+            <input type="radio" name="r-career" id="r-career-4" value="4"><label for="r-career-4">④</label>
+            <input type="radio" name="r-career" id="r-career-5" value="5"><label for="r-career-5">⑤</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">전공 이해도 <span class="field-hint">※ 서술형 — 변화 과정과 구체적 사례 포함</span></div>
       <textarea class="field-textarea" id="major-understanding" placeholder="차세대반도체 융합전공에 참여하면서 전공 이해도가 어떻게 변화했는지 작성해주세요." rows="4"></textarea>
     </div>
     <div class="field">
-      <div class="field-label">실무 역량 <span class="field-hint">※ 실무 역량 측면에서의 스스로에 대한 평가</span></div>
+      <div class="field-label">실무 역량 <span class="field-hint">※ 서술형 — 실제 활동과 연계하여 작성</span></div>
       <textarea class="field-textarea" id="practical-skill" placeholder="실무 역량 측면에서의 변화와 성장을 작성해주세요." rows="4"></textarea>
     </div>
     <div class="field">
-      <div class="field-label">진로 인식 <span class="field-hint">※ 진로 인식 관점에서의 스스로에 대한 평가</span></div>
+      <div class="field-label">진로 인식 <span class="field-hint">※ 서술형 — 구체적 진로 방향 변화 포함</span></div>
       <textarea class="field-textarea" id="career-awareness" placeholder="진로 인식이 어떻게 변화했는지 작성해주세요." rows="4"></textarea>
     </div>
   </div>
@@ -346,6 +435,9 @@ window.addEventListener('DOMContentLoaded', function() {
     const deptSelect = document.getElementById('f-dept');
     if (auth.dept && ['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'].includes(auth.dept)) {
       deptSelect.value = auth.dept;
+      loadChecklistStatus(auth.dept);
+    } else {
+      loadChecklistStatus('');
     }
     const today = new Date();
     document.getElementById('docDate').textContent =
@@ -480,6 +572,9 @@ function submitForm() {
     grade: document.getElementById('f-grade').value,
     phone: document.getElementById('f-phone').value,
     email: document.getElementById('f-email').value,
+    ratingMajor: document.querySelector('input[name="r-major"]:checked')?.value || '',
+    ratingSkill: document.querySelector('input[name="r-skill"]:checked')?.value || '',
+    ratingCareer: document.querySelector('input[name="r-career"]:checked')?.value || '',
     majorUnderstanding: document.getElementById('major-understanding').value,
     practicalSkill: document.getElementById('practical-skill').value,
     careerAwareness: document.getElementById('career-awareness').value,
@@ -558,6 +653,49 @@ function showResult(type, msg) {
       if (org || work) result.push({org, period, type, work, learn});
     });
     return JSON.stringify(result);
+  }
+
+  // 이수 현황 localStorage에서 읽기
+  const DEPT_KEY_MAP = {
+    '신소재공학부': 'mseng',
+    '전기전자공학부': 'ee',
+    '화공생명공학과': 'cbe',
+    '기계공학부': 'me',
+    '물리학과': 'phys',
+  };
+
+  function loadChecklistStatus(dept) {
+    const wrap = document.getElementById('checklistStatusWrap');
+    if (!wrap) return;
+    const key = DEPT_KEY_MAP[dept];
+    if (!key) { wrap.innerHTML = '<div class="status-no-data">체크리스트 데이터 없음 (학과 미선택)</div>'; return; }
+    try {
+      const saved = localStorage.getItem('kistar_' + key);
+      if (!saved) { wrap.innerHTML = '<div class="status-no-data">체크리스트 미작성 또는 저장 데이터 없음</div>'; return; }
+      const state = JSON.parse(saved);
+      const raw = state.raw || {1:0,2:0,3:0,4:0,5:0};
+      const c1=Math.min(raw[1]||0,12), c2=Math.min(raw[2]||0,6),
+            c3=Math.min(raw[3]||0,6), c4=Math.min(raw[4]||0,6), c5=Math.min(raw[5]||0,6);
+      const total = c1+c2+c3+c4+c5;
+      const labels = ['[1]전공트랙','[2]공동운영','[3]산학연계','[4]자유이수','[5]학부인정'];
+      const maxes = [12,6,6,6,6];
+      const vals = [c1,c2,c3,c4,c5];
+      wrap.innerHTML = '<div class="status-grid">' +
+        vals.map((v,i) => {
+          const ok = v >= maxes[i];
+          return '<div class="status-item ' + (ok?'ok':'fail') + '">' +
+            '<div class="status-item-num">' + v + '</div>' +
+            '<div class="status-item-label">' + labels[i] + '</div>' +
+            '<div class="status-item-sub">/ ' + maxes[i] + '학점 ' + (ok?'✓':'') + '</div>' +
+            '</div>';
+        }).join('') + '</div>' +
+        '<div class="status-total">' +
+          '<span class="status-total-label">총 이수학점</span>' +
+          '<span class="status-total-val ' + (total>=36?'complete':'') + '">' + total + ' / 36학점</span>' +
+        '</div>';
+    } catch(e) {
+      wrap.innerHTML = '<div class="status-no-data">데이터 읽기 오류</div>';
+    }
   }
 </script>
 </body>
