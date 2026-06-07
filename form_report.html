@@ -149,7 +149,13 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .container{max-width:100%!important;padding:0!important;width:100%!important}
 }
 
-/* ── 서명 섹션 ── */
+
+/* ── 인턴십 카드 ── */
+.intern-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.intern-card-header{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif}
+.intern-inst-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif}
+.intern-inst-input::placeholder{color:var(--text3);font-weight:400}
+
 /* ── 서명 섹션 ── */
 .sign-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;break-inside:avoid;page-break-inside:avoid}
 .sign-header{padding:14px 18px;border-bottom:0.5px solid var(--border);background:var(--surface2)}
@@ -388,30 +394,28 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
     <div class="field">
       <div class="field-label">활동 유형 <span class="field-hint">복수 선택 가능</span></div>
-      <div class="check-group" style="margin-bottom:12px">
+      <div class="check-group">
         <label class="check-item"><input type="checkbox" name="internDone" value="기업 인턴십(국내)"> 기업 인턴십(국내)</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="기업 인턴십(해외)"> 기업 인턴십(해외)</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="대학 연구실 인턴"> 대학 연구실 인턴</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="산학협력 프로젝트"> 산학협력 프로젝트</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="기업 견학"> 기업 견학</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="해당 없음"> 해당 없음</label>
-        <label class="check-item-other">
-          <input type="checkbox" name="internDone" value="기타">
-          <span class="other-label" style="white-space:nowrap">기타:</span>
-          <input type="text" class="other-input" id="internOtherText" placeholder="직접 입력" style="min-width:80px">
+        <label class="check-item"><input type="checkbox" name="internDone" value="기타"> 기타:
+          <input type="text" id="internOtherText" placeholder="직접 입력" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:transparent;width:80px;margin-left:2px">
         </label>
       </div>
     </div>
 
     <div id="internDetailWrap">
-      <div class="intern-card" style="background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>활동 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--navy);background:transparent;width:180px;font-family:inherit" placeholder="기관명/기업명 입력"></span>
+      <div class="intern-card">
+        <div class="intern-card-header">
+          <span>활동 ① — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span>
           <button class="del-card-btn" onclick="delInternCard(this)">삭제</button>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <div class="field"><div class="field-label" style="border:none;padding:0">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
-          <div class="field"><div class="field-label" style="border:none;padding:0">활동 유형</div>
+          <div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
+          <div class="field"><div class="field-label">활동 유형</div>
             <select class="field-input" style="cursor:pointer">
               <option value="">선택</option>
               <option>기업 인턴십(국내)</option>
@@ -423,8 +427,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
             </select>
           </div>
         </div>
-        <div class="field"><div class="field-label" style="border:none;padding:0">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
-        <div class="field"><div class="field-label" style="border:none;padding:0">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>
+        <div class="field"><div class="field-label" >담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
+        <div class="field"><div class="field-label" >배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>
       </div>
     </div>
     <button class="add-card-btn" onclick="addInternCard()">+ 활동 추가</button>
@@ -448,13 +452,13 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
             <button class="del-card-btn" onclick="delCourseCard(this)">삭제</button>
           </div>
           <div class="course-card-grid">
-            <div class="field"><div class="field-label" style="border:none;padding:0">담당교원</div><input class="field-input" placeholder="담당교원명"></div>
-            <div class="field"><div class="field-label" style="border:none;padding:0">강의장소</div><input class="field-input" placeholder="강의장소"></div>
-            <div class="field"><div class="field-label" style="border:none;padding:0">강의시간</div><input class="field-input" placeholder="강의시간"></div>
-            <div class="field"><div class="field-label" style="border:none;padding:0">강의주제</div><input class="field-input" placeholder="강의주제"></div>
+            <div class="field"><div class="field-label" >담당교원</div><input class="field-input" placeholder="담당교원명"></div>
+            <div class="field"><div class="field-label" >강의장소</div><input class="field-input" placeholder="강의장소"></div>
+            <div class="field"><div class="field-label" >강의시간</div><input class="field-input" placeholder="강의시간"></div>
+            <div class="field"><div class="field-label" >강의주제</div><input class="field-input" placeholder="강의주제"></div>
           </div>
-          <div class="field"><div class="field-label" style="border:none;padding:0">강의수강 전·후 달라진 점 (직무 공부 관점)</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
-          <div class="field"><div class="field-label" style="border:none;padding:0">한 학기 강의 요약 (새로 알게된 점)</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>
+          <div class="field"><div class="field-label" >강의수강 전·후 달라진 점 (직무 공부 관점)</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
+          <div class="field"><div class="field-label" >한 학기 강의 요약 (새로 알게된 점)</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>
         </div>
       </div>
       <button class="add-card-btn" onclick="addCourseCard()">+ 교과목 추가</button>
@@ -470,10 +474,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
             <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
           </div>
           <div class="course-card-grid">
-            <div class="field"><div class="field-label" style="border:none;padding:0">활동일시</div><input class="field-input" placeholder="활동일시"></div>
-            <div class="field"><div class="field-label" style="border:none;padding:0">활동장소</div><input class="field-input" placeholder="활동장소"></div>
+            <div class="field"><div class="field-label" >활동일시</div><input class="field-input" placeholder="활동일시"></div>
+            <div class="field"><div class="field-label" >활동장소</div><input class="field-input" placeholder="활동장소"></div>
           </div>
-          <div class="field"><div class="field-label" style="border:none;padding:0">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>
+          <div class="field"><div class="field-label" >활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>
         </div>
       </div>
       <button class="add-card-btn" onclick="addExtraCard()">+ 비교과 활동 추가</button>
@@ -584,13 +588,13 @@ function addCourseCard() {
       <button class="del-card-btn" onclick="delCourseCard(this)">삭제</button>
     </div>
     <div class="course-card-grid">
-      <div class="field"><div class="field-label" style="border:none;padding:0">담당교원</div><input class="field-input" placeholder="담당교원명"></div>
-      <div class="field"><div class="field-label" style="border:none;padding:0">강의장소</div><input class="field-input" placeholder="강의장소"></div>
-      <div class="field"><div class="field-label" style="border:none;padding:0">강의시간</div><input class="field-input" placeholder="강의시간"></div>
-      <div class="field"><div class="field-label" style="border:none;padding:0">강의주제</div><input class="field-input" placeholder="강의주제"></div>
+      <div class="field"><div class="field-label" >담당교원</div><input class="field-input" placeholder="담당교원명"></div>
+      <div class="field"><div class="field-label" >강의장소</div><input class="field-input" placeholder="강의장소"></div>
+      <div class="field"><div class="field-label" >강의시간</div><input class="field-input" placeholder="강의시간"></div>
+      <div class="field"><div class="field-label" >강의주제</div><input class="field-input" placeholder="강의주제"></div>
     </div>
-    <div class="field"><div class="field-label" style="border:none;padding:0">강의수강 전·후 달라진 점</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
-    <div class="field"><div class="field-label" style="border:none;padding:0">한 학기 강의 요약</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>`;
+    <div class="field"><div class="field-label" >강의수강 전·후 달라진 점</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
+    <div class="field"><div class="field-label" >한 학기 강의 요약</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>`;
   document.getElementById('courseCards').appendChild(div);
 }
 
@@ -609,10 +613,10 @@ function addExtraCard() {
       <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
     </div>
     <div class="course-card-grid">
-      <div class="field"><div class="field-label" style="border:none;padding:0">활동일시</div><input class="field-input" placeholder="활동일시"></div>
-      <div class="field"><div class="field-label" style="border:none;padding:0">활동장소</div><input class="field-input" placeholder="활동장소"></div>
+      <div class="field"><div class="field-label" >활동일시</div><input class="field-input" placeholder="활동일시"></div>
+      <div class="field"><div class="field-label" >활동장소</div><input class="field-input" placeholder="활동장소"></div>
     </div>
-    <div class="field"><div class="field-label" style="border:none;padding:0">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 작성해주세요." rows="5"></textarea></div>`;
+    <div class="field"><div class="field-label" >활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 작성해주세요." rows="5"></textarea></div>`;
   document.getElementById('extraCards').appendChild(div);
 }
 
@@ -878,15 +882,14 @@ function showResult(type, msg) {
     internCardCount++;
     const div = document.createElement('div');
     div.className = 'intern-card';
-    div.style.cssText = 'background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px';
     div.innerHTML = `
-      <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
-        <span>활동 ${internCardCount} — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--navy);background:transparent;width:180px;font-family:inherit" placeholder="기관명/기업명 입력"></span>
+      <div class="intern-card-header">
+        <span>활동 ${internCardCount} — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span>
         <button class="del-card-btn" onclick="delInternCard(this)">삭제</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div class="field"><div class="field-label" style="border:none;padding:0">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
-        <div class="field"><div class="field-label" style="border:none;padding:0">활동 유형</div>
+        <div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
+        <div class="field"><div class="field-label">활동 유형</div>
           <select class="field-input" style="cursor:pointer">
             <option value="">선택</option>
             <option>기업 인턴십(국내)</option>
@@ -897,8 +900,8 @@ function showResult(type, msg) {
           </select>
         </div>
       </div>
-      <div class="field"><div class="field-label" style="border:none;padding:0">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
-      <div class="field"><div class="field-label" style="border:none;padding:0">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>`;
+      <div class="field"><div class="field-label" >담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
+      <div class="field"><div class="field-label" >배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>`;
     document.getElementById('internDetailWrap').appendChild(div);
   }
   function delInternCard(btn) {
