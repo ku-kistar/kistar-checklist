@@ -894,7 +894,10 @@ function submitForm() {
   });
 
   showResult('success', '제출 중...');
-  fetch(EXEC_URL + '?' + params.toString())
+  fetch(EXEC_URL, {
+    method: 'POST',
+    body: params
+  })
     .then(r => r.json())
     .then(result => {
       if (result.status === 'ok') showResult('success', '✅ 활동계획서가 제출되었습니다! (' + sname + ')');
