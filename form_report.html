@@ -122,7 +122,6 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .container{padding:0;max-width:100%}
   .form-section,.doc-header,.status-card{
     border:1px solid #ccc;margin-bottom:.6rem;
-    break-inside:avoid;page-break-inside:avoid;
   }
   .field{break-inside:avoid;page-break-inside:avoid;margin-bottom:.5rem}
   .field-textarea{
@@ -138,14 +137,16 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .doc-header-top,.section-title{
     background:#0b1f3a!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    break-after:avoid;page-break-after:avoid;
   }
   .check-group,.rating-row{break-inside:avoid}
   p,li,td{orphans:3;widows:3}
   /* 불필요한 여백 제거 */
   .section-body{padding:10px 16px!important}
   .field-label{margin-bottom:4px!important}
-  @page{margin:15mm 12mm}
-  .form-section{margin-bottom:.4rem!important}
+  @page{margin:10mm 8mm}
+  .form-section{margin-bottom:.3rem!important}
+  .container{max-width:100%!important;padding:0!important;width:100%!important}
 }
 
 /* ── 서명 섹션 ── */
@@ -652,16 +653,49 @@ function collectExtraData() {
 
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const data = imageData.data;
-        const THRESHOLD = 200;
+            // ── 로컬 대비 기반 배경 제거 ──
+        // 픽셀 주변 밝기 평균 대비 얼마나 어두운지로 "획" 여부 판단
+        // 조명이 불균일하거나 배경이 약간 어두워도 잘 처리됨
+        const W2 = canvas.width, H2 = canvas.height;
+        const gray = new Float32Array(W2 * H2);
 
+        // 1단계: 그레이스케일 변환
         for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i+1], b = data[i+2];
-          const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
-          if (brightness > THRESHOLD) {
-            data[i+3] = 0;
-          } else {
-            const alpha = Math.min(255, Math.round((THRESHOLD - brightness) / THRESHOLD * 320));
-            data[i+3] = alpha;
+          gray[i >> 2] = data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114;
+        }
+
+        // 2단계: 로컬 평균 밝기 계산 (15x15 블록)
+        const R = 15;
+        const localAvg = new Float32Array(W2 * H2);
+        for (let y = 0; y < H2; y++) {
+          for (let x = 0; x < W2; x++) {
+            let sum = 0, cnt = 0;
+            for (let dy = -R; dy <= R; dy++) {
+              for (let dx = -R; dx <= R; dx++) {
+                const nx = x+dx, ny = y+dy;
+                if (nx>=0 && nx<W2 && ny>=0 && ny<H2) {
+                  sum += gray[ny*W2+nx]; cnt++;
+                }
+              }
+            }
+            localAvg[y*W2+x] = sum/cnt;
+          }
+        }
+
+        // 3단계: 로컬 대비로 획 판별 → 알파 채널 적용
+        for (let y = 0; y < H2; y++) {
+          for (let x = 0; x < W2; x++) {
+            const idx2 = (y*W2+x)*4;
+            const px = gray[y*W2+x];
+            const avg = localAvg[y*W2+x];
+            // 주변보다 얼마나 어두운지 (0~1)
+            const contrast = Math.max(0, (avg - px) / (avg + 1));
+            // 대비가 낮으면(배경) 투명, 높으면(획) 불투명
+            const alpha = Math.min(255, Math.round(Math.pow(contrast * 2.2, 1.4) * 255));
+            data[idx2] = 20;
+            data[idx2+1] = 20;
+            data[idx2+2] = 20;
+            data[idx2+3] = alpha;
           }
         }
         ctx.putImageData(imageData, 0, 0);
