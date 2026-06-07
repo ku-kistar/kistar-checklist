@@ -27,7 +27,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .container{max-width:820px;margin:0 auto;padding:2rem 1rem}
 .doc-header{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
 .doc-header-top{background:var(--navy);padding:1.5rem 2rem;text-align:center}
-.doc-title{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.doc-title{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
 .doc-subtitle{font-size:12px;color:rgba(255,255,255,.6)}
 .doc-meta{display:flex;justify-content:space-between;padding:12px 20px;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--text2)}
 .form-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
@@ -117,7 +117,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 
 @media print{
-  .top-bar,.submit-area,.add-card-btn,.del-card-btn,.del-card-btn,.add-row-btn{display:none!important}
+  .top-bar,.submit-area,.add-card-btn,.del-card-btn,.del-card-btn,.add-row-btn,.footer{display:none!important}
   body{background:#fff;padding:0;font-size:10pt}
   .container{padding:0;max-width:100%}
   .form-section,.doc-header,.status-card{
@@ -238,7 +238,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <td class="lbl">학 번</td><td><input type="text" id="f-id" placeholder="자동입력"></td>
       </tr>
       <tr>
-        <td class="lbl">대 학</td><td><input type="text" id="f-univ" value="고려대학교" readonly style="color:var(--text3)"></td>
+        <td class="lbl">단과대학</td><td><input type="text" id="f-univ" readonly placeholder="학과 선택 시 자동입력" style="color:var(--text3)"></td>
         <td class="lbl">학과(부)</td>
         <td>
           <select id="f-dept" onchange="onReportDeptChange(this.value)" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
@@ -273,6 +273,27 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       <tr>
         <td class="lbl">연락처</td><td><input type="text" id="f-phone" placeholder="010-0000-0000"></td>
         <td class="lbl">메 일</td><td><input type="text" id="f-email" placeholder="이메일 주소"></td>
+      </tr>
+      <tr>
+        <td class="lbl">졸업예정</td>
+        <td colspan="3">
+          <div style="display:flex;align-items:center;gap:8px">
+            <select id="f-grad-year" style="border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
+              <option value="">년도 선택</option>
+              <option value="2025">2025년</option>
+              <option value="2026">2026년</option>
+              <option value="2027">2027년</option>
+              <option value="2028">2028년</option>
+              <option value="2029">2029년</option>
+            </select>
+            <select id="f-grad-month" style="border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
+              <option value="">월 선택</option>
+              <option value="2">2월</option>
+              <option value="8">8월</option>
+            </select>
+            <span style="font-size:12px;color:var(--text3)">예: 2027년 2월 졸업 예정</span>
+          </div>
+        </td>
       </tr>
     </table>
   </div>
@@ -530,7 +551,7 @@ window.addEventListener('DOMContentLoaded', function() {
       return;
     }
     document.getElementById('main-content').style.display = 'block';
-    if (auth.isAdmin) { const pdf = document.getElementById('btn-pdf'); if(pdf) pdf.style.display = 'flex'; }
+    if (auth.isAdmin) { if (isAdmin) { const pdf = document.getElementById('btn-pdf'); if(pdf) pdf.style.display = 'flex'; } }
     setTimeout(initCourseSelects, 100);
     document.getElementById('f-name').value = auth.name || '';
     syncSignName();
@@ -695,7 +716,11 @@ function collectExtraData() {
             data[idx2] = 20;
             data[idx2+1] = 20;
             data[idx2+2] = 20;
-            data[idx2+3] = alpha;
+            // 가장자리 페이드아웃 (테두리 잔상 제거)
+            const EDGE_R = Math.min(W2, H2) * 0.1;
+            const distEdge = Math.min(x, W2-1-x, y, H2-1-y);
+            const edgeFade = distEdge < EDGE_R ? distEdge / EDGE_R : 1.0;
+            data[idx2+3] = Math.round(alpha * edgeFade);
           }
         }
         ctx.putImageData(imageData, 0, 0);
@@ -713,6 +738,21 @@ function collectExtraData() {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  }
+
+  
+  // 학과 → 단과대학 매핑
+  const COLLEGE_MAP = {
+    '신소재공학부': '공과대학',
+    '전기전자공학부': '공과대학',
+    '화공생명공학과': '공과대학',
+    '기계공학부': '공과대학',
+    '물리학과': '이과대학',
+  };
+
+  function onReportDeptChange(val) {
+    const univEl = document.getElementById("f-univ");
+    if (univEl) univEl.value = COLLEGE_MAP[val] || "";
   }
 
   function syncSignName() {
@@ -759,6 +799,8 @@ function collectExtraData() {
 
   const params = new URLSearchParams({
     action: 'submitReport',
+    gradYear: document.getElementById('f-grad-year') ? document.getElementById('f-grad-year').value : '',
+    gradMonth: document.getElementById('f-grad-month') ? document.getElementById('f-grad-month').value : '',
     signatureImage: signFileBase64,
     studentId: sid,
     studentName: sname,

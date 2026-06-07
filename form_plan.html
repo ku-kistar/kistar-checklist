@@ -171,7 +171,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 
 @media print{
-  .top-bar,.submit-area,.add-row-btn,.del-row-btn{display:none!important}
+  .top-bar,.submit-area,.add-row-btn,.del-row-btn,.footer{display:none!important}
   body{background:#fff;padding:0;font-size:10pt}
   .container{padding:0;max-width:100%}
   .form-section,.doc-header,.status-card{
@@ -286,7 +286,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <td class="lbl">학 번</td><td><input type="text" id="f-id" placeholder="자동입력"></td>
       </tr>
       <tr>
-        <td class="lbl">대 학</td><td><input type="text" id="f-univ" value="고려대학교" readonly style="color:var(--text3)"></td>
+        <td class="lbl">단과대학</td><td><input type="text" id="f-univ" readonly placeholder="학과 선택 시 자동입력" style="color:var(--text3)"></td>
         <td class="lbl">학과(부)</td>
         <td>
           <select id="f-dept" onchange="onDeptChange(this.value)" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
@@ -762,8 +762,19 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
   // 학과 변경 시 과목 드롭다운 갱신
+  
+  const COLLEGE_MAP = {
+    '신소재공학부': '공과대학',
+    '전기전자공학부': '공과대학',
+    '화공생명공학과': '공과대학',
+    '기계공학부': '공과대학',
+    '물리학과': '이과대학',
+  };
+
   function onDeptChange(dept) {
     currentDept = dept;
+    const univEl = document.getElementById('f-univ');
+    if (univEl) univEl.value = COLLEGE_MAP[dept] || '';
     loadChecklistStatus(dept);
     // 기존 테이블 초기화 후 재생성
     const tbody = document.getElementById('coursePlanBody');
@@ -877,7 +888,11 @@ window.addEventListener('DOMContentLoaded', function() {
             data[idx2] = 20;
             data[idx2+1] = 20;
             data[idx2+2] = 20;
-            data[idx2+3] = alpha;
+            // 가장자리 페이드아웃 (테두리 잔상 제거)
+            const EDGE_R = Math.min(W2, H2) * 0.1;
+            const distEdge = Math.min(x, W2-1-x, y, H2-1-y);
+            const edgeFade = distEdge < EDGE_R ? distEdge / EDGE_R : 1.0;
+            data[idx2+3] = Math.round(alpha * edgeFade);
           }
         }
         ctx.putImageData(imageData, 0, 0);
