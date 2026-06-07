@@ -724,6 +724,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
     // 기본정보 자동입력
     document.getElementById('f-name').value = auth.name || '';
+    syncSignName();
     document.getElementById('f-id').value = auth.studentId || '';
     const deptSelect = document.getElementById('f-dept');
     // 학생 계정은 본인 학과 자동 선택

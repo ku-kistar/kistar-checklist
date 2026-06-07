@@ -521,6 +521,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if (auth.isAdmin) { const pdf = document.getElementById('btn-pdf'); if(pdf) pdf.style.display = 'flex'; }
     setTimeout(initCourseSelects, 100);
     document.getElementById('f-name').value = auth.name || '';
+    syncSignName();
     document.getElementById('f-id').value = auth.studentId || '';
     const deptSelect = document.getElementById('f-dept');
     if (auth.dept && ['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'].includes(auth.dept)) {
