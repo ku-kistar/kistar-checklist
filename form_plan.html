@@ -196,32 +196,38 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .section-body{padding:10px 16px!important}
   .field-label{margin-bottom:4px!important}
   .info-table td{padding:5px 10px!important}
+  /* 여백 최소화 */
+  @page{margin:15mm 12mm}
+  .form-section{margin-bottom:.4rem!important}
 }
 
 /* ── 서명 섹션 ── */
-.sign-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+/* ── 서명 섹션 ── */
+.sign-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;break-inside:avoid;page-break-inside:avoid}
 .sign-header{padding:14px 18px;border-bottom:0.5px solid var(--border);background:var(--surface2)}
 .sign-header h3{font-size:14px;font-weight:700;color:var(--text)}
 .sign-header p{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.6}
-.sign-body{padding:18px}
-.sign-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.sign-name-area{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--text);white-space:nowrap}
-.sign-in{font-size:13px;color:var(--text3);font-weight:400}
-.sign-upload-wrap{position:relative;width:160px;height:56px;flex-shrink:0}
-.sign-img-preview{position:absolute;top:0;left:0;width:160px;height:56px;object-fit:contain;mix-blend-mode:multiply;display:none;pointer-events:none}
-.sign-upload-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px dashed var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;height:36px}
+.sign-body{padding:18px 18px 14px}
+.sign-row{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.sign-stamp-wrap{display:flex;align-items:flex-end;gap:4px;position:relative}
+.sign-name-text{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;line-height:1}
+.sign-in-wrap{position:relative;width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center}
+.sign-in{font-size:20px;color:var(--text3);font-weight:400;line-height:1;user-select:none}
+.sign-img-preview{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;object-fit:contain;mix-blend-mode:multiply;display:none;pointer-events:none}
+.sign-upload-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px dashed var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;height:36px}
 .sign-upload-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
 .sign-upload-btn.has-file{border-color:var(--green);color:var(--green);background:var(--green-light);border-style:solid}
 .sign-input{display:none}
 .sign-guide{font-size:11px;color:var(--text3);line-height:1.7;margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:8px}
 .sign-guide strong{color:var(--text2)}
-/* 인쇄 시 서명 미리보기만 표시 */
 @media print{
+  .sign-section{border:none!important;margin-bottom:0!important}
+  .sign-header{display:none!important}
   .sign-upload-btn{display:none!important}
   .sign-img-preview{display:block!important}
   .sign-guide{display:none!important}
-}
-</style>
+  .sign-body{padding:8px 0!important}
+}</style>
 </head>
 <body>
 
@@ -460,13 +466,15 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   </div>
   <div class="sign-body">
     <div class="sign-row">
-      <div class="sign-name-area">
-        <span id="sign-name-display">학생명</span>
-        <span class="sign-in">(인)</span>
+      <!-- 이름 + (인) + 서명이미지 겹침 -->
+      <div class="sign-stamp-wrap">
+        <span class="sign-name-text" id="sign-name-display">학생명</span>
+        <div class="sign-in-wrap">
+          <span class="sign-in">(인)</span>
+          <img class="sign-img-preview" id="signPreview" src="" alt="서명">
+        </div>
       </div>
-      <div class="sign-upload-wrap">
-        <img class="sign-img-preview" id="signPreview" src="" alt="서명">
-      </div>
+      <!-- 업로드 버튼 -->
       <label class="sign-upload-btn" id="signUploadBtn" for="signInput">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 4.5l3.5-3.5L10 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <span id="signBtnText">서명 파일 업로드</span>
@@ -476,7 +484,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <div class="sign-guide">
       <strong>업로드 방법:</strong> 흰 종이에 서명 → 스마트폰으로 촬영 → 이미지 파일 선택<br>
       <strong>권장:</strong> 흰 배경 + 검정/파랑 펜 서명 (JPG·PNG 모두 OK)<br>
-      서명 이미지는 PDF 저장 시 <strong>"(인)" 옆에 자동으로 표시</strong>됩니다.
+      서명 이미지는 PDF 저장 시 <strong>"(인)" 위에 겹쳐서 표시</strong>됩니다.
     </div>
   </div>
 </div>
@@ -817,13 +825,46 @@ window.addEventListener('DOMContentLoaded', function() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-      signFileBase64 = e.target.result; // base64 data URL
-      const preview = document.getElementById('signPreview');
-      preview.src = signFileBase64;
-      preview.style.display = 'block';
-      const btn = document.getElementById('signUploadBtn');
-      btn.classList.add('has-file');
-      document.getElementById('signBtnText').textContent = '✓ ' + file.name;
+      const img = new Image();
+      img.onload = function() {
+        // ── Canvas로 배경 제거 ──
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const THRESHOLD = 200; // 밝기 임계값 (높을수록 더 많이 제거)
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i], g = data[i+1], b = data[i+2];
+          const brightness = (r * 0.299 + g * 0.587 + b * 0.114); // 가중 밝기
+          if (brightness > THRESHOLD) {
+            // 밝은 픽셀 → 투명
+            data[i+3] = 0;
+          } else {
+            // 어두운 픽셀 → 알파값 보정 (획을 더 선명하게)
+            const alpha = Math.min(255, Math.round((THRESHOLD - brightness) / THRESHOLD * 320));
+            data[i+3] = alpha;
+          }
+        }
+        ctx.putImageData(imageData, 0, 0);
+
+        // 배경 제거된 PNG를 base64로 저장 (Drive 전송용)
+        signFileBase64 = canvas.toDataURL('image/png');
+
+        // 미리보기 업데이트 — (인) 위에 겹쳐 표시
+        const preview = document.getElementById('signPreview');
+        preview.src = signFileBase64;
+        preview.style.display = 'block';
+
+        const btn = document.getElementById('signUploadBtn');
+        btn.classList.add('has-file');
+        document.getElementById('signBtnText').textContent = '✓ ' + file.name;
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
