@@ -371,6 +371,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--fbg);color:var(--fte
 // └──────────────────────────────────────────────────────────┘
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
 
+// URL2 인증 체크 (kistar_auth_url2)
+(function() {
+  try {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    const EXPIRE_MS = 8 * 60 * 60 * 1000;
+    if (!auth) {
+      showAuthError('로그인이 필요합니다.');
+      return;
+    }
+    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+      localStorage.removeItem('kistar_auth_url2');
+      showAuthError('로그인이 만료되었습니다.<br>포털에서 다시 로그인해주세요.');
+      return;
+    }
+    // 이름 자동입력
+    const nameEl = document.getElementById('name');
+    const idEl   = document.getElementById('student_id');
+    if (nameEl && auth.name)      nameEl.value = auth.name;
+    if (idEl   && auth.studentId) idEl.value   = auth.studentId;
+  } catch(e) {}
+
+  function showAuthError(msg) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f7fc;font-family:\'Noto Sans KR\',sans-serif;padding:2rem"><div style="text-align:center;background:#fff;border-radius:12px;padding:2.5rem 2rem;border:1px solid #e2e8f4;max-width:360px"><p style="font-size:32px;margin-bottom:1rem">🔒</p><h2 style="font-size:17px;margin-bottom:.5rem;color:#1a2035">' + msg + '</h2><a href="portal_survey.html" style="display:inline-block;margin-top:1.25rem;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a></div></div>';
+  }
+})();
+
 // 라디오 버튼 선택
 function selectRadio(label, name, value) {
   document.querySelectorAll(`.radio-opt`).forEach(l => {
@@ -494,7 +520,7 @@ function showSuccess() {
   document.getElementById('mainForm').style.display = 'none';
   // 제출 시각 표시
   try {
-    const auth = JSON.parse(localStorage.getItem('kistar_auth') || '{}');
+    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || '{}');
     const now = new Date();
     const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
     const meta = document.getElementById('successMeta');
@@ -507,9 +533,9 @@ function showSuccess() {
 // 8시간 만료 체크
 (function() {
   try {
-    const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
     if (auth && auth.loginTime && Date.now() - auth.loginTime > 8 * 60 * 60 * 1000) {
-      localStorage.removeItem('kistar_auth');
+      localStorage.removeItem('kistar_auth_url2');
     }
   } catch(e) {}
 })();

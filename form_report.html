@@ -556,7 +556,7 @@ let extraCardCount = 1;
 
 window.addEventListener('DOMContentLoaded', function() {
   try {
-    const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
     if (!auth) {
       document.getElementById('access-denied').style.display = 'block';
       return;
@@ -564,7 +564,7 @@ window.addEventListener('DOMContentLoaded', function() {
     // 8시간 만료 체크
     const EXPIRE_MS = 8 * 60 * 60 * 1000;
     if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
-      localStorage.removeItem('kistar_auth');
+      localStorage.removeItem('kistar_auth_url2');
       document.getElementById('access-denied').innerHTML = '<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a>';
       document.getElementById('access-denied').style.display = 'block';
       return;
@@ -901,7 +901,7 @@ function showResult(type, msg) {
   el.className = 'submit-result show ' + type;
   if (type === 'success' && msg.includes('제출되었습니다')) {
     try {
-      const auth = JSON.parse(localStorage.getItem('kistar_auth') || '{}');
+      const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || '{}');
       const now = new Date();
       const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
       const SUBMIT_KEY = 'kistar_report_' + (auth.studentId||'') + '_submitted';
