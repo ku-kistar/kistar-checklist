@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>해외연수 정보 제출 · 차세대반도체 융합전공</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hbg:#07091a;--hborder:#1c2440;--htext:#dce5f8;--htext2:#7a8ab0;
+  --cyan:#10c8d4;--cyan-l:rgba(16,200,212,.1);
+  --red:#c8392b;
+  --fbg:#f5f7fc;--fcard:#ffffff;--fborder:#e2e8f4;
+  --ftext:#1a2035;--ftext2:#52627a;--fph:#9aacc8;
+  --focus:#10c8d4;
+  --green:#10b981;--green-l:rgba(16,185,129,.1);
+  --amber:#f5a623;--amber-l:rgba(245,166,35,.1);
+  --purple:#7c3aed;--purple-l:rgba(124,58,237,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--fbg);color:var(--ftext);min-height:100vh}
+
+/* 상단 바 */
+.topbar{
+  background:var(--hbg);border-bottom:1px solid var(--hborder);
+  padding:0 1.5rem;display:flex;align-items:center;
+  justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;
+}
+.back{display:flex;align-items:center;gap:7px;color:var(--htext2);text-decoration:none;font-size:13px;transition:color .15s}
+.back:hover{color:var(--htext)}
+.topbar-title{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--htext2);letter-spacing:.08em}
+.ku-badge-sm{font-size:10px;font-weight:700;background:var(--red);color:#fff;padding:3px 8px;border-radius:4px;letter-spacing:.04em}
+
+/* 래퍼 */
+.wrap{max-width:680px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+/* 폼 헤더 */
+.form-head{margin-bottom:2rem;animation:up .5s ease both}
+.form-cat{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.form-cat::before{content:'';width:20px;height:2px;background:var(--cyan);border-radius:2px}
+.form-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.form-head p{font-size:13px;color:var(--ftext2);line-height:1.7}
+
+/* 경고 배너 */
+.warn-banner{
+  background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);
+  border-left:3px solid var(--amber);
+  border-radius:8px;padding:12px 16px;font-size:12px;color:#8a5500;
+  line-height:1.7;margin-bottom:1.5rem;
+  animation:up .5s .04s ease both;
+}
+.warn-banner strong{color:#6b3f00}
+
+/* 진행 표시기 */
+.progress{
+  display:flex;gap:0;margin-bottom:1.5rem;
+  background:var(--fcard);border:1px solid var(--fborder);
+  border-radius:10px;overflow:hidden;
+  animation:up .5s .06s ease both;
+}
+.prog-item{
+  flex:1;text-align:center;padding:10px 4px;font-size:10px;
+  color:var(--fph);border-right:1px solid var(--fborder);cursor:pointer;
+  transition:all .15s;line-height:1.4;
+}
+.prog-item:last-child{border-right:none}
+.prog-item .prog-num{
+  width:18px;height:18px;border-radius:50%;
+  background:var(--fbg);border:1.5px solid var(--fborder);
+  font-size:10px;font-weight:600;color:var(--fph);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 4px;transition:all .15s;
+}
+.prog-item.active .prog-num{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.prog-item.active{color:var(--cyan)}
+.prog-item.done .prog-num{background:var(--green);border-color:var(--green);color:#fff}
+.prog-item.done{color:var(--green)}
+
+/* 카드 */
+.card{background:var(--fcard);border:1px solid var(--fborder);border-radius:12px;padding:1.5rem;margin-bottom:1rem;animation:up .5s ease both}
+.card-title{font-size:13px;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+.card-num{width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.c-cyan .card-num{background:var(--cyan-l);color:var(--cyan)}
+.c-red .card-num{background:rgba(200,57,43,.1);color:var(--red)}
+.c-purple .card-num{background:var(--purple-l);color:var(--purple)}
+.c-amber .card-num{background:var(--amber-l);color:var(--amber)}
+.c-green .card-num{background:var(--green-l);color:var(--green)}
+
+/* 필드 */
+.field{margin-bottom:1.1rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--ftext2);margin-bottom:6px;letter-spacing:.01em}
+.field label .req{color:var(--red);margin-left:2px}
+.field label .opt{font-weight:400;color:var(--fph);font-size:11px;margin-left:4px}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 13px;border:1.5px solid var(--fborder);border-radius:8px;
+  font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--ftext);
+  background:var(--fbg);outline:none;transition:border-color .15s,background .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--focus);background:#fff}
+.field textarea{min-height:76px;resize:vertical;line-height:1.6}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2352627a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer;
+}
+.hint{font-size:11px;color:var(--fph);margin-top:5px;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:480px){.row2,.row3{grid-template-columns:1fr}}
+
+/* 구분선 레이블 */
+.sub-label{font-size:11px;font-weight:700;color:var(--ftext2);letter-spacing:.05em;text-transform:uppercase;margin:1.25rem 0 .75rem;padding-bottom:6px;border-bottom:1px solid var(--fborder)}
+.sub-label:first-child{margin-top:0}
+
+/* 라디오 그룹 */
+.radio-group{display:flex;flex-wrap:wrap;gap:8px}
+.radio-opt{
+  display:flex;align-items:center;gap:7px;padding:8px 14px;
+  border:1.5px solid var(--fborder);border-radius:8px;cursor:pointer;
+  font-size:13px;transition:all .15s;user-select:none;background:#fff;
+}
+.radio-opt:hover{border-color:var(--cyan);color:var(--cyan)}
+.radio-opt input{width:15px;height:15px;accent-color:var(--cyan);cursor:pointer}
+.radio-opt.selected{border-color:var(--cyan);color:var(--cyan);background:var(--cyan-l)}
+
+/* 오류 메시지 */
+.error-msg{font-size:11px;color:var(--red);margin-top:4px;display:none}
+.error-msg.show{display:block}
+
+/* 개인정보 동의 */
+.agree-box{
+  background:var(--fbg);border:1.5px solid var(--fborder);border-radius:8px;
+  padding:14px;font-size:12px;color:var(--ftext2);line-height:1.8;
+}
+.agree-box strong{color:var(--ftext)}
+.agree-check{display:flex;align-items:flex-start;gap:10px;margin-top:12px;cursor:pointer}
+.agree-check input{width:16px;height:16px;margin-top:2px;flex-shrink:0;accent-color:var(--cyan);cursor:pointer}
+.agree-check span{font-size:13px;font-weight:600;color:var(--ftext)}
+
+/* 제출 버튼 */
+.submit-wrap{margin-top:1.5rem;animation:up .5s .12s ease both}
+.submit-btn{
+  width:100%;padding:14px;border-radius:10px;border:none;
+  background:var(--cyan);color:#fff;
+  font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.submit-btn:hover{background:#0aaab5;transform:translateY(-1px);box-shadow:0 4px 16px rgba(16,200,212,.3)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{background:#7ad6db;cursor:not-allowed;transform:none;box-shadow:none}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.submit-btn.loading .spinner{display:block}
+.submit-btn.loading .btn-text{display:none}
+.form-note{font-size:12px;color:var(--ftext2);line-height:1.7;text-align:center;margin-top:12px}
+.fail-banner{background:#fdf0ee;border:1px solid #f5c6c0;border-radius:8px;padding:12px 16px;font-size:12px;color:var(--red);line-height:1.6;margin-top:12px;display:none}
+.fail-banner.show{display:block}
+
+/* 성공 화면 */
+.success-screen{display:none;background:var(--fcard);border:1px solid var(--fborder);border-radius:12px;padding:3rem 2rem;text-align:center;animation:up .5s ease both}
+.success-screen.show{display:block}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--green-l);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:24px}
+.success-screen h2{font-size:18px;font-weight:700;margin-bottom:8px}
+.success-screen p{font-size:13px;color:var(--ftext2);line-height:1.7;margin-bottom:1.5rem}
+.success-meta{background:var(--fbg);border:1px solid var(--fborder);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--ftext2);line-height:1.8;margin-bottom:1.5rem;text-align:left}
+.success-meta strong{color:var(--ftext)}
+.back-home{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:1.5px solid var(--fborder);background:transparent;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--ftext2);cursor:pointer;transition:all .15s;text-decoration:none}
+.back-home:hover{border-color:var(--cyan);color:var(--cyan)}
+
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- 상단 바 -->
+<div class="topbar">
+  <a href="index.html" class="back">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    포털 홈
+  </a>
+  <span class="topbar-title">OVERSEAS TRAINING</span>
+  <span class="ku-badge-sm">KU</span>
+</div>
+
+<div class="wrap">
+
+  <!-- 폼 헤더 -->
+  <div class="form-head">
+    <div class="form-cat">Submit · 필수 제출</div>
+    <h1>해외연수 정보 제출</h1>
+    <p>여권 정보, 비상연락망, 건강 정보 등 해외연수 참가에 필요한 정보를 제출합니다.<br>
+    별표(<span style="color:var(--red)">*</span>)는 필수 항목입니다. 출발 전 반드시 제출해 주세요.</p>
+  </div>
+
+  <!-- 경고 배너 -->
+  <div class="warn-banner">
+    <strong>⚠ 개인 민감 정보 포함</strong> — 이 양식에는 여권, 건강, 비상연락망 등 민감한 개인정보가 포함됩니다.
+    입력된 정보는 연수 기간 중 비상상황 대응 목적으로만 사용되며 연수 종료 후 안전하게 폐기됩니다.
+  </div>
+
+  <!-- 성공 화면 -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <h2>제출이 완료되었습니다</h2>
+    <div class="success-meta" id="successMeta"></div>
+    <p>제출하신 정보는 연수 기간 중 비상 대응 목적으로 안전하게 관리됩니다.<br>
+    수정이 필요한 경우 사업단으로 문의해 주세요.</p>
+    <a href="index.html" class="back-home">← 포털 홈으로</a>
+  </div>
+
+  <!-- 메인 폼 -->
+  <form id="mainForm" novalidate>
+
+    <!-- [1] 기본 정보 -->
+    <div class="card c-cyan" style="animation-delay:.06s">
+      <div class="card-title"><div class="card-num">1</div>기본 개인 정보</div>
+      <div class="row2">
+        <div class="field">
+          <label>학번 <span class="req">*</span></label>
+          <input type="text" id="student_id" name="student_id" placeholder="예: 2023120001" required>
+          <div class="error-msg" id="err-student_id">학번을 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>이름 <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="홍길동" required>
+          <div class="error-msg" id="err-name">이름을 입력해 주세요.</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>학과/학부 <span class="req">*</span></label>
+          <select id="department" name="department" required>
+            <option value="">— 선택 —</option>
+            <option value="신소재공학부">신소재공학부</option>
+            <option value="전기전자공학부">전기전자공학부</option>
+            <option value="기계공학부">기계공학부</option>
+            <option value="화공생명공학과">화공생명공학과</option>
+            <option value="물리학과">물리학과</option>
+            <option value="기타">기타</option>
+          </select>
+          <div class="error-msg" id="err-department">학과를 선택해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>혈액형 <span class="req">*</span></label>
+          <select id="blood_type" name="blood_type" required>
+            <option value="">— 선택 —</option>
+            <option value="A형">A형</option>
+            <option value="B형">B형</option>
+            <option value="O형">O형</option>
+            <option value="AB형">AB형</option>
+            <option value="불명">불명 / 모름</option>
+          </select>
+          <div class="error-msg" id="err-blood_type">혈액형을 선택해 주세요.</div>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>연락처 (국내) <span class="req">*</span></label>
+          <input type="tel" id="phone" name="phone" placeholder="010-0000-0000" required>
+          <div class="error-msg" id="err-phone">연락처를 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>이메일 <span class="req">*</span></label>
+          <input type="email" id="email" name="email" placeholder="example@korea.ac.kr" required>
+          <div class="error-msg" id="err-email">이메일을 입력해 주세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [2] 여권 정보 -->
+    <div class="card c-purple" style="animation-delay:.09s">
+      <div class="card-title"><div class="card-num">2</div>여권 정보</div>
+      <div class="hint" style="margin-bottom:14px">⚠ 여권 정보는 입국·출국 서류 처리에 사용됩니다. 정확히 입력해 주세요.</div>
+      <div class="row2">
+        <div class="field">
+          <label>여권번호 <span class="req">*</span></label>
+          <input type="text" id="passport_number" name="passport_number" placeholder="예: M12345678" style="font-family:'JetBrains Mono',monospace;letter-spacing:.05em" required>
+          <div class="error-msg" id="err-passport_number">여권번호를 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>여권 만료일 <span class="req">*</span></label>
+          <input type="date" id="passport_expiry" name="passport_expiry" required>
+          <div class="error-msg" id="err-passport_expiry">여권 만료일을 입력해 주세요.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>연수 프로그램명 <span class="req">*</span></label>
+        <input type="text" id="program" name="program" placeholder="예: 2025년 일본 반도체 기업 해외연수" required>
+        <div class="error-msg" id="err-program">연수 프로그램명을 입력해 주세요.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>출국일 <span class="req">*</span></label>
+          <input type="date" id="depart_date" name="depart_date" required>
+          <div class="error-msg" id="err-depart_date">출국일을 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>귀국일 <span class="req">*</span></label>
+          <input type="date" id="return_date" name="return_date" required>
+          <div class="error-msg" id="err-return_date">귀국일을 입력해 주세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- [3] 비상연락망 -->
+    <div class="card c-red" style="animation-delay:.12s">
+      <div class="card-title"><div class="card-num">3</div>비상연락망</div>
+
+      <div class="sub-label">비상연락처 1 (필수)</div>
+      <div class="row3">
+        <div class="field">
+          <label>성명 <span class="req">*</span></label>
+          <input type="text" id="emergency1_name" name="emergency1_name" placeholder="이름" required>
+          <div class="error-msg" id="err-emergency1_name">성명을 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>관계 <span class="req">*</span></label>
+          <select id="emergency1_relation" name="emergency1_relation" required>
+            <option value="">—</option>
+            <option value="부">부(父)</option>
+            <option value="모">모(母)</option>
+            <option value="배우자">배우자</option>
+            <option value="형제/자매">형제/자매</option>
+            <option value="기타 가족">기타 가족</option>
+            <option value="친구/지인">친구/지인</option>
+          </select>
+          <div class="error-msg" id="err-emergency1_relation">관계를 선택해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>연락처 <span class="req">*</span></label>
+          <input type="tel" id="emergency1_phone" name="emergency1_phone" placeholder="010-0000-0000" required>
+          <div class="error-msg" id="err-emergency1_phone">연락처를 입력해 주세요.</div>
+        </div>
+      </div>
+
+      <div class="sub-label">비상연락처 2 <span style="font-weight:400;color:var(--fph);font-size:10px">(선택 — 가능하면 입력 권장)</span></div>
+      <div class="row3">
+        <div class="field">
+          <label>성명 <span class="opt">(선택)</span></label>
+          <input type="text" id="emergency2_name" name="emergency2_name" placeholder="이름">
+        </div>
+        <div class="field">
+          <label>관계 <span class="opt">(선택)</span></label>
+          <select id="emergency2_relation" name="emergency2_relation">
+            <option value="">—</option>
+            <option value="부">부(父)</option>
+            <option value="모">모(母)</option>
+            <option value="배우자">배우자</option>
+            <option value="형제/자매">형제/자매</option>
+            <option value="기타 가족">기타 가족</option>
+            <option value="친구/지인">친구/지인</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>연락처 <span class="opt">(선택)</span></label>
+          <input type="tel" id="emergency2_phone" name="emergency2_phone" placeholder="010-0000-0000">
+        </div>
+      </div>
+    </div>
+
+    <!-- [4] 건강 정보 -->
+    <div class="card c-amber" style="animation-delay:.15s">
+      <div class="card-title"><div class="card-num">4</div>건강 정보</div>
+      <div class="hint" style="margin-bottom:14px">🔒 건강 정보는 연수 중 의료적 응급 상황 대응 목적으로만 사용됩니다.</div>
+
+      <div class="field">
+        <label>복용 중인 약 <span class="opt">(없으면 '없음' 입력)</span></label>
+        <textarea id="medications" name="medications" placeholder="예: 고혈압약(암로디핀 5mg, 1일 1회) — 없을 경우 '없음' 입력"></textarea>
+      </div>
+      <div class="field">
+        <label>지병 / 만성 질환 <span class="opt">(없으면 '없음' 입력)</span></label>
+        <textarea id="conditions" name="conditions" placeholder="예: 당뇨, 천식 등 — 없을 경우 '없음' 입력"></textarea>
+      </div>
+      <div class="field">
+        <label>알레르기 <span class="opt">(없으면 '없음' 입력)</span></label>
+        <input type="text" id="allergies" name="allergies" placeholder="예: 땅콩 알레르기, 항생제 알레르기 등 — 없으면 '없음'">
+      </div>
+
+      <div class="sub-label" style="margin-top:1.25rem">여행자보험 정보 <span style="font-weight:400;color:var(--fph);font-size:10px">(가입 완료 후 입력)</span></div>
+      <div class="row2">
+        <div class="field">
+          <label>보험사 <span class="opt">(선택)</span></label>
+          <input type="text" id="insurance_company" name="insurance_company" placeholder="예: 삼성화재">
+        </div>
+        <div class="field">
+          <label>보험증권번호 <span class="opt">(선택)</span></label>
+          <input type="text" id="insurance_number" name="insurance_number" placeholder="예: 123456789" style="font-family:'JetBrains Mono',monospace">
+        </div>
+      </div>
+    </div>
+
+    <!-- [5] 특이사항 및 동의 -->
+    <div class="card c-green" style="animation-delay:.18s">
+      <div class="card-title"><div class="card-num">5</div>기타 사항 및 개인정보 동의</div>
+      <div class="field">
+        <label>기타 특이사항 <span class="opt">(선택)</span></label>
+        <textarea id="special_notes" name="special_notes" placeholder="연수 기간 중 알려야 할 기타 사항이 있으면 입력해 주세요."></textarea>
+      </div>
+
+      <div class="agree-box" style="margin-top:1.25rem">
+        <strong>개인정보 수집·이용 동의</strong><br>
+        수집 항목: 이름, 학번, 연락처, 여권 정보, 비상연락망, 건강 정보<br>
+        수집·이용 목적: 해외연수 운영 및 비상 상황 대응<br>
+        보유·이용 기간: 연수 종료 후 1개월 이내 파기<br>
+        ※ 동의를 거부하실 수 있으나, 거부 시 해외연수 참가가 불가합니다.
+        <label class="agree-check">
+          <input type="checkbox" id="agree" name="agree">
+          <span>개인정보 수집·이용에 동의합니다 <span style="color:var(--red)">*</span></span>
+        </label>
+        <div class="error-msg" id="err-agree" style="margin-top:6px">개인정보 동의가 필요합니다.</div>
+      </div>
+    </div>
+
+    <!-- 제출 버튼 -->
+    <div class="submit-wrap">
+      <button type="button" class="submit-btn" id="submitBtn" onclick="submitForm()">
+        <div class="spinner"></div>
+        <span class="btn-text">✈ 해외연수 정보 제출하기</span>
+      </button>
+      <div class="form-note">제출 후 수정이 필요하면 사업단(☎ 02-3290-4988)에 문의하세요.</div>
+      <div class="fail-banner" id="failBanner">
+        ⚠️ 제출 중 오류가 발생했습니다. 잠시 후 다시 시도하거나 담당자에게 문의해 주세요. (☎ 02-3290-4988)
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+// ┌──────────────────────────────────────────────────────────┐
+// │  ★ 여기에 Google Apps Script 배포 URL을 입력하세요       │
+// │  (apps_script.gs 참고 → 웹앱으로 배포 후 URL 복사)       │
+// └──────────────────────────────────────────────────────────┘
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+
+function validate() {
+  let ok = true;
+  const required = [
+    'student_id','name','department','blood_type','phone','email',
+    'passport_number','passport_expiry','program','depart_date','return_date',
+    'emergency1_name','emergency1_relation','emergency1_phone',
+  ];
+  required.forEach(id => {
+    const el = document.getElementById(id);
+    const errEl = document.getElementById('err-' + id);
+    if (!el || !el.value.trim()) {
+      if (errEl) errEl.classList.add('show');
+      if (ok) { el && el.focus(); el && el.scrollIntoView({block:'center', behavior:'smooth'}); }
+      ok = false;
+    } else {
+      if (errEl) errEl.classList.remove('show');
+    }
+  });
+
+  // 동의 체크
+  const agree = document.getElementById('agree');
+  const errAgree = document.getElementById('err-agree');
+  if (!agree.checked) {
+    errAgree.classList.add('show');
+    ok = false;
+  } else {
+    errAgree.classList.remove('show');
+  }
+
+  return ok;
+}
+
+async function submitForm() {
+  if (!validate()) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('failBanner').classList.remove('show');
+
+  const getValue = id => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  };
+
+  const data = {
+    form_type: 'overseas',
+    student_id: getValue('student_id'),
+    name: getValue('name'),
+    department: getValue('department'),
+    blood_type: getValue('blood_type'),
+    phone: getValue('phone'),
+    email: getValue('email'),
+    passport_number: getValue('passport_number'),
+    passport_expiry: getValue('passport_expiry'),
+    program: getValue('program'),
+    depart_date: getValue('depart_date'),
+    return_date: getValue('return_date'),
+    emergency1_name: getValue('emergency1_name'),
+    emergency1_relation: getValue('emergency1_relation'),
+    emergency1_phone: getValue('emergency1_phone'),
+    emergency2_name: getValue('emergency2_name'),
+    emergency2_relation: getValue('emergency2_relation'),
+    emergency2_phone: getValue('emergency2_phone'),
+    medications: getValue('medications') || '없음',
+    conditions: getValue('conditions') || '없음',
+    allergies: getValue('allergies') || '없음',
+    insurance_company: getValue('insurance_company'),
+    insurance_number: getValue('insurance_number'),
+    special_notes: getValue('special_notes'),
+  };
+
+  try {
+    const formData = new FormData();
+    Object.entries(data).forEach(([k, v]) => formData.append(k, v));
+
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData,
+    });
+    showSuccess(data);
+  } catch(e) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    document.getElementById('failBanner').classList.add('show');
+  }
+}
+
+function showSuccess(data) {
+  document.getElementById('mainForm').style.display = 'none';
+  const meta = document.getElementById('successMeta');
+  meta.innerHTML = `
+    <strong>제출 정보 요약</strong><br>
+    학번: ${data.student_id} · 이름: ${data.name}<br>
+    프로그램: ${data.program}<br>
+    출국: ${data.depart_date} → 귀국: ${data.return_date}
+  `;
+  document.getElementById('successScreen').classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('input', () => {
+    const errEl = document.getElementById('err-' + el.id);
+    if (errEl) errEl.classList.remove('show');
+  });
+  el.addEventListener('change', () => {
+    const errEl = document.getElementById('err-' + el.id);
+    if (errEl) errEl.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>

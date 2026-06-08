@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>참석 일정 조사 · 차세대반도체 융합전공</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── 구글 시트 연동 URL ── */
+/* 아래 SCRIPT_URL은 JS 부분에서 설정합니다 */
+
+:root{
+  /* 다크 헤더/네비 */
+  --hbg:#07091a;--hborder:#1c2440;--htext:#dce5f8;--htext2:#7a8ab0;
+  --blue:#4a7ef7;--blue-l:rgba(74,126,247,.1);
+  --red:#c8392b;
+  /* 폼 영역 (라이트) */
+  --fbg:#f5f7fc;--fcard:#ffffff;--fborder:#e2e8f4;
+  --ftext:#1a2035;--ftext2:#52627a;--fph:#9aacc8;
+  --focus:#4a7ef7;
+  --green:#10b981;--green-l:rgba(16,185,129,.1);
+  --amber:#f5a623;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--fbg);color:var(--ftext);min-height:100vh}
+
+/* ── 상단 바 ── */
+.topbar{
+  background:var(--hbg);border-bottom:1px solid var(--hborder);
+  padding:0 1.5rem;display:flex;align-items:center;
+  justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;
+}
+.back{
+  display:flex;align-items:center;gap:7px;color:var(--htext2);
+  text-decoration:none;font-size:13px;transition:color .15s;
+}
+.back:hover{color:var(--htext)}
+.back svg{opacity:.7}
+.topbar-title{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--htext2);letter-spacing:.08em;
+}
+.ku-badge-sm{
+  font-size:10px;font-weight:700;background:var(--red);color:#fff;
+  padding:3px 8px;border-radius:4px;letter-spacing:.04em;
+}
+
+/* ── 폼 래퍼 ── */
+.wrap{max-width:680px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+/* ── 폼 헤더 ── */
+.form-head{margin-bottom:2rem;animation:up .5s ease both}
+.form-cat{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  font-weight:600;color:var(--blue);letter-spacing:.12em;
+  text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;
+}
+.form-cat::before{content:'';width:20px;height:2px;background:var(--blue);border-radius:2px}
+.form-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.form-head p{font-size:13px;color:var(--ftext2);line-height:1.7}
+
+/* ── 카드 ── */
+.card{
+  background:var(--fcard);border:1px solid var(--fborder);
+  border-radius:12px;padding:1.5rem;margin-bottom:1rem;
+  animation:up .5s ease both;
+}
+.card-title{
+  font-size:13px;font-weight:700;color:var(--ftext);
+  margin-bottom:1.25rem;display:flex;align-items:center;gap:8px;
+}
+.card-title-num{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--blue-l);color:var(--blue);
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+
+/* ── 폼 필드 ── */
+.field{margin-bottom:1.1rem}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;font-size:12px;font-weight:600;
+  color:var(--ftext2);margin-bottom:6px;letter-spacing:.01em;
+}
+.field label .req{color:var(--red);margin-left:2px}
+.field label .opt{font-weight:400;color:var(--fph);font-size:11px;margin-left:4px}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 13px;
+  border:1.5px solid var(--fborder);border-radius:8px;
+  font-size:14px;font-family:'Noto Sans KR',sans-serif;
+  color:var(--ftext);background:var(--fbg);outline:none;
+  transition:border-color .15s,background .15s;
+  -webkit-appearance:none;appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--focus);background:#fff;
+}
+.field textarea{min-height:80px;resize:vertical;line-height:1.6}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%2352627a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:34px;cursor:pointer;
+}
+
+/* 2열 그리드 */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:480px){.row2{grid-template-columns:1fr}}
+
+/* 라디오/체크박스 그룹 */
+.radio-group{display:flex;flex-wrap:wrap;gap:8px}
+.radio-opt{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 14px;border:1.5px solid var(--fborder);
+  border-radius:8px;cursor:pointer;font-size:13px;
+  transition:all .15s;user-select:none;background:#fff;
+}
+.radio-opt:hover{border-color:var(--blue);color:var(--blue)}
+.radio-opt input{width:15px;height:15px;accent-color:var(--blue);cursor:pointer}
+.radio-opt.selected{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+
+/* 날짜 필드 힌트 */
+.hint{font-size:11px;color:var(--fph);margin-top:5px;line-height:1.5}
+
+/* ── 제출 버튼 ── */
+.submit-wrap{margin-top:1.5rem;animation:up .5s .12s ease both}
+.submit-btn{
+  width:100%;padding:14px;border-radius:10px;border:none;
+  background:var(--blue);color:#fff;
+  font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;
+  cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.submit-btn:hover{background:#3568e0;transform:translateY(-1px);box-shadow:0 4px 16px rgba(74,126,247,.3)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{background:#8aaae8;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* 스피너 */
+.spinner{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,.4);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;
+}
+.submit-btn.loading .spinner{display:block}
+.submit-btn.loading .btn-text{display:none}
+
+/* 안내문 */
+.form-note{
+  font-size:12px;color:var(--ftext2);line-height:1.7;
+  text-align:center;margin-top:12px;
+}
+
+/* ── 성공 화면 ── */
+.success-screen{
+  display:none;background:var(--fcard);border:1px solid var(--fborder);
+  border-radius:12px;padding:3rem 2rem;text-align:center;
+  animation:up .5s ease both;
+}
+.success-screen.show{display:block}
+.success-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--green-l);display:flex;align-items:center;
+  justify-content:center;margin:0 auto 1.25rem;font-size:24px;
+}
+.success-screen h2{font-size:18px;font-weight:700;margin-bottom:8px}
+.success-screen p{font-size:13px;color:var(--ftext2);line-height:1.7;margin-bottom:1.5rem}
+.another-btn{
+  display:inline-flex;align-items:center;gap:6px;padding:10px 20px;
+  border-radius:8px;border:1.5px solid var(--fborder);
+  background:transparent;font-size:13px;font-family:'Noto Sans KR',sans-serif;
+  color:var(--ftext2);cursor:pointer;transition:all .15s;
+}
+.another-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* 오류 메시지 */
+.error-msg{
+  font-size:12px;color:var(--red);margin-top:5px;display:none
+}
+.error-msg.show{display:block}
+
+/* 제출 실패 배너 */
+.fail-banner{
+  background:#fdf0ee;border:1px solid #f5c6c0;border-radius:8px;
+  padding:12px 16px;font-size:12px;color:var(--red);
+  line-height:1.6;margin-top:12px;display:none;
+}
+.fail-banner.show{display:block}
+
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- 상단 바 -->
+<div class="topbar">
+  <a href="index.html" class="back">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    포털 홈
+  </a>
+  <span class="topbar-title">SCHEDULE SURVEY</span>
+  <span class="ku-badge-sm">KU</span>
+</div>
+
+<div class="wrap">
+
+  <!-- 폼 헤더 -->
+  <div class="form-head">
+    <div class="form-cat">Survey · 참석 조사</div>
+    <h1>참석 일정 조사</h1>
+    <p>행사·세미나·연수 등 프로그램 참석 가능 일정을 제출합니다.<br>
+    별표(<span style="color:var(--red)">*</span>)가 표시된 항목은 필수입니다.</p>
+  </div>
+
+  <!-- 성공 화면 (제출 후 표시) -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <h2>제출이 완료되었습니다</h2>
+    <p>일정 조사에 참여해 주셔서 감사합니다.<br>제출하신 내용은 프로그램 계획 수립에 활용됩니다.</p>
+    <button class="another-btn" onclick="resetForm()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5A4.5 4.5 0 1 0 6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 2.5v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      다른 응답 제출하기
+    </button>
+  </div>
+
+  <!-- 메인 폼 -->
+  <form id="mainForm" novalidate>
+
+    <!-- [1] 프로그램 정보 -->
+    <div class="card" style="animation-delay:.04s">
+      <div class="card-title"><div class="card-title-num">1</div> 프로그램 정보</div>
+      <div class="field">
+        <label>프로그램 구분 <span class="req">*</span></label>
+        <select id="prog_type" name="prog_type" required>
+          <option value="">— 선택하세요 —</option>
+          <option value="해외연수">해외연수</option>
+          <option value="국내연수">국내연수</option>
+          <option value="산학세미나">산학세미나</option>
+          <option value="특강/워크숍">특강 / 워크숍</option>
+          <option value="기업탐방">기업탐방</option>
+          <option value="기타">기타</option>
+        </select>
+        <div class="error-msg" id="err-prog_type">프로그램 구분을 선택해 주세요.</div>
+      </div>
+      <div class="field">
+        <label>행사/프로그램명 <span class="req">*</span></label>
+        <input type="text" id="program" name="program" placeholder="예: 2025년 하반기 일본 반도체 기업 탐방" required>
+        <div class="error-msg" id="err-program">프로그램명을 입력해 주세요.</div>
+      </div>
+    </div>
+
+    <!-- [2] 기본 정보 -->
+    <div class="card" style="animation-delay:.08s">
+      <div class="card-title"><div class="card-title-num">2</div> 학생 기본 정보</div>
+      <div class="row2">
+        <div class="field">
+          <label>학번 <span class="req">*</span></label>
+          <input type="text" id="student_id" name="student_id" placeholder="예: 2023120001" required>
+          <div class="error-msg" id="err-student_id">학번을 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>이름 <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="홍길동" required>
+          <div class="error-msg" id="err-name">이름을 입력해 주세요.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>학과/학부 <span class="req">*</span></label>
+        <select id="department" name="department" required>
+          <option value="">— 선택하세요 —</option>
+          <option value="신소재공학부">신소재공학부</option>
+          <option value="전기전자공학부">전기전자공학부</option>
+          <option value="기계공학부">기계공학부</option>
+          <option value="화공생명공학과">화공생명공학과</option>
+          <option value="물리학과">물리학과</option>
+          <option value="기타">기타</option>
+        </select>
+        <div class="error-msg" id="err-department">학과를 선택해 주세요.</div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>연락처 <span class="req">*</span></label>
+          <input type="tel" id="phone" name="phone" placeholder="010-0000-0000" required>
+          <div class="error-msg" id="err-phone">연락처를 입력해 주세요.</div>
+        </div>
+        <div class="field">
+          <label>이메일 <span class="opt">(선택)</span></label>
+          <input type="email" id="email" name="email" placeholder="example@korea.ac.kr">
+        </div>
+      </div>
+    </div>
+
+    <!-- [3] 참석 가능 여부 -->
+    <div class="card" style="animation-delay:.12s">
+      <div class="card-title"><div class="card-title-num">3</div> 참석 가능 여부</div>
+      <div class="field">
+        <label>참석 의사 <span class="req">*</span></label>
+        <div class="radio-group" id="attendGroup">
+          <label class="radio-opt" onclick="selectRadio(this,'attend','가능')">
+            <input type="radio" name="attend" value="가능"> 참석 가능
+          </label>
+          <label class="radio-opt" onclick="selectRadio(this,'attend','불가')">
+            <input type="radio" name="attend" value="불가"> 불참 / 미정
+          </label>
+        </div>
+        <div class="error-msg" id="err-attend">참석 여부를 선택해 주세요.</div>
+      </div>
+
+      <!-- 참석 가능 시 표시 -->
+      <div id="availSection">
+        <div class="field">
+          <label>참석 가능 날짜 <span class="req">*</span></label>
+          <div class="row2">
+            <div>
+              <input type="date" id="date_from" name="date_from">
+              <div class="hint">시작일</div>
+            </div>
+            <div>
+              <input type="date" id="date_to" name="date_to">
+              <div class="hint">종료일 (당일 행사라면 동일하게 입력)</div>
+            </div>
+          </div>
+          <div class="error-msg" id="err-date">참석 가능 날짜를 입력해 주세요.</div>
+        </div>
+      </div>
+
+      <!-- 불참 시 표시 -->
+      <div id="absentSection" style="display:none">
+        <div class="field">
+          <label>불참 사유 <span class="opt">(선택)</span></label>
+          <textarea id="absent_reason" name="absent_reason" placeholder="불참 사유를 간략히 적어주세요 (학업, 개인 사정 등)"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- [4] 추가 정보 -->
+    <div class="card" style="animation-delay:.16s">
+      <div class="card-title"><div class="card-title-num">4</div> 추가 사항</div>
+      <div class="field">
+        <label>기타 문의/비고 <span class="opt">(선택)</span></label>
+        <textarea id="notes" name="notes" placeholder="참석과 관련하여 문의하실 내용이나 특이사항이 있다면 적어주세요."></textarea>
+      </div>
+    </div>
+
+    <!-- 제출 -->
+    <div class="submit-wrap">
+      <button type="button" class="submit-btn" id="submitBtn" onclick="submitForm()">
+        <div class="spinner"></div>
+        <span class="btn-text">제출하기</span>
+      </button>
+      <div class="form-note">제출 후 수정이 필요하면 사업단(☎ 02-3290-4988)에 문의하세요.</div>
+      <div class="fail-banner" id="failBanner">
+        ⚠️ 제출 중 오류가 발생했습니다. 잠시 후 다시 시도하거나 담당자에게 문의해 주세요. (☎ 02-3290-4988)
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+// ┌──────────────────────────────────────────────────────────┐
+// │  ★ 여기에 Google Apps Script 배포 URL을 입력하세요       │
+// │  (apps_script.gs 참고 → 웹앱으로 배포 후 URL 복사)       │
+// └──────────────────────────────────────────────────────────┘
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+
+// 라디오 버튼 선택
+function selectRadio(label, name, value) {
+  document.querySelectorAll(`.radio-opt`).forEach(l => {
+    if (l.closest(`#${name}Group`) || l.parentElement.id === name + 'Group') {
+      // do nothing — controlled below
+    }
+  });
+  const group = label.closest('.radio-group');
+  if (!group) return;
+  group.querySelectorAll('.radio-opt').forEach(l => l.classList.remove('selected'));
+  label.classList.add('selected');
+  label.querySelector('input').checked = true;
+
+  // 참석 여부에 따라 섹션 표시
+  if (name === 'attend') {
+    const avail = document.getElementById('availSection');
+    const absent = document.getElementById('absentSection');
+    if (value === '가능') {
+      avail.style.display = 'block';
+      absent.style.display = 'none';
+    } else {
+      avail.style.display = 'none';
+      absent.style.display = 'block';
+    }
+  }
+}
+
+// 필수 검증
+function validate() {
+  let ok = true;
+  const required = [
+    {id:'prog_type', errId:'err-prog_type'},
+    {id:'program',   errId:'err-program'},
+    {id:'student_id',errId:'err-student_id'},
+    {id:'name',      errId:'err-name'},
+    {id:'department',errId:'err-department'},
+    {id:'phone',     errId:'err-phone'},
+  ];
+  required.forEach(({id, errId}) => {
+    const el = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!el || !el.value.trim()) {
+      err.classList.add('show');
+      if (ok) { el.focus(); el.scrollIntoView({block:'center'}); }
+      ok = false;
+    } else {
+      err.classList.remove('show');
+    }
+  });
+
+  // 참석 여부 체크
+  const attendVal = document.querySelector('input[name="attend"]:checked');
+  const errAttend = document.getElementById('err-attend');
+  if (!attendVal) {
+    errAttend.classList.add('show');
+    ok = false;
+  } else {
+    errAttend.classList.remove('show');
+    // 참석 가능인 경우 날짜 체크
+    if (attendVal.value === '가능') {
+      const df = document.getElementById('date_from').value;
+      const dt = document.getElementById('date_to').value;
+      const errDate = document.getElementById('err-date');
+      if (!df || !dt) {
+        errDate.classList.add('show');
+        ok = false;
+      } else {
+        errDate.classList.remove('show');
+      }
+    }
+  }
+  return ok;
+}
+
+async function submitForm() {
+  if (!validate()) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('failBanner').classList.remove('show');
+
+  const attendVal = document.querySelector('input[name="attend"]:checked');
+  const attend = attendVal ? attendVal.value : '';
+
+  const data = {
+    form_type:     'schedule',
+    prog_type:     document.getElementById('prog_type').value,
+    program:       document.getElementById('program').value,
+    student_id:    document.getElementById('student_id').value,
+    name:          document.getElementById('name').value,
+    department:    document.getElementById('department').value,
+    phone:         document.getElementById('phone').value,
+    email:         document.getElementById('email').value,
+    attend:        attend,
+    date_from:     attend === '가능' ? document.getElementById('date_from').value : '',
+    date_to:       attend === '가능' ? document.getElementById('date_to').value : '',
+    absent_reason: attend !== '가능' ? document.getElementById('absent_reason').value : '',
+    notes:         document.getElementById('notes').value,
+  };
+
+  // Google Apps Script는 no-cors로 POST (응답 읽기 불가 — 정상 동작)
+  try {
+    const formData = new FormData();
+    Object.entries(data).forEach(([k, v]) => formData.append(k, v));
+
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData,
+    });
+    showSuccess();
+  } catch(e) {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+    document.getElementById('failBanner').classList.add('show');
+  }
+}
+
+function showSuccess() {
+  document.getElementById('mainForm').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function resetForm() {
+  document.getElementById('mainForm').reset();
+  document.getElementById('mainForm').style.display = 'block';
+  document.getElementById('successScreen').classList.remove('show');
+  // 라디오 선택 초기화
+  document.querySelectorAll('.radio-opt').forEach(l => l.classList.remove('selected'));
+  document.getElementById('availSection').style.display = 'block';
+  document.getElementById('absentSection').style.display = 'none';
+  // 버튼 초기화
+  const btn = document.getElementById('submitBtn');
+  btn.classList.remove('loading');
+  btn.disabled = false;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// input 변경 시 오류 메시지 숨기기
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('input', () => {
+    const errEl = document.getElementById('err-' + el.id);
+    if (errEl) errEl.classList.remove('show');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학생 설문 포털 · 차세대반도체 융합전공</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07091a;--surface:#0c1024;--surface2:#111629;
+  --border:#1c2440;--border2:#283260;
+  --text:#dce5f8;--text2:#7a8ab0;--text3:#3e4e78;
+  --green:#10b981;--green-l:rgba(16,185,129,.1);--green-b:rgba(16,185,129,.35);
+  --red:#c8392b;
+  /* 테마 색상 변수 (JS에서 카드별로 적용) */
+  --blue:#4a7ef7;--blue-l:rgba(74,126,247,.1);
+  --cyan:#10c8d4;--cyan-l:rgba(16,200,212,.1);
+  --amber:#f5a623;--amber-l:rgba(245,166,35,.1);
+  --purple:#7c3aed;--purple-l:rgba(124,58,237,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(16,185,129,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(16,185,129,.018) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;z-index:0}
+.glow-tr{position:fixed;top:-160px;right:-160px;width:440px;height:440px;
+  background:radial-gradient(circle,rgba(16,185,129,.07) 0%,transparent 68%);pointer-events:none;z-index:0}
+.glow-bl{position:fixed;bottom:-140px;left:-140px;width:380px;height:380px;
+  background:radial-gradient(circle,rgba(74,126,247,.05) 0%,transparent 68%);pointer-events:none;z-index:0}
+
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:3rem 1.5rem 6rem}
+
+/* ── 헤더 ── */
+.hdr{margin-bottom:2.75rem;animation:up .55s ease both}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1.25rem}
+.ku-badge{display:inline-flex;align-items:center;gap:7px;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:5px;letter-spacing:.05em}
+.ku-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5)}
+.portal-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:.06em}
+.hdr h1{font-size:clamp(24px,4vw,36px);font-weight:900;letter-spacing:-.035em;line-height:1.2;margin-bottom:.75rem}
+.hdr h1 em{font-style:normal;color:var(--green)}
+.hdr p{font-size:13.5px;color:var(--text2);line-height:1.8;max-width:560px}
+
+/* ── 관리자 안내 배너 (설정 안됐을 때만) ── */
+.config-banner{
+  display:none;
+  background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);
+  border-left:3px solid var(--amber);border-radius:8px;
+  padding:12px 16px;font-size:12px;color:#8a6500;line-height:1.7;
+  margin-bottom:1.5rem;
+}
+.config-banner.show{display:block}
+
+/* ── 섹션 라벨 ── */
+.sec-label{display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:1rem;animation:up .55s .06s ease both}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── 로딩 스켈레톤 ── */
+.skeleton-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+.skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;animation:up .55s .08s ease both}
+.sk{background:linear-gradient(90deg,var(--border) 25%,var(--border2) 50%,var(--border) 75%);background-size:200% 100%;border-radius:6px;animation:shimmer 1.4s infinite}
+.sk-tag{height:12px;width:60px;margin-bottom:14px}
+.sk-title{height:18px;width:75%;margin-bottom:10px}
+.sk-text{height:11px;width:90%;margin-bottom:6px}
+.sk-text2{height:11px;width:65%;margin-bottom:20px}
+.sk-btn{height:30px;width:110px;border-radius:7px}
+
+/* ── 폼 카드 ── */
+#formsGrid{display:none;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem;animation:up .4s ease both}
+#formsGrid.show{display:grid}
+
+.form-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:1.5rem;
+  text-decoration:none;color:var(--text);display:block;
+  position:relative;overflow:hidden;transition:all .2s;
+  cursor:pointer;
+}
+.form-card::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s}
+.form-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.form-card:hover::after{opacity:1}
+
+/* 마감 배지 */
+.deadline-badge{
+  position:absolute;top:14px;right:14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:600;
+  padding:3px 9px;border-radius:99px;
+}
+.deadline-ok{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.deadline-close{background:rgba(200,57,43,.12);color:var(--red);border:1px solid rgba(200,57,43,.25)}
+
+.card-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:1.1rem;position:relative;z-index:1}
+.card-cat{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;position:relative;z-index:1}
+.card-name{font-size:15px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px;position:relative;z-index:1}
+.card-desc{font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:1.25rem;position:relative;z-index:1}
+.card-cta{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:8px 15px;border-radius:8px;position:relative;z-index:1}
+.arrow{display:inline-block;transition:transform .15s}
+.form-card:hover .arrow{transform:translateX(4px)}
+
+/* 빈 상태 */
+.empty-state{
+  display:none;text-align:center;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:3.5rem 2rem;
+  animation:up .4s ease both;
+}
+.empty-state.show{display:block}
+.empty-icon{font-size:36px;margin-bottom:1rem;opacity:.5}
+.empty-state h2{font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text2)}
+.empty-state p{font-size:13px;color:var(--text3);line-height:1.7}
+
+/* 오류 상태 */
+.error-state{
+  display:none;
+  background:rgba(200,57,43,.06);border:1px solid rgba(200,57,43,.2);
+  border-radius:10px;padding:14px 18px;font-size:12px;color:var(--text2);line-height:1.7;
+}
+.error-state.show{display:block}
+
+/* ── 새로고침 버튼 ── */
+.refresh-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 14px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--text3);
+  font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;
+  margin-bottom:1.5rem;
+}
+.refresh-btn:hover{border-color:var(--green);color:var(--green)}
+.refresh-btn svg{transition:transform .3s}
+.refresh-btn.spinning svg{transform:rotate(360deg);transition:transform .7s linear}
+
+/* ── 상태바 / 푸터 ── */
+.statusbar{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);padding:14px 0;border-top:1px solid var(--border);margin-top:2rem;animation:up .55s .28s ease both}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blink 2.2s infinite}
+.last-updated{margin-left:auto;font-size:10px}
+.footer{padding-top:1.25rem;font-size:11.5px;color:var(--text3);line-height:1.9;animation:up .55s .32s ease both}
+
+/* 체크리스트 링크 */
+.checklist-link{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border:1px dashed var(--border2);border-radius:10px;color:var(--text3);font-size:12.5px;text-decoration:none;transition:all .2s;margin-top:2rem;animation:up .55s .24s ease both}
+.checklist-link:hover{border-color:var(--red);color:var(--red)}
+
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:580px){.wrap{padding:2rem 1rem 4rem}}
+</style>
+</head>
+<body>
+
+<div class="glow-tr"></div>
+<div class="glow-bl"></div>
+
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <header class="hdr">
+    <div class="hdr-top">
+      <span class="ku-badge">고려대학교 · 반도체특성화대학</span>
+      <span class="portal-id">URL2 · SURVEY PORTAL</span>
+    </div>
+    <h1>학생 설문<br><em>&amp; 정보 제출</em> 포털</h1>
+    <p>현재 진행 중인 설문 및 정보 제출 폼이 아래에 표시됩니다.<br>
+    관리자가 폼을 열고 닫으면 이 화면이 자동으로 업데이트됩니다.</p>
+  </header>
+
+  <!-- 관리자 설정 안내 (SCRIPT_URL 미설정 시) -->
+  <div class="config-banner" id="configBanner">
+    ⚙️ <strong>관리자 설정 필요</strong> — <code>apps_script.gs</code>를 Apps Script에 배포한 뒤,
+    이 파일 상단의 <code>SCRIPT_URL</code>에 배포 URL을 입력해 주세요.
+  </div>
+
+  <!-- 새로고침 버튼 -->
+  <button class="refresh-btn" id="refreshBtn" onclick="reloadForms()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+      <path d="M2 6.5A4.5 4.5 0 1 0 6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M2 2.5v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    새로고침
+  </button>
+
+  <!-- 섹션 라벨 -->
+  <div class="sec-label">현재 진행 중인 설문 &amp; 제출</div>
+
+  <!-- 로딩 스켈레톤 -->
+  <div class="skeleton-grid" id="skeletonGrid">
+    <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
+    <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
+  </div>
+
+  <!-- 폼 카드 (동적 렌더링) -->
+  <div id="formsGrid"></div>
+
+  <!-- 빈 상태 -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">📭</div>
+    <h2>현재 진행 중인 설문이 없습니다</h2>
+    <p>새로운 설문이 시작되면 이 화면에 자동으로 표시됩니다.<br>
+    문의: 차세대AI반도체특성화대학사업단 ☎ 02-3290-4988</p>
+  </div>
+
+  <!-- 오류 상태 -->
+  <div class="error-state" id="errorState">
+    ⚠️ 설문 목록을 불러오지 못했습니다. 잠시 후 새로고침 해주세요.<br>
+    계속 문제가 발생하면 담당자에게 문의해 주세요. (☎ 02-3290-4988)
+  </div>
+
+  <!-- 체크리스트 포털 링크 -->
+  <a href="portal_checklist.html" class="checklist-link">
+    ← 이수 체크리스트 포털 (URL1) 로 이동
+  </a>
+
+  <!-- 상태바 -->
+  <div class="statusbar">
+    <div class="dot-live"></div>
+    <span>URL2 · 학생 설문 포털</span>
+    <span class="last-updated" id="lastUpdated"></span>
+  </div>
+
+  <footer class="footer">
+    차세대AI반도체특성화대학사업단 · ☎ 02-3290-4988 · kistar.korea.ac.kr<br>
+    ※ 입력된 정보는 사업단 내부 용도로만 사용됩니다.
+  </footer>
+
+</div>
+
+<script>
+// ┌────────────────────────────────────────────────────────────────────┐
+// │  ★ 아래 URL을 Apps Script 배포 URL로 교체하세요                   │
+// │  설정 방법: apps_script.gs 파일의 주석 참고                        │
+// └────────────────────────────────────────────────────────────────────┘
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+
+// ── 테마별 색상 정의 ──
+const THEMES = {
+  blue:   {ic:'#4a7ef7', icBg:'rgba(74,126,247,.1)',  border:'rgba(74,126,247,.35)', glow:'rgba(74,126,247,.08)',  ctaBg:'rgba(74,126,247,.12)'},
+  cyan:   {ic:'#10c8d4', icBg:'rgba(16,200,212,.1)',  border:'rgba(16,200,212,.35)', glow:'rgba(16,200,212,.08)', ctaBg:'rgba(16,200,212,.12)'},
+  green:  {ic:'#10b981', icBg:'rgba(16,185,129,.1)',  border:'rgba(16,185,129,.35)', glow:'rgba(16,185,129,.08)', ctaBg:'rgba(16,185,129,.12)'},
+  amber:  {ic:'#f5a623', icBg:'rgba(245,166,35,.1)',  border:'rgba(245,166,35,.35)', glow:'rgba(245,166,35,.08)', ctaBg:'rgba(245,166,35,.12)'},
+  red:    {ic:'#c8392b', icBg:'rgba(200,57,43,.12)',  border:'rgba(200,57,43,.35)',  glow:'rgba(200,57,43,.07)',  ctaBg:'rgba(200,57,43,.12)'},
+  purple: {ic:'#7c3aed', icBg:'rgba(124,58,237,.1)',  border:'rgba(124,58,237,.35)', glow:'rgba(124,58,237,.07)', ctaBg:'rgba(124,58,237,.12)'},
+};
+
+// ── 마감일 남은 일수 계산 ──
+function getDaysLeft(deadlineStr) {
+  if (!deadlineStr) return null;
+  const deadline = new Date(deadlineStr);
+  if (isNaN(deadline)) return null;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  deadline.setHours(0,0,0,0);
+  return Math.ceil((deadline - today) / (1000*60*60*24));
+}
+
+// ── 카드 HTML 생성 ──
+function createCardHTML(form) {
+  const theme = THEMES[form.theme] || THEMES.blue;
+  const daysLeft = getDaysLeft(form.deadline);
+
+  let deadlineBadge = '';
+  if (daysLeft !== null) {
+    if (daysLeft < 0) {
+      deadlineBadge = `<span class="deadline-badge deadline-close">마감됨</span>`;
+    } else if (daysLeft === 0) {
+      deadlineBadge = `<span class="deadline-badge deadline-close">오늘 마감</span>`;
+    } else if (daysLeft <= 3) {
+      deadlineBadge = `<span class="deadline-badge deadline-close">D-${daysLeft}</span>`;
+    } else {
+      deadlineBadge = `<span class="deadline-badge deadline-ok">D-${daysLeft}</span>`;
+    }
+  }
+
+  const card = document.createElement('a');
+  card.href = form.link || '#';
+  card.className = 'form-card';
+  card.style.cssText = `--card-ic:${theme.ic};--card-ic-bg:${theme.icBg}`;
+  card.innerHTML = `
+    <style>.form-card[data-id="${form.id}"]::after{background:radial-gradient(circle at 110% 0%,${theme.glow},transparent 55%)}</style>
+    ${deadlineBadge}
+    <div class="card-ic" style="background:${theme.icBg}">${form.icon || '📋'}</div>
+    <div class="card-cat" style="color:${theme.ic}">설문 · 제출</div>
+    <div class="card-name">${form.name || '이름 없음'}</div>
+    <div class="card-desc">${form.desc || ''}</div>
+    <span class="card-cta" style="background:${theme.ctaBg};color:${theme.ic}">
+      참여하기 <span class="arrow">→</span>
+    </span>
+  `;
+  card.dataset.id = form.id;
+  card.style.cursor = 'pointer';
+
+  // 마감된 경우 클릭 막기
+  if (daysLeft !== null && daysLeft < 0) {
+    card.style.opacity = '0.45';
+    card.style.pointerEvents = 'none';
+  }
+
+  return card;
+}
+
+// ── 폼 카드 렌더링 ──
+function renderForms(forms) {
+  const grid = document.getElementById('formsGrid');
+  const empty = document.getElementById('emptyState');
+
+  grid.innerHTML = '';
+
+  if (!forms || forms.length === 0) {
+    grid.classList.remove('show');
+    empty.classList.add('show');
+  } else {
+    empty.classList.remove('show');
+    forms.forEach(form => grid.appendChild(createCardHTML(form)));
+    grid.classList.add('show');
+  }
+
+  // 마지막 업데이트 시간
+  const now = new Date();
+  document.getElementById('lastUpdated').textContent =
+    `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} 갱신`;
+}
+
+// ── JSONP 로딩 (CORS 우회) ──
+let loadTimeout = null;
+let callbackName = null;
+
+function loadForms() {
+  // URL 미설정 체크
+  if (SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec') {
+    document.getElementById('configBanner').classList.add('show');
+    document.getElementById('skeletonGrid').style.display = 'none';
+    document.getElementById('emptyState').classList.add('show');
+    return;
+  }
+
+  // 기존 JSONP 정리
+  if (callbackName && window[callbackName]) delete window[callbackName];
+  const oldScript = document.getElementById('__jsonpScript');
+  if (oldScript) oldScript.remove();
+  clearTimeout(loadTimeout);
+
+  // 스켈레톤 표시
+  document.getElementById('skeletonGrid').style.display = 'grid';
+  document.getElementById('formsGrid').classList.remove('show');
+  document.getElementById('emptyState').classList.remove('show');
+  document.getElementById('errorState').classList.remove('show');
+
+  callbackName = '__surveyPortalCB_' + Date.now();
+
+  // 콜백 함수 등록
+  window[callbackName] = function(data) {
+    clearTimeout(loadTimeout);
+    delete window[callbackName];
+    const s = document.getElementById('__jsonpScript');
+    if (s) s.remove();
+    document.getElementById('skeletonGrid').style.display = 'none';
+    renderForms(data.forms || []);
+  };
+
+  // 8초 타임아웃
+  loadTimeout = setTimeout(() => {
+    if (window[callbackName]) {
+      delete window[callbackName];
+      document.getElementById('skeletonGrid').style.display = 'none';
+      document.getElementById('errorState').classList.add('show');
+    }
+  }, 8000);
+
+  // JSONP 스크립트 삽입
+  const script = document.createElement('script');
+  script.id = '__jsonpScript';
+  script.src = SCRIPT_URL + '?callback=' + callbackName;
+  script.onerror = function() {
+    clearTimeout(loadTimeout);
+    if (window[callbackName]) delete window[callbackName];
+    document.getElementById('skeletonGrid').style.display = 'none';
+    document.getElementById('errorState').classList.add('show');
+  };
+  document.head.appendChild(script);
+}
+
+// ── 새로고침 버튼 ──
+function reloadForms() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  setTimeout(() => btn.classList.remove('spinning'), 700);
+  loadForms();
+}
+
+// ── 페이지 로드 시 실행 ──
+window.addEventListener('DOMContentLoaded', loadForms);
+</script>
+</body>
+</html>
