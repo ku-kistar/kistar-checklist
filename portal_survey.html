@@ -4,324 +4,365 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>융합전공 설문 · 데이터 허브 | KI-STAR</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0b1929;
-  --surface:#0f2035;
-  --surface2:#152640;
-  --border:rgba(14,165,233,.14);
-  --border2:rgba(14,165,233,.3);
-  --text:#e8f4ff;
-  --text2:#7aaac8;
-  --text3:#3a6080;
-  --blue:#0ea5e9;
-  --blue-l:rgba(14,165,233,.12);
-  --blue-m:rgba(14,165,233,.2);
-  --red:#c8392b;
-  --green:#10b981;
-  --green-l:rgba(16,185,129,.14);
-  --amber:#f5a623;
-  --amber-l:rgba(245,166,35,.12);
-  --cyan:#06c8d4;
-  --purple:#818cf8;
-  --grid:rgba(14,165,233,.04);
-}
+:root{--blue:#0ea5e9;--navy:#0b1f3a;--red:#c8392b}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100vh;overflow-x:hidden;word-break:keep-all}
 
-/* 배경 그리드 */
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:
-    linear-gradient(var(--grid) 1px,transparent 1px),
-    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
-  background-size:48px 48px;pointer-events:none;z-index:0;
-}
+/* 배경 */
+.bg-wrap{position:fixed;inset:0;z-index:0;background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%)}
+.bg-grid{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(90deg,#0ea5e9 1px,transparent 1px),linear-gradient(0deg,#0ea5e9 1px,transparent 1px);background-size:48px 48px}
+.bg-g1{position:absolute;top:-20%;left:-10%;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.08) 0%,transparent 60%);pointer-events:none}
+.bg-g2{position:absolute;bottom:-15%;right:-8%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,57,43,.06) 0%,transparent 60%);pointer-events:none}
 
-/* ── 히어로 ── */
-.hero{
-  position:relative;z-index:1;
-  padding:3.5rem 2rem 3rem;
-  background:linear-gradient(150deg,#0e2444 0%,#091828 55%,#07111e 100%);
-  border-bottom:1px solid var(--border);overflow:hidden;
-}
-.hero::before{
-  content:'';position:absolute;top:-100px;right:-80px;
-  width:500px;height:500px;
-  background:radial-gradient(circle,rgba(14,165,233,.09) 0%,transparent 65%);
-  pointer-events:none;
-}
-.hero::after{
-  content:'';position:absolute;bottom:-80px;left:5%;
-  width:320px;height:320px;
-  background:radial-gradient(circle,rgba(6,200,212,.05) 0%,transparent 65%);
-  pointer-events:none;
-}
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:2rem}
 
-.hero-inner{
-  max-width:900px;margin:0 auto;
-  display:flex;align-items:flex-start;gap:2.5rem;
-}
+/* 헤더 */
+.header{width:100%;max-width:680px;padding:2.4rem 2rem 0;display:flex;align-items:center;gap:22px}
+.chip-wrap{flex-shrink:0;animation:chipFloat 4s ease-in-out infinite}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.header-text{display:flex;flex-direction:column;gap:5px}
+.header-org{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(14,165,233,.65);white-space:nowrap}
+.header-title{font-size:clamp(20px,4.8vw,42px);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.03em}
+.header-title .line1{display:block;font-size:.55em;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:-.01em;margin-bottom:.15em}
+.header-title .accent{color:var(--blue)}
 
-/* 칩 아이콘 */
-.chip-wrap{flex-shrink:0;margin-top:4px;animation:chipGlow 3s ease-in-out infinite alternate}
-.chip-svg{width:96px;height:96px}
+/* 메시지 */
+.main-msg{width:100%;max-width:680px;padding:1.8rem 2rem .2rem}
+.msg-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.msg-list li{display:flex;align-items:flex-start;gap:10px;line-height:1.55}
+.msg-list li .dot{flex-shrink:0;margin-top:.15em}
+.msg-main{font-size:clamp(13px,2.1vw,16px);color:rgba(255,255,255,.75)}
+.msg-main .dot{color:var(--blue);font-size:1.1em;font-weight:900}
 
-/* 히어로 텍스트 */
-.hero-text{flex:1;position:relative;z-index:1}
-
-.ku-label{
-  display:block;
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;font-weight:600;
-  color:var(--blue);letter-spacing:.13em;text-transform:uppercase;
-  margin-bottom:.6rem;
-}
-
-/* 체크리스트와 동일한 소제목 스타일 */
-.hero-sub{
-  font-size:clamp(18px,2.4vw,22px);
-  font-weight:500;
-  color:rgba(255,255,255,.9);
-  letter-spacing:-.01em;
-  margin-bottom:.15rem;
-  line-height:1.3;
-}
-
-/* 체크리스트와 동일한 메인 타이틀 스타일 */
-.hero-title{
-  font-size:clamp(36px,5.5vw,54px);
-  font-weight:900;
-  color:#fff;
-  letter-spacing:-.04em;
-  line-height:1.1;
-  margin-bottom:1.5rem;
-}
-.hero-title em{font-style:normal;color:var(--blue)}
-
-/* 불릿 (체크리스트와 동일한 구조) */
-.hero-bullets{list-style:none;display:flex;flex-direction:column;gap:7px}
-.hero-bullets li{
-  font-size:14px;color:rgba(255,255,255,.75);
-  display:flex;align-items:center;gap:8px;
-  line-height:1.5;
-}
-.hero-bullets li::before{content:'·';color:var(--blue);font-weight:900;font-size:18px;line-height:1}
-
-/* ── 메인 콘텐츠 ── */
-.main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem}
-
-/* 섹션 헤더 */
-.sec-header{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:1.25rem;
-}
-.sec-label{
-  display:flex;align-items:center;gap:10px;
-  font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:600;color:var(--text3);
-  letter-spacing:.14em;text-transform:uppercase;flex:1;
-}
-.sec-label::after{content:'';flex:1;height:1px;background:var(--border);margin-left:10px}
-
-/* 새로고침 버튼 */
-.refresh-btn{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:5px 11px;border-radius:6px;
-  border:1px solid var(--border2);background:transparent;
-  color:var(--text3);font-size:11px;
-  font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;
-  white-space:nowrap;
-}
+/* 폼 카드 섹션 */
+.forms-section{width:100%;max-width:680px;padding:1.4rem 2rem 0}
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:rgba(255,255,255,.25);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex:1}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);margin-left:8px}
+.refresh-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid rgba(14,165,233,.25);background:transparent;color:rgba(255,255,255,.35);font-size:11px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
 .refresh-btn:hover{border-color:var(--blue);color:var(--blue)}
-.refresh-btn svg{transition:transform .3s}
 .refresh-btn.spinning svg{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── 로딩 스켈레톤 ── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
-.skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem}
-.sk{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface) 50%,var(--surface2) 75%);background-size:200% 100%;border-radius:6px;animation:shimmer 1.5s infinite}
-.sk-tag{height:11px;width:55px;margin-bottom:14px}
-.sk-title{height:18px;width:70%;margin-bottom:10px}
-.sk-text{height:10px;width:90%;margin-bottom:5px}
-.sk-text2{height:10px;width:60%;margin-bottom:18px}
-.sk-btn{height:30px;width:100px;border-radius:7px}
+/* 스켈레톤 */
+.forms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.skeleton-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1.25rem}
+.sk{background:linear-gradient(90deg,rgba(255,255,255,.06) 25%,rgba(255,255,255,.1) 50%,rgba(255,255,255,.06) 75%);background-size:200% 100%;border-radius:5px;animation:shimmer 1.5s infinite}
+.sk-tag{height:10px;width:50px;margin-bottom:12px}.sk-title{height:16px;width:70%;margin-bottom:8px}.sk-text{height:9px;width:88%;margin-bottom:5px}.sk-text2{height:9px;width:55%;margin-bottom:16px}.sk-btn{height:28px;width:90px;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ── 폼 카드 ── */
-#formsGrid{display:none;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem}
+/* 폼 카드 */
+#formsGrid{display:none;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
 #formsGrid.show{display:grid}
-
-.form-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;padding:1.5rem;
-  text-decoration:none;color:var(--text);
-  position:relative;overflow:hidden;
-  transition:border-color .2s,transform .2s,box-shadow .2s;display:block;
-}
-.form-card::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;pointer-events:none}
-.form-card:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.4)}
-.form-card:hover::after{opacity:1}
-
-/* D-day 배지 */
-.dday{position:absolute;top:14px;right:14px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px}
-.dday-ok{background:var(--green-l);color:var(--green);border:1px solid rgba(16,185,129,.25)}
-.dday-warn{background:rgba(200,57,43,.1);color:#e06060;border:1px solid rgba(200,57,43,.25)}
-
-.card-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:1.1rem;position:relative;z-index:1}
-.card-cat{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;position:relative;z-index:1}
-.card-name{font-size:15px;font-weight:700;letter-spacing:-.02em;margin-bottom:8px;position:relative;z-index:1;line-height:1.35}
-.card-desc{font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:1.3rem;position:relative;z-index:1}
-.card-cta{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:8px 15px;border-radius:8px;position:relative;z-index:1}
+.form-card{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:1.35rem;text-decoration:none;color:#fff;display:block;position:relative;overflow:hidden;transition:all .2s}
+.form-card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.dday{position:absolute;top:12px;right:12px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.dday-ok{background:rgba(16,185,129,.15);color:#5ec8a0;border:1px solid rgba(16,185,129,.25)}
+.dday-warn{background:rgba(200,57,43,.12);color:#f08070;border:1px solid rgba(200,57,43,.25)}
+.card-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:.9rem}
+.card-cat{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.card-name{font-size:14px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;line-height:1.35}
+.card-desc{font-size:11px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:1rem}
+.card-cta{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:7px 13px;border-radius:7px}
 .arrow{display:inline-block;transition:transform .15s}
-.form-card:hover .arrow{transform:translateX(4px)}
+.form-card:hover .arrow{transform:translateX(3px)}
 
-/* 빈 상태 */
-.empty-state{display:none;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4rem 2rem}
+/* 빈/오류 상태 */
+.empty-state{display:none;text-align:center;padding:3rem 1.5rem;color:rgba(255,255,255,.3)}
 .empty-state.show{display:block}
-.empty-icon{font-size:40px;margin-bottom:1rem;opacity:.4}
-.empty-state h2{font-size:17px;font-weight:700;color:var(--text2);margin-bottom:8px}
-.empty-state p{font-size:13px;color:var(--text3);line-height:1.7}
-
-/* 오류 */
-.error-state{display:none;background:rgba(200,57,43,.06);border:1px solid rgba(200,57,43,.2);border-radius:10px;padding:14px 18px;font-size:12px;color:var(--text2);line-height:1.7}
+.empty-state h3{font-size:15px;margin-bottom:6px;color:rgba(255,255,255,.45)}
+.empty-state p{font-size:12px;line-height:1.7}
+.error-state{display:none;background:rgba(200,57,43,.06);border:1px solid rgba(200,57,43,.2);border-radius:8px;padding:12px 16px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.7}
 .error-state.show{display:block}
 
-/* 상태바 · 푸터 */
-.statusbar{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);padding:14px 0;border-top:1px solid var(--border);margin-top:1rem}
-.dot-live{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:blink 2.2s infinite}
-.last-updated{margin-left:auto;font-size:10px}
-.footer{padding-top:1.25rem;font-size:11.5px;color:var(--text3);line-height:1.9}
+/* 하단 */
+.footer{width:100%;padding:1.4rem 1.5rem;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 16px;font-size:11px;color:rgba(255,255,255,.35);margin-top:2rem}
+.footer-dot{width:2px;height:2px;border-radius:50%;background:rgba(255,255,255,.2)}
 
-@keyframes chipGlow{from{filter:drop-shadow(0 0 6px rgba(14,165,233,.35))}to{filter:drop-shadow(0 0 20px rgba(14,165,233,.65))}}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+/* ── 인증 오버레이 ── */
+#auth-overlay{position:fixed;inset:0;z-index:9999;background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%);display:flex;align-items:center;justify-content:center;padding:1.5rem}
+#auth-overlay.hidden{display:none}
+.auth-card{width:100%;max-width:400px;background:rgba(255,255,255,.05);border:1px solid rgba(14,165,233,.2);border-radius:16px;padding:2rem 1.8rem}
+.auth-logo{text-align:center;margin-bottom:1.5rem}
+.auth-title{font-size:17px;font-weight:700;color:#fff;text-align:center;margin-bottom:.4rem}
+.auth-sub{font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:1.6rem;line-height:1.6}
+.auth-field{margin-bottom:1rem}
+.auth-field label{display:block;font-size:11px;font-weight:600;color:rgba(14,165,233,.8);margin-bottom:.4rem;letter-spacing:.05em}
+.auth-field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .15s}
+.auth-field input:focus{border-color:rgba(14,165,233,.6)}
+.auth-field input::placeholder{color:rgba(255,255,255,.25)}
+.pw-wrap{position:relative;display:flex;align-items:center}
+.pw-wrap input{padding-right:40px;width:100%}
+.pw-toggle{position:absolute;right:10px;background:none;border:none;cursor:pointer;padding:4px;color:rgba(255,255,255,.4);transition:color .15s;display:flex;align-items:center}
+.pw-toggle:hover{color:rgba(255,255,255,.8)}
+.auth-btn{width:100%;padding:12px;margin-top:.5rem;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .15s}
+.auth-btn:hover{opacity:.88}
+.auth-btn:disabled{opacity:.5;cursor:default}
+.auth-msg{margin-top:.9rem;font-size:12px;text-align:center;min-height:18px}
+.auth-msg.error{color:#f08070}
+.auth-msg.loading{color:rgba(255,255,255,.45)}
+.auth-msg.success{color:#5ec8b0}
 
-@media(max-width:640px){
-  .hero-inner{flex-direction:column;gap:1.5rem}
-  .hero{padding:2.5rem 1.25rem 2.5rem}
-  .chip-svg{width:72px;height:72px}
-  .main{padding:1.5rem 1rem 4rem}
+/* 유저 바 */
+#user-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;align-items:center;justify-content:flex-end;gap:8px;padding:8px 16px;background:rgba(11,31,58,.92);backdrop-filter:blur(8px)}
+.user-badge{font-size:11px;font-weight:600;color:rgba(14,165,233,.85);background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.25);padding:5px 10px;border-radius:99px;white-space:nowrap}
+.logout-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.logout-btn:hover{background:rgba(200,57,43,.15);border-color:rgba(200,57,43,.4);color:#f08070}
+
+/* 8시간 만료 안내 */
+.expired-notice{display:none;width:100%;max-width:680px;padding:.8rem 2rem 0}
+.expired-notice.show{display:block}
+.expired-box{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:rgba(245,166,35,.85);line-height:1.6}
+
+@media(max-width:480px){
+  .header{padding:1.8rem 1.2rem 0;gap:14px}
+  .main-msg{padding:1.4rem 1.2rem .2rem}
+  .forms-section{padding:1.2rem 1.2rem 0}
 }
 </style>
 </head>
 <body>
 
-<!-- ── 히어로 ── -->
-<div class="hero">
-  <div class="hero-inner">
+<!-- 유저 바 -->
+<div id="user-bar">
+  <span class="user-badge" id="user-name-badge"></span>
+  <button class="logout-btn" onclick="doLogout()">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2M7 8l3-3-3-3M10 5.5H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    로그아웃
+  </button>
+</div>
 
-    <!-- 칩 아이콘 -->
-    <div class="chip-wrap">
-      <svg class="chip-svg" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="20" y="20" width="56" height="56" rx="7" fill="#0c2d4a" stroke="#0ea5e9" stroke-width="1.4"/>
-        <rect x="32" y="32" width="32" height="32" rx="4" fill="#091e34" stroke="#0ea5e9" stroke-width="1" stroke-opacity=".55"/>
-        <!-- KU 뱃지 -->
-        <circle cx="48" cy="48" r="10" fill="#c8392b" opacity=".95"/>
-        <text x="48" y="52" font-family="sans-serif" font-size="9" font-weight="900" fill="#fff" text-anchor="middle">KU</text>
-        <!-- 상단 핀 -->
-        <line x1="33" y1="20" x2="33" y2="12" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="43" y1="20" x2="43" y2="12" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="53" y1="20" x2="53" y2="12" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="63" y1="20" x2="63" y2="12" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- 하단 핀 -->
-        <line x1="33" y1="76" x2="33" y2="84" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="43" y1="76" x2="43" y2="84" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="53" y1="76" x2="53" y2="84" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="63" y1="76" x2="63" y2="84" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- 좌측 핀 -->
-        <line x1="20" y1="33" x2="12" y2="33" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="20" y1="43" x2="12" y2="43" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="20" y1="53" x2="12" y2="53" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="20" y1="63" x2="12" y2="63" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- 우측 핀 -->
-        <line x1="76" y1="33" x2="84" y2="33" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="76" y1="43" x2="84" y2="43" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="76" y1="53" x2="84" y2="53" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <line x1="76" y1="63" x2="84" y2="63" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
-        <!-- 코너 장식 -->
-        <circle cx="36" cy="36" r="1.8" fill="#0ea5e9" fill-opacity=".45"/>
-        <circle cx="60" cy="36" r="1.8" fill="#0ea5e9" fill-opacity=".45"/>
-        <circle cx="36" cy="60" r="1.8" fill="#0ea5e9" fill-opacity=".45"/>
-        <circle cx="60" cy="60" r="1.8" fill="#0ea5e9" fill-opacity=".45"/>
+<!-- 인증 오버레이 -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
+        <rect x="13" y="13" width="46" height="46" rx="8" fill="rgba(14,165,233,0.08)" stroke="#0ea5e9" stroke-width="2"/>
+        <circle cx="36" cy="36" r="7" fill="rgba(200,57,43,0.2)" stroke="#c8392b" stroke-width="1"/>
+        <text x="36" y="39.5" text-anchor="middle" font-size="8" font-weight="900" fill="#e05040" font-family="Arial,sans-serif">KU</text>
       </svg>
     </div>
-
-    <!-- 텍스트 -->
-    <div class="hero-text">
-      <span class="ku-label">Korea University · KI-STAR Center</span>
-      <div class="hero-sub">차세대반도체 융합전공</div>
-      <div class="hero-title">융합전공 설문 · <em>데이터 허브</em></div>
-      <ul class="hero-bullets">
-        <li>각종 설문 및 행사 참석 조사 참여</li>
-        <li>해외연수 · 프로그램 필수 정보 제출</li>
-        <li>수시 개설 · 수시 마감 운영</li>
-      </ul>
+    <div class="auth-title">KI-STAR 융합전공 데이터 허브</div>
+    <div class="auth-sub">접속을 위해 학번과 생년월일을 입력해주세요<br>교직원은 교번과 생년월일을 입력하세요</div>
+    <div class="auth-field">
+      <label>학번 / 교번</label>
+      <input type="text" id="auth-id" placeholder="학번 또는 교번 입력" maxlength="20">
     </div>
-
+    <div class="auth-field">
+      <label>생년월일 8자리</label>
+      <div class="pw-wrap">
+        <input type="password" id="auth-birth" placeholder="예: 20010315" maxlength="8" inputmode="numeric">
+        <button class="pw-toggle" type="button" onclick="togglePw()">
+          <svg id="eyeOn" width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M1 9C2.5 5.5 5.5 3 9 3s6.5 2.5 8 6c-1.5 3.5-4.5 6-8 6S2.5 12.5 1 9z" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
+          <svg id="eyeOff" width="17" height="17" viewBox="0 0 18 18" fill="none" style="display:none"><path d="M1 9C2.5 5.5 5.5 3 9 3s6.5 2.5 8 6c-1.5 3.5-4.5 6-8 6S2.5 12.5 1 9z" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="2" x2="16" y2="16" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
+    <div class="auth-msg" id="auth-msg"></div>
   </div>
 </div>
 
-<!-- ── 메인 ── -->
-<div class="main">
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="bg-g1"></div>
+  <div class="bg-g2"></div>
+</div>
 
-  <div class="sec-header">
-    <div class="sec-label">진행 중인 설문 &amp; 제출</div>
-    <button class="refresh-btn" id="refreshBtn" onclick="reloadForms()">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M1.5 6A4.5 4.5 0 1 0 6 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        <path d="M1.5 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="page">
+
+  <!-- 헤더 -->
+  <div class="header">
+    <div class="chip-wrap">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+        <rect x="13" y="13" width="46" height="46" rx="8" fill="rgba(14,165,233,0.08)" stroke="#0ea5e9" stroke-width="2"/>
+        <line x1="24" y1="13" x2="24" y2="6"  stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="36" y1="13" x2="36" y2="6"  stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="48" y1="13" x2="48" y2="6"  stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="24" y1="59" x2="24" y2="66" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="36" y1="59" x2="36" y2="66" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="48" y1="59" x2="48" y2="66" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="13" y1="24" x2="6"  y2="24" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="13" y1="36" x2="6"  y2="36" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="13" y1="48" x2="6"  y2="48" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="59" y1="24" x2="66" y2="24" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="59" y1="36" x2="66" y2="36" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="59" y1="48" x2="66" y2="48" stroke="#0ea5e9" stroke-width="1.8" stroke-linecap="round"/>
+        <rect x="22" y="22" width="28" height="28" rx="5" fill="rgba(14,165,233,0.1)" stroke="#0ea5e9" stroke-width="1"/>
+        <circle cx="28" cy="28" r="2" fill="#0ea5e9" opacity=".45"/>
+        <circle cx="44" cy="28" r="2" fill="#0ea5e9" opacity=".45"/>
+        <circle cx="28" cy="44" r="2" fill="#0ea5e9" opacity=".45"/>
+        <circle cx="44" cy="44" r="2" fill="#0ea5e9" opacity=".45"/>
+        <circle cx="36" cy="36" r="7" fill="rgba(200,57,43,0.2)" stroke="#c8392b" stroke-width="1"/>
+        <text x="36" y="39.5" text-anchor="middle" font-size="8" font-weight="900" fill="#e05040" font-family="Arial,sans-serif">KU</text>
       </svg>
-      새로고침
-    </button>
+    </div>
+    <div class="header-text">
+      <div class="header-org">Korea University · KI-STAR Center</div>
+      <h1 class="header-title">
+        <span class="line1">차세대반도체 융합전공</span>
+        융합전공 설문 · <span class="accent">데이터 허브</span>
+      </h1>
+    </div>
   </div>
 
-  <!-- 로딩 스켈레톤 -->
-  <div class="grid" id="skeletonGrid">
-    <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
-    <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
+  <!-- 메시지 -->
+  <div class="main-msg">
+    <ul class="msg-list">
+      <li class="msg-main"><span class="dot">·</span><span>각종 설문 및 행사 참석 조사 참여</span></li>
+      <li class="msg-main"><span class="dot">·</span><span>해외연수 · 프로그램 필수 정보 제출</span></li>
+      <li class="msg-main"><span class="dot">·</span><span>수시 개설 · 수시 마감 운영</span></li>
+    </ul>
   </div>
 
-  <!-- 동적 폼 카드 -->
-  <div id="formsGrid"></div>
+  <!-- 폼 섹션 -->
+  <div class="forms-section">
+    <div class="sec-header">
+      <div class="sec-label">진행 중인 설문 &amp; 제출</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="reloadForms()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 6A4.5 4.5 0 1 0 6 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M1.5 2v4h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        새로고침
+      </button>
+    </div>
 
-  <!-- 빈 상태 -->
-  <div class="empty-state" id="emptyState">
-    <div class="empty-icon">📭</div>
-    <h2>현재 진행 중인 설문이 없습니다</h2>
-    <p>새로운 설문이 시작되면 이 화면에 자동으로 표시됩니다.<br>
-    문의: 차세대AI반도체특성화대학사업단 ☎ 02-3290-4988</p>
+    <!-- 로딩 -->
+    <div class="forms-grid" id="skeletonGrid">
+      <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
+      <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
+    </div>
+
+    <div id="formsGrid"></div>
+
+    <div class="empty-state" id="emptyState">
+      <div style="font-size:36px;opacity:.3;margin-bottom:.8rem">📭</div>
+      <h3>현재 진행 중인 설문이 없습니다</h3>
+      <p>새로운 설문이 시작되면 이 화면에 자동으로 표시됩니다.<br>문의: ☎ 02-3290-4988</p>
+    </div>
+    <div class="error-state" id="errorState">⚠️ 목록을 불러오지 못했습니다. 새로고침 해주세요. (☎ 02-3290-4988)</div>
   </div>
 
-  <!-- 오류 -->
-  <div class="error-state" id="errorState">
-    ⚠️ 목록을 불러오지 못했습니다. 잠시 후 새로고침 해주세요. (☎ 02-3290-4988)
+  <div class="footer">
+    <span>차세대AI반도체특성화대학사업단</span>
+    <span class="footer-dot"></span>
+    <span>☎ 02-3290-4988</span>
+    <span class="footer-dot"></span>
+    <span>kistar.korea.ac.kr</span>
+    <div style="width:100%;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.25);text-align:center">
+      © 고려대학교 차세대AI반도체특성화대학사업단. All rights reserved.
+    </div>
   </div>
-
-  <!-- 상태바 -->
-  <div class="statusbar">
-    <div class="dot-live"></div>
-    <span>KI-STAR · 융합전공 설문 · 데이터 허브</span>
-    <span class="last-updated" id="lastUpdated"></span>
-  </div>
-
-  <footer class="footer">
-    차세대AI반도체특성화대학사업단 · ☎ 02-3290-4988 · kistar.korea.ac.kr<br>
-    © 고려대학교 차세대AI반도체특성화대학사업단. All rights reserved.
-  </footer>
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+// ── URL 설정 ──
+const EXEC_URL   = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec'; // 로그인 검증
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec'; // 설문 목록
+const AUTH_KEY   = 'kistar_auth';
+const EXPIRE_MS  = 8 * 60 * 60 * 1000; // 8시간
 
+// ── 8시간 만료 체크 ──
+function checkAuth() {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) return null;
+    const auth = JSON.parse(raw);
+    if (!auth) return null;
+    // loginTime 없으면 지금 시각 저장 (기존 세션 호환)
+    if (!auth.loginTime) {
+      auth.loginTime = Date.now();
+      localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+    }
+    if (Date.now() - auth.loginTime > EXPIRE_MS) {
+      localStorage.removeItem(AUTH_KEY);
+      return null;
+    }
+    return auth;
+  } catch(e) { return null; }
+}
+
+// ── 로그인 ──
+document.getElementById('auth-id').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('auth-birth').focus(); });
+document.getElementById('auth-birth').addEventListener('keydown', e => { if(e.key==='Enter') doAuth(); });
+
+function doAuth() {
+  const sid   = document.getElementById('auth-id').value.trim();
+  const birth = document.getElementById('auth-birth').value.trim();
+  const msg   = document.getElementById('auth-msg');
+  const btn   = document.getElementById('auth-btn');
+  if (!sid || !birth) { showMsg('error','학번과 생년월일을 모두 입력해주세요.'); return; }
+  if (birth.length !== 8 || !/^\d{8}$/.test(birth)) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
+  btn.disabled = true;
+  showMsg('loading','확인 중...');
+  const url = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth);
+  fetch(url)
+    .then(r => r.json())
+    .then(result => {
+      if (result.status === 'ok') {
+        showMsg('success', result.name + '님, 환영합니다!');
+        localStorage.setItem(AUTH_KEY, JSON.stringify({
+          name: result.name, dept: result.dept, studentId: sid,
+          role: result.role || '', isAdmin: result.isAdmin || false,
+          isStaff: result.isStaff || false,
+          loginTime: Date.now()
+        }));
+        setTimeout(() => {
+          document.getElementById('auth-overlay').classList.add('hidden');
+          showUserBar();
+          loadForms();
+        }, 700);
+      } else {
+        showMsg('error','학번 또는 생년월일이 일치하지 않습니다.');
+        btn.disabled = false;
+      }
+    })
+    .catch(() => { showMsg('error','오류가 발생했습니다. 다시 시도해주세요.'); btn.disabled = false; });
+}
+
+function showMsg(type, text) {
+  const el = document.getElementById('auth-msg');
+  el.className = 'auth-msg ' + type;
+  el.textContent = text;
+}
+
+function doLogout() {
+  localStorage.removeItem(AUTH_KEY);
+  document.getElementById('auth-overlay').classList.remove('hidden');
+  document.getElementById('user-bar').style.display = 'none';
+  document.getElementById('auth-id').value = '';
+  document.getElementById('auth-birth').value = '';
+  document.getElementById('auth-msg').textContent = '';
+  document.getElementById('auth-btn').disabled = false;
+  document.getElementById('formsGrid').classList.remove('show');
+  document.getElementById('emptyState').classList.remove('show');
+}
+
+function showUserBar() {
+  const auth = checkAuth();
+  if (!auth) return;
+  document.getElementById('user-name-badge').textContent = auth.name + '님';
+  const bar = document.getElementById('user-bar');
+  bar.style.display = 'flex';
+  document.querySelector('.page').style.paddingTop = '44px';
+}
+
+function togglePw() {
+  const input = document.getElementById('auth-birth');
+  const on = document.getElementById('eyeOn');
+  const off = document.getElementById('eyeOff');
+  if (input.type === 'password') { input.type = 'text'; on.style.display='none'; off.style.display='block'; }
+  else { input.type = 'password'; on.style.display='block'; off.style.display='none'; }
+}
+
+// ── 테마 ──
 const THEMES = {
-  blue:   {ic:'#0ea5e9', icBg:'rgba(14,165,233,.12)',  border:'rgba(14,165,233,.38)', glow:'rgba(14,165,233,.08)',  cta:'rgba(14,165,233,.15)'},
-  cyan:   {ic:'#06c8d4', icBg:'rgba(6,200,212,.12)',   border:'rgba(6,200,212,.38)',  glow:'rgba(6,200,212,.07)',   cta:'rgba(6,200,212,.15)'},
-  green:  {ic:'#10b981', icBg:'rgba(16,185,129,.12)',  border:'rgba(16,185,129,.38)', glow:'rgba(16,185,129,.07)',  cta:'rgba(16,185,129,.15)'},
-  amber:  {ic:'#f5a623', icBg:'rgba(245,166,35,.12)',  border:'rgba(245,166,35,.38)', glow:'rgba(245,166,35,.07)',  cta:'rgba(245,166,35,.15)'},
-  red:    {ic:'#e06060', icBg:'rgba(200,57,43,.12)',   border:'rgba(200,57,43,.38)',  glow:'rgba(200,57,43,.07)',   cta:'rgba(200,57,43,.15)'},
-  purple: {ic:'#818cf8', icBg:'rgba(129,140,248,.12)', border:'rgba(129,140,248,.38)',glow:'rgba(129,140,248,.07)', cta:'rgba(129,140,248,.15)'},
+  blue:   {ic:'#0ea5e9',icBg:'rgba(14,165,233,.15)',border:'rgba(14,165,233,.35)',glow:'rgba(14,165,233,.08)',cta:'rgba(14,165,233,.15)'},
+  cyan:   {ic:'#06c8d4',icBg:'rgba(6,200,212,.15)', border:'rgba(6,200,212,.35)', glow:'rgba(6,200,212,.07)', cta:'rgba(6,200,212,.15)'},
+  green:  {ic:'#10b981',icBg:'rgba(16,185,129,.15)',border:'rgba(16,185,129,.35)',glow:'rgba(16,185,129,.07)',cta:'rgba(16,185,129,.15)'},
+  amber:  {ic:'#f5a623',icBg:'rgba(245,166,35,.15)',border:'rgba(245,166,35,.35)',glow:'rgba(245,166,35,.07)',cta:'rgba(245,166,35,.15)'},
+  red:    {ic:'#e06060',icBg:'rgba(200,57,43,.15)', border:'rgba(200,57,43,.35)', glow:'rgba(200,57,43,.07)', cta:'rgba(200,57,43,.15)'},
+  purple: {ic:'#818cf8',icBg:'rgba(129,140,248,.15)',border:'rgba(129,140,248,.35)',glow:'rgba(129,140,248,.07)',cta:'rgba(129,140,248,.15)'},
 };
 
 function getDaysLeft(str) {
@@ -344,20 +385,15 @@ function createCard(form) {
   const a = document.createElement('a');
   a.href = form.link || '#';
   a.className = 'form-card';
-  if (dl !== null && dl < 0) { a.style.opacity = '.4'; a.style.pointerEvents = 'none'; }
-  a.innerHTML = `
-    ${dday}
-    <div class="card-ic" style="background:${th.icBg}">${form.icon || '📋'}</div>
+  if (dl !== null && dl < 0) { a.style.opacity='.4'; a.style.pointerEvents='none'; }
+  a.innerHTML = `${dday}
+    <div class="card-ic" style="background:${th.icBg}">${form.icon||'📋'}</div>
     <div class="card-cat" style="color:${th.ic}">설문 · 제출</div>
     <div class="card-name">${form.name}</div>
     <div class="card-desc">${form.desc}</div>
-    <span class="card-cta" style="background:${th.cta};color:${th.ic}">참여하기 <span class="arrow">→</span></span>
-  `;
-  // 호버 시 테마 색 테두리
-  a.addEventListener('mouseenter', () => a.style.borderColor = th.border);
-  a.addEventListener('mouseleave', () => a.style.borderColor = '');
-  // 호버 글로우
-  a.style.setProperty('--glow', th.glow);
+    <span class="card-cta" style="background:${th.cta};color:${th.ic}">참여하기 <span class="arrow">→</span></span>`;
+  a.addEventListener('mouseenter',()=>a.style.borderColor=th.border);
+  a.addEventListener('mouseleave',()=>a.style.borderColor='');
   return a;
 }
 
@@ -365,63 +401,55 @@ function renderForms(forms) {
   const grid = document.getElementById('formsGrid');
   const empty = document.getElementById('emptyState');
   grid.innerHTML = '';
-  if (!forms || !forms.length) {
-    grid.classList.remove('show'); empty.classList.add('show');
-  } else {
-    empty.classList.remove('show');
-    forms.forEach(f => grid.appendChild(createCard(f)));
-    grid.classList.add('show');
-  }
-  const now = new Date();
-  document.getElementById('lastUpdated').textContent =
-    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 갱신`;
+  if (!forms||!forms.length) { grid.classList.remove('show'); empty.classList.add('show'); }
+  else { empty.classList.remove('show'); forms.forEach(f=>grid.appendChild(createCard(f))); grid.classList.add('show'); }
 }
 
-let cbName = null, loadTO = null;
-
+let cbName=null, loadTO=null;
 function loadForms() {
-  if (cbName && window[cbName]) delete window[cbName];
-  const old = document.getElementById('__jsonp'); if (old) old.remove();
+  const auth = checkAuth();
+  if (!auth) return; // 로그인 안됐으면 로드 안함
+  if (cbName&&window[cbName]) delete window[cbName];
+  const old=document.getElementById('__jsonp'); if(old) old.remove();
   clearTimeout(loadTO);
-
-  document.getElementById('skeletonGrid').style.display = 'grid';
+  document.getElementById('skeletonGrid').style.display='grid';
   document.getElementById('formsGrid').classList.remove('show');
   document.getElementById('emptyState').classList.remove('show');
   document.getElementById('errorState').classList.remove('show');
-
-  cbName = '__sCB_' + Date.now();
-  window[cbName] = data => {
+  cbName='__sCB_'+Date.now();
+  window[cbName]=data=>{
     clearTimeout(loadTO); delete window[cbName];
-    const s = document.getElementById('__jsonp'); if (s) s.remove();
-    document.getElementById('skeletonGrid').style.display = 'none';
-    renderForms(data.forms || []);
+    const s=document.getElementById('__jsonp'); if(s) s.remove();
+    document.getElementById('skeletonGrid').style.display='none';
+    renderForms(data.forms||[]);
   };
-  loadTO = setTimeout(() => {
-    if (window[cbName]) delete window[cbName];
-    document.getElementById('skeletonGrid').style.display = 'none';
+  loadTO=setTimeout(()=>{
+    if(window[cbName]) delete window[cbName];
+    document.getElementById('skeletonGrid').style.display='none';
     document.getElementById('errorState').classList.add('show');
-  }, 8000);
-
-  const s = document.createElement('script');
-  s.id = '__jsonp';
-  s.src = SCRIPT_URL + '?callback=' + cbName;
-  s.onerror = () => {
-    clearTimeout(loadTO);
-    if (window[cbName]) delete window[cbName];
-    document.getElementById('skeletonGrid').style.display = 'none';
-    document.getElementById('errorState').classList.add('show');
-  };
+  },8000);
+  const s=document.createElement('script');
+  s.id='__jsonp'; s.src=SCRIPT_URL+'?callback='+cbName;
+  s.onerror=()=>{ clearTimeout(loadTO); if(window[cbName]) delete window[cbName]; document.getElementById('skeletonGrid').style.display='none'; document.getElementById('errorState').classList.add('show'); };
   document.head.appendChild(s);
 }
 
 function reloadForms() {
-  const btn = document.getElementById('refreshBtn');
+  const btn=document.getElementById('refreshBtn');
   btn.classList.add('spinning');
-  setTimeout(() => btn.classList.remove('spinning'), 700);
+  setTimeout(()=>btn.classList.remove('spinning'),700);
   loadForms();
 }
 
-window.addEventListener('DOMContentLoaded', loadForms);
+// ── 초기 실행 ──
+(function() {
+  const auth = checkAuth();
+  if (auth) {
+    document.getElementById('auth-overlay').classList.add('hidden');
+    showUserBar();
+    loadForms();
+  }
+})();
 </script>
 </body>
 </html>

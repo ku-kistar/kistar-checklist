@@ -235,7 +235,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <p style="font-size:32px;margin-bottom:1rem">🔒</p>
   <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
   <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">관리자 계정으로 로그인 후 이용하세요.</p>
-  <a href="./" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">대문으로 돌아가기</a>
+  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">대문으로 돌아가기</a>
 </div>
 
 <div id="main-content" style="display:none">
@@ -245,7 +245,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <span class="top-badge">관리자</span>
     <span class="top-title">2026학년도 1학기 활동계획서 제출</span>
   </div>
-  <a href="./" class="top-back">
+  <a href="portal_survey.html" class="top-back">
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     대문으로
   </a>
@@ -722,9 +722,29 @@ function getCoursePlan() {
 window.addEventListener('DOMContentLoaded', function() {
   try {
     const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
-    if (!auth || !auth.isAdmin) {
+    // 로그인 체크
+    if (!auth) {
       document.getElementById('access-denied').style.display = 'block';
       return;
+    }
+    // 8시간 만료 체크
+    const EXPIRE_MS = 8 * 60 * 60 * 1000;
+    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+      localStorage.removeItem('kistar_auth');
+      document.getElementById('access-denied').innerHTML = '<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a>';
+      document.getElementById('access-denied').style.display = 'block';
+      return;
+    }
+    // 중복 제출 이력 확인 (경고만, 재제출 허용)
+    const SUBMIT_KEY = 'kistar_plan_' + (auth.studentId || '') + '_submitted';
+    const prevSubmit = localStorage.getItem(SUBMIT_KEY);
+    if (prevSubmit) {
+      try {
+        const prev = JSON.parse(prevSubmit);
+        const prevDate = new Date(prev.submittedAt).toLocaleDateString('ko-KR');
+        document.getElementById('submitResult').className = 'submit-result show success';
+        document.getElementById('submitResult').innerHTML = '⚠️ <strong>' + prevDate + '</strong>에 이미 제출한 이력이 있습니다. 재제출하면 기존 내용을 덮어씁니다.';
+      } catch(e) {}
     }
     document.getElementById('main-content').style.display = 'block';
     isAdmin = auth.isAdmin || false;
@@ -1023,7 +1043,18 @@ function submitForm() {
 function showResult(type, msg) {
   const el = document.getElementById('submitResult');
   el.className = 'submit-result show ' + type;
-  el.textContent = msg;
+  if (type === 'success' && msg.includes('제출되었습니다')) {
+    try {
+      const auth = JSON.parse(localStorage.getItem('kistar_auth') || '{}');
+      const now = new Date();
+      const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+      const SUBMIT_KEY = 'kistar_plan_' + (auth.studentId||'') + '_submitted';
+      localStorage.setItem(SUBMIT_KEY, JSON.stringify({submittedAt: now.toISOString(), name: auth.name}));
+      el.innerHTML = '✅ 활동계획서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">' + (auth.name||'') + ' · ' + (auth.studentId||'') + ' · ' + ts + '</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 포털로 돌아가기</a>';
+    } catch(e) { el.textContent = msg; }
+  } else {
+    el.textContent = msg;
+  }
 }
 </script>
 </body>

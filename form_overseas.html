@@ -528,16 +528,51 @@ async function submitForm() {
 
 function showSuccess(data) {
   document.getElementById('mainForm').style.display = 'none';
+  // 중복 제출 기록 저장
+  try {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth') || '{}');
+    const SUBMIT_KEY = 'kistar_overseas_' + (auth.studentId||data.student_id||'') + '_submitted';
+    localStorage.setItem(SUBMIT_KEY, JSON.stringify({submittedAt: new Date().toISOString(), name: data.name}));
+  } catch(e) {}
+  const now = new Date();
+  const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   const meta = document.getElementById('successMeta');
   meta.innerHTML = `
     <strong>제출 정보 요약</strong><br>
     학번: ${data.student_id} · 이름: ${data.name}<br>
     프로그램: ${data.program}<br>
-    출국: ${data.depart_date} → 귀국: ${data.return_date}
+    출국: ${data.depart_date} → 귀국: ${data.return_date}<br>
+    <span style="font-size:11px;opacity:.7">제출 시각: ${ts}</span>
   `;
   document.getElementById('successScreen').classList.add('show');
   window.scrollTo({top:0, behavior:'smooth'});
 }
+
+// 8시간 만료 체크
+(function() {
+  try {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+    if (auth && auth.loginTime) {
+      if (Date.now() - auth.loginTime > 8 * 60 * 60 * 1000) {
+        localStorage.removeItem('kistar_auth');
+      }
+    }
+    // 중복 제출 이력 확인
+    if (auth && auth.studentId) {
+      const SUBMIT_KEY = 'kistar_overseas_' + auth.studentId + '_submitted';
+      const prev = localStorage.getItem(SUBMIT_KEY);
+      if (prev) {
+        const p = JSON.parse(prev);
+        const prevDate = new Date(p.submittedAt).toLocaleDateString('ko-KR');
+        const warn = document.createElement('div');
+        warn.style.cssText = 'background:var(--amber-l);border:1px solid rgba(245,166,35,.3);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:1rem;line-height:1.6';
+        warn.innerHTML = '⚠️ <strong>' + prevDate + '</strong>에 이미 제출한 이력이 있습니다. 재제출하면 기존 내용을 덮어씁니다.';
+        const form = document.getElementById('mainForm');
+        if (form) form.prepend(warn);
+      }
+    }
+  } catch(e) {}
+})();
 
 document.querySelectorAll('input, select, textarea').forEach(el => {
   el.addEventListener('input', () => {

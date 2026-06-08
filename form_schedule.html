@@ -219,11 +219,15 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--fbg);color:var(--fte
   <div class="success-screen" id="successScreen">
     <div class="success-icon">✅</div>
     <h2>제출이 완료되었습니다</h2>
+    <p id="successMeta" style="font-size:12px;color:var(--ftext2);margin-bottom:.5rem"></p>
     <p>일정 조사에 참여해 주셔서 감사합니다.<br>제출하신 내용은 프로그램 계획 수립에 활용됩니다.</p>
-    <button class="another-btn" onclick="resetForm()">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5A4.5 4.5 0 1 0 6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 2.5v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      다른 응답 제출하기
-    </button>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+      <a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;padding:9px 18px;border-radius:8px;background:var(--focus);color:#fff;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a>
+      <button class="another-btn" onclick="resetForm()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5A4.5 4.5 0 1 0 6.5 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 2.5v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        다른 응답 제출하기
+      </button>
+    </div>
   </div>
 
   <!-- 메인 폼 -->
@@ -488,9 +492,27 @@ async function submitForm() {
 
 function showSuccess() {
   document.getElementById('mainForm').style.display = 'none';
+  // 제출 시각 표시
+  try {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth') || '{}');
+    const now = new Date();
+    const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    const meta = document.getElementById('successMeta');
+    if (meta) meta.textContent = (auth.name||'') + ' · ' + (auth.studentId||'') + ' · ' + ts;
+  } catch(e) {}
   document.getElementById('successScreen').classList.add('show');
   window.scrollTo({top:0, behavior:'smooth'});
 }
+
+// 8시간 만료 체크
+(function() {
+  try {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+    if (auth && auth.loginTime && Date.now() - auth.loginTime > 8 * 60 * 60 * 1000) {
+      localStorage.removeItem('kistar_auth');
+    }
+  } catch(e) {}
+})();
 
 function resetForm() {
   document.getElementById('mainForm').reset();
