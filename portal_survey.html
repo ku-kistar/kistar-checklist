@@ -125,6 +125,21 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 .admin-form-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,rgba(200,57,43,.2),rgba(200,57,43,.12));border:1px solid rgba(200,57,43,.4);color:#f08070;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap}
 .admin-form-btn:hover{background:linear-gradient(135deg,rgba(200,57,43,.35),rgba(200,57,43,.22));border-color:rgba(200,57,43,.65);color:#fff}
 
+/* D-3 마감 팝업 */
+#deadline-popup{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:1.5rem}
+#deadline-popup.show{display:flex}
+.popup-card{background:#0f2035;border:1px solid rgba(200,57,43,.35);border-radius:16px;padding:1.75rem 1.5rem;max-width:360px;width:100%;text-align:center;animation:popUp .25s ease}
+@keyframes popUp{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.popup-icon{font-size:32px;margin-bottom:.75rem}
+.popup-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:rgba(200,57,43,.15);color:#f08070;border:1px solid rgba(200,57,43,.3);padding:3px 10px;border-radius:99px;margin-bottom:.75rem}
+.popup-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:.5rem;line-height:1.35}
+.popup-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:1.25rem}
+.popup-btns{display:flex;flex-direction:column;gap:8px}
+.popup-go{display:block;padding:11px;border-radius:9px;background:rgba(200,57,43,.85);border:none;color:#fff;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;transition:opacity .15s}
+.popup-go:hover{opacity:.88}
+.popup-dismiss{padding:9px;border-radius:9px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.popup-dismiss:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7)}
+
 @media(max-width:480px){
   .header{padding:1.8rem 1.2rem 0;gap:14px}
   .main-msg{padding:1.4rem 1.2rem .2rem}
@@ -171,6 +186,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
     </div>
     <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
     <div class="auth-msg" id="auth-msg"></div>
+  </div>
+</div>
+
+<!-- D-3 마감 팝업 -->
+<div id="deadline-popup">
+  <div class="popup-card">
+    <div class="popup-icon">⏰</div>
+    <div class="popup-badge" id="popup-dday"></div>
+    <div class="popup-title" id="popup-title"></div>
+    <div class="popup-desc" id="popup-desc"></div>
+    <div class="popup-btns">
+      <a class="popup-go" id="popup-go" href="#">지금 제출하기 →</a>
+      <button class="popup-dismiss" id="popup-dismiss">오늘 하루 안 보기</button>
+    </div>
   </div>
 </div>
 
@@ -431,6 +460,52 @@ function renderForms(forms) {
   grid.innerHTML = '';
   if (!forms||!forms.length) { grid.classList.remove('show'); empty.classList.add('show'); }
   else { empty.classList.remove('show'); forms.forEach(f=>grid.appendChild(createCard(f))); grid.classList.add('show'); }
+  // D-3 팝업 체크
+  checkDeadlinePopup(forms);
+}
+
+// ── D-3 마감 팝업 ──
+function checkDeadlinePopup(forms) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  // 마감 3일 이하이고 아직 마감 안 된 폼 중 가장 급한 것
+  const urgent = forms
+    .filter(f => {
+      if (!f.deadline) return false;
+      const d = new Date(f.deadline); d.setHours(0,0,0,0);
+      const days = Math.ceil((d - today) / 86400000);
+      return days >= 0 && days <= 3;
+    })
+    .sort((a,b) => new Date(a.deadline) - new Date(b.deadline))[0];
+  if (!urgent) return;
+
+  // 오늘 이미 닫았으면 표시 안 함
+  const todayStr = today.toISOString().substring(0,10);
+  const dismissKey = 'kistar_popup_' + urgent.id + '_' + todayStr;
+  if (localStorage.getItem(dismissKey)) return;
+
+  // 팝업 내용 세팅
+  const dl = new Date(urgent.deadline); dl.setHours(0,0,0,0);
+  const daysLeft = Math.ceil((dl - today) / 86400000);
+  const ddayText = daysLeft === 0 ? '오늘 마감!' : 'D-' + daysLeft + ' 마감 임박';
+  document.getElementById('popup-dday').textContent = ddayText;
+  document.getElementById('popup-title').textContent = urgent.name + ' 마감이 임박했습니다';
+  document.getElementById('popup-desc').textContent =
+    urgent.deadline + ' 마감 · 아직 제출하지 않으셨다면\n지금 바로 제출해 주세요.';
+  document.getElementById('popup-go').href = urgent.link || '#';
+
+  // 버튼 이벤트
+  document.getElementById('popup-dismiss').onclick = () => {
+    localStorage.setItem(dismissKey, '1');
+    document.getElementById('deadline-popup').classList.remove('show');
+  };
+  document.getElementById('popup-go').onclick = () => {
+    document.getElementById('deadline-popup').classList.remove('show');
+  };
+
+  // 0.5초 후 팝업 표시 (카드 렌더링 후)
+  setTimeout(() => {
+    document.getElementById('deadline-popup').classList.add('show');
+  }, 500);
 }
 
 let cbName=null, loadTO=null;

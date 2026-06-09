@@ -550,7 +550,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 </div>
 
 <script>
-const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec'; // 로그인 검증용
+const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec'; // 데이터 허브 제출용
 let courseCardCount = 1;
 let extraCardCount = 1;
 
@@ -881,7 +882,7 @@ function collectExtraData() {
   });
 
   showResult('success', '제출 중...');
-  fetch(EXEC_URL, {
+  fetch(SCRIPT_URL_HUB, {
     method: 'POST',
     body: params
   })
