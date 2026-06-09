@@ -24,6 +24,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 #access-denied{display:none;max-width:400px;margin:4rem auto;text-align:center;padding:2rem;background:var(--surface);border-radius:16px;border:1px solid var(--border)}
 
 /* 상단 바 */
+.top-bar-left{display:flex;align-items:center;gap:10px}
 .top-bar{background:rgba(11,31,58,0.95);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .top-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:3px 8px;border-radius:4px}
 .top-title{font-size:13px;font-weight:600;color:#fff;margin-left:10px}
@@ -267,14 +268,17 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div id="main-content" style="display:none">
 
 <div class="top-bar">
-  <div style="display:flex;align-items:center">
+  <div class="top-bar-left">
     <span class="top-badge">관리자</span>
     <span class="top-title">2026학년도 1학기 활동계획서 제출</span>
   </div>
-  <a href="portal_survey.html" class="top-back">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    홈으로
-  </a>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button id="resetBtn" onclick="resetStep()" style="padding:5px 12px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s">초기화</button>
+    <a href="portal_survey.html" class="top-back">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      홈으로
+    </a>
+  </div>
 </div>
 
 <div class="container">
@@ -568,7 +572,6 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <div style="display:flex;gap:8px;align-items:center">
     <button class="draft-btn draft-btn-save" onclick="saveDraft()">지금 저장</button>
     <button class="draft-btn draft-btn-clear" onclick="clearDraft()">저장 삭제</button>
-    <button id="resetBtn" onclick="resetStep()" style="padding:6px 12px;border-radius:6px;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s">초기화</button>
   </div>
 </div>
 
