@@ -75,6 +75,32 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .submit-result.error{background:var(--accent-light);color:var(--accent)}
 .form-footer{max-width:820px;margin:1.5rem auto 0;text-align:center;font-size:11px;color:var(--text3);padding:1rem;border-top:0.5px solid var(--border)}
 
+/* 글자수 카운터 */
+.field-wrap{position:relative}
+.char-counter{font-size:10px;color:var(--text3);text-align:right;margin-top:3px;transition:color .2s}
+.char-counter.warn{color:var(--amber,#a0620a)}
+.char-counter.ok{color:var(--green)}
+
+/* 임시저장 바 */
+.draft-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(11,31,58,0.96);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.draft-bar-left{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.75)}
+.draft-status{font-size:11px;color:rgba(255,255,255,.5);margin-left:4px}
+.draft-btn{padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
+.draft-btn-save{background:#1a5fa8;color:#fff}
+.draft-btn-save:hover{background:#154e8a}
+.draft-btn-clear{background:transparent;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2)}
+.draft-btn-clear:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+
+/* 임시저장 불러오기 모달 */
+.draft-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center}
+.draft-modal{background:#fff;border-radius:14px;padding:28px 24px;max-width:400px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+.draft-modal h3{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--navy)}
+.draft-modal p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:6px}
+.draft-modal-note{font-size:11px;color:var(--text3);background:var(--surface2);border-radius:6px;padding:8px 10px;line-height:1.7;margin:12px 0}
+.draft-modal-btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.draft-modal-btn-load{padding:9px 20px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.draft-modal-btn-discard{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit}
+
 
   body{background:#fff;padding:0}
   .container{padding:0}
@@ -235,7 +261,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <span style="font-size:11px;opacity:.7">체크리스트 저장 데이터 자동 표시</span>
   </div>
   <div class="status-card-body">
-    <div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:8px 10px;background:var(--surface2);border-radius:6px;line-height:1.6">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:14px;padding:10px 12px;background:#eaf1fb;border:0.5px solid #c5d9f0;border-radius:6px;line-height:1.7">
       💡 이수 현황은 <strong style="color:var(--text2)">체크리스트 페이지에서 직접 체크한 내용</strong>을 기반으로 자동 표시됩니다. 체크리스트를 아직 사용하지 않으셨거나 이 기기에서 처음 접속하신 경우 데이터가 나타나지 않을 수 있습니다.
     </div>
     <div id="checklistStatusWrap">
@@ -367,38 +393,78 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
     <div class="field">
       <div class="field-label">전공 이해도 <span class="field-hint">※ 서술형 — 변화 과정과 구체적 사례 포함</span></div>
-      <textarea class="field-textarea" id="major-understanding" placeholder="차세대반도체 융합전공에 참여하면서 전공 이해도가 어떻게 변화했는지 작성해주세요." rows="4"></textarea>
+      <div class="field-wrap">
+        <textarea class="field-textarea" id="major-understanding" placeholder="차세대반도체 융합전공에 참여하면서 전공 이해도가 어떻게 변화했는지 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-major',100)"></textarea>
+        <div class="char-counter" id="cnt-major">0자 / 권장 100자 이상</div>
+      </div>
     </div>
     <div class="field">
       <div class="field-label">실무 역량 <span class="field-hint">※ 서술형 — 실제 활동과 연계하여 작성</span></div>
-      <textarea class="field-textarea" id="practical-skill" placeholder="실무 역량 측면에서의 변화와 성장을 작성해주세요." rows="4"></textarea>
+      <div class="field-wrap">
+        <textarea class="field-textarea" id="practical-skill" placeholder="실무 역량 측면에서의 변화와 성장을 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-skill',100)"></textarea>
+        <div class="char-counter" id="cnt-skill">0자 / 권장 100자 이상</div>
+      </div>
     </div>
     <div class="field">
       <div class="field-label">진로 인식 <span class="field-hint">※ 서술형 — 구체적 진로 방향 변화 포함</span></div>
-      <textarea class="field-textarea" id="career-awareness" placeholder="진로 인식이 어떻게 변화했는지 작성해주세요." rows="4"></textarea>
+      <div class="field-wrap">
+        <textarea class="field-textarea" id="career-awareness" placeholder="진로 인식이 어떻게 변화했는지 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-career',100)"></textarea>
+        <div class="char-counter" id="cnt-career">0자 / 권장 100자 이상</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- 3. 향후 학습 및 진로 계획 -->
+<!-- 3. 활동 내용 -->
 <div class="form-section">
-  <div class="section-title"><div class="section-num">3</div>향후 학습 및 진로 계획</div>
+  <div class="section-title"><div class="section-num">3</div>활동 내용</div>
   <div class="section-body">
+
     <div class="field">
-      <div class="field-label">향후 학습 계획 <span class="field-hint">※ 차세대반도체 융합전공과 관련된 향후 학습 계획</span></div>
-      <textarea class="field-textarea" id="future-study" placeholder="향후 학습 계획을 구체적으로 작성해주세요." rows="4"></textarea>
+      <div class="field-label">① 교과 활동 <span class="field-hint">이번 학기(2026-1학기)에 수강한 융합전공 과목을 선택하고 각 과목별로 작성해주세요</span></div>
+      <div id="courseCards">
+        <div class="course-card">
+          <div class="course-card-title">
+            <span>교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--navy);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="교과목명 입력"></span>
+            <button class="del-card-btn" onclick="delCourseCard(this)">삭제</button>
+          </div>
+          <div class="course-card-grid">
+            <div class="field"><div class="field-label">담당교원</div><input class="field-input" placeholder="담당교원명"></div>
+            <div class="field"><div class="field-label">강의장소</div><input class="field-input" placeholder="강의장소"></div>
+            <div class="field"><div class="field-label">강의시간</div><input class="field-input" placeholder="강의시간"></div>
+            <div class="field"><div class="field-label">강의주제</div><input class="field-input" placeholder="강의주제"></div>
+          </div>
+          <div class="field"><div class="field-label">강의수강 전·후 달라진 점 (직무 공부 관점)</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
+          <div class="field"><div class="field-label">한 학기 강의 요약 (새로 알게된 점)</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>
+        </div>
+      </div>
+      <button class="add-card-btn" onclick="addCourseCard()">+ 교과목 추가</button>
     </div>
-    <div class="field">
-      <div class="field-label">향후 진로 계획 <span class="field-hint">※ 향후 진로 방향과 차세대반도체 융합전공 이수가 본인에게 갖는 의미</span></div>
-      <textarea class="field-textarea" id="future-career" placeholder="향후 진로 방향과 융합전공 이수의 의미를 작성해주세요." rows="4"></textarea>
+
+    <div class="field" style="margin-top:1.5rem">
+      <div class="field-label">② 비교과 활동 <span class="field-hint">참여한 비교과 프로그램별로 작성해주세요</span></div>
+      <div id="extraCards">
+        <div class="extracurr-card">
+          <div class="extracurr-card-title">
+            <span>비교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="프로그램명 입력"></span>
+            <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
+          </div>
+          <div class="course-card-grid">
+            <div class="field"><div class="field-label">활동일시</div><input class="field-input" placeholder="활동일시"></div>
+            <div class="field"><div class="field-label">활동장소</div><input class="field-input" placeholder="활동장소"></div>
+          </div>
+          <div class="field"><div class="field-label">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>
+        </div>
+      </div>
+      <button class="add-card-btn" onclick="addExtraCard()">+ 비교과 활동 추가</button>
     </div>
+
   </div>
 </div>
 
-
-<!-- 3-1. 인턴십 및 현장실습 활동 -->
+<!-- 4. 인턴십 및 현장실습 활동 -->
 <div class="form-section">
-  <div class="section-title"><div class="section-num" style="background:rgba(255,255,255,.2)">+</div>인턴십 및 현장실습 활동 <span style="font-size:11px;font-weight:400;opacity:.7">(해당자만 작성)</span></div>
+  <div class="section-title"><div class="section-num">4</div>인턴십 및 현장실습 활동 <span style="font-size:11px;font-weight:400;opacity:.7">(해당자만 작성)</span></div>
   <div class="section-body">
 
     <div class="field">
@@ -436,8 +502,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
             </select>
           </div>
         </div>
-        <div class="field"><div class="field-label" >담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
-        <div class="field"><div class="field-label" >배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>
+        <div class="field"><div class="field-label">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
+        <div class="field"><div class="field-label">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>
       </div>
     </div>
     <button class="add-card-btn" onclick="addInternCard()">+ 활동 추가</button>
@@ -445,53 +511,24 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   </div>
 </div>
 
-<!-- 4. 활동 내용 -->
+<!-- 5. 향후 학습 및 진로 계획 -->
 <div class="form-section">
-  <div class="section-title"><div class="section-num">4</div>활동 내용</div>
+  <div class="section-title"><div class="section-num">5</div>향후 학습 및 진로 계획</div>
   <div class="section-body">
-
-    <!-- 교과 활동 -->
     <div class="field">
-      <div class="field-label">① 교과 활동 <span class="field-hint">이번 학기(2026-1학기)에 수강한 융합전공 과목을 선택하고 각 과목별로 작성해주세요</span></div>
-      <div id="courseCards">
-        <!-- 기본 1개 -->
-        <div class="course-card">
-          <div class="course-card-title">
-            <span>교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--navy);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="교과목명 입력"></span>
-            <button class="del-card-btn" onclick="delCourseCard(this)">삭제</button>
-          </div>
-          <div class="course-card-grid">
-            <div class="field"><div class="field-label" >담당교원</div><input class="field-input" placeholder="담당교원명"></div>
-            <div class="field"><div class="field-label" >강의장소</div><input class="field-input" placeholder="강의장소"></div>
-            <div class="field"><div class="field-label" >강의시간</div><input class="field-input" placeholder="강의시간"></div>
-            <div class="field"><div class="field-label" >강의주제</div><input class="field-input" placeholder="강의주제"></div>
-          </div>
-          <div class="field"><div class="field-label" >강의수강 전·후 달라진 점 (직무 공부 관점)</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
-          <div class="field"><div class="field-label" >한 학기 강의 요약 (새로 알게된 점)</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>
-        </div>
+      <div class="field-label">향후 학습 계획 <span class="field-hint">※ 차세대반도체 융합전공과 관련된 향후 학습 계획</span></div>
+      <div class="field-wrap">
+        <textarea class="field-textarea" id="future-study" placeholder="향후 학습 계획을 구체적으로 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-future-study',80)"></textarea>
+        <div class="char-counter" id="cnt-future-study">0자 / 권장 80자 이상</div>
       </div>
-      <button class="add-card-btn" onclick="addCourseCard()">+ 교과목 추가</button>
     </div>
-
-    <!-- 비교과 활동 -->
-    <div class="field" style="margin-top:1.5rem">
-      <div class="field-label">② 비교과 활동 <span class="field-hint">참여한 비교과 프로그램별로 작성해주세요</span></div>
-      <div id="extraCards">
-        <div class="extracurr-card">
-          <div class="extracurr-card-title">
-            <span>비교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="프로그램명 입력"></span>
-            <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
-          </div>
-          <div class="course-card-grid">
-            <div class="field"><div class="field-label" >활동일시</div><input class="field-input" placeholder="활동일시"></div>
-            <div class="field"><div class="field-label" >활동장소</div><input class="field-input" placeholder="활동장소"></div>
-          </div>
-          <div class="field"><div class="field-label" >활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>
-        </div>
+    <div class="field">
+      <div class="field-label">향후 진로 계획 <span class="field-hint">※ 향후 진로 방향과 차세대반도체 융합전공 이수가 본인에게 갖는 의미</span></div>
+      <div class="field-wrap">
+        <textarea class="field-textarea" id="future-career" placeholder="향후 진로 방향과 융합전공 이수의 의미를 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-future-career',80)"></textarea>
+        <div class="char-counter" id="cnt-future-career">0자 / 권장 80자 이상</div>
       </div>
-      <button class="add-card-btn" onclick="addExtraCard()">+ 비교과 활동 추가</button>
     </div>
-
   </div>
 </div>
 
@@ -499,13 +536,13 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="sign-section">
   <div class="sign-header">
     <h3>서명</h3>
-    <p>흰 종이에 자필서명(또는 전자서명) 후 사진 촬영하여 이미지 파일을 업로드해주세요.<br>
-    JPG·PNG 모두 가능하며, 흰 배경 + 검정 펜 서명이 가장 깔끔하게 출력됩니다.<br>
-    <span style="color:var(--text)">이미 전자서명 이미지를 보유하고 계신 경우 바로 업로드하셔도 됩니다.</span></p>
+    <ul style="margin-top:6px;padding-left:0;list-style:none;font-size:12px;color:var(--text2);line-height:1.9">
+      <li>· 흰 종이에 자필서명 후 사진 촬영하거나, 전자서명 이미지를 바로 업로드하세요</li>
+      <li>· JPG·PNG 모두 가능 / 흰 배경 + 검정 펜 서명 권장</li>
+    </ul>
   </div>
   <div class="sign-body">
     <div class="sign-row">
-      <!-- 이름 + (인) + 서명이미지 겹침 -->
       <div class="sign-stamp-wrap">
         <span class="sign-name-text" id="sign-name-display">학생명</span>
         <div class="sign-in-wrap">
@@ -513,16 +550,11 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
           <img class="sign-img-preview" id="signPreview" src="" alt="서명">
         </div>
       </div>
-      <!-- 업로드 버튼 -->
       <label class="sign-upload-btn" id="signUploadBtn" for="signInput">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 4.5l3.5-3.5L10 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <span id="signBtnText">서명 파일 업로드</span>
       </label>
       <input type="file" class="sign-input" id="signInput" accept="image/*" onchange="handleSignUpload(this)">
-    </div>
-    <div class="sign-guide">
-      <strong>업로드 방법:</strong> 흰 종이에 서명 → 스마트폰으로 촬영 → 이미지 파일 선택<br>
-      <strong>권장:</strong> 흰 배경 + 검정/파랑 펜 서명 (JPG·PNG 모두 OK)
     </div>
   </div>
 </div>
@@ -552,7 +584,35 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 </div>
 </div>
 
-<script>
+<!-- 임시저장 바 -->
+<div class="draft-bar" id="draftBar">
+  <div class="draft-bar-left">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h8l2 2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="rgba(255,255,255,.6)" stroke-width="1.3"/><path d="M4 2v4h6V2M4 8h6" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round"/></svg>
+    임시저장
+    <span class="draft-status" id="draftStatus">—</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="draft-btn draft-btn-save" onclick="saveDraft()">지금 저장</button>
+    <button class="draft-btn draft-btn-clear" onclick="clearDraft()">저장 삭제</button>
+  </div>
+</div>
+
+<!-- 불러오기 모달 -->
+<div class="draft-modal-overlay" id="draftModal" style="display:none">
+  <div class="draft-modal">
+    <h3>💾 이전 작성 내용이 있습니다</h3>
+    <p id="draftModalDesc"></p>
+    <div class="draft-modal-note">
+      · 임시저장은 현재 기기의 브라우저에만 저장됩니다<br>
+      · 다른 기기에서는 불러올 수 없습니다<br>
+      · 서명 이미지는 임시저장되지 않으므로 제출 시 다시 업로드해 주세요
+    </div>
+    <div class="draft-modal-btns">
+      <button class="draft-modal-btn-discard" onclick="discardDraft()">새로 작성</button>
+      <button class="draft-modal-btn-load" onclick="loadDraft()">불러오기</button>
+    </div>
+  </div>
+</div>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec'; // 로그인 검증용
 const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec'; // 데이터 허브 제출용
 let courseCardCount = 1;
@@ -602,6 +662,10 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('docDate').textContent =
       today.getFullYear() + '.' + String(today.getMonth()+1).padStart(2,'0') + '.' + String(today.getDate()).padStart(2,'0');
     document.getElementById('docWriter').textContent = auth.name || '';
+
+    // 임시저장 초기화
+    initDraft(auth.studentId || 'guest');
+
   } catch(e) {
     document.getElementById('access-denied').style.display = 'block';
   }
@@ -844,7 +908,124 @@ function collectExtraData() {
     input.style.color = ok ? '' : '#c8392b';
   }
 
-  function submitForm() {
+  // ── 글자수 카운터 ──
+  function updateCounter(textarea, counterId, minLen) {
+    const len = textarea.value.length;
+    const el = document.getElementById(counterId);
+    if (!el) return;
+    el.textContent = len + '자 / 권장 ' + minLen + '자 이상';
+    el.className = 'char-counter' + (len === 0 ? '' : len >= minLen ? ' ok' : ' warn');
+    scheduleDraftSave();
+  }
+
+  // ── 임시저장 ──
+  let draftKey = '';
+  let draftTimer = null;
+  let draftData = null;
+
+  function initDraft(studentId) {
+    draftKey = 'kistar_draft_report_' + studentId;
+    const saved = localStorage.getItem(draftKey);
+    if (saved) {
+      try {
+        draftData = JSON.parse(saved);
+        const d = new Date(draftData.savedAt);
+        const ts = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        document.getElementById('draftModalDesc').textContent = ts + '에 저장된 내용이 있습니다. 불러오시겠습니까?';
+        document.getElementById('draftModal').style.display = 'flex';
+      } catch(e) { draftData = null; }
+    }
+    document.querySelectorAll('textarea, input[type=text]').forEach(el => {
+      el.addEventListener('input', scheduleDraftSave);
+    });
+    document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el => {
+      el.addEventListener('change', scheduleDraftSave);
+    });
+  }
+
+  function scheduleDraftSave() {
+    if (!draftKey) return;
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(saveDraft, 2000);
+  }
+
+  function saveDraft() {
+    if (!draftKey) return;
+    clearTimeout(draftTimer);
+    try {
+      const data = collectFormData();
+      data.savedAt = new Date().toISOString();
+      localStorage.setItem(draftKey, JSON.stringify(data));
+      const now = new Date();
+      const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('draftStatus').textContent = ts + ' 저장됨';
+    } catch(e) {
+      document.getElementById('draftStatus').textContent = '저장 실패';
+    }
+  }
+
+  function loadDraft() {
+    if (!draftData) return;
+    document.getElementById('draftModal').style.display = 'none';
+    try {
+      const d = draftData;
+      if (d.phone) { const el = document.getElementById('f-phone'); el.value = d.phone; validatePhone(el); }
+      if (d.email) { const el = document.getElementById('f-email'); el.value = d.email; validateEmail(el); }
+      if (d.grade) document.getElementById('f-grade').value = d.grade;
+      if (d.semester) document.getElementById('f-semester').value = d.semester;
+      if (d.gradYear) document.getElementById('f-grad-year').value = d.gradYear;
+      if (d.gradMonth) document.getElementById('f-grad-month').value = d.gradMonth;
+      if (d.majorUnderstanding) { const el = document.getElementById('major-understanding'); el.value = d.majorUnderstanding; }
+      if (d.practicalSkill) { const el = document.getElementById('practical-skill'); el.value = d.practicalSkill; }
+      if (d.careerAwareness) { const el = document.getElementById('career-awareness'); el.value = d.careerAwareness; }
+      if (d.futureStudy) { const el = document.getElementById('future-study'); el.value = d.futureStudy; updateCounter(el,'cnt-future-study',80); }
+      if (d.futureCareer) { const el = document.getElementById('future-career'); el.value = d.futureCareer; updateCounter(el,'cnt-future-career',80); }
+      if (d.internDone) restoreChecks('internDone', d.internDone);
+      const savedTs = new Date(d.savedAt);
+      const ts = String(savedTs.getHours()).padStart(2,'0') + ':' + String(savedTs.getMinutes()).padStart(2,'0');
+      document.getElementById('draftStatus').textContent = ts + ' 불러옴';
+    } catch(e) {}
+  }
+
+  function discardDraft() {
+    document.getElementById('draftModal').style.display = 'none';
+    draftData = null;
+  }
+
+  function clearDraft() {
+    if (!draftKey) return;
+    if (!confirm('임시저장된 내용을 삭제하시겠습니까?')) return;
+    localStorage.removeItem(draftKey);
+    document.getElementById('draftStatus').textContent = '삭제됨';
+    draftData = null;
+  }
+
+  function collectFormData() {
+    return {
+      phone: document.getElementById('f-phone').value,
+      email: document.getElementById('f-email').value,
+      grade: document.getElementById('f-grade').value,
+      semester: document.getElementById('f-semester').value,
+      gradYear: document.getElementById('f-grad-year').value,
+      gradMonth: document.getElementById('f-grad-month').value,
+      majorUnderstanding: document.getElementById('major-understanding').value,
+      practicalSkill: document.getElementById('practical-skill').value,
+      careerAwareness: document.getElementById('career-awareness').value,
+      futureStudy: document.getElementById('future-study').value,
+      futureCareer: document.getElementById('future-career').value,
+      internDone: getChecked('internDone'),
+    };
+  }
+
+  function restoreChecks(name, csv) {
+    if (!csv) return;
+    const vals = csv.split(', ');
+    document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
+      el.checked = vals.includes(el.value);
+    });
+  }
+
+
   const sid = document.getElementById('f-id').value.trim();
   const sname = document.getElementById('f-name').value.trim();
   if (!sid || !sname) { showResult('error', '학번과 이름을 확인해주세요.'); return; }
@@ -912,6 +1093,7 @@ function collectExtraData() {
     .then(r => r.json())
     .then(result => {
       if (result.status === 'ok') {
+        if (draftKey) localStorage.removeItem(draftKey);
         showResult('success', '✅ 결과보고서가 제출되었습니다! (' + sname + ')');
       } else {
         showResult('error', '제출 실패: ' + JSON.stringify(result));
