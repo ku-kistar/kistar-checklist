@@ -568,6 +568,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <div style="display:flex;gap:8px;align-items:center">
     <button class="draft-btn draft-btn-save" onclick="saveDraft()">지금 저장</button>
     <button class="draft-btn draft-btn-clear" onclick="clearDraft()">저장 삭제</button>
+    <button id="resetBtn" onclick="resetStep()" style="padding:6px 12px;border-radius:6px;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s">초기화</button>
   </div>
 </div>
 
@@ -1160,6 +1161,37 @@ window.addEventListener('DOMContentLoaded', function() {
   function discardDraft() {
     document.getElementById('draftModal').style.display = 'none';
     draftData = null;
+  }
+
+  
+  // ── 초기화 버튼 (2단계 확인) ──
+  let resetPending = false, resetTimer = null;
+  function resetStep() {
+    if (!resetPending) {
+      resetPending = true;
+      const btn = document.getElementById('resetBtn');
+      btn.textContent = '한번 더 누르면 초기화';
+      btn.style.background = '#7B1F2A';
+      resetTimer = setTimeout(() => {
+        resetPending = false;
+        btn.textContent = '초기화';
+        btn.style.background = '';
+      }, 3000);
+    } else {
+      clearTimeout(resetTimer);
+      resetPending = false;
+      // 폼 전체 초기화
+      document.querySelectorAll('input[type=text], input[type=email], input[type=tel], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+      document.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(el => el.checked = false);
+      document.querySelectorAll('.char-counter').forEach(el => { el.textContent = '0자'; el.className = 'char-counter'; });
+      // 임시저장 삭제
+      if (draftKey) localStorage.removeItem(draftKey);
+      document.getElementById('draftStatus').textContent = '—';
+      const btn = document.getElementById('resetBtn');
+      btn.textContent = '초기화';
+      btn.style.background = '';
+    }
   }
 
   function clearDraft() {

@@ -228,7 +228,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div id="access-denied" style="display:none">
   <p style="font-size:32px;margin-bottom:1rem">🔒</p>
   <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">관리자 계정으로 로그인 후 이용하세요.</p>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 이용하세요. portal_survey 페이지에서 로그인해주세요.</p>
   <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">홈으로 돌아가기</a>
 </div>
 
@@ -454,6 +454,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
             <span>비교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="프로그램명 입력"></span>
             <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
           </div>
+          <div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div><select class="field-input" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select></div>
           <div class="course-card-grid">
             <div class="field"><div class="field-label">활동일시</div><input class="field-input" placeholder="활동일시"></div>
             <div class="field"><div class="field-label">활동장소</div><input class="field-input" placeholder="활동장소"></div>
@@ -598,6 +599,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <div style="display:flex;gap:8px;align-items:center">
     <button class="draft-btn draft-btn-save" onclick="saveDraft()">지금 저장</button>
     <button class="draft-btn draft-btn-clear" onclick="clearDraft()">저장 삭제</button>
+    <button id="resetBtn" onclick="resetStep()" style="padding:6px 12px;border-radius:6px;border:none;background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s">초기화</button>
   </div>
 </div>
 
@@ -660,6 +662,8 @@ window.addEventListener('DOMContentLoaded', function() {
     if (auth.dept && ['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'].includes(auth.dept)) {
       deptSelect.value = auth.dept;
       reportDept = auth.dept;
+      currentDept = auth.dept;
+      onReportDeptChange(auth.dept);
       loadChecklistStatus(auth.dept);
     } else {
       loadChecklistStatus('');
@@ -1028,6 +1032,37 @@ function collectExtraData() {
     draftData = null;
   }
 
+  
+  // ── 초기화 버튼 (2단계 확인) ──
+  let resetPending = false, resetTimer = null;
+  function resetStep() {
+    if (!resetPending) {
+      resetPending = true;
+      const btn = document.getElementById('resetBtn');
+      btn.textContent = '한번 더 누르면 초기화';
+      btn.style.background = '#7B1F2A';
+      resetTimer = setTimeout(() => {
+        resetPending = false;
+        btn.textContent = '초기화';
+        btn.style.background = '';
+      }, 3000);
+    } else {
+      clearTimeout(resetTimer);
+      resetPending = false;
+      // 폼 전체 초기화
+      document.querySelectorAll('input[type=text], input[type=email], input[type=tel], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+      document.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(el => el.checked = false);
+      document.querySelectorAll('.char-counter').forEach(el => { el.textContent = '0자'; el.className = 'char-counter'; });
+      // 임시저장 삭제
+      if (draftKey) localStorage.removeItem(draftKey);
+      document.getElementById('draftStatus').textContent = '—';
+      const btn = document.getElementById('resetBtn');
+      btn.textContent = '초기화';
+      btn.style.background = '';
+    }
+  }
+
   function clearDraft() {
     if (!draftKey) return;
     if (!confirm('임시저장된 내용을 삭제하시겠습니까?')) return;
@@ -1283,7 +1318,7 @@ function showResult(type, msg) {
     reportDept = dept;
     loadChecklistStatus(dept);
     // 기존 교과 카드 과목 드롭다운 갱신
-    document.querySelectorAll('.course-name-select').forEach(sel => {
+    document.querySelectorAll('.course-select').forEach(sel => {
       const cur = sel.value;
       sel.innerHTML = buildReportCourseOpts(dept);
       sel.value = cur;
@@ -1304,7 +1339,7 @@ function showResult(type, msg) {
   }
   // 초기 교과 select 옵션 설정 (DOMContentLoaded 후)
   function initCourseSelects() {
-    document.querySelectorAll('.course-name-select').forEach(sel => {
+    document.querySelectorAll('.course-select').forEach(sel => {
       if (sel.options.length <= 1) sel.innerHTML = buildReportCourseOpts(reportDept);
     });
   }
