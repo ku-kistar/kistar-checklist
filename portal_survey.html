@@ -4,11 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>융합전공 설문 · 데이터 허브 | KI-STAR</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"></noscript>
 <style>
 :root{--blue:#0ea5e9;--navy:#0b1f3a;--red:#c8392b}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100vh;overflow-x:hidden;word-break:keep-all}
+body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--navy);min-height:100vh;overflow-x:hidden;word-break:keep-all}
 
 /* 배경 */
 .bg-wrap{position:fixed;inset:0;z-index:0;background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%)}
@@ -41,7 +44,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
 .sec-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex:1}
 .sec-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.12);margin-left:8px}
-.refresh-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid rgba(14,165,233,.25);background:transparent;color:rgba(255,255,255,.35);font-size:11px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.refresh-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid rgba(14,165,233,.25);background:transparent;color:rgba(255,255,255,.35);font-size:11px;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;transition:all .15s}
 .refresh-btn:hover{border-color:var(--blue);color:var(--blue)}
 .refresh-btn.spinning svg{animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -90,14 +93,14 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 .auth-sub{font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:1.6rem;line-height:1.6}
 .auth-field{margin-bottom:1rem}
 .auth-field label{display:block;font-size:11px;font-weight:600;color:rgba(14,165,233,.8);margin-bottom:.4rem;letter-spacing:.05em}
-.auth-field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:14px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .15s}
+.auth-field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:14px;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;outline:none;transition:border-color .15s}
 .auth-field input:focus{border-color:rgba(14,165,233,.6)}
 .auth-field input::placeholder{color:rgba(255,255,255,.25)}
 .pw-wrap{position:relative;display:flex;align-items:center}
 .pw-wrap input{padding-right:40px;width:100%}
 .pw-toggle{position:absolute;right:10px;background:none;border:none;cursor:pointer;padding:4px;color:rgba(255,255,255,.4);transition:color .15s;display:flex;align-items:center}
 .pw-toggle:hover{color:rgba(255,255,255,.8)}
-.auth-btn{width:100%;padding:12px;margin-top:.5rem;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .15s}
+.auth-btn{width:100%;padding:12px;margin-top:.5rem;background:linear-gradient(135deg,#0ea5e9,#0284c7);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:700;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;transition:opacity .15s}
 .auth-btn:hover{opacity:.88}
 .auth-btn:disabled{opacity:.5;cursor:default}
 .auth-msg{margin-top:.9rem;font-size:12px;text-align:center;min-height:18px}
@@ -108,7 +111,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 /* 유저 바 */
 #user-bar{display:none;position:fixed;top:0;left:0;right:0;z-index:100;align-items:center;justify-content:flex-end;gap:8px;padding:8px 16px;background:rgba(11,31,58,.92);backdrop-filter:blur(8px)}
 .user-badge{font-size:11px;font-weight:600;color:rgba(14,165,233,.85);background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.25);padding:5px 10px;border-radius:99px;white-space:nowrap}
-.logout-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.logout-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);font-size:11px;font-weight:600;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;transition:all .15s}
 .logout-btn:hover{background:rgba(200,57,43,.15);border-color:rgba(200,57,43,.4);color:#f08070}
 
 /* 8시간 만료 안내 */
@@ -122,7 +125,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 .admin-section-label{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:rgba(200,57,43,.6);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.75rem}
 .admin-section-label::after{content:'';flex:1;height:1px;background:rgba(200,57,43,.2)}
 .admin-btns{display:flex;flex-wrap:wrap;gap:8px}
-.admin-form-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,rgba(200,57,43,.2),rgba(200,57,43,.12));border:1px solid rgba(200,57,43,.4);color:#f08070;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap}
+.admin-form-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,rgba(200,57,43,.2),rgba(200,57,43,.12));border:1px solid rgba(200,57,43,.4);color:#f08070;font-size:12px;font-weight:700;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap}
 .admin-form-btn:hover{background:linear-gradient(135deg,rgba(200,57,43,.35),rgba(200,57,43,.22));border-color:rgba(200,57,43,.65);color:#fff}
 
 /* D-3 마감 팝업 */
@@ -135,9 +138,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 .popup-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:.5rem;line-height:1.35}
 .popup-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:1.25rem}
 .popup-btns{display:flex;flex-direction:column;gap:8px}
-.popup-go{display:block;padding:11px;border-radius:9px;background:rgba(200,57,43,.85);border:none;color:#fff;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;transition:opacity .15s}
+.popup-go{display:block;padding:11px;border-radius:9px;background:rgba(200,57,43,.85);border:none;color:#fff;font-size:13px;font-weight:700;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;text-decoration:none;transition:opacity .15s}
 .popup-go:hover{opacity:.88}
-.popup-dismiss{padding:9px;border-radius:9px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
+.popup-dismiss{padding:9px;border-radius:9px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-size:12px;font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer;transition:all .15s}
 .popup-dismiss:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7)}
 
 @media(max-width:480px){
