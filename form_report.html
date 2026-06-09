@@ -24,7 +24,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .top-title{font-size:13px;font-weight:600;color:#fff}
 .top-back{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.6);text-decoration:none;font-size:12px;transition:color .15s}
 .top-back:hover{color:#fff}
-.container{max-width:820px;margin:0 auto;padding:2rem 1rem}
+.container{max-width:820px;margin:0 auto;padding:2rem 1rem;padding-top:2.5rem}
 .doc-header{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
 .doc-header-top{background:var(--navy);padding:1.5rem 2rem;text-align:center}
 .doc-title{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
@@ -113,15 +113,19 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 }
 
 /* 5점 척도 */
-.rating-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.rating-group label{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--text2)}
-.rating-group label:hover{border-color:var(--navy);color:var(--navy);background:var(--surface2)}
-.rating-group input[type=radio]{display:none}
-.rating-group input[type=radio]:checked + label{background:var(--navy);border-color:var(--navy);color:#fff}
-.rating-row{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.rating-row{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:0.5px solid var(--border)}
 .rating-row:last-child{border-bottom:none}
 .rating-label{font-size:13px;font-weight:600;min-width:100px;color:var(--text)}
-.rating-desc{font-size:11px;color:var(--text3);margin-left:4px}
+/* ── 별점 ── */
+.star-group{display:flex;flex-direction:row-reverse;gap:4px}
+.star-group input[type=radio]{display:none}
+.star-group label{font-size:28px;color:#dddbd3;cursor:pointer;transition:color .15s;line-height:1;padding:2px}
+.star-group label:hover,
+.star-group label:hover ~ label,
+.star-group input[type=radio]:checked ~ label{color:#f5a623}
+.star-selected{color:#f5a623!important}
+.star-desc{font-size:11px;color:var(--text3);margin-left:8px;white-space:nowrap}
+@media(max-width:600px){.star-group label{font-size:32px;padding:4px}}
 
 /* 이수 현황 카드 */
 .status-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
@@ -165,7 +169,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
     break-after:avoid;page-break-after:avoid;
   }
-  .check-group,.rating-row{break-inside:avoid}
+  .check-group,.rating-row,.star-group{break-inside:avoid}
   p,li,td{orphans:3;widows:3}
   /* 불필요한 여백 제거 */
   .section-body{padding:10px 16px!important}
@@ -245,7 +249,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
 <div class="doc-header">
   <div class="doc-header-top">
-    <div class="doc-title">[차세대반도체 융합전공] 2026-1학기 결과보고서</div>
+    <div class="doc-title">2026학년도 1학기 〈차세대반도체 융합전공〉 결과보고서</div>
     <div class="doc-subtitle">차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</div>
   </div>
   <div class="doc-meta">
@@ -349,45 +353,40 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <div class="field">
       <div class="field-label" style="margin-bottom:12px">자기평가 <span class="field-hint">※ 융합전공 참여 후 각 역량에 대한 5점 척도 자기평가</span></div>
       <div style="background:var(--surface2);border-radius:10px;padding:12px 16px;margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:11px;color:var(--text3)">
-          <span style="min-width:100px"></span>
-          <span style="width:36px;text-align:center">①</span>
-          <span style="width:36px;text-align:center">②</span>
-          <span style="width:36px;text-align:center">③</span>
-          <span style="width:36px;text-align:center">④</span>
-          <span style="width:36px;text-align:center">⑤</span>
-          <span style="font-size:11px;color:var(--text3)">① 매우 낮음 → ⑤ 매우 높음</span>
-        </div>
         <div class="rating-row">
           <span class="rating-label">전공 이해도</span>
-          <div class="rating-group">
-            <input type="radio" name="r-major" id="r-major-1" value="1"><label for="r-major-1">①</label>
-            <input type="radio" name="r-major" id="r-major-2" value="2"><label for="r-major-2">②</label>
-            <input type="radio" name="r-major" id="r-major-3" value="3"><label for="r-major-3">③</label>
-            <input type="radio" name="r-major" id="r-major-4" value="4"><label for="r-major-4">④</label>
-            <input type="radio" name="r-major" id="r-major-5" value="5"><label for="r-major-5">⑤</label>
+          <div class="star-group">
+            <input type="radio" name="r-major" id="r-major-5" value="5"><label for="r-major-5" title="매우 높음">★</label>
+            <input type="radio" name="r-major" id="r-major-4" value="4"><label for="r-major-4" title="높음">★</label>
+            <input type="radio" name="r-major" id="r-major-3" value="3"><label for="r-major-3" title="보통">★</label>
+            <input type="radio" name="r-major" id="r-major-2" value="2"><label for="r-major-2" title="낮음">★</label>
+            <input type="radio" name="r-major" id="r-major-1" value="1"><label for="r-major-1" title="매우 낮음">★</label>
           </div>
+          <span class="star-desc" id="desc-major">선택 안 됨</span>
         </div>
         <div class="rating-row">
           <span class="rating-label">실무 역량</span>
-          <div class="rating-group">
-            <input type="radio" name="r-skill" id="r-skill-1" value="1"><label for="r-skill-1">①</label>
-            <input type="radio" name="r-skill" id="r-skill-2" value="2"><label for="r-skill-2">②</label>
-            <input type="radio" name="r-skill" id="r-skill-3" value="3"><label for="r-skill-3">③</label>
-            <input type="radio" name="r-skill" id="r-skill-4" value="4"><label for="r-skill-4">④</label>
-            <input type="radio" name="r-skill" id="r-skill-5" value="5"><label for="r-skill-5">⑤</label>
+          <div class="star-group">
+            <input type="radio" name="r-skill" id="r-skill-5" value="5"><label for="r-skill-5" title="매우 높음">★</label>
+            <input type="radio" name="r-skill" id="r-skill-4" value="4"><label for="r-skill-4" title="높음">★</label>
+            <input type="radio" name="r-skill" id="r-skill-3" value="3"><label for="r-skill-3" title="보통">★</label>
+            <input type="radio" name="r-skill" id="r-skill-2" value="2"><label for="r-skill-2" title="낮음">★</label>
+            <input type="radio" name="r-skill" id="r-skill-1" value="1"><label for="r-skill-1" title="매우 낮음">★</label>
           </div>
+          <span class="star-desc" id="desc-skill">선택 안 됨</span>
         </div>
         <div class="rating-row">
           <span class="rating-label">진로 인식</span>
-          <div class="rating-group">
-            <input type="radio" name="r-career" id="r-career-1" value="1"><label for="r-career-1">①</label>
-            <input type="radio" name="r-career" id="r-career-2" value="2"><label for="r-career-2">②</label>
-            <input type="radio" name="r-career" id="r-career-3" value="3"><label for="r-career-3">③</label>
-            <input type="radio" name="r-career" id="r-career-4" value="4"><label for="r-career-4">④</label>
-            <input type="radio" name="r-career" id="r-career-5" value="5"><label for="r-career-5">⑤</label>
+          <div class="star-group">
+            <input type="radio" name="r-career" id="r-career-5" value="5"><label for="r-career-5" title="매우 높음">★</label>
+            <input type="radio" name="r-career" id="r-career-4" value="4"><label for="r-career-4" title="높음">★</label>
+            <input type="radio" name="r-career" id="r-career-3" value="3"><label for="r-career-3" title="보통">★</label>
+            <input type="radio" name="r-career" id="r-career-2" value="2"><label for="r-career-2" title="낮음">★</label>
+            <input type="radio" name="r-career" id="r-career-1" value="1"><label for="r-career-1" title="매우 낮음">★</label>
           </div>
+          <span class="star-desc" id="desc-career">선택 안 됨</span>
         </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:10px;padding-top:8px;border-top:0.5px solid var(--border)">★ 1개 매우 낮음 → ★★★★★ 매우 높음</div>
       </div>
     </div>
 
@@ -667,6 +666,9 @@ window.addEventListener('DOMContentLoaded', function() {
     // 임시저장 초기화
     initDraft(auth.studentId || 'guest');
 
+    // 별점 초기화
+    initStarRatings();
+
   } catch(e) {
     document.getElementById('access-denied').style.display = 'block';
   }
@@ -879,6 +881,19 @@ function collectExtraData() {
   function onReportDeptChange(val) {
     const univEl = document.getElementById("f-univ");
     if (univEl) univEl.value = COLLEGE_MAP[val] || "";
+  }
+
+  // 이름 입력 시 서명란 이름 동기화
+  const STAR_LABELS = {1:'매우 낮음',2:'낮음',3:'보통',4:'높음',5:'매우 높음'};
+  function initStarRatings() {
+    [['r-major','desc-major'],['r-skill','desc-skill'],['r-career','desc-career']].forEach(([name, descId]) => {
+      document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+        input.addEventListener('change', () => {
+          const desc = document.getElementById(descId);
+          if (desc) desc.textContent = '★'.repeat(Number(input.value)) + '☆'.repeat(5-Number(input.value)) + '  ' + STAR_LABELS[input.value];
+        });
+      });
+    });
   }
 
   function syncSignName() {
