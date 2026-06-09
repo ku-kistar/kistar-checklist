@@ -73,7 +73,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .submit-result.show{display:block}
 .submit-result.success{background:var(--green-light);color:var(--green);border:0.5px solid #b7e4c7}
 .submit-result.error{background:var(--accent-light);color:var(--accent)}
-.form-footer{max-width:820px;margin:1.5rem auto 0;text-align:center;font-size:11px;color:var(--text3);padding:1rem 1rem 0;border-top:0.5px solid var(--border)}
+.form-footer{max-width:820px;margin:1.5rem auto 0;text-align:center;font-size:11px;color:var(--text3);padding:1rem;border-top:0.5px solid var(--border)}
 
 
   body{background:#fff;padding:0}
@@ -199,7 +199,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <p style="font-size:32px;margin-bottom:1rem">🔒</p>
   <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
   <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">관리자 계정으로 로그인 후 이용하세요.</p>
-  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">대문으로 돌아가기</a>
+  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">홈으로 돌아가기</a>
 </div>
 
 <div id="main-content" style="display:none">
@@ -211,7 +211,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   </div>
   <a href="portal_survey.html" class="top-back">
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    대문으로
+    홈으로
   </a>
 </div>
 
@@ -235,6 +235,9 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <span style="font-size:11px;opacity:.7">체크리스트 저장 데이터 자동 표시</span>
   </div>
   <div class="status-card-body">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:10px;padding:8px 10px;background:var(--surface2);border-radius:6px;line-height:1.6">
+      💡 이수 현황은 <strong style="color:var(--text2)">체크리스트 페이지에서 직접 체크한 내용</strong>을 기반으로 자동 표시됩니다. 체크리스트를 아직 사용하지 않으셨거나 이 기기에서 처음 접속하신 경우 데이터가 나타나지 않을 수 있습니다.
+    </div>
     <div id="checklistStatusWrap">
       <div class="status-no-data">학과를 선택하면 이수 현황이 표시됩니다.</div>
     </div>
@@ -284,8 +287,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         </td>
       </tr>
       <tr>
-        <td class="lbl">연락처</td><td><input type="text" id="f-phone" placeholder="010-0000-0000"></td>
-        <td class="lbl">메 일</td><td><input type="text" id="f-email" placeholder="이메일 주소"></td>
+        <td class="lbl">연락처</td><td><input type="text" id="f-phone" placeholder="010-0000-0000" oninput="validatePhone(this)"><div id="phone-err" style="display:none;font-size:11px;color:#c8392b;margin-top:3px">⚠ 010-0000-0000 형식으로 입력해주세요.</div></td>
+        <td class="lbl">메 일</td><td><input type="text" id="f-email" placeholder="이메일 주소" oninput="validateEmail(this)"><div id="email-err" style="display:none;font-size:11px;color:#c8392b;margin-top:3px">⚠ 올바른 이메일 주소를 입력해주세요.</div></td>
       </tr>
       <tr>
         <td class="lbl">졸업예정</td>
@@ -497,7 +500,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <div class="sign-header">
     <h3>서명</h3>
     <p>흰 종이에 자필서명(또는 전자서명) 후 사진 촬영하여 이미지 파일을 업로드해주세요.<br>
-    JPG·PNG 모두 가능하며, 흰 배경 + 검정 펜 서명이 가장 깔끔하게 출력됩니다.</p>
+    JPG·PNG 모두 가능하며, 흰 배경 + 검정 펜 서명이 가장 깔끔하게 출력됩니다.<br>
+    <span style="color:var(--text)">이미 전자서명 이미지를 보유하고 계신 경우 바로 업로드하셔도 됩니다.</span></p>
   </div>
   <div class="sign-body">
     <div class="sign-row">
@@ -518,8 +522,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     </div>
     <div class="sign-guide">
       <strong>업로드 방법:</strong> 흰 종이에 서명 → 스마트폰으로 촬영 → 이미지 파일 선택<br>
-      <strong>권장:</strong> 흰 배경 + 검정/파랑 펜 서명 (JPG·PNG 모두 OK)<br>
-      서명 이미지는 PDF 저장 시 <strong>"(인)" 위에 겹쳐서 표시</strong>됩니다.
+      <strong>권장:</strong> 흰 배경 + 검정/파랑 펜 서명 (JPG·PNG 모두 OK)
     </div>
   </div>
 </div>
@@ -819,6 +822,26 @@ function collectExtraData() {
     if (nameEl && signNameEl) {
       signNameEl.textContent = nameEl.value.trim() || '학생명';
     }
+  }
+
+  // 연락처 실시간 유효성 검사 (010-XXXX-XXXX 형식)
+  function validatePhone(input) {
+    const val = input.value.trim();
+    const err = document.getElementById('phone-err');
+    if (!val) { err.style.display = 'none'; input.style.color = ''; return; }
+    const ok = /^01[0-9]-\d{3,4}-\d{4}$/.test(val);
+    err.style.display = ok ? 'none' : 'block';
+    input.style.color = ok ? '' : '#c8392b';
+  }
+
+  // 이메일 실시간 유효성 검사
+  function validateEmail(input) {
+    const val = input.value.trim();
+    const err = document.getElementById('email-err');
+    if (!val) { err.style.display = 'none'; input.style.color = ''; return; }
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    err.style.display = ok ? 'none' : 'block';
+    input.style.color = ok ? '' : '#c8392b';
   }
 
   function submitForm() {
