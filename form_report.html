@@ -1046,7 +1046,7 @@ function collectExtraData() {
       resetTimer = setTimeout(() => {
         resetPending = false;
         btn.textContent = '초기화';
-        btn.style.background = '';
+        btn.style.background = 'transparent';
       }, 3000);
     } else {
       clearTimeout(resetTimer);
@@ -1061,7 +1061,7 @@ function collectExtraData() {
       document.getElementById('draftStatus').textContent = '—';
       const btn = document.getElementById('resetBtn');
       btn.textContent = '초기화';
-      btn.style.background = '';
+      btn.style.background = 'transparent';
     }
   }
 
