@@ -30,17 +30,17 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 
 /* 메시지 */
 .main-msg{width:100%;max-width:680px;padding:1.8rem 2rem .2rem}
-.msg-list{list-style:none;display:flex;flex-direction:column;gap:8px}
-.msg-list li{display:flex;align-items:flex-start;gap:10px;line-height:1.55}
+.msg-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.msg-list li{display:flex;align-items:flex-start;gap:8px;line-height:1.45}
 .msg-list li .dot{flex-shrink:0;margin-top:.15em}
-.msg-main{font-size:clamp(13px,2.1vw,16px);color:rgba(255,255,255,.75)}
+.msg-main{font-size:clamp(11px,1.7vw,13px);color:rgba(255,255,255,.7)}
 .msg-main .dot{color:var(--blue);font-size:1.1em;font-weight:900}
 
 /* 폼 카드 섹션 */
 .forms-section{width:100%;max-width:680px;padding:1.4rem 2rem 0}
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.sec-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:rgba(255,255,255,.25);letter-spacing:.14em;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex:1}
-.sec-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);margin-left:8px}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex:1}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.12);margin-left:8px}
 .refresh-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid rgba(14,165,233,.25);background:transparent;color:rgba(255,255,255,.35);font-size:11px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s}
 .refresh-btn:hover{border-color:var(--blue);color:var(--blue)}
 .refresh-btn.spinning svg{animation:spin .7s linear infinite}
