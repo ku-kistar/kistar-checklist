@@ -1027,6 +1027,7 @@ function collectExtraData() {
   }
 
 
+  function submitForm() {
   const sid = document.getElementById('f-id').value.trim();
   const sname = document.getElementById('f-name').value.trim();
   if (!sid || !sname) { showResult('error', '학번과 이름을 확인해주세요.'); return; }
