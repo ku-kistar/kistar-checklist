@@ -612,6 +612,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     </div>
   </div>
 </div>
+<script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec'; // 로그인 검증용
 const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec'; // 데이터 허브 제출용
 let courseCardCount = 1;
@@ -628,8 +629,9 @@ window.addEventListener('DOMContentLoaded', function() {
     const EXPIRE_MS = 8 * 60 * 60 * 1000;
     if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
       localStorage.removeItem('kistar_auth_url2');
-      document.getElementById('access-denied').innerHTML = '<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a>';
-      document.getElementById('access-denied').style.display = 'block';
+      const expiredEl = document.getElementById('access-denied');
+      expiredEl.innerHTML = `<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a>`;
+      expiredEl.style.display = 'block';
       return;
     }
     // 중복 제출 이력 확인
