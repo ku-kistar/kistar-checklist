@@ -553,6 +553,20 @@ function reloadForms() {
     loadForms();
   }
 })();
+
+// bfcache 복원 시 재검증
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    const auth = checkAuth();
+    if (auth) {
+      document.getElementById('auth-overlay').classList.add('hidden');
+      showUserBar();
+    } else {
+      document.getElementById('auth-overlay').classList.remove('hidden');
+      document.getElementById('admin-section').classList.remove('show');
+    }
+  }
+});
 </script>
 </body>
 </html>
