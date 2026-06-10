@@ -56,7 +56,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .field{margin-bottom:1.2rem}
 .field:last-child{margin-bottom:0}
 .field-label{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;border-left:3px solid var(--navy);padding-left:8px}
-.field-hint{font-size:11px;color:var(--text3);font-weight:400}
+.field-hint{font-size:11px;color:var(--text3);font-weight:400;display:block;margin-top:3px}
 .field-textarea{width:100%;min-height:100px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;resize:vertical;background:var(--surface2);outline:none;transition:border-color .15s;line-height:1.7}
 .field-textarea:focus{border-color:var(--navy);background:var(--surface)}
 .field-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;background:var(--surface2);outline:none}
@@ -177,68 +177,58 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .check-group{break-inside:avoid;page-break-inside:avoid}
 }
 
+@media(max-width:768px){
+  .container{padding:1.2rem 1rem}
+  .info-table td{font-size:13px}
+}
 @media(max-width:600px){
-  /* 상단 바 */
   .top-bar{padding:8px 10px}
-  .top-title{font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-title{font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .top-badge{font-size:9px;padding:2px 6px}
-
-  /* 컨테이너 */
-  .container{padding:.75rem .6rem}
-
-  /* 문서 헤더 */
-  .doc-header-top{padding:1rem .9rem}
-  .doc-title{font-size:16px;word-break:keep-all;line-height:1.45}
-  .doc-subtitle{font-size:11px}
-  .doc-meta{flex-direction:column;gap:4px;padding:10px 14px;font-size:12px}
-
-  /* 섹션 */
+  .container{padding:.75rem .65rem}
+  .doc-header-top{padding:1.1rem 1rem}
+  .doc-title{font-size:16px;word-break:keep-all;line-height:1.5;text-align:center}
+  .doc-subtitle{font-size:11px;text-align:center}
+  .doc-meta{flex-direction:column;gap:5px;padding:10px 14px;font-size:12px}
   .section-title{padding:10px 12px;font-size:12px}
   .section-body{padding:12px 12px}
-
-  /* 기본정보 테이블 — 모바일에서 1행 1항목 */
+  .status-card-title{flex-direction:column;align-items:flex-start;gap:3px;padding:10px 14px}
+  .status-sub{font-size:10px;opacity:.7;display:block}
+  .status-card{font-size:12px;line-height:1.6}
   .info-table{display:block}
   .info-table tbody,.info-table tr{display:block}
   .info-table tr{border-bottom:1px solid var(--border)}
-  .info-table td{display:inline-block;padding:6px 10px;font-size:12px;border:none;border-bottom:1px solid var(--surface2)}
-  .info-table .lbl{width:64px;font-size:11px;background:var(--surface2);vertical-align:middle}
-  .info-table td:not(.lbl){width:calc(100% - 68px);vertical-align:middle}
+  .info-table td{display:inline-block;padding:7px 10px;font-size:12px;border:none;border-bottom:1px solid var(--surface2)}
+  .info-table .lbl{width:66px;font-size:11px;background:var(--surface2);vertical-align:middle}
+  .info-table td:not(.lbl){width:calc(100% - 70px);vertical-align:middle}
   .info-table input,.info-table select{font-size:12px}
-
-  /* 이수현황 카드 */
-  .status-card{font-size:12px;line-height:1.6}
-  .status-card p{font-size:11px}
-
-  /* 필드 */
-  .field-label{font-size:12px}
-  .field-textarea{font-size:13px;min-height:80px}
-  .field-hint{font-size:10px}
-
-  /* 체크박스 그룹 */
+  .field-label{font-size:12px;line-height:1.5}
+  .field-hint{font-size:10px;display:block;margin-top:3px;color:var(--text3)}
+  .field-textarea{font-size:13px;min-height:80px;line-height:1.7}
   .check-group{gap:5px}
   .check-item{font-size:12px;padding:5px 9px}
   .check-item-other{font-size:12px;padding:5px 9px;min-width:110px}
-
-  /* 교과계획 테이블 — 가로 스크롤 + 스크롤바 표시 */
-  .course-plan-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;
-    scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  .course-plan-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
   .course-plan-wrap::-webkit-scrollbar{height:4px}
-  .course-plan-wrap::-webkit-scrollbar-track{background:transparent}
   .course-plan-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
-
-  /* 제출 */
-  .submit-area{flex-direction:column;padding:14px}
-  .btn-group{width:100%}
-  .btn-print,.btn-submit{flex:1;justify-content:center;font-size:12px;padding:9px 10px}
-
-  /* 하단 임시저장 바 */
-  .draft-bar{padding:7px 10px;gap:7px}
-  .draft-bar-left{font-size:11px}
-  .draft-btn{padding:5px 10px;font-size:11px}
-
-  /* 서명란 */
-  .sign-table td{padding:7px 8px;font-size:11px}
-  .sign-name-text{font-size:12px}
+  .submit-area{flex-direction:column;padding:14px;gap:10px}
+  .btn-group{width:100%;flex-direction:column}
+  .btn-print,.btn-submit{width:100%;justify-content:center;font-size:13px;padding:11px 10px}
+  .draft-bar{padding:7px 10px;gap:6px;flex-wrap:nowrap}
+  .draft-bar-left{font-size:11px;flex:1;min-width:0}
+  .draft-status{display:none}
+  .draft-btn{padding:5px 10px;font-size:11px;white-space:nowrap}
+  .sign-header ul{font-size:11px;line-height:1.8}
+  .sign-header li{word-break:keep-all}
+  .sign-table{display:block}
+  .sign-table tbody,.sign-table tr{display:block}
+  .sign-table tr{border-bottom:1px solid var(--border)}
+  .sign-table td{display:block;padding:8px 10px;font-size:12px;border:none}
+  .sign-table .lbl{background:var(--surface2);width:100%;font-size:11px;border-bottom:1px solid var(--border)}
+  .sign-table .date-cell{width:100%}
+  .name-cell{flex-wrap:wrap;gap:6px}
+  .sign-upload-btn{display:flex!important;margin-left:0!important;margin-top:8px;width:100%;justify-content:center}
+  .sign-name-text{font-size:13px}
 }
 
 /* 이수 현황 카드 */
@@ -386,7 +376,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="status-card" id="checklistStatusCard">
   <div class="status-card-title">
     <span>📊 현재 이수 현황 (체크리스트 기준)</span>
-    <span style="font-size:11px;opacity:.7">체크리스트 저장 데이터 자동 표시</span>
+    <span class="status-sub">체크리스트 저장 데이터 자동 표시</span>
   </div>
   <div class="status-card-body">
     <div style="font-size:11px;color:var(--text3);margin-bottom:14px;padding:10px 12px;background:#eaf1fb;border:0.5px solid #c5d9f0;border-radius:6px;line-height:1.7">
