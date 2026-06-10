@@ -687,19 +687,26 @@ function loadMileage(studentId) {
   section.classList.add('show');
   document.getElementById('mileageLoading').style.display = 'block';
 
-  const url = SCRIPT_URL + '?action=getMileage&studentId=' + encodeURIComponent(studentId);
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('mileageLoading').style.display = 'none';
-      if (data.status !== 'ok') { renderMileageEmpty(); return; }
-      mileageData = data;
-      renderMileage(data);
-    })
-    .catch(() => {
-      document.getElementById('mileageLoading').style.display = 'none';
-      renderMileageEmpty();
-    });
+  const cbName = '__mileageCb_' + Date.now();
+  window[cbName] = function(data) {
+    delete window[cbName];
+    const s = document.getElementById('__mileageJsonp');
+    if (s) s.remove();
+    document.getElementById('mileageLoading').style.display = 'none';
+    if (data.status !== 'ok') { renderMileageEmpty(); return; }
+    mileageData = data;
+    renderMileage(data);
+  };
+  const s = document.createElement('script');
+  s.id = '__mileageJsonp';
+  s.src = SCRIPT_URL + '?action=getMileage&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
+  s.onerror = function() {
+    delete window[cbName];
+    s.remove();
+    document.getElementById('mileageLoading').style.display = 'none';
+    renderMileageEmpty();
+  };
+  document.head.appendChild(s);
 }
 
 function renderMileage(data) {
