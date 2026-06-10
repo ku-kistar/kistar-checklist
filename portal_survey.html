@@ -148,6 +148,45 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
   .main-msg{padding:1.4rem 1.2rem .2rem}
   .forms-section{padding:1.2rem 1.2rem 0}
 }
+
+/* ── 마일리지 탭 ── */
+.mileage-section{width:100%;max-width:680px;padding:1.2rem 2rem 0;display:none}
+.mileage-section.show{display:block}
+.mileage-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.mileage-total-card{background:linear-gradient(135deg,#0b1f3a,#1a3a6e);border-radius:14px;padding:1.2rem 1.5rem;color:#fff;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.mileage-total-label{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px}
+.mileage-total-num{font-size:32px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#0ea5e9}
+.mileage-total-unit{font-size:13px;color:rgba(255,255,255,.5);margin-left:4px}
+.mileage-penalty{background:rgba(200,57,43,.15);border:1px solid rgba(200,57,43,.3);border-radius:8px;padding:8px 12px;font-size:12px;color:#ff8a80;margin-bottom:1rem;display:none}
+.mileage-penalty.show{display:block}
+.mileage-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.mileage-filter-btn{padding:4px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s}
+.mileage-filter-btn.active{background:rgba(14,165,233,.2);border-color:#0ea5e9;color:#0ea5e9}
+.mileage-list{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
+.mileage-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mileage-item-left{display:flex;flex-direction:column;gap:2px}
+.mileage-item-name{font-size:13px;color:#fff;font-weight:500}
+.mileage-item-meta{font-size:11px;color:rgba(255,255,255,.4)}
+.mileage-item-badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600}
+.badge-edu{background:rgba(14,165,233,.2);color:#0ea5e9}
+.badge-extra{background:rgba(16,185,129,.2);color:#10b981}
+.mileage-item-pts{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#0ea5e9;white-space:nowrap}
+.mileage-empty{text-align:center;padding:2rem;color:rgba(255,255,255,.3);font-size:13px}
+.mileage-loading{text-align:center;padding:2rem;color:rgba(255,255,255,.4);font-size:13px}
+/* 관리자 마일리지 입력 */
+.admin-mileage-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#10b981;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;text-decoration:none}
+.admin-mileage-btn:hover{background:rgba(16,185,129,.25)}
+.mileage-admin-panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem;margin-top:1rem;display:none}
+.mileage-admin-panel.show{display:block}
+.mileage-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;font-family:inherit;outline:none;margin-bottom:8px;box-sizing:border-box}
+.mileage-input::placeholder{color:rgba(255,255,255,.3)}
+.mileage-input:focus{border-color:#0ea5e9}
+.mileage-submit-btn{padding:8px 20px;border-radius:8px;border:none;background:#0ea5e9;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;font-weight:600;transition:background .15s}
+.mileage-submit-btn:hover{background:#0284c7}
+.mileage-result-msg{font-size:12px;margin-top:8px;padding:8px 12px;border-radius:8px;display:none}
+.mileage-result-msg.ok{background:rgba(16,185,129,.15);color:#10b981;display:block}
+.mileage-result-msg.err{background:rgba(200,57,43,.15);color:#ff8a80;display:block}
+
 </style>
 </head>
 <body>
@@ -287,6 +326,71 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
   <!-- 관리자 전용 섹션 (admin 계정만 표시) -->
   <div id="admin-section">
     <div class="admin-section-label">관리자 전용</div>
+
+<!-- 마일리지 섹션 (로그인 후 표시) -->
+<div class="mileage-section" id="mileage-section">
+  <div class="mileage-header">
+    <div class="admin-section-label" style="margin-bottom:0">🎖 사업단 마일리지</div>
+    <!-- 관리자 전용 입력 버튼 -->
+    <button class="admin-mileage-btn" id="adminMileageToggle" style="display:none" onclick="toggleAdminMileage()">
+      + 마일리지 입력
+    </button>
+  </div>
+
+  <!-- 관리자 입력 패널 -->
+  <div class="mileage-admin-panel" id="adminMileagePanel">
+    <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-weight:600">참여자 일괄 마일리지 적립</div>
+    <select class="mileage-input" id="mileageSemester">
+      <option value="2024-2">2024-2학기</option>
+      <option value="2025-1">2025-1학기</option>
+      <option value="2025-2">2025-2학기</option>
+      <option value="2026-1" selected>2026-1학기</option>
+    </select>
+    <input class="mileage-input" id="mileageProgName" placeholder="프로그램명 (예: STOB 리그 Insight Sharing Day)">
+    <select class="mileage-input" id="mileageCategory">
+      <option value="교과">교과</option>
+      <option value="비교과" selected>비교과</option>
+    </select>
+    <input class="mileage-input" id="mileagePoints" type="number" placeholder="마일리지 점수 (예: 10)" min="1">
+    <textarea class="mileage-input" id="mileageStudentIds" rows="4" placeholder="학번 목록 (줄바꿈 또는 콤마로 구분)&#10;예: 2022170155&#10;2023170222&#10;2021170738"></textarea>
+    <button class="mileage-submit-btn" onclick="submitMileage()">적립하기</button>
+    <div class="mileage-result-msg" id="mileageResultMsg"></div>
+  </div>
+
+  <!-- 누적 마일리지 카드 -->
+  <div class="mileage-total-card" id="mileageTotalCard" style="display:none">
+    <div>
+      <div class="mileage-total-label">누적 마일리지</div>
+      <div style="display:flex;align-items:baseline;gap:4px">
+        <span class="mileage-total-num" id="mileageTotalNum">0</span>
+        <span class="mileage-total-unit">점</span>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px">참여 활동</div>
+      <div style="font-size:18px;font-weight:700;color:rgba(255,255,255,.8)" id="mileageActCount">0건</div>
+    </div>
+  </div>
+
+  <!-- 패널티 알림 -->
+  <div class="mileage-penalty" id="mileagePenalty"></div>
+
+  <!-- 학기 필터 -->
+  <div class="mileage-filter" id="mileageFilter" style="display:none">
+    <button class="mileage-filter-btn active" onclick="filterMileage('all', this)">전체</button>
+    <button class="mileage-filter-btn" onclick="filterMileage('2024-2', this)">2024-2</button>
+    <button class="mileage-filter-btn" onclick="filterMileage('2025-1', this)">2025-1</button>
+    <button class="mileage-filter-btn" onclick="filterMileage('2025-2', this)">2025-2</button>
+    <button class="mileage-filter-btn" onclick="filterMileage('2026-1', this)">2026-1</button>
+  </div>
+
+  <!-- 내역 목록 -->
+  <div class="mileage-list" id="mileageList">
+    <div class="mileage-loading" id="mileageLoading" style="display:none">마일리지 조회 중...</div>
+    <div class="mileage-empty" id="mileageEmpty" style="display:none">참여 내역이 없습니다.</div>
+  </div>
+</div>
+
     <div class="admin-btns">
       <a href="form_plan.html" class="admin-form-btn">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="1" width="9" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 4h5M4 6.5h5M4 9h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
@@ -404,6 +508,7 @@ function showUserBar() {
   // 관리자 전용 섹션 표시
   if (auth.isAdmin) {
     document.getElementById('admin-section').classList.add('show');
+    document.getElementById('adminMileageToggle').style.display = 'flex';
   }
 }
 
@@ -554,6 +659,7 @@ function reloadForms() {
     document.getElementById('auth-overlay').classList.add('hidden');
     showUserBar();
     loadForms();
+    if (auth.studentId) loadMileage(auth.studentId);
   }
 })();
 
@@ -570,6 +676,148 @@ window.addEventListener('pageshow', function(e) {
     }
   }
 });
+
+// ── 마일리지 관련 ──
+let mileageData = null;
+let currentFilter = 'all';
+
+function loadMileage(studentId) {
+  const section = document.getElementById('mileage-section');
+  if (!section) return;
+  section.classList.add('show');
+  document.getElementById('mileageLoading').style.display = 'block';
+
+  const url = SCRIPT_URL + '?action=getMileage&studentId=' + encodeURIComponent(studentId);
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('mileageLoading').style.display = 'none';
+      if (data.status !== 'ok') { renderMileageEmpty(); return; }
+      mileageData = data;
+      renderMileage(data);
+    })
+    .catch(() => {
+      document.getElementById('mileageLoading').style.display = 'none';
+      renderMileageEmpty();
+    });
+}
+
+function renderMileage(data) {
+  // 누적 카드
+  document.getElementById('mileageTotalCard').style.display = 'flex';
+  document.getElementById('mileageTotalNum').textContent = data.totalPoints;
+  const normalRecs = data.records.filter(r => r['상태'] === '정상');
+  document.getElementById('mileageActCount').textContent = normalRecs.length + '건';
+  document.getElementById('mileageFilter').style.display = 'flex';
+
+  // 패널티
+  const penaltyEl = document.getElementById('mileagePenalty');
+  if (data.penaltyLeft > 0) {
+    penaltyEl.textContent = '⚠️ 노쇼 패널티: 비교과 프로그램 신청 ' + data.penaltyLeft + '회 제한 중';
+    penaltyEl.classList.add('show');
+  }
+
+  filterMileage(currentFilter, null);
+}
+
+function filterMileage(semester, btn) {
+  currentFilter = semester;
+  document.querySelectorAll('.mileage-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  if (!mileageData) return;
+  const list = document.getElementById('mileageList');
+  // 로딩/빈값 요소 제거 후 재렌더
+  list.querySelectorAll('.mileage-item').forEach(el => el.remove());
+
+  let recs = mileageData.records.filter(r => r['상태'] === '정상');
+  if (semester !== 'all') recs = recs.filter(r => r['학기'] === semester);
+
+  // 최신순 정렬
+  recs.sort((a, b) => (b['날짜'] || b['학기']).localeCompare(a['날짜'] || a['학기']));
+
+  if (recs.length === 0) {
+    document.getElementById('mileageEmpty').style.display = 'block';
+    return;
+  }
+  document.getElementById('mileageEmpty').style.display = 'none';
+
+  recs.forEach(r => {
+    const isEdu = r['카테고리'] === '교과';
+    const item = document.createElement('div');
+    item.className = 'mileage-item';
+    item.innerHTML = `
+      <div class="mileage-item-left">
+        <span class="mileage-item-name">${r['프로그램명']}</span>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:3px">
+          <span class="mileage-item-badge ${isEdu ? 'badge-edu' : 'badge-extra'}">${r['카테고리']}</span>
+          <span class="mileage-item-meta">${r['학기']}${r['날짜'] ? ' · ' + r['날짜'] : ''}</span>
+        </div>
+      </div>
+      <span class="mileage-item-pts">+${r['점수']}점</span>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function renderMileageEmpty() {
+  document.getElementById('mileageTotalCard').style.display = 'flex';
+  document.getElementById('mileageTotalNum').textContent = '0';
+  document.getElementById('mileageActCount').textContent = '0건';
+  document.getElementById('mileageEmpty').style.display = 'block';
+}
+
+function toggleAdminMileage() {
+  const panel = document.getElementById('adminMileagePanel');
+  panel.classList.toggle('show');
+}
+
+function submitMileage() {
+  const semester   = document.getElementById('mileageSemester').value;
+  const progName   = document.getElementById('mileageProgName').value.trim();
+  const category   = document.getElementById('mileageCategory').value;
+  const points     = document.getElementById('mileagePoints').value;
+  const idsRaw     = document.getElementById('mileageStudentIds').value;
+  const studentIds = idsRaw.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
+  const msgEl      = document.getElementById('mileageResultMsg');
+
+  msgEl.className = 'mileage-result-msg';
+
+  if (!progName || !points || studentIds.length === 0) {
+    msgEl.textContent = '프로그램명, 점수, 학번을 모두 입력해주세요.';
+    msgEl.classList.add('err');
+    return;
+  }
+
+  const pid = 'P' + Date.now().toString().slice(-6);
+  const params = new URLSearchParams({
+    action: 'addMileage',
+    semester, programId: pid, programName: progName,
+    category, points,
+    studentIds: studentIds.join(',')
+  });
+
+  fetch(SCRIPT_URL, { method: 'POST', body: params })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        msgEl.textContent = '✓ ' + data.added + '명 적립 완료' + (data.notFound.length > 0 ? ' / 미확인 학번: ' + data.notFound.join(', ') : '');
+        msgEl.classList.add('ok');
+        // 입력 초기화
+        document.getElementById('mileageProgName').value = '';
+        document.getElementById('mileagePoints').value = '';
+        document.getElementById('mileageStudentIds').value = '';
+      } else {
+        msgEl.textContent = '오류: ' + data.message;
+        msgEl.classList.add('err');
+      }
+    })
+    .catch(() => {
+      msgEl.textContent = '네트워크 오류가 발생했습니다.';
+      msgEl.classList.add('err');
+    });
+}
+
 </script>
 </body>
 </html>
