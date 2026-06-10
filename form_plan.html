@@ -178,33 +178,67 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 }
 
 @media(max-width:600px){
-  .top-bar{padding:8px 12px}
-  .top-title{font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .top-badge{font-size:9px}
-  .container{padding:1rem .75rem}
-  .doc-header-top{padding:1.2rem 1rem}
-  .doc-title{font-size:17px}
+  /* 상단 바 */
+  .top-bar{padding:8px 10px}
+  .top-title{font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-badge{font-size:9px;padding:2px 6px}
+
+  /* 컨테이너 */
+  .container{padding:.75rem .6rem}
+
+  /* 문서 헤더 */
+  .doc-header-top{padding:1rem .9rem}
+  .doc-title{font-size:16px;word-break:keep-all;line-height:1.45}
   .doc-subtitle{font-size:11px}
-  .doc-meta{flex-direction:column;gap:4px;padding:10px 14px}
-  .section-title{padding:10px 14px;font-size:12px}
-  .section-body{padding:12px 14px}
-  .info-table td{padding:7px 8px;font-size:12px}
-  .info-table .lbl{width:60px;font-size:11px}
+  .doc-meta{flex-direction:column;gap:4px;padding:10px 14px;font-size:12px}
+
+  /* 섹션 */
+  .section-title{padding:10px 12px;font-size:12px}
+  .section-body{padding:12px 12px}
+
+  /* 기본정보 테이블 — 모바일에서 1행 1항목 */
+  .info-table{display:block}
+  .info-table tbody,.info-table tr{display:block}
+  .info-table tr{border-bottom:1px solid var(--border)}
+  .info-table td{display:inline-block;padding:6px 10px;font-size:12px;border:none;border-bottom:1px solid var(--surface2)}
+  .info-table .lbl{width:64px;font-size:11px;background:var(--surface2);vertical-align:middle}
+  .info-table td:not(.lbl){width:calc(100% - 68px);vertical-align:middle}
+  .info-table input,.info-table select{font-size:12px}
+
+  /* 이수현황 카드 */
+  .status-card{font-size:12px;line-height:1.6}
+  .status-card p{font-size:11px}
+
+  /* 필드 */
   .field-label{font-size:12px}
   .field-textarea{font-size:13px;min-height:80px}
-  .check-group{gap:6px}
-  .check-item{font-size:12px;padding:5px 10px}
-  .check-item-other{font-size:12px;padding:5px 10px;min-width:120px}
+  .field-hint{font-size:10px}
+
+  /* 체크박스 그룹 */
+  .check-group{gap:5px}
+  .check-item{font-size:12px;padding:5px 9px}
+  .check-item-other{font-size:12px;padding:5px 9px;min-width:110px}
+
+  /* 교과계획 테이블 — 가로 스크롤 + 스크롤바 표시 */
+  .course-plan-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+  .course-plan-wrap::-webkit-scrollbar{height:4px}
+  .course-plan-wrap::-webkit-scrollbar-track{background:transparent}
+  .course-plan-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+  /* 제출 */
   .submit-area{flex-direction:column;padding:14px}
   .btn-group{width:100%}
-  .btn-print,.btn-submit{flex:1;justify-content:center;font-size:12px;padding:9px 12px}
-  .draft-bar{padding:8px 12px;gap:8px}
+  .btn-print,.btn-submit{flex:1;justify-content:center;font-size:12px;padding:9px 10px}
+
+  /* 하단 임시저장 바 */
+  .draft-bar{padding:7px 10px;gap:7px}
   .draft-bar-left{font-size:11px}
   .draft-btn{padding:5px 10px;font-size:11px}
-  .sign-table td{padding:8px 10px;font-size:12px}
-  .sign-name-text{font-size:13px}
-  .course-plan-table{font-size:11px}
-  .course-plan-table th,.course-plan-table td{padding:5px 6px}
+
+  /* 서명란 */
+  .sign-table td{padding:7px 8px;font-size:11px}
+  .sign-name-text{font-size:12px}
 }
 
 /* 이수 현황 카드 */
@@ -324,7 +358,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="top-bar">
   <div class="top-bar-left">
     <span class="top-badge">관리자</span>
-    <span class="top-title">2026학년도 1학기 활동계획서 제출</span>
+    <span class="top-title">활동계획서 제출</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <button id="resetBtn" onclick="resetStep()" style="padding:5px 12px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s">초기화</button>
@@ -339,7 +373,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
 <div class="doc-header">
   <div class="doc-header-top">
-    <div class="doc-title">2026학년도 1학기 &lt;차세대반도체 융합전공&gt; 활동계획서</div>
+    <div class="doc-title">2026학년도 1학기<br><span style="font-size:.85em">&lt;차세대반도체 융합전공&gt; 활동계획서</span></div>
     <div class="doc-subtitle">차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</div>
   </div>
   <div class="doc-meta">
