@@ -177,7 +177,35 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .check-group{break-inside:avoid;page-break-inside:avoid}
 }
 
-@media(max-width:600px){.doc-meta{flex-direction:column;gap:4px}.submit-area{flex-direction:column}}
+@media(max-width:600px){
+  .top-bar{padding:8px 12px}
+  .top-title{font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top-badge{font-size:9px}
+  .container{padding:1rem .75rem}
+  .doc-header-top{padding:1.2rem 1rem}
+  .doc-title{font-size:17px}
+  .doc-subtitle{font-size:11px}
+  .doc-meta{flex-direction:column;gap:4px;padding:10px 14px}
+  .section-title{padding:10px 14px;font-size:12px}
+  .section-body{padding:12px 14px}
+  .info-table td{padding:7px 8px;font-size:12px}
+  .info-table .lbl{width:60px;font-size:11px}
+  .field-label{font-size:12px}
+  .field-textarea{font-size:13px;min-height:80px}
+  .check-group{gap:6px}
+  .check-item{font-size:12px;padding:5px 10px}
+  .check-item-other{font-size:12px;padding:5px 10px;min-width:120px}
+  .submit-area{flex-direction:column;padding:14px}
+  .btn-group{width:100%}
+  .btn-print,.btn-submit{flex:1;justify-content:center;font-size:12px;padding:9px 12px}
+  .draft-bar{padding:8px 12px;gap:8px}
+  .draft-bar-left{font-size:11px}
+  .draft-btn{padding:5px 10px;font-size:11px}
+  .sign-table td{padding:8px 10px;font-size:12px}
+  .sign-name-text{font-size:13px}
+  .course-plan-table{font-size:11px}
+  .course-plan-table th,.course-plan-table td{padding:5px 6px}
+}
 
 /* 이수 현황 카드 */
 .status-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
