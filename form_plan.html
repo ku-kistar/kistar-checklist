@@ -856,14 +856,8 @@ function submitForm(){
   const shortFields=[{id:'goal1',label:'핵심 목표 ①',min:20},{id:'goal2',label:'핵심 목표 ②',min:20},{id:'goal3',label:'핵심 목표 ③',min:20}];
   const longFields=[{id:'prev-achievement',label:'지난 학기 주요 성과',min:100},{id:'academic-plan',label:'학업 역량 강화 계획',min:100},{id:'industry-plan',label:'실무 경험 및 외부 연계 활동',min:50},{id:'project-plan',label:'자기 주도형 프로젝트 계획',min:50},{id:'support-request',label:'사업단 지원 요청',min:30}];
   [...shortFields,...longFields].forEach(f=>{const val=(document.getElementById(f.id).value||'').trim();if(val.length<f.min)warnings.push('· '+f.label+' (현재 '+val.length+'자 / 최소 '+f.min+'자 권장)');});
-  if(warnings.length>0&&!confirm('다음 항목의 내용이 너무 짧습니다.
-
-'+warnings.join('
-')+'
-
-그래도 제출하시겠습니까?'))return;
-  const params=new URLSearchParams({action:'submitPlan',signatureImage:signFileBase64,studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,grade:document.getElementById('f-grade').value,phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,semester:document.getElementById('f-semester-input').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,techField:getChecked('tech'),coursePlan:getCoursePlan(),academicPlan:document.getElementById('academic-plan').value,internType:getChecked('intern'),industryPlan:document.getElementById('industry-plan').value,projectType:getChecked('project'),projectPlan:document.getElementById('project-plan').value,careerGoal:getRadio('career'),supportRequest:getChecked('support')+'
-'+document.getElementById('support-request').value});
+  if(warnings.length>0&&!confirm('다음 항목의 내용이 너무 짧습니다.\n\n'+warnings.join('\n')+'\n\n그래도 제출하시겠습니까?'))return;
+  const params=new URLSearchParams({action:'submitPlan',signatureImage:signFileBase64,studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,grade:document.getElementById('f-grade').value,phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,semester:document.getElementById('f-semester-input').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,techField:getChecked('tech'),coursePlan:getCoursePlan(),academicPlan:document.getElementById('academic-plan').value,internType:getChecked('intern'),industryPlan:document.getElementById('industry-plan').value,projectType:getChecked('project'),projectPlan:document.getElementById('project-plan').value,careerGoal:getRadio('career'),supportRequest:getChecked('support')+'\n'+document.getElementById('support-request').value});
   showResult('success','제출 중...');
   fetch(SCRIPT_URL_HUB,{method:'POST',body:params}).then(r=>r.json()).then(result=>{
     if(result.status==='ok'){if(draftKey)localStorage.removeItem(draftKey);showResult('success','✅ 활동계획서가 제출되었습니다! ('+sname+')');}
