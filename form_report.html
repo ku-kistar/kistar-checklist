@@ -14,10 +14,19 @@
   --green:#2d7a4f;--green-light:#edf7f1;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body,input,select,textarea,button{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif}
-body,input,textarea,select,button{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;color:var(--text)}
+body,input,select,textarea,button{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;color:var(--text)}
 body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
-#access-denied{display:none;max-width:400px;margin:4rem auto;text-align:center;padding:2rem;background:var(--surface);border-radius:16px;border:1px solid var(--border)}
+
+/* [FIX 1] 접근거부: fixed fullscreen - 메인 콘텐츠와 겹치지 않게 */
+#access-denied{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:var(--bg);align-items:center;justify-content:center;
+}
+#access-denied-inner{
+  max-width:400px;width:90%;text-align:center;padding:2.5rem 2rem;
+  background:var(--surface);border-radius:16px;border:1px solid var(--border);
+  box-shadow:0 4px 24px rgba(0,0,0,.08);
+}
 .top-bar{background:rgba(11,31,58,0.95);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .top-bar-left{display:flex;align-items:center;gap:10px}
 .top-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:3px 8px;border-radius:4px}
@@ -37,146 +46,110 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .info-table{width:100%;border-collapse:collapse;font-size:13px}
 .info-table td{border:1px solid var(--border);padding:8px 12px}
 .info-table .lbl{background:var(--surface2);font-weight:600;width:80px;text-align:center;color:var(--text2)}
-.info-table td:first-child,.info-table td:nth-child(3){background:var(--surface2);font-weight:600;width:80px;text-align:center;color:var(--text2)}
-.info-table input{width:100%;border:none;outline:none;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:transparent;color:var(--text)}
+.info-table input{width:100%;border:none;outline:none;font-size:13px;background:transparent;color:var(--text)}
 .field{margin-bottom:1.2rem}
 .field:last-child{margin-bottom:0}
 .field-label{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;border-left:3px solid var(--navy);padding-left:8px}
 .field-hint{font-size:11px;color:var(--text3);font-weight:400}
-.field-textarea{width:100%;min-height:100px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;resize:vertical;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s;line-height:1.6}
+.field-textarea{width:100%;min-height:100px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;resize:vertical;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s;line-height:1.6}
 .field-textarea:focus{border-color:var(--navy);background:var(--surface)}
-.field-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:var(--surface2);color:var(--text);outline:none}
+.field-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;background:var(--surface2);color:var(--text);outline:none}
 .field-input:focus{border-color:var(--navy);background:var(--surface)}
-
-/* 교과 활동 카드 */
 .course-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;position:relative}
 .course-card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.del-card-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text3);cursor:pointer;font-size:11px;padding:3px 8px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;transition:all .15s}
+.del-card-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text3);cursor:pointer;font-size:11px;padding:3px 8px;transition:all .15s}
 .del-card-btn:hover{border-color:var(--accent);color:var(--accent)}
 .course-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.add-card-btn{display:flex;align-items:center;gap:5px;padding:8px 14px;border:1px dashed var(--border);border-radius:8px;background:transparent;color:var(--text3);font-size:12px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;margin-top:4px}
+.add-card-btn{display:flex;align-items:center;gap:5px;padding:8px 14px;border:1px dashed var(--border);border-radius:8px;background:transparent;color:var(--text3);font-size:12px;cursor:pointer;transition:all .15s;margin-top:4px}
 .add-card-btn:hover{border-color:var(--navy);color:var(--navy)}
-
-/* 비교과 카드 */
 .extracurr-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
 .extracurr-card-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-
-/* 제출 버튼 */
 .submit-area{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:20px;margin-top:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .submit-note{font-size:12px;color:var(--text2);line-height:1.6}
 .btn-group{display:flex;gap:10px;flex-wrap:wrap}
-.btn-print{display:flex;align-items:center;gap:6px;padding:10px 20px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text2);font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;font-weight:500;transition:all .15s}
+.btn-print{display:flex;align-items:center;gap:6px;padding:10px 20px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;font-weight:500;transition:all .15s}
 .btn-print:hover{border-color:var(--navy);color:var(--navy)}
-.btn-submit{display:flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;font-weight:700}
+.btn-submit{display:flex;align-items:center;gap:6px;padding:10px 24px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:13px;cursor:pointer;font-weight:700}
 .btn-submit:hover{opacity:.88}
 .submit-result{margin-top:10px;font-size:12px;padding:10px 14px;border-radius:8px;display:none;width:100%}
 .submit-result.show{display:block}
 .submit-result.success{background:var(--green-light);color:var(--green);border:0.5px solid #b7e4c7}
 .submit-result.error{background:var(--accent-light);color:var(--accent)}
 .form-footer{max-width:820px;margin:1.5rem auto 0;text-align:center;font-size:11px;color:var(--text3);padding:1rem;border-top:0.5px solid var(--border)}
-
-/* 글자수 카운터 */
 .field-wrap{position:relative}
 .char-counter{font-size:10px;color:var(--text3);text-align:right;margin-top:3px;transition:color .2s}
-.char-counter.warn{color:var(--amber,#a0620a)}
+.char-counter.warn{color:#a0620a}
 .char-counter.ok{color:var(--green)}
-
-/* 임시저장 바 */
 .draft-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(11,31,58,0.96);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .draft-bar-left{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.75)}
 .draft-status{font-size:11px;color:rgba(255,255,255,.5);margin-left:4px}
-.draft-btn{padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
+.draft-btn{padding:6px 14px;border-radius:6px;border:none;font-size:12px;cursor:pointer;font-weight:600;transition:all .15s}
 .draft-btn-save{background:#1a5fa8;color:#fff}
 .draft-btn-save:hover{background:#154e8a}
 .draft-btn-clear{background:transparent;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2)}
 .draft-btn-clear:hover{color:#fff;border-color:rgba(255,255,255,.5)}
-
-/* 임시저장 불러오기 모달 */
 .draft-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:center;justify-content:center}
 .draft-modal{background:#fff;border-radius:14px;padding:28px 24px;max-width:400px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18)}
 .draft-modal h3{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--navy)}
 .draft-modal p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:6px}
 .draft-modal-note{font-size:11px;color:var(--text3);background:var(--surface2);border-radius:6px;padding:8px 10px;line-height:1.7;margin:12px 0}
 .draft-modal-btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-.draft-modal-btn-load{padding:9px 20px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.draft-modal-btn-discard{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit}
+.draft-modal-btn-load{padding:9px 20px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.draft-modal-btn-discard{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer}
 
+@media(max-width:768px){.container{padding:1.2rem 1rem}}
 
-  body{background:#fff;padding:0}
-  .container{padding:0}
-  .form-section,.doc-header{border:1px solid #ccc;margin-bottom:1rem;break-inside:avoid}
-  .doc-header-top,.section-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
-@media(max-width:768px){
-  /* 태블릿 */
-  .container{padding:1.2rem 1rem}
-  .info-table td{font-size:13px}
-}
+/* [FIX 2+3] 모바일 600px - 기본정보 테이블 + 별점 완전 수정 */
 @media(max-width:600px){
-  /* 모바일 */
   .top-bar{padding:8px 10px}
   .top-title{font-size:11px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .top-badge{font-size:9px;padding:2px 6px}
   .container{padding:.75rem .65rem}
-
-  /* 문서 헤더 */
   .doc-header-top{padding:1.1rem 1rem}
   .doc-title{font-size:16px;word-break:keep-all;line-height:1.5;text-align:center}
   .doc-subtitle{font-size:11px;text-align:center}
   .doc-meta{flex-direction:column;gap:5px;padding:10px 14px;font-size:12px}
-
-  /* 섹션 */
   .section-title{padding:10px 12px;font-size:12px}
   .section-body{padding:12px 12px}
-
-  /* 이수현황 */
   .status-card-title{flex-direction:column;align-items:flex-start;gap:3px;padding:10px 14px}
   .status-sub{font-size:10px;opacity:.7;display:block}
 
-  /* 기본정보 테이블 - 모바일 1행 1항목 */
-  .info-table{display:block}
-  .info-table tbody,.info-table tr{display:block}
-  .info-table tr{border-bottom:1px solid var(--border)}
-  .info-table td{display:inline-block;padding:7px 10px;font-size:12px;border:none;border-bottom:1px solid var(--surface2)}
-  .info-table .lbl{width:66px;font-size:11px;background:var(--surface2);vertical-align:middle}
-  .info-table td:not(.lbl){width:calc(100% - 70px);vertical-align:middle}
-  .info-table input,.info-table select{font-size:12px}
+  /* [FIX 2] 기본정보 테이블 - 레이블/값 완전 분리 블록화 */
+  .info-table,.info-table tbody,.info-table tr,.info-table td{display:block;width:100%}
+  .info-table tr{border:none;margin-bottom:2px}
+  .info-table td.lbl{
+    width:100%;text-align:left;background:var(--surface2);
+    border:none;border-top:0.5px solid var(--border);
+    padding:5px 10px;font-size:11px;color:var(--text3);font-weight:700;
+  }
+  .info-table td:not(.lbl){border:none;border-bottom:0.5px solid var(--border);padding:8px 10px;font-size:13px}
+  .info-table input,.info-table select{font-size:13px}
 
-  /* 필드 */
   .field-label{font-size:12px;line-height:1.5}
   .field-hint{font-size:10px;display:block;margin-top:3px;color:var(--text3)}
   .field-textarea{font-size:13px;min-height:80px;line-height:1.7}
-  .field-hint{font-size:10px}
 
-  /* 체크박스 */
-  .check-group{gap:5px}
-  .check-item{font-size:12px;padding:5px 9px}
+  /* [FIX 5] 기타 라디오/체크박스 줄바꿈 방지 */
+  .check-item{white-space:nowrap}
+  .check-group{gap:5px 10px}
 
-  /* 별점 자기평가 */
-  .rating-row{gap:8px;padding:10px 0;flex-wrap:wrap}
-  .rating-label{font-size:12px;min-width:100%;margin-bottom:4px}
-  .star-group label{font-size:26px;padding:2px}
-  .star-desc{font-size:10px}
+  /* [FIX 3] 별점 자기평가 - 세로 정렬 */
+  .rating-row{flex-direction:column;align-items:flex-start;gap:6px;padding:10px 0}
+  .rating-label{font-size:12px;min-width:unset;margin-bottom:2px}
+  .star-group{gap:2px}
+  .star-group label{font-size:28px;padding:2px}
+  .star-desc{font-size:10px;margin-left:0;margin-top:2px}
 
-  /* 교과 카드 */
   .course-card-grid{grid-template-columns:1fr}
-
-  /* 제출 */
   .submit-area{flex-direction:column;padding:14px;gap:10px}
   .btn-group{width:100%;flex-direction:column}
   .btn-print,.btn-submit{width:100%;justify-content:center;font-size:13px;padding:11px 10px}
-
-  /* 임시저장 바 */
   .draft-bar{padding:7px 10px;gap:6px;flex-wrap:nowrap}
   .draft-bar-left{font-size:11px;flex:1;min-width:0}
   .draft-status{display:none}
   .draft-btn{padding:5px 10px;font-size:11px;white-space:nowrap}
-
-  /* 서명 섹션 */
   .sign-header ul{font-size:11px;line-height:1.8}
-  .sign-header li{word-break:keep-all;padding-left:0}
-  .sign-table{display:block}
-  .sign-table tbody,.sign-table tr{display:block}
+  .sign-table,.sign-table tbody,.sign-table tr{display:block}
   .sign-table tr{border-bottom:1px solid var(--border)}
   .sign-table td{display:block;padding:8px 10px;font-size:12px;border:none}
   .sign-table .lbl{background:var(--surface2);width:100%;font-size:11px;border-bottom:1px solid var(--border)}
@@ -186,22 +159,14 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .sign-name-text{font-size:13px}
 }
 
-/* 5점 척도 */
 .rating-row{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:0.5px solid var(--border)}
 .rating-row:last-child{border-bottom:none}
 .rating-label{font-size:13px;font-weight:600;min-width:100px;color:var(--text)}
-/* ── 별점 ── */
 .star-group{display:flex;flex-direction:row-reverse;gap:4px}
 .star-group input[type=radio]{display:none}
 .star-group label{font-size:28px;color:#dddbd3;cursor:pointer;transition:color .15s;line-height:1;padding:2px}
-.star-group label:hover,
-.star-group label:hover ~ label,
-.star-group input[type=radio]:checked ~ label{color:#f5a623}
-.star-selected{color:#f5a623!important}
+.star-group label:hover,.star-group label:hover ~ label,.star-group input[type=radio]:checked ~ label{color:#f5a623}
 .star-desc{font-size:11px;color:var(--text3);margin-left:8px;white-space:nowrap}
-@media(max-width:600px){.star-group label{font-size:32px;padding:4px}}
-
-/* 이수 현황 카드 */
 .status-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
 .status-card-title{background:linear-gradient(135deg,#0b1f3a,#1a3a5c);color:#fff;padding:12px 20px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
 .status-card-body{padding:14px 20px}
@@ -209,170 +174,110 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .status-item{text-align:center;padding:10px 6px;border-radius:8px;border:0.5px solid var(--border)}
 .status-item.ok{background:var(--green-light);border-color:#b7e4c7}
 .status-item.fail{background:var(--surface2)}
-.status-item-num{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;margin-bottom:2px}
+.status-item-num{font-size:16px;font-weight:700;margin-bottom:2px}
 .status-item.ok .status-item-num{color:var(--green)}
 .status-item.fail .status-item-num{color:var(--text3)}
 .status-item-label{font-size:10px;color:var(--text2)}
 .status-item-sub{font-size:9px;color:var(--text3);margin-top:2px}
 .status-total{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:8px}
 .status-total-label{font-size:12px;color:var(--text2)}
-.status-total-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700}
+.status-total-val{font-size:16px;font-weight:700}
 .status-total-val.complete{color:var(--green)}
 .status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
-
 @media print{
-  .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.add-row-btn,.footer,.char-counter,#resetBtn,.btn-print,.sign-upload-btn{display:none!important}
+  .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.footer,.char-counter,#resetBtn,.btn-print,.sign-upload-btn,#access-denied{display:none!important}
   body{background:#fff;padding:0;font-size:10pt}
   .container{padding:0;max-width:100%}
-  .form-section,.doc-header,.status-card{
-    border:1px solid #ccc;margin-bottom:.6rem;
-  }
+  .form-section,.doc-header,.status-card{border:1px solid #ccc;margin-bottom:.6rem}
   .field{break-inside:avoid;page-break-inside:avoid;margin-bottom:.5rem}
-  .field-textarea{
-    background:#fff!important;border:1px solid #ccc!important;
-    height:auto!important;min-height:0!important;
-    overflow:visible!important;resize:none!important;
-  }
-  .course-card,.extracurr-card,.intern-card{
-    break-inside:avoid;page-break-inside:avoid;
-    margin-bottom:.4rem!important;
-  }
-  .rating-group label{border:1px solid #ccc!important}
-  .doc-header-top,.section-title{
-    background:#0b1f3a!important;
-    -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    break-after:avoid;page-break-after:avoid;
-  }
-  .check-group,.rating-row,.star-group{break-inside:avoid}
-  p,li,td{orphans:3;widows:3}
-  /* 불필요한 여백 제거 */
+  .field-textarea{background:#fff!important;border:1px solid #ccc!important;height:auto!important;min-height:0!important;overflow:visible!important;resize:none!important}
+  .course-card,.extracurr-card,.intern-card{break-inside:avoid;page-break-inside:avoid;margin-bottom:.4rem!important}
+  .doc-header-top,.section-title{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .section-body{padding:10px 16px!important}
-  .field-label{margin-bottom:4px!important}
   @page{margin:10mm 8mm}
   .form-section{margin-bottom:.3rem!important}
   .container{max-width:100%!important;padding:0!important;width:100%!important}
 }
-
-
-/* ── 체크박스 그룹 ── */
 .check-group{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px}
-.check-item{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;color:var(--text)}
+.check-item{display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;color:var(--text)}
 .check-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0}
 .field-hint{font-size:11px;font-weight:400;color:var(--text3);display:block;margin-top:3px}
-
-/* ── 인턴십 카드 ── */
 .intern-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
-.intern-card-header{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif}
-.intern-inst-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif}
+.intern-card-header{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.intern-inst-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;width:180px}
 .intern-inst-input::placeholder{color:var(--text3);font-weight:400}
-
-/* ── 서명 섹션 ── */
-.sign-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;break-inside:avoid;page-break-inside:avoid}
+.sign-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
 .sign-header{padding:14px 18px;border-bottom:0.5px solid var(--border);background:var(--surface2)}
 .sign-header h3{font-size:14px;font-weight:700;color:var(--text)}
-.sign-header p{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.6}
 .sign-body{padding:18px 18px 14px}
-.sign-row{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
-/* 이름 + (인) + 서명이미지 묶음 */
-.sign-stamp-wrap{display:inline-flex;align-items:center;gap:2px}
 .sign-name-text{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;line-height:1.4}
-/* (인) 글자 + 서명이미지 겹침 영역 */
 .sign-in-wrap{position:relative;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-.sign-in{font-size:15px;color:var(--text3);font-weight:400;line-height:1.4;user-select:none}
 .sign-img-preview{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;object-fit:contain;mix-blend-mode:multiply;display:none;pointer-events:none}
-.sign-upload-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px dashed var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;height:36px}
-.sign-upload-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+.sign-upload-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px dashed var(--border);background:var(--surface2);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;height:36px}
 .sign-upload-btn.has-file{border-color:var(--green);color:var(--green);background:var(--green-light);border-style:solid}
 .sign-input{display:none}
-.sign-guide{font-size:11px;color:var(--text3);line-height:1.7;margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:8px}
-.sign-guide strong{color:var(--text2)}
-@media print{
-  .sign-section{border:none!important;margin-bottom:0!important}
-  .sign-header{display:none!important}
-  .sign-upload-btn{display:none!important}
-  .sign-img-preview{display:block!important}
-  .sign-guide{display:none!important}
-  .sign-body{padding:8px 0!important}
-}
-
-/* ── 서명 테이블 (인쇄용) ── */
 .sign-table{width:100%;border-collapse:collapse;margin-top:4px}
 .sign-table td{border:1px solid var(--border);padding:10px 16px;font-size:13px}
 .sign-table .lbl{background:var(--surface2);font-weight:700;text-align:center;width:90px;color:var(--text2)}
 .sign-table .date-cell{width:200px}
 .sign-table .name-cell{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.sign-date-input{border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;color:var(--text);width:160px}
-/* 인쇄 헤더 */
 .print-header{display:none}
 @media print{
-  .print-header{
-    display:flex!important;justify-content:space-between;align-items:flex-start;
-    margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid #333;
-  }
+  .print-header{display:flex!important;justify-content:space-between;align-items:flex-start;margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid #333}
   .print-header-logo{font-size:11pt;font-weight:700;color:#000;line-height:1.6}
   .print-header-sub{font-size:10pt;color:#333}
+  .sign-section{border:none!important;margin-bottom:0!important}
+  .sign-header{display:none!important}
+  .sign-upload-btn{display:none!important}
+  .sign-img-preview{display:block!important}
+  .sign-body{padding:8px 0!important}
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
+<div class="print-header"><div><div class="print-header-logo">차세대AI반도체특성화대학사업단</div><div class="print-header-sub">차세대반도체 융합전공</div></div></div>
 
-<div class="print-header" id="printHeader">
-  <div>
-    <div class="print-header-logo">차세대AI반도체특성화대학사업단</div>
-    <div class="print-header-sub">차세대반도체 융합전공</div>
+<!-- [FIX 1] 접근거부: fixed fullscreen + inner div -->
+<div id="access-denied" style="display:none">
+  <div id="access-denied-inner">
+    <p style="font-size:32px;margin-bottom:1rem">🔒</p>
+    <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 이용하세요. portal_survey 페이지에서 로그인해주세요.</p>
+    <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">홈으로 돌아가기</a>
   </div>
 </div>
 
-<div id="access-denied" style="display:none">
-  <p style="font-size:32px;margin-bottom:1rem">🔒</p>
-  <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 이용하세요. portal_survey 페이지에서 로그인해주세요.</p>
-  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">홈으로 돌아가기</a>
-</div>
-
 <div id="main-content" style="display:none">
-
 <div class="top-bar">
   <div class="top-bar-left">
-    <span class="top-badge">관리자</span>
+    <span class="top-badge" id="adminBadge" style="display:none">관리자</span>
     <span class="top-title">결과보고서 제출</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <button id="resetBtn" onclick="resetStep()" style="padding:5px 12px;border-radius:6px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:rgba(255,255,255,0.7);font-size:11px;font-family:inherit;cursor:pointer;transition:all .2s">초기화</button>
-    <a href="portal_survey.html" class="top-back">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      홈으로
-    </a>
+    <a href="portal_survey.html" class="top-back"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>홈으로</a>
   </div>
 </div>
-
 <div class="container">
-
 <div class="doc-header">
   <div class="doc-header-top">
     <div class="doc-title">2026학년도 1학기<br><span style="font-size:.85em">〈차세대반도체 융합전공〉 결과보고서</span></div>
     <div class="doc-subtitle">차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</div>
   </div>
-  <div class="doc-meta">
-    <span>작성일: <span id="docDate"></span></span>
-    <span>작성자: <span id="docWriter"></span></span>
-  </div>
+  <div class="doc-meta"><span>작성일: <span id="docDate"></span></span><span>작성자: <span id="docWriter"></span></span></div>
 </div>
 
-<!-- 이수 현황 자동 표시 -->
-<div class="status-card" id="checklistStatusCard">
+<div class="status-card">
   <div class="status-card-title">
     <span>📊 현재 이수 현황 (체크리스트 기준)</span>
-    <span class="status-sub">체크리스트 저장 데이터 자동 표시</span>
+    <span class="status-sub" style="font-size:10px;opacity:.7">체크리스트 저장 데이터 자동 표시</span>
   </div>
   <div class="status-card-body">
     <div style="font-size:11px;color:var(--text3);margin-bottom:14px;padding:10px 12px;background:#eaf1fb;border:0.5px solid #c5d9f0;border-radius:6px;line-height:1.7">
       💡 이수 현황은 <strong style="color:var(--text2)">체크리스트 페이지에서 직접 체크한 내용</strong>을 기반으로 자동 표시됩니다. 체크리스트를 아직 사용하지 않으셨거나 이 기기에서 처음 접속하신 경우 데이터가 나타나지 않을 수 있습니다.
     </div>
-    <div id="checklistStatusWrap">
-      <div class="status-no-data">학과를 선택하면 이수 현황이 표시됩니다.</div>
-    </div>
+    <div id="checklistStatusWrap"><div class="status-no-data">학과를 선택하면 이수 현황이 표시됩니다.</div></div>
   </div>
 </div>
 
@@ -380,76 +285,45 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="form-section">
   <div class="section-title"><div class="section-num">1</div>기본정보</div>
   <div class="section-body">
-    <table class="info-table">
+    <table class="info-table"><tbody>
       <tr>
-        <td class="lbl">성 명</td><td><input type="text" id="f-name" oninput="syncSignName()" placeholder="자동입력"></td>
-        <td class="lbl">학 번</td><td><input type="text" id="f-id" placeholder="자동입력"></td>
+        <td class="lbl">성&nbsp;명</td><td><input type="text" id="f-name" oninput="syncSignName()" placeholder="자동입력"></td>
+        <td class="lbl">학&nbsp;번</td><td><input type="text" id="f-id" placeholder="자동입력"></td>
       </tr>
       <tr>
         <td class="lbl">단과대학</td><td><input type="text" id="f-univ" readonly placeholder="학과 선택 시 자동입력" style="color:var(--text3)"></td>
         <td class="lbl">학과(부)</td>
-        <td>
-          <select id="f-dept" onchange="onReportDeptChange(this.value)" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
-            <option value="">선택 (관리자: 학과 선택)</option>
-            <option value="신소재공학부">신소재공학부</option>
-            <option value="전기전자공학부">전기전자공학부</option>
-            <option value="화공생명공학과">화공생명공학과</option>
-            <option value="기계공학부">기계공학부</option>
-            <option value="물리학과">물리학과</option>
-          </select>
-        </td>
+        <td><select id="f-dept" onchange="onReportDeptChange(this.value)" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer">
+          <option value="">선택 (관리자: 학과 선택)</option>
+          <option value="신소재공학부">신소재공학부</option><option value="전기전자공학부">전기전자공학부</option>
+          <option value="화공생명공학과">화공생명공학과</option><option value="기계공학부">기계공학부</option><option value="물리학과">물리학과</option>
+        </select></td>
       </tr>
       <tr>
-        <td class="lbl">학 년</td>
-        <td>
-          <select id="f-grade" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
-            <option value="">선택</option>
-            <option value="2학년">2학년</option>
-            <option value="3학년">3학년</option>
-            <option value="4학년">4학년</option>
-          </select>
-        </td>
-        <td class="lbl">학 기</td>
-        <td>
-          <select id="f-semester" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
-            <option value="">선택</option>
-            <option value="1학기">1학기</option>
-            <option value="2학기">2학기</option>
-          </select>
-        </td>
+        <td class="lbl">학&nbsp;년</td>
+        <td><select id="f-grade" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option>2학년</option><option>3학년</option><option>4학년</option></select></td>
+        <td class="lbl">학&nbsp;기</td>
+        <td><select id="f-semester" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option>1학기</option><option>2학기</option></select></td>
       </tr>
       <tr>
-        <td class="lbl">연락처</td><td><input type="text" id="f-phone" placeholder="010-0000-0000" oninput="validatePhone(this)"><div id="phone-err" style="display:none;font-size:11px;color:#c8392b;margin-top:3px">⚠ 010-0000-0000 형식으로 입력해주세요.</div></td>
-        <td class="lbl">메 일</td><td><input type="text" id="f-email" placeholder="이메일 주소" oninput="validateEmail(this)"><div id="email-err" style="display:none;font-size:11px;color:#c8392b;margin-top:3px">⚠ 올바른 이메일 주소를 입력해주세요.</div></td>
+        <td class="lbl">연락처</td>
+        <td><input type="text" id="f-phone" placeholder="010-0000-0000" oninput="validatePhone(this)"><div id="phone-err" style="display:none;font-size:11px;color:#c8392b;margin-top:3px">⚠ 010-0000-0000 형식으로 입력해주세요.</div></td>
+        <td class="lbl">메&nbsp;일</td>
+        <td><input type="text" id="f-email" placeholder="이메일 주소" oninput="validateEmail(this)"><div id="email-err" style="display:none;font-size:11px;color:#c8392b;margin-top:3px">⚠ 올바른 이메일 주소를 입력해주세요.</div></td>
       </tr>
       <tr>
         <td class="lbl">졸업예정</td>
-        <td colspan="3">
-          <div style="display:flex;align-items:center;gap:8px">
-            <select id="f-grad-year" style="border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
-              <option value="">년도 선택</option>
-              <option value="2025">2025년</option>
-              <option value="2026">2026년</option>
-              <option value="2027">2027년</option>
-              <option value="2028">2028년</option>
-              <option value="2029">2029년</option>
-              <option value="2030">2030년</option>
-              <option value="2031">2031년</option>
-              <option value="2032">2032년</option>
-              <option value="2033">2033년</option>
-              <option value="2034">2034년</option>
-              <option value="2035">2035년</option>
-            </select>
-            <select id="f-grad-month" style="border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;cursor:pointer">
-              <option value="">월 선택</option>
-              <option value="2">2월 (전기)</option>
-              <option value="8">8월 (후기)</option>
-            </select>
-            <div style="font-size:11px;color:var(--text3);margin-top:4px">예: 2027년 2월 졸업 예정</div>
-          </div>
-        </td>
+        <td colspan="3"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <select id="f-grad-year" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer">
+            <option value="">년도 선택</option><option value="2025">2025년</option><option value="2026">2026년</option><option value="2027">2027년</option><option value="2028">2028년</option><option value="2029">2029년</option><option value="2030">2030년</option>
+          </select>
+          <select id="f-grad-month" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer">
+            <option value="">월 선택</option><option value="2">2월 (전기)</option><option value="8">8월 (후기)</option>
+          </select>
+          <span style="font-size:11px;color:var(--text3)">예: 2027년 2월 졸업 예정</span>
+        </div></td>
       </tr>
-    </table>
+    </tbody></table>
   </div>
 </div>
 
@@ -457,68 +331,18 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="form-section">
   <div class="section-title"><div class="section-num">2</div>전공 이해 및 역량 변화</div>
   <div class="section-body">
-
     <div class="field">
       <div class="field-label" style="margin-bottom:12px">자기평가 <span class="field-hint">※ 융합전공 참여 후 각 역량에 대한 5점 척도 자기평가</span></div>
       <div style="background:var(--surface2);border-radius:10px;padding:12px 16px;margin-bottom:16px">
-        <div class="rating-row">
-          <span class="rating-label">전공 이해도</span>
-          <div class="star-group">
-            <input type="radio" name="r-major" id="r-major-5" value="5"><label for="r-major-5" title="매우 높음">★</label>
-            <input type="radio" name="r-major" id="r-major-4" value="4"><label for="r-major-4" title="높음">★</label>
-            <input type="radio" name="r-major" id="r-major-3" value="3"><label for="r-major-3" title="보통">★</label>
-            <input type="radio" name="r-major" id="r-major-2" value="2"><label for="r-major-2" title="낮음">★</label>
-            <input type="radio" name="r-major" id="r-major-1" value="1"><label for="r-major-1" title="매우 낮음">★</label>
-          </div>
-          <span class="star-desc" id="desc-major">선택 안 됨</span>
-        </div>
-        <div class="rating-row">
-          <span class="rating-label">실무 역량</span>
-          <div class="star-group">
-            <input type="radio" name="r-skill" id="r-skill-5" value="5"><label for="r-skill-5" title="매우 높음">★</label>
-            <input type="radio" name="r-skill" id="r-skill-4" value="4"><label for="r-skill-4" title="높음">★</label>
-            <input type="radio" name="r-skill" id="r-skill-3" value="3"><label for="r-skill-3" title="보통">★</label>
-            <input type="radio" name="r-skill" id="r-skill-2" value="2"><label for="r-skill-2" title="낮음">★</label>
-            <input type="radio" name="r-skill" id="r-skill-1" value="1"><label for="r-skill-1" title="매우 낮음">★</label>
-          </div>
-          <span class="star-desc" id="desc-skill">선택 안 됨</span>
-        </div>
-        <div class="rating-row">
-          <span class="rating-label">진로 인식</span>
-          <div class="star-group">
-            <input type="radio" name="r-career" id="r-career-5" value="5"><label for="r-career-5" title="매우 높음">★</label>
-            <input type="radio" name="r-career" id="r-career-4" value="4"><label for="r-career-4" title="높음">★</label>
-            <input type="radio" name="r-career" id="r-career-3" value="3"><label for="r-career-3" title="보통">★</label>
-            <input type="radio" name="r-career" id="r-career-2" value="2"><label for="r-career-2" title="낮음">★</label>
-            <input type="radio" name="r-career" id="r-career-1" value="1"><label for="r-career-1" title="매우 낮음">★</label>
-          </div>
-          <span class="star-desc" id="desc-career">선택 안 됨</span>
-        </div>
+        <div class="rating-row"><span class="rating-label">전공 이해도</span><div class="star-group"><input type="radio" name="r-major" id="r-major-5" value="5"><label for="r-major-5">★</label><input type="radio" name="r-major" id="r-major-4" value="4"><label for="r-major-4">★</label><input type="radio" name="r-major" id="r-major-3" value="3"><label for="r-major-3">★</label><input type="radio" name="r-major" id="r-major-2" value="2"><label for="r-major-2">★</label><input type="radio" name="r-major" id="r-major-1" value="1"><label for="r-major-1">★</label></div><span class="star-desc" id="desc-major">선택 안 됨</span></div>
+        <div class="rating-row"><span class="rating-label">실무 역량</span><div class="star-group"><input type="radio" name="r-skill" id="r-skill-5" value="5"><label for="r-skill-5">★</label><input type="radio" name="r-skill" id="r-skill-4" value="4"><label for="r-skill-4">★</label><input type="radio" name="r-skill" id="r-skill-3" value="3"><label for="r-skill-3">★</label><input type="radio" name="r-skill" id="r-skill-2" value="2"><label for="r-skill-2">★</label><input type="radio" name="r-skill" id="r-skill-1" value="1"><label for="r-skill-1">★</label></div><span class="star-desc" id="desc-skill">선택 안 됨</span></div>
+        <div class="rating-row"><span class="rating-label">진로 인식</span><div class="star-group"><input type="radio" name="r-career" id="r-career-5" value="5"><label for="r-career-5">★</label><input type="radio" name="r-career" id="r-career-4" value="4"><label for="r-career-4">★</label><input type="radio" name="r-career" id="r-career-3" value="3"><label for="r-career-3">★</label><input type="radio" name="r-career" id="r-career-2" value="2"><label for="r-career-2">★</label><input type="radio" name="r-career" id="r-career-1" value="1"><label for="r-career-1">★</label></div><span class="star-desc" id="desc-career">선택 안 됨</span></div>
         <div style="font-size:11px;color:var(--text3);margin-top:10px;padding-top:8px;border-top:0.5px solid var(--border)">★ 1개 매우 낮음 → ★★★★★ 매우 높음</div>
       </div>
     </div>
-
-    <div class="field">
-      <div class="field-label">전공 이해도 <span class="field-hint">※ 서술형 — 변화 과정과 구체적 사례 포함</span></div>
-      <div class="field-wrap">
-        <textarea class="field-textarea" id="major-understanding" placeholder="차세대반도체 융합전공에 참여하면서 전공 이해도가 어떻게 변화했는지 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-major',200)"></textarea>
-        <div class="char-counter" id="cnt-major">0자 / 권장 200자 이상</div>
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-label">실무 역량 <span class="field-hint">※ 서술형 — 실제 활동과 연계하여 작성</span></div>
-      <div class="field-wrap">
-        <textarea class="field-textarea" id="practical-skill" placeholder="실무 역량 측면에서의 변화와 성장을 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-skill',200)"></textarea>
-        <div class="char-counter" id="cnt-skill">0자 / 권장 200자 이상</div>
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-label">진로 인식 <span class="field-hint">※ 서술형 — 구체적 진로 방향 변화 포함</span></div>
-      <div class="field-wrap">
-        <textarea class="field-textarea" id="career-awareness" placeholder="진로 인식이 어떻게 변화했는지 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-career',200)"></textarea>
-        <div class="char-counter" id="cnt-career">0자 / 권장 200자 이상</div>
-      </div>
-    </div>
+    <div class="field"><div class="field-label">전공 이해도 <span class="field-hint">※ 서술형 — 변화 과정과 구체적 사례 포함</span></div><div class="field-wrap"><textarea class="field-textarea" id="major-understanding" placeholder="차세대반도체 융합전공에 참여하면서 전공 이해도가 어떻게 변화했는지 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-major',200)"></textarea><div class="char-counter" id="cnt-major">0자 / 권장 200자 이상</div></div></div>
+    <div class="field"><div class="field-label">실무 역량 <span class="field-hint">※ 서술형 — 실제 활동과 연계하여 작성</span></div><div class="field-wrap"><textarea class="field-textarea" id="practical-skill" placeholder="실무 역량 측면에서의 변화와 성장을 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-skill',200)"></textarea><div class="char-counter" id="cnt-skill">0자 / 권장 200자 이상</div></div></div>
+    <div class="field"><div class="field-label">진로 인식 <span class="field-hint">※ 서술형 — 구체적 진로 방향 변화 포함</span></div><div class="field-wrap"><textarea class="field-textarea" id="career-awareness" placeholder="진로 인식이 어떻게 변화했는지 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-career',200)"></textarea><div class="char-counter" id="cnt-career">0자 / 권장 200자 이상</div></div></div>
   </div>
 </div>
 
@@ -526,13 +350,12 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="form-section">
   <div class="section-title"><div class="section-num">3</div>활동 내용</div>
   <div class="section-body">
-
     <div class="field">
       <div class="field-label">① 교과 활동 <span class="field-hint">이번 학기(2026-1학기)에 수강한 융합전공 과목을 선택하고 각 과목별로 작성해주세요</span></div>
       <div id="courseCards">
         <div class="course-card">
           <div class="course-card-title">
-            <span>교과 ① — <select class="course-select" onchange="handleReportCourseSelect(this)" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;max-width:220px;padding-right:20px;-webkit-appearance:auto;appearance:auto"><option value="">과목 선택</option></select><input type="text" class="course-direct" style="display:none;border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;width:180px;margin-top:2px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="교과목명 직접 입력"></span>
+            <span>교과 ① — <select class="course-select" onchange="handleReportCourseSelect(this)" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;max-width:220px;-webkit-appearance:auto;appearance:auto"><option value="">과목 선택</option></select></span>
             <button class="del-card-btn" onclick="delCourseCard(this)">삭제</button>
           </div>
           <div class="course-card-grid">
@@ -547,16 +370,18 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       </div>
       <button class="add-card-btn" onclick="addCourseCard()">+ 교과목 추가</button>
     </div>
-
     <div class="field" style="margin-top:1.5rem">
       <div class="field-label">② 비교과 활동 <span class="field-hint">참여한 비교과 프로그램별로 작성해주세요</span></div>
       <div id="extraCards">
         <div class="extracurr-card">
           <div class="extracurr-card-title">
-            <span>비교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="프로그램명 입력"></span>
+            <span>비교과 ① — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px" placeholder="프로그램명 입력"></span>
             <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
           </div>
-          <div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div><select class="field-input extracurr-cat-select" onchange="handleExtraCatChange(this)" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select><input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력"></div>
+          <div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div>
+            <select class="field-input extracurr-cat-select" onchange="handleExtraCatChange(this)" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select>
+            <input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력">
+          </div>
           <div class="course-card-grid">
             <div class="field"><div class="field-label">활동일시</div><input class="field-input" placeholder="활동일시"></div>
             <div class="field"><div class="field-label">활동장소</div><input class="field-input" placeholder="활동장소"></div>
@@ -566,15 +391,13 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       </div>
       <button class="add-card-btn" onclick="addExtraCard()">+ 비교과 활동 추가</button>
     </div>
-
   </div>
 </div>
 
-<!-- 4. 인턴십 및 현장실습 활동 -->
+<!-- 4. 인턴십 및 현장실습 -->
 <div class="form-section">
   <div class="section-title"><div class="section-num">4</div>인턴십 및 현장실습 활동 <span style="font-size:11px;font-weight:400;opacity:.7">(해당자만 작성)</span></div>
   <div class="section-body">
-
     <div class="field">
       <div class="field-label">활동 유형 <span class="field-hint">복수 선택 가능</span></div>
       <div class="check-group">
@@ -584,38 +407,21 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item"><input type="checkbox" name="internDone" value="산학협력 프로젝트"> 산학협력 프로젝트</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="기업 견학"> 기업 견학</label>
         <label class="check-item"><input type="checkbox" name="internDone" value="해당 없음"> 해당 없음</label>
-        <label class="check-item"><input type="checkbox" name="internDone" value="기타"> 기타:
-          <input type="text" id="internOtherText" placeholder="직접 입력" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:transparent;width:80px;margin-left:2px">
-        </label>
+        <label class="check-item" style="white-space:nowrap"><input type="checkbox" name="internDone" value="기타"> 기타:&nbsp;<input type="text" id="internOtherText" placeholder="직접 입력" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;background:transparent;width:80px;margin-left:2px"></label>
       </div>
     </div>
-
     <div id="internDetailWrap">
       <div class="intern-card">
-        <div class="intern-card-header">
-          <span>활동 ① — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span>
-          <button class="del-card-btn" onclick="delInternCard(this)">삭제</button>
-        </div>
+        <div class="intern-card-header"><span>활동 ① — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span><button class="del-card-btn" onclick="delInternCard(this)">삭제</button></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
           <div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
-          <div class="field"><div class="field-label">활동 유형</div>
-            <select class="field-input" style="cursor:pointer">
-              <option value="">선택</option>
-              <option>기업 인턴십(국내)</option>
-              <option>기업 인턴십(해외)</option>
-              <option>대학 연구실 인턴</option>
-              <option>산학협력 프로젝트</option>
-              <option>기업 견학</option>
-              <option>기타</option>
-            </select>
-          </div>
+          <div class="field"><div class="field-label">활동 유형</div><select class="field-input" style="cursor:pointer"><option value="">선택</option><option>기업 인턴십(국내)</option><option>기업 인턴십(해외)</option><option>대학 연구실 인턴</option><option>산학협력 프로젝트</option><option>기업 견학</option><option>기타</option></select></div>
         </div>
         <div class="field"><div class="field-label">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
         <div class="field"><div class="field-label">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>
       </div>
     </div>
     <button class="add-card-btn" onclick="addInternCard()">+ 활동 추가</button>
-
   </div>
 </div>
 
@@ -623,97 +429,57 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <div class="form-section">
   <div class="section-title"><div class="section-num">5</div>향후 학습 및 진로 계획</div>
   <div class="section-body">
-    <div class="field">
-      <div class="field-label">향후 학습 계획 <span class="field-hint">※ 차세대반도체 융합전공과 관련된 향후 학습 계획</span></div>
-      <div class="field-wrap">
-        <textarea class="field-textarea" id="future-study" placeholder="향후 학습 계획을 구체적으로 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-future-study',80)"></textarea>
-        <div class="char-counter" id="cnt-future-study">0자 / 권장 80자 이상</div>
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-label">향후 진로 계획 <span class="field-hint">※ 향후 진로 방향과 차세대반도체 융합전공 이수가 본인에게 갖는 의미</span></div>
-      <div class="field-wrap">
-        <textarea class="field-textarea" id="future-career" placeholder="향후 진로 방향과 융합전공 이수의 의미를 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-future-career',80)"></textarea>
-        <div class="char-counter" id="cnt-future-career">0자 / 권장 80자 이상</div>
-      </div>
-    </div>
+    <div class="field"><div class="field-label">향후 학습 계획 <span class="field-hint">※ 차세대반도체 융합전공과 관련된 향후 학습 계획</span></div><div class="field-wrap"><textarea class="field-textarea" id="future-study" placeholder="향후 학습 계획을 구체적으로 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-future-study',80)"></textarea><div class="char-counter" id="cnt-future-study">0자 / 권장 80자 이상</div></div></div>
+    <div class="field"><div class="field-label">향후 진로 계획 <span class="field-hint">※ 향후 진로 방향과 차세대반도체 융합전공 이수가 본인에게 갖는 의미</span></div><div class="field-wrap"><textarea class="field-textarea" id="future-career" placeholder="향후 진로 방향과 융합전공 이수의 의미를 작성해주세요." rows="4" oninput="updateCounter(this,'cnt-future-career',80)"></textarea><div class="char-counter" id="cnt-future-career">0자 / 권장 80자 이상</div></div></div>
   </div>
 </div>
 
-<!-- 취업 · 채용연계 인턴십 현황 섹션 -->
+<!-- [FIX 4] 6. 취업·채용연계 인턴십 현황 (번호 4→6으로 수정) -->
 <div class="form-section" id="employment-section">
-  <div class="section-title"><span class="section-num">4</span> 취업 · 채용연계 인턴십 현황 <span style="font-size:11px;opacity:.7;font-weight:400">(해당자만 작성)</span></div>
+  <div class="section-title"><div class="section-num">6</div>취업 · 채용연계 인턴십 현황 <span style="font-size:11px;opacity:.7;font-weight:400">(해당자만 작성)</span></div>
   <div class="section-body">
     <div class="field">
       <div class="field-label">현재 상태 <span class="field-hint">※ 해당하는 항목을 선택해주세요</span></div>
-      <div class="check-group" id="employmentStatusGroup">
+      <div class="check-group">
         <label class="check-item"><input type="radio" name="employmentStatus" value="해당없음" onchange="onEmploymentChange(this)" checked> 해당 없음</label>
         <label class="check-item"><input type="radio" name="employmentStatus" value="취업확정" onchange="onEmploymentChange(this)"> 취업 확정</label>
         <label class="check-item"><input type="radio" name="employmentStatus" value="채용연계인턴" onchange="onEmploymentChange(this)"> 채용연계형 인턴십 합격</label>
         <label class="check-item"><input type="radio" name="employmentStatus" value="취업예정" onchange="onEmploymentChange(this)"> 취업 예정</label>
-        <label class="check-item" style="min-width:160px">
-          <input type="radio" name="employmentStatus" value="기타" onchange="onEmploymentChange(this)"> 기타:
-          <input type="text" id="employmentStatusOther" class="field-input" style="display:none;margin-top:4px;font-size:12px" placeholder="직접 입력">
+        <!-- [FIX 5] white-space:nowrap 으로 "기타:" 줄바꿈 방지 -->
+        <label class="check-item" style="white-space:nowrap">
+          <input type="radio" name="employmentStatus" value="기타" onchange="onEmploymentChange(this)"> 기타:&nbsp;
+          <input type="text" id="employmentStatusOther" style="display:none;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;width:100px;background:transparent;margin-left:2px" placeholder="직접 입력">
         </label>
       </div>
     </div>
-
-    <!-- 상세 입력 (해당없음 제외 시 표시) -->
     <div id="employmentDetail" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem">
-      <div class="field">
-        <div class="field-label">회사명 / 기관명</div>
-        <input type="text" class="field-input" id="empCompany" placeholder="회사명 또는 기관명 입력">
-      </div>
-      <div class="field">
-        <div class="field-label">직무 / 부서</div>
-        <input type="text" class="field-input" id="empDept" placeholder="직무 또는 부서 입력">
-      </div>
+      <div class="field"><div class="field-label">회사명 / 기관명</div><input type="text" class="field-input" id="empCompany" placeholder="회사명 또는 기관명 입력"></div>
+      <div class="field"><div class="field-label">직무 / 부서</div><input type="text" class="field-input" id="empDept" placeholder="직무 또는 부서 입력"></div>
       <div class="field">
         <div class="field-label">고용 형태</div>
         <div class="check-group">
           <label class="check-item"><input type="radio" name="empType" value="정규직"> 정규직</label>
           <label class="check-item"><input type="radio" name="empType" value="계약직"> 계약직</label>
           <label class="check-item"><input type="radio" name="empType" value="인턴"> 인턴</label>
-          <label class="check-item" style="min-width:140px">
-            <input type="radio" name="empType" value="기타"> 기타:
-            <input type="text" id="empTypeOther" class="field-input" style="display:none;margin-top:4px;font-size:12px" placeholder="직접 입력">
+          <!-- [FIX 6] white-space:nowrap -->
+          <label class="check-item" style="white-space:nowrap">
+            <input type="radio" name="empType" value="기타" onchange="document.getElementById('empTypeOther').style.display=this.checked?'inline-block':'none'"> 기타:&nbsp;
+            <input type="text" id="empTypeOther" style="display:none;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;width:100px;background:transparent;margin-left:2px" placeholder="직접 입력">
           </label>
         </div>
       </div>
-      <div class="field">
-        <div class="field-label">입사(예정)일</div>
-        <input type="text" class="field-input" id="empStartDate" placeholder="예: 2026년 8월 1일">
-      </div>
-
-      <!-- 채용연계형 인턴십 선택 시 추가 필드 -->
+      <div class="field"><div class="field-label">입사(예정)일</div><input type="text" class="field-input" id="empStartDate" placeholder="예: 2026년 8월 1일"></div>
       <div id="internDetail" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin-top:8px">
         <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:10px">📋 채용연계 인턴십 상세</div>
-        <div class="field">
-          <div class="field-label">인턴십 기간</div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <input type="text" class="field-input" id="internStart" placeholder="시작일 (예: 2026.07.01)" style="flex:1;min-width:120px">
-            <span style="color:var(--text3)">~</span>
-            <input type="text" class="field-input" id="internEnd" placeholder="종료일 (예: 2026.12.31)" style="flex:1;min-width:120px">
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-label">채용 전환 예정 시기</div>
-          <input type="text" class="field-input" id="internConvertDate" placeholder="예: 2027년 1월, 인턴십 종료 후 즉시">
-        </div>
-        <div class="field">
-          <div class="field-label">채용 전환 조건</div>
-          <div class="check-group">
-            <label class="check-item"><input type="radio" name="internConvert" value="자동전환"> 자동 전환</label>
-            <label class="check-item"><input type="radio" name="internConvert" value="평가후전환"> 별도 평가 후 전환</label>
-            <label class="check-item"><input type="radio" name="internConvert" value="미정"> 미정</label>
-          </div>
-        </div>
+        <div class="field"><div class="field-label">인턴십 기간</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input type="text" class="field-input" id="internStart" placeholder="시작일 (예: 2026.07.01)" style="flex:1;min-width:120px"><span style="color:var(--text3)">~</span><input type="text" class="field-input" id="internEnd" placeholder="종료일 (예: 2026.12.31)" style="flex:1;min-width:120px"></div></div>
+        <div class="field"><div class="field-label">채용 전환 예정 시기</div><input type="text" class="field-input" id="internConvertDate" placeholder="예: 2027년 1월, 인턴십 종료 후 즉시"></div>
+        <div class="field"><div class="field-label">채용 전환 조건</div><div class="check-group"><label class="check-item"><input type="radio" name="internConvert" value="자동전환"> 자동 전환</label><label class="check-item"><input type="radio" name="internConvert" value="평가후전환"> 별도 평가 후 전환</label><label class="check-item"><input type="radio" name="internConvert" value="미정"> 미정</label></div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 서명 섹션 -->
+<!-- 서명 -->
 <div class="sign-section">
   <div class="sign-header">
     <h3>서명</h3>
@@ -723,881 +489,289 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     </ul>
   </div>
   <div class="sign-body">
-    <table class="sign-table">
+    <table class="sign-table"><tbody>
       <tr>
         <td class="lbl">작&nbsp;성&nbsp;일&nbsp;자</td>
-        <td class="date-cell">
-          <span id="signDateDisplay" style="font-size:13px;color:var(--text)">—</span>
-        </td>
+        <td class="date-cell"><span id="signDateDisplay" style="font-size:13px;color:var(--text)">—</span></td>
         <td class="lbl">작&nbsp;성&nbsp;자</td>
-        <td>
-          <div class="name-cell">
-            <span style="font-size:13px">성명</span>
-            <span class="sign-name-text" id="sign-name-display" style="font-weight:700"></span>
-            <span style="font-size:13px">(인)</span>
-            <div class="sign-in-wrap" style="margin-left:4px">
-              <img class="sign-img-preview" id="signPreview" src="" alt="서명">
-            </div>
-            <label class="sign-upload-btn" id="signUploadBtn" for="signInput" style="margin-left:8px">
-              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 4.5l3.5-3.5L10 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              <span id="signBtnText">서명 파일 업로드</span>
-            </label>
-            <input type="file" class="sign-input" id="signInput" accept="image/*" onchange="handleSignUpload(this)">
-          </div>
-        </td>
+        <td><div class="name-cell">
+          <span style="font-size:13px">성명</span>
+          <span class="sign-name-text" id="sign-name-display" style="font-weight:700"></span>
+          <span style="font-size:13px">(인)</span>
+          <div class="sign-in-wrap" style="margin-left:4px"><img class="sign-img-preview" id="signPreview" src="" alt="서명"></div>
+          <label class="sign-upload-btn" id="signUploadBtn" for="signInput" style="margin-left:8px">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 4.5l3.5-3.5L10 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span id="signBtnText">서명 파일 업로드</span>
+          </label>
+          <input type="file" class="sign-input" id="signInput" accept="image/*" onchange="handleSignUpload(this)">
+        </div></td>
       </tr>
-    </table>
+    </tbody></table>
   </div>
 </div>
 
-<!-- 제출 영역 -->
+<!-- 제출 -->
 <div class="submit-area">
-  <div class="submit-note">
-    본인은 위 내용이 사실임을 확인하며 성실히 작성하였음을 다짐합니다.
-  </div>
+  <div class="submit-note">본인은 위 내용이 사실임을 확인하며 성실히 작성하였음을 다짐합니다.</div>
   <div class="btn-group">
-    <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      PDF로 저장
-    </button>
-    <button class="btn-submit" onclick="submitForm()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      제출하기
-    </button>
+    <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF로 저장</button>
+    <button class="btn-submit" onclick="submitForm()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>제출하기</button>
   </div>
   <div class="submit-result" id="submitResult"></div>
 </div>
-
-<div class="form-footer">
-  © 고려대학교 차세대AI반도체특성화대학사업단. All rights reserved. · ✉ kistar@korea.ac.kr · 🌐 kistar.korea.ac.kr
-</div>
-
+<div class="form-footer">© 고려대학교 차세대AI반도체특성화대학사업단. All rights reserved. · ✉ kistar@korea.ac.kr · 🌐 kistar.korea.ac.kr</div>
 </div></div>
 
-<!-- 임시저장 바 -->
-<div class="draft-bar" id="draftBar">
-  <div class="draft-bar-left">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h8l2 2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="rgba(255,255,255,.6)" stroke-width="1.3"/><path d="M4 2v4h6V2M4 8h6" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round"/></svg>
-    임시저장
-    <span class="draft-status" id="draftStatus">—</span>
-  </div>
+<div class="draft-bar">
+  <div class="draft-bar-left"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h8l2 2v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="rgba(255,255,255,.6)" stroke-width="1.3"/><path d="M4 2v4h6V2M4 8h6" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round"/></svg>임시저장<span class="draft-status" id="draftStatus">—</span></div>
   <div style="display:flex;gap:8px;align-items:center">
     <button class="draft-btn draft-btn-save" onclick="saveDraft()">지금 저장</button>
     <button class="draft-btn draft-btn-clear" onclick="clearDraft()">저장 삭제</button>
   </div>
 </div>
 
-<!-- 불러오기 모달 -->
 <div class="draft-modal-overlay" id="draftModal" style="display:none">
   <div class="draft-modal">
     <h3>💾 이전 작성 내용이 있습니다</h3>
     <p id="draftModalDesc"></p>
-    <div class="draft-modal-note">
-      · 임시저장은 현재 기기의 브라우저에만 저장됩니다<br>
-      · 다른 기기에서는 불러올 수 없습니다<br>
-      · 서명 이미지는 임시저장되지 않으므로 제출 시 다시 업로드해 주세요
-    </div>
-    <div class="draft-modal-btns">
-      <button class="draft-modal-btn-discard" onclick="discardDraft()">새로 작성</button>
-      <button class="draft-modal-btn-load" onclick="loadDraft()">불러오기</button>
-    </div>
+    <div class="draft-modal-note">· 임시저장은 현재 기기의 브라우저에만 저장됩니다<br>· 다른 기기에서는 불러올 수 없습니다<br>· 서명 이미지는 임시저장되지 않으므로 제출 시 다시 업로드해 주세요</div>
+    <div class="draft-modal-btns"><button class="draft-modal-btn-discard" onclick="discardDraft()">새로 작성</button><button class="draft-modal-btn-load" onclick="loadDraft()">불러오기</button></div>
   </div>
 </div>
+
 <script>
-const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec'; // 로그인 검증용
-const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec'; // 데이터 허브 제출용
-let courseCardCount = 1;
-let extraCardCount = 1;
+const EXEC_URL='https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
+const SCRIPT_URL_HUB='https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+let courseCardCount=1,extraCardCount=1,internCardCount=1;
 
-window.addEventListener('DOMContentLoaded', function() {
-  try {
-    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
-    if (!auth) {
-      document.getElementById('access-denied').style.display = 'block';
-      return;
-    }
-    // 8시간 만료 체크
-    const EXPIRE_MS = 8 * 60 * 60 * 1000;
-    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+window.addEventListener('DOMContentLoaded',function(){
+  try{
+    const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
+    if(!auth){showAccessDenied('🔒','접근 권한 없음','로그인 후 이용하세요. portal_survey 페이지에서 로그인해주세요.');return;}
+    const EXPIRE_MS=8*60*60*1000;
+    if(Date.now()-(auth.loginTime||0)>EXPIRE_MS){
       localStorage.removeItem('kistar_auth_url2');
-      const expiredEl = document.getElementById('access-denied');
-      expiredEl.innerHTML = `<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 포털로 돌아가기</a>`;
-      expiredEl.style.display = 'block';
-      return;
+      showAccessDenied('⏱️','로그인 만료','로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.','← 포털로 돌아가기');return;
     }
-    // 중복 제출 이력 확인
-    const SUBMIT_KEY = 'kistar_report_' + (auth.studentId || '') + '_submitted';
-    const prevSubmit = localStorage.getItem(SUBMIT_KEY);
-    if (prevSubmit) {
-      try {
-        const prev = JSON.parse(prevSubmit);
-        const prevDate = new Date(prev.submittedAt).toLocaleDateString('ko-KR');
-        document.getElementById('submitResult').className = 'submit-result show success';
-        document.getElementById('submitResult').innerHTML = '⚠️ <strong>' + prevDate + '</strong>에 이미 제출한 이력이 있습니다. 재제출하면 기존 내용을 덮어씁니다.';
-      } catch(e) {}
-    }
-    document.getElementById('main-content').style.display = 'block';
-    if (auth.isAdmin) { const pdf = document.getElementById('btn-pdf'); if(pdf) pdf.style.display = 'flex'; }
-    setTimeout(initCourseSelects, 100);
-    document.getElementById('f-name').value = auth.name || '';
-    syncSignName();
-    const sdd = document.getElementById('signDateDisplay'); if(sdd) sdd.textContent = '—';
-    document.getElementById('f-id').value = auth.studentId || '';
-    const deptSelect = document.getElementById('f-dept');
-    if (auth.dept && ['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'].includes(auth.dept)) {
-      deptSelect.value = auth.dept;
-      reportDept = auth.dept;
-      currentDept = auth.dept;
-      onReportDeptChange(auth.dept);
-      loadChecklistStatus(auth.dept);
-    } else {
-      loadChecklistStatus('');
-    }
-    const today = new Date();
-    document.getElementById('docDate').textContent =
-      today.getFullYear() + '.' + String(today.getMonth()+1).padStart(2,'0') + '.' + String(today.getDate()).padStart(2,'0');
-    document.getElementById('docWriter').textContent = auth.name || '';
-
-    // 임시저장 초기화
-    initDraft(auth.studentId || 'guest');
-    // 교과 카드 초기 드롭다운 로드
-    currentDept = auth.dept || '';
-    updateCourseSelectOptions();
-
-    // 별점 초기화
-    initStarRatings();
-
-  } catch(e) {
-    document.getElementById('access-denied').style.display = 'block';
-  }
+    const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_submitted';
+    const prevSubmit=localStorage.getItem(SUBMIT_KEY);
+    if(prevSubmit){try{const prev=JSON.parse(prevSubmit);const prevDate=new Date(prev.submittedAt).toLocaleDateString('ko-KR');const el=document.getElementById('submitResult');el.className='submit-result show success';el.innerHTML='⚠️ <strong>'+prevDate+'</strong>에 이미 제출한 이력이 있습니다. 재제출하면 기존 내용을 덮어씁니다.';}catch(e){}}
+    document.getElementById('main-content').style.display='block';
+    if(auth.isAdmin){const pdf=document.getElementById('btn-pdf');if(pdf)pdf.style.display='flex';const badge=document.getElementById('adminBadge');if(badge)badge.style.display='inline-block';}
+    setTimeout(initCourseSelects,100);
+    document.getElementById('f-name').value=auth.name||'';syncSignName();
+    document.getElementById('f-id').value=auth.studentId||'';
+    document.getElementById('signDateDisplay').textContent='—';
+    const deptSelect=document.getElementById('f-dept');
+    if(auth.dept&&['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'].includes(auth.dept)){
+      deptSelect.value=auth.dept;reportDept=auth.dept;currentDept=auth.dept;
+      onReportDeptChange(auth.dept);loadChecklistStatus(auth.dept);
+    }else loadChecklistStatus('');
+    const today=new Date();
+    document.getElementById('docDate').textContent=today.getFullYear()+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+String(today.getDate()).padStart(2,'0');
+    document.getElementById('docWriter').textContent=auth.name||'';
+    initDraft(auth.studentId||'guest');
+    currentDept=auth.dept||'';updateCourseSelectOptions();initStarRatings();
+  }catch(e){showAccessDenied('🔒','오류','페이지 로딩 중 오류가 발생했습니다.');}
 });
 
-  function handleExtraCatChange(sel) {
-    const otherInput = sel.parentElement.querySelector('.extracurr-cat-other');
-    if (otherInput) otherInput.style.display = sel.value === '기타' ? 'block' : 'none';
-  }
-  
-  // ── 취업/인턴 현황 ──
-  function onEmploymentChange(radio) {
-    const val = radio.value;
-    const detail = document.getElementById('employmentDetail');
-    const internDetail = document.getElementById('internDetail');
-    const otherInput = document.getElementById('employmentStatusOther');
-    const empTypeOther = document.getElementById('empTypeOther');
+function showAccessDenied(icon,title,msg,btnText){
+  const el=document.getElementById('access-denied');
+  const inner=document.getElementById('access-denied-inner');
+  inner.innerHTML='<p style="font-size:32px;margin-bottom:1rem">'+icon+'</p><h2 style="font-size:18px;margin-bottom:.5rem">'+title+'</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">'+msg+'</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">'+(btnText||'홈으로 돌아가기')+'</a>';
+  el.style.display='flex';
+}
 
-    // 기타 직접입력
-    otherInput.style.display = val === '기타' ? 'block' : 'none';
-
-    // 상세 필드 표시
-    detail.style.display = val === '해당없음' ? 'none' : 'block';
-
-    // 채용연계 인턴십 추가 필드
-    internDetail.style.display = val === '채용연계인턴' ? 'block' : 'none';
-
-    // 고용형태 기타
-    document.querySelectorAll('input[name="empType"]').forEach(r => {
-      r.addEventListener('change', function() {
-        empTypeOther.style.display = this.value === '기타' ? 'block' : 'none';
-      });
-    });
-  }
-
-  function toCircled(n) {
-    const chars = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
-    return chars[n-1] || n;
-  }
-  function addCourseCard() {
-  courseCardCount++;
-  const div = document.createElement('div');
-  div.className = 'course-card';
-  div.innerHTML = `
-    <div class="course-card-title">
-      <span>교과 ${toCircled(courseCardCount)} — <select class="course-select" onchange="handleReportCourseSelect(this)" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;max-width:220px;padding-right:20px;-webkit-appearance:auto;appearance:auto">${buildReportCourseOpts(currentDept)}</select><input type="text" class="course-direct" style="display:none;border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;width:180px;margin-top:2px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="교과목명 직접 입력"></span>
-      <button class="del-card-btn" onclick="delCourseCard(this)">삭제</button>
-    </div>
-    <div class="course-card-grid">
-      <div class="field"><div class="field-label" >담당교원</div><input class="field-input" placeholder="담당교원명"></div>
-      <div class="field"><div class="field-label" >강의장소</div><input class="field-input" placeholder="강의장소"></div>
-      <div class="field"><div class="field-label" >강의시간</div><input class="field-input" placeholder="강의시간"></div>
-      <div class="field"><div class="field-label" >강의주제</div><input class="field-input" placeholder="강의주제"></div>
-    </div>
-    <div class="field"><div class="field-label" >강의수강 전·후 달라진 점</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div>
-    <div class="field"><div class="field-label" >한 학기 강의 요약</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>`;
+function handleExtraCatChange(sel){const o=sel.parentElement.querySelector('.extracurr-cat-other');if(o)o.style.display=sel.value==='기타'?'block':'none';}
+function onEmploymentChange(radio){
+  const val=radio.value;
+  document.getElementById('employmentStatusOther').style.display=val==='기타'?'inline-block':'none';
+  document.getElementById('employmentDetail').style.display=val==='해당없음'?'none':'block';
+  document.getElementById('internDetail').style.display=val==='채용연계인턴'?'block':'none';
+}
+function toCircled(n){return(['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'])[n-1]||n;}
+function addCourseCard(){
+  courseCardCount++;const div=document.createElement('div');div.className='course-card';
+  div.innerHTML='<div class="course-card-title"><span>교과 '+toCircled(courseCardCount)+' — <select class="course-select" onchange="handleReportCourseSelect(this)" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:600;color:var(--navy);background:transparent;max-width:220px;-webkit-appearance:auto;appearance:auto">'+buildReportCourseOpts(currentDept)+'</select></span><button class="del-card-btn" onclick="delCourseCard(this)">삭제</button></div><div class="course-card-grid"><div class="field"><div class="field-label">담당교원</div><input class="field-input" placeholder="담당교원명"></div><div class="field"><div class="field-label">강의장소</div><input class="field-input" placeholder="강의장소"></div><div class="field"><div class="field-label">강의시간</div><input class="field-input" placeholder="강의시간"></div><div class="field"><div class="field-label">강의주제</div><input class="field-input" placeholder="강의주제"></div></div><div class="field"><div class="field-label">강의수강 전·후 달라진 점</div><textarea class="field-textarea" placeholder="수강 전과 후의 변화를 작성해주세요." rows="3"></textarea></div><div class="field"><div class="field-label">한 학기 강의 요약</div><textarea class="field-textarea" placeholder="한 학기 동안 배운 내용을 요약해주세요." rows="3"></textarea></div>';
   document.getElementById('courseCards').appendChild(div);
 }
-
-function delCourseCard(btn) {
-  const cards = document.querySelectorAll('#courseCards .course-card');
-  if (cards.length > 1) btn.closest('.course-card').remove();
-}
-
-function addExtraCard() {
-  extraCardCount++;
-  const div = document.createElement('div');
-  div.className = 'extracurr-card';
-  div.innerHTML = `
-    <div class="extracurr-card-title">
-      <span>비교과 ${toCircled(extraCardCount)} — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif" placeholder="프로그램명 입력"></span>
-      <button class="del-card-btn" onclick="delExtraCard(this)">삭제</button>
-    </div>
-    <div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div><select class="field-input extracurr-cat-select" onchange="handleExtraCatChange(this)" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select><input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력"></div>
-    <div class="course-card-grid">
-      <div class="field"><div class="field-label" >활동일시</div><input class="field-input" placeholder="활동일시"></div>
-      <div class="field"><div class="field-label" >활동장소</div><input class="field-input" placeholder="활동장소"></div>
-    </div>
-    <div class="field"><div class="field-label" >활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>`;
+function delCourseCard(btn){if(document.querySelectorAll('#courseCards .course-card').length>1)btn.closest('.course-card').remove();}
+function addExtraCard(){
+  extraCardCount++;const div=document.createElement('div');div.className='extracurr-card';
+  div.innerHTML='<div class="extracurr-card-title"><span>비교과 '+toCircled(extraCardCount)+' — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px" placeholder="프로그램명 입력"></span><button class="del-card-btn" onclick="delExtraCard(this)">삭제</button></div><div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div><select class="field-input extracurr-cat-select" onchange="handleExtraCatChange(this)" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select><input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력"></div><div class="course-card-grid"><div class="field"><div class="field-label">활동일시</div><input class="field-input" placeholder="활동일시"></div><div class="field"><div class="field-label">활동장소</div><input class="field-input" placeholder="활동장소"></div></div><div class="field"><div class="field-label">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>';
   document.getElementById('extraCards').appendChild(div);
 }
+function delExtraCard(btn){if(document.querySelectorAll('#extraCards .extracurr-card').length>1)btn.closest('.extracurr-card').remove();}
+function addInternCard(){
+  internCardCount++;const div=document.createElement('div');div.className='intern-card';
+  div.innerHTML='<div class="intern-card-header"><span>활동 '+toCircled(internCardCount)+' — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span><button class="del-card-btn" onclick="delInternCard(this)">삭제</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div><div class="field"><div class="field-label">활동 유형</div><select class="field-input" style="cursor:pointer"><option value="">선택</option><option>기업 인턴십(국내)</option><option>기업 인턴십(해외)</option><option>대학 연구실 인턴</option><option>산학협력 프로젝트</option><option>기업 견학</option></select></div></div><div class="field"><div class="field-label">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div><div class="field"><div class="field-label">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>';
+  document.getElementById('internDetailWrap').appendChild(div);
+}
+function delInternCard(btn){if(document.querySelectorAll('.intern-card').length>1)btn.closest('.intern-card').remove();}
 
-function delExtraCard(btn) {
-  const cards = document.querySelectorAll('#extraCards .extracurr-card');
-  if (cards.length > 1) btn.closest('.extracurr-card').remove();
+function collectCourseData(){const r=[];document.querySelectorAll('#courseCards .course-card').forEach(card=>{const inputs=card.querySelectorAll('input[type=text]');const ta=card.querySelectorAll('textarea');r.push({name:inputs[0]?.value,teacher:inputs[1]?.value,room:inputs[2]?.value,time:inputs[3]?.value,topic:inputs[4]?.value,change:ta[0]?.value,summary:ta[1]?.value});});return JSON.stringify(r);}
+function collectExtraData(){const r=[];document.querySelectorAll('#extraCards .extracurr-card').forEach(card=>{const inputs=card.querySelectorAll('input[type=text]');const ta=card.querySelector('textarea');r.push({name:inputs[0]?.value,date:inputs[1]?.value,place:inputs[2]?.value,content:ta?ta.value:''});});return JSON.stringify(r);}
+function collectInternData(){const r=[];document.querySelectorAll('.intern-card').forEach(card=>{const inputs=card.querySelectorAll('input[type=text]');const selects=card.querySelectorAll('select');const ta=card.querySelectorAll('textarea');const org=inputs[0]?.value.trim();const work=ta[0]?.value.trim();if(org||work)r.push({org,period:inputs[1]?.value.trim(),type:selects[0]?.value,work,learn:ta[1]?.value.trim()});});return JSON.stringify(r);}
+
+let signFileBase64='';
+function handleSignUpload(input){
+  const file=input.files[0];if(!file)return;
+  const isHeic=file.type==='image/heic'||file.type==='image/heif'||/\.heic$/i.test(file.name)||/\.heif$/i.test(file.name);
+  if(isHeic){document.getElementById('signBtnText').textContent='HEIC 변환 중...';heic2any({blob:file,toType:'image/jpeg',quality:0.92}).then(b=>processSignFile(b,file.name.replace(/\.heic$/i,'.jpg'))).catch(e=>{alert('HEIC 변환 실패: '+e.message);document.getElementById('signBtnText').textContent='서명 파일 업로드';});return;}
+  processSignFile(file,file.name);
+}
+function processSignFile(file,displayName){
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=new Image();
+    img.onload=function(){
+      const MAX=900;let W=img.width,H=img.height;
+      if(W>MAX||H>MAX){if(W>H){H=Math.round(H*MAX/W);W=MAX;}else{W=Math.round(W*MAX/H);H=MAX;}}
+      const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,W,H);
+      const imageData=ctx.getImageData(0,0,W,H);const data=imageData.data;
+      const gray=new Float32Array(W*H);
+      for(let i=0;i<data.length;i+=4)gray[i>>2]=data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114;
+      const intImg=new Float64Array((W+1)*(H+1));
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++)intImg[(y+1)*(W+1)+(x+1)]=gray[y*W+x]+intImg[y*(W+1)+(x+1)]+intImg[(y+1)*(W+1)+x]-intImg[y*(W+1)+x];
+      function boxAvg(x1,y1,x2,y2){x1=Math.max(0,x1);y1=Math.max(0,y1);x2=Math.min(W,x2);y2=Math.min(H,y2);const cnt=(x2-x1)*(y2-y1);if(cnt<=0)return 128;return(intImg[y2*(W+1)+x2]-intImg[y1*(W+1)+x2]-intImg[y2*(W+1)+x1]+intImg[y1*(W+1)+x1])/cnt;}
+      const R=18,EDGE_R=Math.min(W,H)*0.06;
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){const idx=(y*W+x)*4;const px=gray[y*W+x];const avg=boxAvg(x-R,y-R,x+R,y+R);const contrast=Math.max(0,(avg-px)/(avg+8));const alpha=Math.min(255,Math.round(Math.pow(contrast*2.5,1.3)*280));const distEdge=Math.min(x,W-1-x,y,H-1-y);const edgeFade=distEdge<EDGE_R?distEdge/EDGE_R:1.0;data[idx]=15;data[idx+1]=15;data[idx+2]=15;data[idx+3]=Math.round(alpha*edgeFade);}
+      ctx.putImageData(imageData,0,0);signFileBase64=canvas.toDataURL('image/png');
+      const preview=document.getElementById('signPreview');preview.src=signFileBase64;preview.style.display='block';
+      document.getElementById('signUploadBtn').classList.add('has-file');
+      document.getElementById('signBtnText').textContent='✓ '+displayName;
+    };img.src=e.target.result;
+  };reader.readAsDataURL(file);
 }
 
-function collectCourseData() {
-  const cards = document.querySelectorAll('#courseCards .course-card');
-  const result = [];
-  cards.forEach((card, i) => {
-    const inputs = card.querySelectorAll('input[type=text]');
-    const textareas = card.querySelectorAll('textarea');
-    result.push({
-      name: inputs[0].value,
-      teacher: inputs[1].value,
-      room: inputs[2].value,
-      time: inputs[3].value,
-      topic: inputs[4].value,
-      change: textareas[0].value,
-      summary: textareas[1].value,
+const COLLEGE_MAP={'신소재공학부':'공과대학','전기전자공학부':'공과대학','화공생명공학과':'공과대학','기계공학부':'공과대학','물리학과':'이과대학'};
+let currentDept='';
+function onReportDeptChange(val){
+  currentDept=val;const univEl=document.getElementById('f-univ');
+  if(univEl){univEl.value=COLLEGE_MAP[val]||'';univEl.style.color=val?'var(--text)':'var(--text3)';}
+  updateCourseSelectOptions();loadChecklistStatus(val);
+}
+function updateCourseSelectOptions(){document.querySelectorAll('.course-select').forEach(sel=>{const cur=sel.value;sel.innerHTML=buildReportCourseOpts(currentDept);sel.value=cur;});}
+
+const STAR_LABELS={1:'매우 낮음',2:'낮음',3:'보통',4:'높음',5:'매우 높음'};
+function initStarRatings(){
+  [['r-major','desc-major'],['r-skill','desc-skill'],['r-career','desc-career']].forEach(([name,descId])=>{
+    document.querySelectorAll('input[name="'+name+'"]').forEach(input=>{
+      input.addEventListener('change',()=>{const desc=document.getElementById(descId);if(desc)desc.textContent='★'.repeat(Number(input.value))+'☆'.repeat(5-Number(input.value))+'  '+STAR_LABELS[input.value];});
     });
   });
-  return JSON.stringify(result);
+}
+function syncSignName(){const n=document.getElementById('f-name');const s=document.getElementById('sign-name-display');if(n&&s)s.textContent=n.value.trim()||'학생명';}
+function validatePhone(input){const val=input.value.trim();const err=document.getElementById('phone-err');if(!val){err.style.display='none';input.style.color='';return;}const ok=/^01[0-9]-\d{3,4}-\d{4}$/.test(val);err.style.display=ok?'none':'block';input.style.color=ok?'':'#c8392b';}
+function validateEmail(input){const val=input.value.trim();const err=document.getElementById('email-err');if(!val){err.style.display='none';input.style.color='';return;}const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);err.style.display=ok?'none':'block';input.style.color=ok?'':'#c8392b';}
+function updateCounter(textarea,counterId,minLen){const len=textarea.value.length;const el=document.getElementById(counterId);if(!el)return;el.textContent=len+'자 / 권장 '+minLen+'자 이상';el.className='char-counter'+(len===0?'':len>=minLen?' ok':' warn');scheduleDraftSave();}
+
+let draftKey='',draftTimer=null,draftData=null;
+function initDraft(studentId){
+  draftKey='kistar_draft_report_'+studentId;
+  const saved=localStorage.getItem(draftKey);
+  if(saved){try{draftData=JSON.parse(saved);const d=new Date(draftData.savedAt);const ts=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');document.getElementById('draftModalDesc').textContent=ts+'에 저장된 내용이 있습니다. 불러오시겠습니까?';document.getElementById('draftModal').style.display='flex';}catch(e){draftData=null;}}
+  document.querySelectorAll('textarea, input[type=text]').forEach(el=>el.addEventListener('input',scheduleDraftSave));
+  document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el=>el.addEventListener('change',scheduleDraftSave));
+}
+function scheduleDraftSave(){if(!draftKey)return;clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,2000);}
+function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);try{const data=collectFormData();data.savedAt=new Date().toISOString();localStorage.setItem(draftKey,JSON.stringify(data));const now=new Date();document.getElementById('draftStatus').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0')+' 저장됨';}catch(e){document.getElementById('draftStatus').textContent='저장 실패';}}
+function loadDraft(){
+  if(!draftData)return;document.getElementById('draftModal').style.display='none';
+  try{const d=draftData;
+    if(d.phone){const el=document.getElementById('f-phone');el.value=d.phone;validatePhone(el);}
+    if(d.email){const el=document.getElementById('f-email');el.value=d.email;validateEmail(el);}
+    if(d.grade)document.getElementById('f-grade').value=d.grade;
+    if(d.semester)document.getElementById('f-semester').value=d.semester;
+    if(d.gradYear)document.getElementById('f-grad-year').value=d.gradYear;
+    if(d.gradMonth)document.getElementById('f-grad-month').value=d.gradMonth;
+    if(d.majorUnderstanding)document.getElementById('major-understanding').value=d.majorUnderstanding;
+    if(d.practicalSkill)document.getElementById('practical-skill').value=d.practicalSkill;
+    if(d.careerAwareness)document.getElementById('career-awareness').value=d.careerAwareness;
+    if(d.futureStudy){const el=document.getElementById('future-study');el.value=d.futureStudy;updateCounter(el,'cnt-future-study',80);}
+    if(d.futureCareer){const el=document.getElementById('future-career');el.value=d.futureCareer;updateCounter(el,'cnt-future-career',80);}
+    if(d.internDone)restoreChecks('internDone',d.internDone);
+    const savedTs=new Date(d.savedAt);document.getElementById('draftStatus').textContent=String(savedTs.getHours()).padStart(2,'0')+':'+String(savedTs.getMinutes()).padStart(2,'0')+' 불러옴';
+  }catch(e){}
+}
+function discardDraft(){document.getElementById('draftModal').style.display='none';draftData=null;}
+function clearDraft(){if(!draftKey)return;if(!confirm('임시저장된 내용을 삭제하시겠습니까?'))return;localStorage.removeItem(draftKey);document.getElementById('draftStatus').textContent='삭제됨';draftData=null;}
+
+let resetPending=false,resetTimer=null;
+function resetStep(){
+  if(!resetPending){resetPending=true;const btn=document.getElementById('resetBtn');btn.textContent='한번 더 누르면 초기화';btn.style.background='#7B1F2A';resetTimer=setTimeout(()=>{resetPending=false;btn.textContent='초기화';btn.style.background='transparent';},3000);}
+  else{clearTimeout(resetTimer);resetPending=false;document.querySelectorAll('input[type=text],textarea').forEach(el=>el.value='');document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);document.querySelectorAll('input[type=checkbox],input[type=radio]').forEach(el=>el.checked=false);document.querySelectorAll('.char-counter').forEach(el=>{el.textContent='0자';el.className='char-counter';});if(draftKey)localStorage.removeItem(draftKey);document.getElementById('draftStatus').textContent='—';document.getElementById('resetBtn').textContent='초기화';document.getElementById('resetBtn').style.background='transparent';}
+}
+function getChecked(name){return Array.from(document.querySelectorAll('input[name="'+name+'"]:checked')).map(el=>el.value).join(', ');}
+function getRadio(name){const el=document.querySelector('input[name="'+name+'"]:checked');return el?el.value:'';}
+function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,majorUnderstanding:document.getElementById('major-understanding').value,practicalSkill:document.getElementById('practical-skill').value,careerAwareness:document.getElementById('career-awareness').value,futureStudy:document.getElementById('future-study').value,futureCareer:document.getElementById('future-career').value,internDone:getChecked('internDone'),starMajor:getRadio('r-major'),starSkill:getRadio('r-skill'),starCareer:getRadio('r-career')};}
+function restoreChecks(name,csv){if(!csv)return;const vals=csv.split(', ');document.querySelectorAll('input[name="'+name+'"]').forEach(el=>{el.checked=vals.includes(el.value);});}
+
+function submitForm(){
+  const sid=document.getElementById('f-id').value.trim();const sname=document.getElementById('f-name').value.trim();
+  if(!sid||!sname){showResult('error','학번과 이름을 확인해주세요.');return;}
+  const warnings=[];
+  [{id:'major-understanding',label:'전공 이해도',min:100},{id:'practical-skill',label:'실무 역량',min:100},{id:'career-awareness',label:'진로 인식',min:100},{id:'future-study',label:'향후 학습 계획',min:100},{id:'future-career',label:'향후 진로 계획',min:100}].forEach(f=>{const val=(document.getElementById(f.id).value||'').trim();if(val.length<f.min)warnings.push('· '+f.label+' (현재 '+val.length+'자 / 최소 '+f.min+'자 권장)');});
+  if(warnings.length>0&&!confirm('다음 항목의 내용이 너무 짧습니다.\n\n'+warnings.join('\n')+'\n\n그래도 제출하시겠습니까?'))return;
+  const params=new URLSearchParams({action:'submitReport',studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,grade:document.getElementById('f-grade').value,semester:'2026-1',phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,gradYear:document.getElementById('f-grad-year')?.value||'',gradMonth:document.getElementById('f-grad-month')?.value||'',ratingMajor:getRadio('r-major'),ratingSkill:getRadio('r-skill'),ratingCareer:getRadio('r-career'),majorUnderstanding:document.getElementById('major-understanding').value,practicalSkill:document.getElementById('practical-skill').value,careerAwareness:document.getElementById('career-awareness').value,futureStudy:document.getElementById('future-study').value,futureCareer:document.getElementById('future-career').value,courseActivities:collectCourseData(),extraActivities:collectExtraData(),internActivities:collectInternData(),internTypes:getChecked('internDone'),signatureImage:signFileBase64});
+  showResult('success','제출 중...');
+  fetch(SCRIPT_URL_HUB,{method:'POST',body:params}).then(r=>r.json()).then(result=>{
+    if(result.status==='ok'){if(draftKey)localStorage.removeItem(draftKey);showResult('success','✅ 결과보고서가 제출되었습니다! ('+sname+')');}
+    else showResult('error','제출 실패: '+JSON.stringify(result));
+  }).catch(()=>showResult('error','네트워크 오류. 다시 시도해주세요.'));
+}
+function showResult(type,msg){
+  const el=document.getElementById('submitResult');el.className='submit-result show '+type;
+  if(type==='success'&&msg.includes('제출되었습니다')){
+    try{
+      const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');const now=new Date();const ts=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      localStorage.setItem('kistar_report_'+(auth.studentId||'')+'_submitted',JSON.stringify({submittedAt:now.toISOString(),name:auth.name}));
+      el.innerHTML='✅ 결과보고서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">'+(auth.name||'')+' · '+(auth.studentId||'')+' · '+ts+'</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 포털로 돌아가기</a>';
+    }catch(e){el.textContent=msg;}
+  }else el.textContent=msg;
 }
 
-function collectExtraData() {
-  const cards = document.querySelectorAll('#extraCards .extracurr-card');
-  const result = [];
-  cards.forEach(card => {
-    const inputs = card.querySelectorAll('input[type=text]');
-    const textarea = card.querySelector('textarea');
-    result.push({
-      name: inputs[0].value,
-      date: inputs[1].value,
-      place: inputs[2].value,
-      content: textarea ? textarea.value : '',
-    });
-  });
-  return JSON.stringify(result);
+const DEPT_KEY_MAP={'신소재공학부':'mseng','전기전자공학부':'ee','화공생명공학과':'cbe','기계공학부':'me','물리학과':'phys'};
+function loadChecklistStatus(dept){
+  const wrap=document.getElementById('checklistStatusWrap');if(!wrap)return;
+  const key=DEPT_KEY_MAP[dept];if(!key){wrap.innerHTML='<div class="status-no-data">체크리스트 데이터 없음 (학과 미선택)</div>';return;}
+  try{
+    const saved=localStorage.getItem('kistar_'+key);if(!saved){wrap.innerHTML='<div class="status-no-data">체크리스트 미작성 또는 저장 데이터 없음</div>';return;}
+    const state=JSON.parse(saved);const raw=state.raw||{1:0,2:0,3:0,4:0,5:0};
+    const c1=Math.min(raw[1]||0,12),c2=Math.min(raw[2]||0,6),c3=Math.min(raw[3]||0,6),c4=Math.min(raw[4]||0,6),c5=Math.min(raw[5]||0,6);
+    const total=c1+c2+c3+c4+c5;
+    const labels=['[1]전공트랙','[2]공동운영','[3]산학연계','[4]자유이수','[5]학부인정'];const maxes=[12,6,6,6,6];const vals=[c1,c2,c3,c4,c5];
+    wrap.innerHTML='<div class="status-grid">'+vals.map((v,i)=>'<div class="status-item '+(v>=maxes[i]?'ok':'fail')+'"><div class="status-item-num">'+v+'</div><div class="status-item-label">'+labels[i]+'</div><div class="status-item-sub">/ '+maxes[i]+'학점 '+(v>=maxes[i]?'✓':'')+'</div></div>').join('')+'</div><div class="status-total"><span class="status-total-label">총 이수학점</span><span class="status-total-val '+(total>=36?'complete':'')+'">'+total+' / 36학점</span></div>';
+  }catch(e){wrap.innerHTML='<div class="status-no-data">데이터 읽기 오류</div>';}
 }
 
+const DEPT_COURSES_REPORT={'신소재공학부':['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','세라믹재료개론','유기재료화학 1','유기재료개론','X-선 결정학','고체물리','박막공학','반도체공정','광소재 및 소자','전자재료응용물성','디스플레이소재및공정','나노소재','--- [4] 자유이수(크로스) ---','VLSI설계 및 실험','정보기억소자','마이크로프로세서프로그래밍','나노공학입문','반도체화학공정','광학','--- [5] 학부인정 ---','반응속도론','융합기술및신소재응용','공학수학 1','공학수학 2','물리화학 1','물리화학 2','재료열역학','전자및반도체재료공학','재료구조물성','재료전자기물성','상평형론','열전달및확산'],'전기전자공학부':['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','물성전자공학','반도체공학 1','반도체공학 2','전자회로 2','VLSI 설계 및 실험','정보기억소자','--- [4] 자유이수(크로스) ---','박막공학','반도체화학공정','반도체공정','광소재 및 소자','마이크로프로세서프로그래밍','광학','전자재료응용물성','디스플레이소재및공정','나노소재','나노공학입문','--- [5] 학부인정 ---','공학수학 1','공학수학 2','전자기학','전자회로 1','전자회로설계및실험 1','전자회로설계및실험 2'],'화공생명공학과':['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','공학수학 2','화공재료과학','공정제어','양자 및 표면 화학','반도체화학공정','--- [4] 자유이수(크로스) ---','박막공학','반도체공정','광소재 및 소자','VLSI 설계 및 실험','마이크로프로세서프로그래밍','광학','전자재료응용물성','디스플레이소재및공정','나노소재','정보기억소자','나노공학입문','--- [5] 학부인정 ---','공학수학 1','물리화학','화공생명공학입문','화공생명공학연구방법및동향','공정및제품설계'],'기계공학부':['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','공업수학 1','공업수학 2','전기전자공학개론','수치해석','마이크로프로세서프로그래밍','나노공학입문','--- [4] 자유이수(크로스) ---','박막공학','반도체화학공정','반도체공정','광소재 및 소자','VLSI 설계 및 실험','광학','전자재료응용물성','디스플레이소재및공정','나노소재','정보기억소자','--- [5] 학부인정 ---','열역학 1','유체역학 1','열역학 2','유체역학 2'],'물리학과':['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','양자정보물리학','광학','고체물리학','원자물리학','--- [4] 자유이수(크로스) ---','박막공학','반도체화학공정','반도체공정','광소재 및 소자','VLSI 설계 및 실험','마이크로프로세서프로그래밍','전자재료응용물성','디스플레이소재및공정','나노소재','정보기억소자','나노공학입문','--- [5] 학부인정 ---','전자물리학및실험','전자기학 1','전자기학 2','양자역학 1','양자역학 2']};
 
-  // ── 서명 업로드 처리 ──
-  let signFileBase64 = '';
+function buildReportCourseOpts(dept){const courses=DEPT_COURSES_REPORT[dept]||[];let opts='<option value="">과목 선택 (이번 학기 수강 과목)</option>';courses.forEach(c=>{if(c.startsWith('---'))opts+='<option disabled style="color:#999;font-style:italic">'+c+'</option>';else opts+='<option value="'+c+'">'+c+'</option>';});opts+='<option value="직접입력">직접 입력...</option>';return opts;}
 
-  function handleSignUpload(input) {
-    const file = input.files[0];
-    if (!file) return;
+let reportDept='';
+function handleReportCourseSelect(sel){if(sel.value==='직접입력'){const name=prompt('교과목명을 직접 입력해주세요:');if(name){const opt=document.createElement('option');opt.value=name;opt.textContent=name;opt.selected=true;sel.appendChild(opt);}else sel.value='';}}
+function initCourseSelects(){document.querySelectorAll('.course-select').forEach(sel=>{if(sel.options.length<=1)sel.innerHTML=buildReportCourseOpts(reportDept);});}
 
-    // HEIC/HEIF 감지 → 자동 변환
-    const isHeic = file.type === 'image/heic'
-      || file.type === 'image/heif'
-      || /\.heic$/i.test(file.name)
-      || /\.heif$/i.test(file.name);
-
-    if (isHeic) {
-      document.getElementById('signBtnText').textContent = 'HEIC 변환 중...';
-      heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 })
-        .then(function(convertedBlob) {
-          processSignFile(convertedBlob, file.name.replace(/\.heic$/i, '.jpg'));
-        })
-        .catch(function(err) {
-          alert('HEIC 변환 실패: ' + err.message + '\n설정>카메라>포맷>호환성 우선으로 변경 후 JPG로 촬영해주세요.');
-          document.getElementById('signBtnText').textContent = '서명 파일 업로드';
-        });
-      return;
-    }
-
-    processSignFile(file, file.name);
-  }
-
-  function processSignFile(file, displayName) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const img = new Image();
-      img.onload = function() {
-        // ── 1. 리사이즈 (최대 900px) — 연산량 감소 ──
-        const MAX = 900;
-        let W = img.width, H = img.height;
-        if (W > MAX || H > MAX) {
-          if (W > H) { H = Math.round(H * MAX / W); W = MAX; }
-          else       { W = Math.round(W * MAX / H); H = MAX; }
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = W; canvas.height = H;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, W, H);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
-            // ── 로컬 대비 기반 배경 제거 (Integral Image — 고속) ──
-        const W2 = canvas.width, H2 = canvas.height;
-        const gray = new Float32Array(W2 * H2);
-
-        // 1단계: 그레이스케일
-        for (let i = 0; i < data.length; i += 4) {
-          gray[i >> 2] = data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114;
-        }
-
-        // 2단계: Integral Image 누적합 — 박스 평균을 O(1)로 계산
-        const intImg = new Float64Array((W2+1) * (H2+1));
-        for (let y = 0; y < H2; y++) {
-          for (let x = 0; x < W2; x++) {
-            intImg[(y+1)*(W2+1)+(x+1)] =
-              gray[y*W2+x]
-              + intImg[y*(W2+1)+(x+1)]
-              + intImg[(y+1)*(W2+1)+x]
-              - intImg[y*(W2+1)+x];
-          }
-        }
-        function boxAvg(x1,y1,x2,y2) {
-          x1=Math.max(0,x1); y1=Math.max(0,y1);
-          x2=Math.min(W2,x2); y2=Math.min(H2,y2);
-          const cnt=(x2-x1)*(y2-y1);
-          if(cnt<=0) return 128;
-          return (intImg[y2*(W2+1)+x2]-intImg[y1*(W2+1)+x2]
-                 -intImg[y2*(W2+1)+x1]+intImg[y1*(W2+1)+x1])/cnt;
-        }
-
-        // 3단계: 로컬 대비로 획 판별
-        const R = 18; // 반경
-        const EDGE_R = Math.min(W2, H2) * 0.06;
-        for (let y = 0; y < H2; y++) {
-          for (let x = 0; x < W2; x++) {
-            const idx2 = (y*W2+x)*4;
-            const px = gray[y*W2+x];
-            const avg = boxAvg(x-R, y-R, x+R, y+R);
-            const contrast = Math.max(0, (avg - px) / (avg + 8));
-            const alpha = Math.min(255, Math.round(Math.pow(contrast * 2.5, 1.3) * 280));
-            // 가장자리 페이드
-            const distEdge = Math.min(x, W2-1-x, y, H2-1-y);
-            const edgeFade = distEdge < EDGE_R ? distEdge / EDGE_R : 1.0;
-            data[idx2] = 15; data[idx2+1] = 15; data[idx2+2] = 15;
-            data[idx2+3] = Math.round(alpha * edgeFade);
-          }
-        }
-        ctx.putImageData(imageData, 0, 0);
-
-        signFileBase64 = canvas.toDataURL('image/png');
-
-        const preview = document.getElementById('signPreview');
-        preview.src = signFileBase64;
-        preview.style.display = 'block';
-
-        const btn = document.getElementById('signUploadBtn');
-        btn.classList.add('has-file');
-        document.getElementById('signBtnText').textContent = '✓ ' + displayName;
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  
-  // 학과 → 단과대학 매핑
-  const COLLEGE_MAP = {
-    '신소재공학부': '공과대학',
-    '전기전자공학부': '공과대학',
-    '화공생명공학과': '공과대학',
-    '기계공학부': '공과대학',
-    '물리학과': '이과대학',
-  };
-
-  let currentDept = '';
-  function onReportDeptChange(val) {
-    currentDept = val;
-    const univEl = document.getElementById("f-univ");
-    if (univEl) {
-      univEl.value = COLLEGE_MAP[val] || "";
-      univEl.style.color = val ? 'var(--text)' : 'var(--text3)';
-    }
-    updateCourseSelectOptions();
-  }
-
-  // 이름 입력 시 서명란 이름 동기화
-  const STAR_LABELS = {1:'매우 낮음',2:'낮음',3:'보통',4:'높음',5:'매우 높음'};
-  function initStarRatings() {
-    [['r-major','desc-major'],['r-skill','desc-skill'],['r-career','desc-career']].forEach(([name, descId]) => {
-      document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
-        input.addEventListener('change', () => {
-          const desc = document.getElementById(descId);
-          if (desc) desc.textContent = '★'.repeat(Number(input.value)) + '☆'.repeat(5-Number(input.value)) + '  ' + STAR_LABELS[input.value];
-        });
-      });
-    });
-  }
-
-  function syncSignName() {
-    const nameEl = document.getElementById('f-name');
-    const signNameEl = document.getElementById('sign-name-display');
-    if (nameEl && signNameEl) {
-      signNameEl.textContent = nameEl.value.trim() || '학생명';
-    }
-  }
-
-  // 연락처 실시간 유효성 검사 (010-XXXX-XXXX 형식)
-  function validatePhone(input) {
-    const val = input.value.trim();
-    const err = document.getElementById('phone-err');
-    if (!val) { err.style.display = 'none'; input.style.color = ''; return; }
-    const ok = /^01[0-9]-\d{3,4}-\d{4}$/.test(val);
-    err.style.display = ok ? 'none' : 'block';
-    input.style.color = ok ? '' : '#c8392b';
-  }
-
-  // 이메일 실시간 유효성 검사
-  function validateEmail(input) {
-    const val = input.value.trim();
-    const err = document.getElementById('email-err');
-    if (!val) { err.style.display = 'none'; input.style.color = ''; return; }
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-    err.style.display = ok ? 'none' : 'block';
-    input.style.color = ok ? '' : '#c8392b';
-  }
-
-  // ── 글자수 카운터 ──
-  function updateCounter(textarea, counterId, minLen) {
-    const len = textarea.value.length;
-    const el = document.getElementById(counterId);
-    if (!el) return;
-    el.textContent = len + '자 / 권장 ' + minLen + '자 이상';
-    el.className = 'char-counter' + (len === 0 ? '' : len >= minLen ? ' ok' : ' warn');
-    scheduleDraftSave();
-  }
-
-  // ── 임시저장 ──
-  let draftKey = '';
-  let draftTimer = null;
-  let draftData = null;
-
-  function initDraft(studentId) {
-    draftKey = 'kistar_draft_report_' + studentId;
-    const saved = localStorage.getItem(draftKey);
-    if (saved) {
-      try {
-        draftData = JSON.parse(saved);
-        const d = new Date(draftData.savedAt);
-        const ts = d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-        document.getElementById('draftModalDesc').textContent = ts + '에 저장된 내용이 있습니다. 불러오시겠습니까?';
-        document.getElementById('draftModal').style.display = 'flex';
-      } catch(e) { draftData = null; }
-    }
-    document.querySelectorAll('textarea, input[type=text]').forEach(el => {
-      el.addEventListener('input', scheduleDraftSave);
-    });
-    document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el => {
-      el.addEventListener('change', scheduleDraftSave);
-    });
-  }
-
-  function scheduleDraftSave() {
-    if (!draftKey) return;
-    clearTimeout(draftTimer);
-    draftTimer = setTimeout(saveDraft, 2000);
-  }
-
-  function saveDraft() {
-    if (!draftKey) return;
-    clearTimeout(draftTimer);
-    try {
-      const data = collectFormData();
-      data.savedAt = new Date().toISOString();
-      localStorage.setItem(draftKey, JSON.stringify(data));
-      const now = new Date();
-      const ts = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
-      document.getElementById('draftStatus').textContent = ts + ' 저장됨';
-    } catch(e) {
-      document.getElementById('draftStatus').textContent = '저장 실패';
-    }
-  }
-
-  function loadDraft() {
-    if (!draftData) return;
-    document.getElementById('draftModal').style.display = 'none';
-    try {
-      const d = draftData;
-      if (d.phone) { const el = document.getElementById('f-phone'); el.value = d.phone; validatePhone(el); }
-      if (d.email) { const el = document.getElementById('f-email'); el.value = d.email; validateEmail(el); }
-      if (d.grade) document.getElementById('f-grade').value = d.grade;
-      if (d.semester) document.getElementById('f-semester').value = d.semester;
-      if (d.gradYear) document.getElementById('f-grad-year').value = d.gradYear;
-      if (d.gradMonth) document.getElementById('f-grad-month').value = d.gradMonth;
-      if (d.majorUnderstanding) { const el = document.getElementById('major-understanding'); el.value = d.majorUnderstanding; }
-      if (d.practicalSkill) { const el = document.getElementById('practical-skill'); el.value = d.practicalSkill; }
-      if (d.careerAwareness) { const el = document.getElementById('career-awareness'); el.value = d.careerAwareness; }
-      if (d.futureStudy) { const el = document.getElementById('future-study'); el.value = d.futureStudy; updateCounter(el,'cnt-future-study',80); }
-      if (d.futureCareer) { const el = document.getElementById('future-career'); el.value = d.futureCareer; updateCounter(el,'cnt-future-career',80); }
-      if (d.internDone) restoreChecks('internDone', d.internDone);
-      const savedTs = new Date(d.savedAt);
-      const ts = String(savedTs.getHours()).padStart(2,'0') + ':' + String(savedTs.getMinutes()).padStart(2,'0');
-      document.getElementById('draftStatus').textContent = ts + ' 불러옴';
-    } catch(e) {}
-  }
-
-  function discardDraft() {
-    document.getElementById('draftModal').style.display = 'none';
-    draftData = null;
-  }
-
-  
-  // ── 초기화 버튼 (2단계 확인) ──
-  let resetPending = false, resetTimer = null;
-  function resetStep() {
-    if (!resetPending) {
-      resetPending = true;
-      const btn = document.getElementById('resetBtn');
-      btn.textContent = '한번 더 누르면 초기화';
-      btn.style.background = '#7B1F2A';
-      resetTimer = setTimeout(() => {
-        resetPending = false;
-        btn.textContent = '초기화';
-        btn.style.background = 'transparent';
-      }, 3000);
-    } else {
-      clearTimeout(resetTimer);
-      resetPending = false;
-      // 폼 전체 초기화
-      document.querySelectorAll('input[type=text], input[type=email], input[type=tel], textarea').forEach(el => el.value = '');
-      document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
-      document.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(el => el.checked = false);
-      document.querySelectorAll('.char-counter').forEach(el => { el.textContent = '0자'; el.className = 'char-counter'; });
-      // 임시저장 삭제
-      if (draftKey) localStorage.removeItem(draftKey);
-      document.getElementById('draftStatus').textContent = '—';
-      const btn = document.getElementById('resetBtn');
-      btn.textContent = '초기화';
-      btn.style.background = 'transparent';
-    }
-  }
-
-  function clearDraft() {
-    if (!draftKey) return;
-    if (!confirm('임시저장된 내용을 삭제하시겠습니까?')) return;
-    localStorage.removeItem(draftKey);
-    document.getElementById('draftStatus').textContent = '삭제됨';
-    draftData = null;
-  }
-
-
-  function getChecked(name) {
-    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`))
-      .map(el => el.value).join(', ');
-  }
-  function getRadio(name) {
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : '';
-  }
-  function collectFormData() {
-    return {
-      phone: document.getElementById('f-phone').value,
-      email: document.getElementById('f-email').value,
-      grade: document.getElementById('f-grade').value,
-      semester: document.getElementById('f-semester').value,
-      gradYear: document.getElementById('f-grad-year').value,
-      gradMonth: document.getElementById('f-grad-month').value,
-      majorUnderstanding: document.getElementById('major-understanding').value,
-      practicalSkill: document.getElementById('practical-skill').value,
-      careerAwareness: document.getElementById('career-awareness').value,
-      futureStudy: document.getElementById('future-study').value,
-      futureCareer: document.getElementById('future-career').value,
-      internDone: getChecked('internDone'),
-      starMajor: getRadio('r-major'),
-      starSkill: getRadio('r-skill'),
-      starCareer: getRadio('r-career'),
-    };
-  }
-
-  function restoreChecks(name, csv) {
-    if (!csv) return;
-    const vals = csv.split(', ');
-    document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
-      el.checked = vals.includes(el.value);
-    });
-  }
-
-
-  function submitForm() {
-  const sid = document.getElementById('f-id').value.trim();
-  const sname = document.getElementById('f-name').value.trim();
-  if (!sid || !sname) { showResult('error', '학번과 이름을 확인해주세요.'); return; }
-
-  // 소프트 경고: 최소 글자수 체크
-  const warnings = [];
-  const longFields = [
-    { id: 'major-understanding', label: '전공 이해도', min: 100 },
-    { id: 'practical-skill',     label: '실무 역량', min: 100 },
-    { id: 'career-awareness',    label: '진로 인식', min: 100 },
-    { id: 'future-study',        label: '향후 학습 계획', min: 100 },
-    { id: 'future-career',       label: '향후 진로 계획', min: 100 },
-  ];
-  longFields.forEach(f => {
-    const val = (document.getElementById(f.id).value || '').trim();
-    if (val.length < f.min) {
-      warnings.push(`· ${f.label} (현재 ${val.length}자 / 최소 ${f.min}자 권장)`);
-    }
-  });
-  // 교과 카드 내용 체크
-  document.querySelectorAll('#courseCards .course-card').forEach((card, i) => {
-    const textareas = card.querySelectorAll('textarea');
-    textareas.forEach(ta => {
-      if (ta.value.trim().length > 0 && ta.value.trim().length < 30) {
-        warnings.push(`· 교과 ${i+1} 내용 (현재 ${ta.value.trim().length}자 / 최소 30자 권장)`);
-      }
-    });
-  });
-  if (warnings.length > 0) {
-    const msg = '다음 항목의 내용이 너무 짧습니다. 더 구체적으로 작성해주세요.\n\n' + warnings.join('\n') + '\n\n그래도 제출하시겠습니까?';
-    if (!confirm(msg)) return;
-  }
-
-  const params = new URLSearchParams({
-    action: 'submitReport',
-    gradYear: document.getElementById('f-grad-year') ? document.getElementById('f-grad-year').value : '',
-    gradMonth: document.getElementById('f-grad-month') ? document.getElementById('f-grad-month').value : '',
-    signatureImage: signFileBase64,
-    studentId: sid,
-    studentName: sname,
-    dept: document.getElementById('f-dept').value,
-    grade: document.getElementById('f-grade').value,
-    phone: document.getElementById('f-phone').value,
-    email: document.getElementById('f-email').value,
-    ratingMajor: document.querySelector('input[name="r-major"]:checked')?.value || '',
-    ratingSkill: document.querySelector('input[name="r-skill"]:checked')?.value || '',
-    ratingCareer: document.querySelector('input[name="r-career"]:checked')?.value || '',
-    majorUnderstanding: document.getElementById('major-understanding').value,
-    practicalSkill: document.getElementById('practical-skill').value,
-    careerAwareness: document.getElementById('career-awareness').value,
-    futureStudy: document.getElementById('future-study').value,
-    futureCareer: document.getElementById('future-career').value,
-    courseActivities: collectCourseData(),
-    extraActivities: collectExtraData(),
-    internActivities: collectInternData(),
-    internTypes: Array.from(document.querySelectorAll('input[name="internDone"]:checked')).map(e=>e.value).join(', '),
-    semester: '2026-1',
-  });
-
-  showResult('success', '제출 중...');
-  fetch(SCRIPT_URL_HUB, {
-    method: 'POST',
-    body: params
-  })
-    .then(r => r.json())
-    .then(result => {
-      if (result.status === 'ok') {
-        if (draftKey) localStorage.removeItem(draftKey);
-        showResult('success', '✅ 결과보고서가 제출되었습니다! (' + sname + ')');
-      } else {
-        showResult('error', '제출 실패: ' + JSON.stringify(result));
-      }
-    })
-    .catch(() => showResult('error', '네트워크 오류. 다시 시도해주세요.'));
+function printWithDeadline(){
+  const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
+  if(!auth||!auth.studentId){alert('로그인 정보가 없습니다.');return;}
+  fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(auth.studentId)).then(r=>r.json()).then(data=>{
+    if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.');return;}
+    const parts=data.deadline.split('-');const formatted=parts.length===3?parts[0]+'. '+parts[1]+' . '+parts[2]+' .':data.deadline;
+    document.getElementById('signDateDisplay').textContent=formatted;
+    setTimeout(()=>window.print(),100);
+  }).catch(()=>alert('제출기한일시 조회 중 오류가 발생했습니다.'));
 }
 
-function showResult(type, msg) {
-  const el = document.getElementById('submitResult');
-  el.className = 'submit-result show ' + type;
-  if (type === 'success' && msg.includes('제출되었습니다')) {
-    try {
-      const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || '{}');
-      const now = new Date();
-      const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-      const SUBMIT_KEY = 'kistar_report_' + (auth.studentId||'') + '_submitted';
-      localStorage.setItem(SUBMIT_KEY, JSON.stringify({submittedAt: now.toISOString(), name: auth.name}));
-      el.innerHTML = '✅ 결과보고서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">' + (auth.name||'') + ' · ' + (auth.studentId||'') + ' · ' + ts + '</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 포털로 돌아가기</a>';
-    } catch(e) { el.textContent = msg; }
-  } else {
-    el.textContent = msg;
+window.addEventListener('pageshow',function(e){
+  if(e.persisted){
+    const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
+    const EXPIRE_MS=8*60*60*1000;
+    if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS){document.getElementById('main-content').style.display='none';showAccessDenied('⏱️','로그인 만료','다시 로그인해주세요.');}
   }
-}
-
-  let internCardCount = 1;
-  function addInternCard() {
-    internCardCount++;
-    const div = document.createElement('div');
-    div.className = 'intern-card';
-    div.innerHTML = `
-      <div class="intern-card-header">
-        <span>활동 ${toCircled(internCardCount)} — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span>
-        <button class="del-card-btn" onclick="delInternCard(this)">삭제</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
-        <div class="field"><div class="field-label">활동 유형</div>
-          <select class="field-input" style="cursor:pointer">
-            <option value="">선택</option>
-            <option>기업 인턴십(국내)</option>
-            <option>기업 인턴십(해외)</option>
-            <option>대학 연구실 인턴</option>
-            <option>산학협력 프로젝트</option>
-            <option>기업 견학</option>
-          </select>
-        </div>
-      </div>
-      <div class="field"><div class="field-label" >담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
-      <div class="field"><div class="field-label" >배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>`;
-    document.getElementById('internDetailWrap').appendChild(div);
-  }
-  function delInternCard(btn) {
-    const cards = document.querySelectorAll('.intern-card');
-    if (cards.length > 1) btn.closest('.intern-card').remove();
-  }
-  function collectInternData() {
-    const cards = document.querySelectorAll('.intern-card');
-    const result = [];
-    cards.forEach(card => {
-      const inputs = card.querySelectorAll('input[type=text]');
-      const selects = card.querySelectorAll('select');
-      const textareas = card.querySelectorAll('textarea');
-      const org = inputs[0] ? inputs[0].value.trim() : '';
-      const period = inputs[1] ? inputs[1].value.trim() : '';
-      const type = selects[0] ? selects[0].value : '';
-      const work = textareas[0] ? textareas[0].value.trim() : '';
-      const learn = textareas[1] ? textareas[1].value.trim() : '';
-      if (org || work) result.push({org, period, type, work, learn});
-    });
-    return JSON.stringify(result);
-  }
-
-  // 이수 현황 localStorage에서 읽기
-  const DEPT_KEY_MAP = {
-    '신소재공학부': 'mseng',
-    '전기전자공학부': 'ee',
-    '화공생명공학과': 'cbe',
-    '기계공학부': 'me',
-    '물리학과': 'phys',
-  };
-
-  function loadChecklistStatus(dept) {
-    const wrap = document.getElementById('checklistStatusWrap');
-    if (!wrap) return;
-    const key = DEPT_KEY_MAP[dept];
-    if (!key) { wrap.innerHTML = '<div class="status-no-data">체크리스트 데이터 없음 (학과 미선택)</div>'; return; }
-    try {
-      const saved = localStorage.getItem('kistar_' + key);
-      if (!saved) { wrap.innerHTML = '<div class="status-no-data">체크리스트 미작성 또는 저장 데이터 없음</div>'; return; }
-      const state = JSON.parse(saved);
-      const raw = state.raw || {1:0,2:0,3:0,4:0,5:0};
-      const c1=Math.min(raw[1]||0,12), c2=Math.min(raw[2]||0,6),
-            c3=Math.min(raw[3]||0,6), c4=Math.min(raw[4]||0,6), c5=Math.min(raw[5]||0,6);
-      const total = c1+c2+c3+c4+c5;
-      const labels = ['[1]전공트랙','[2]공동운영','[3]산학연계','[4]자유이수','[5]학부인정'];
-      const maxes = [12,6,6,6,6];
-      const vals = [c1,c2,c3,c4,c5];
-      wrap.innerHTML = '<div class="status-grid">' +
-        vals.map((v,i) => {
-          const ok = v >= maxes[i];
-          return '<div class="status-item ' + (ok?'ok':'fail') + '">' +
-            '<div class="status-item-num">' + v + '</div>' +
-            '<div class="status-item-label">' + labels[i] + '</div>' +
-            '<div class="status-item-sub">/ ' + maxes[i] + '학점 ' + (ok?'✓':'') + '</div>' +
-            '</div>';
-        }).join('') + '</div>' +
-        '<div class="status-total">' +
-          '<span class="status-total-label">총 이수학점</span>' +
-          '<span class="status-total-val ' + (total>=36?'complete':'') + '">' + total + ' / 36학점</span>' +
-        '</div>';
-    } catch(e) {
-      wrap.innerHTML = '<div class="status-no-data">데이터 읽기 오류</div>';
-    }
-  }
-
-  const DEPT_COURSES_REPORT = {
-    '신소재공학부': ['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','세라믹재료개론','유기재료화학 1','유기재료개론','X-선 결정학','고체물리','박막공학','반도체공정','광소재 및 소자','전자재료응용물성','디스플레이소재및공정','나노소재','--- [4] 자유이수(크로스) ---','VLSI설계 및 실험','정보기억소자','마이크로프로세서프로그래밍','나노공학입문','반도체화학공정','광학','--- [5] 학부인정 ---','반응속도론','융합기술및신소재응용','공학수학 1','공학수학 2','물리화학 1','물리화학 2','재료열역학','전자및반도체재료공학','재료구조물성','재료전자기물성','상평형론','열전달및확산'],
-    '전기전자공학부': ['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','물성전자공학','반도체공학 1','반도체공학 2','전자회로 2','VLSI 설계 및 실험','정보기억소자','--- [4] 자유이수(크로스) ---','박막공학','반도체화학공정','반도체공정','광소재 및 소자','마이크로프로세서프로그래밍','광학','전자재료응용물성','디스플레이소재및공정','나노소재','나노공학입문','--- [5] 학부인정 ---','공학수학 1','공학수학 2','전자기학','전자회로 1','전자회로설계및실험 1','전자회로설계및실험 2'],
-    '화공생명공학과': ['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','공학수학 2','화공재료과학','공정제어','양자 및 표면 화학','반도체화학공정','--- [4] 자유이수(크로스) ---','박막공학','반도체공정','광소재 및 소자','VLSI 설계 및 실험','마이크로프로세서프로그래밍','광학','전자재료응용물성','디스플레이소재및공정','나노소재','정보기억소자','나노공학입문','--- [5] 학부인정 ---','공학수학 1','물리화학','화공생명공학입문','화공생명공학연구방법및동향','공정및제품설계'],
-    '기계공학부': ['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','공업수학 1','공업수학 2','전기전자공학개론','수치해석','마이크로프로세서프로그래밍','나노공학입문','--- [4] 자유이수(크로스) ---','박막공학','반도체화학공정','반도체공정','광소재 및 소자','VLSI 설계 및 실험','광학','전자재료응용물성','디스플레이소재및공정','나노소재','정보기억소자','--- [5] 학부인정 ---','열역학 1','유체역학 1','열역학 2','유체역학 2'],
-    '물리학과': ['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','양자정보물리학','광학','고체물리학','원자물리학','--- [4] 자유이수(크로스) ---','박막공학','반도체화학공정','반도체공정','광소재 및 소자','VLSI 설계 및 실험','마이크로프로세서프로그래밍','전자재료응용물성','디스플레이소재및공정','나노소재','정보기억소자','나노공학입문','--- [5] 학부인정 ---','전자물리학및실험','전자기학 1','전자기학 2','양자역학 1','양자역학 2'],
-  };
-
-  function buildReportCourseOpts(dept) {
-    const courses = DEPT_COURSES_REPORT[dept] || [];
-    let opts = '<option value="">과목 선택 (이번 학기 수강 과목)</option>';
-    courses.forEach(c => {
-      if (c.startsWith('---')) opts += '<option disabled style="color:#999;font-style:italic">' + c + '</option>';
-      else opts += '<option value="' + c + '">' + c + '</option>';
-    });
-    opts += '<option value="직접입력">직접 입력...</option>';
-    return opts;
-  }
-
-  let reportDept = '';
-  function onReportDeptChange(dept) {
-    reportDept = dept;
-    loadChecklistStatus(dept);
-    // 기존 교과 카드 과목 드롭다운 갱신
-    document.querySelectorAll('.course-select').forEach(sel => {
-      const cur = sel.value;
-      sel.innerHTML = buildReportCourseOpts(dept);
-      sel.value = cur;
-    });
-  }
-
-  function handleReportCourseSelect(sel) {
-    if (sel.value === '직접입력') {
-      const name = prompt('교과목명을 직접 입력해주세요:');
-      if (name) {
-        const opt = document.createElement('option');
-        opt.value = name; opt.textContent = name; opt.selected = true;
-        sel.appendChild(opt);
-      } else {
-        sel.value = '';
-      }
-    }
-  }
-  // 초기 교과 select 옵션 설정 (DOMContentLoaded 후)
-  function initCourseSelects() {
-    document.querySelectorAll('.course-select').forEach(sel => {
-      if (sel.options.length <= 1) sel.innerHTML = buildReportCourseOpts(reportDept);
-    });
-  }
-
-  // ── 제출일시 조회 + PDF 출력 ──
-  function printWithDeadline() {
-    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
-    if (!auth || !auth.studentId) { alert('로그인 정보가 없습니다.'); return; }
-
-    const sid = auth.studentId;
-    const url = SCRIPT_URL_HUB + '?action=getDeadline&studentId=' + encodeURIComponent(sid);
-
-    fetch(url)
-      .then(r => r.json())
-      .then(data => {
-        if (data.status !== 'ok' || !data.deadline) {
-          alert('⚠️ 제출기한일시가 설정되지 않았습니다.\n구글 시트 명단 탭 F열에 날짜를 입력해주세요.');
-          return;
-        }
-        // 날짜 포맷: 2026-03-01 → 2026. 03 . 01 .
-        const parts = data.deadline.split('-');
-        const formatted = parts.length === 3
-          ? parts[0] + '. ' + parts[1] + ' . ' + parts[2] + ' .'
-          : data.deadline;
-        document.getElementById('signDateDisplay').textContent = formatted;
-        setTimeout(() => window.print(), 100);
-      })
-      .catch(() => {
-        alert('제출기한일시 조회 중 오류가 발생했습니다. 다시 시도해주세요.');
-      });
-  }
-
-  // bfcache 방지 — 뒤로가기 복원 시 재검증
-  window.addEventListener('pageshow', function(e) {
-    if (e.persisted) {
-      const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
-      const EXPIRE_MS = 8 * 60 * 60 * 1000;
-      if (!auth || Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
-        document.getElementById('main-content').style.display = 'none';
-        document.getElementById('access-denied').style.display = 'block';
-      }
-    }
-  });
+});
 </script>
 </body>
 </html>
