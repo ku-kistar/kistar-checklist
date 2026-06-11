@@ -114,16 +114,14 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .status-card-title{flex-direction:column;align-items:flex-start;gap:3px;padding:10px 14px}
   .status-sub{font-size:10px;opacity:.7;display:block}
 
-  /* [FIX 2] 기본정보 테이블 - 레이블/값 완전 분리 블록화 */
-  .info-table,.info-table tbody,.info-table tr,.info-table td{display:block;width:100%}
-  .info-table tr{border:none;margin-bottom:2px}
-  .info-table td.lbl{
-    width:100%;text-align:left;background:var(--surface2);
-    border:none;border-top:0.5px solid var(--border);
-    padding:5px 10px;font-size:11px;color:var(--text3);font-weight:700;
-  }
-  .info-table td:not(.lbl){border:none;border-bottom:0.5px solid var(--border);padding:8px 10px;font-size:13px}
-  .info-table input,.info-table select{font-size:13px}
+  /* 기본정보 테이블 모바일 - form_plan과 동일 구조 */
+  .info-table{display:block}
+  .info-table tbody,.info-table tr{display:block}
+  .info-table tr{border-bottom:1px solid var(--border)}
+  .info-table td{display:inline-block;padding:7px 10px;font-size:12px;border:none;border-bottom:1px solid var(--surface2)}
+  .info-table .lbl{width:66px;font-size:11px;background:var(--surface2);vertical-align:middle}
+  .info-table td:not(.lbl){width:calc(100% - 70px);vertical-align:middle}
+  .info-table input,.info-table select{font-size:12px}
 
   .field-label{font-size:12px;line-height:1.5}
   .field-hint{font-size:10px;display:block;margin-top:3px;color:var(--text3)}
@@ -561,7 +559,10 @@ window.addEventListener('DOMContentLoaded',function(){
     setTimeout(initCourseSelects,100);
     document.getElementById('f-name').value=auth.name||'';syncSignName();
     document.getElementById('f-id').value=auth.studentId||'';
-    document.getElementById('signDateDisplay').textContent='—';
+    // 작성일자: 오늘 날짜 자동 세팅 (관리자 PDF 출력 시 getDeadline으로 교체됨)
+    const _today=new Date();
+    const _todayStr=_today.getFullYear()+'. '+String(_today.getMonth()+1).padStart(2,'0')+' . '+String(_today.getDate()).padStart(2,'0')+' .';
+    const sddEl=document.getElementById('signDateDisplay');if(sddEl)sddEl.textContent=_todayStr;
     const deptSelect=document.getElementById('f-dept');
     if(auth.dept&&['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'].includes(auth.dept)){
       deptSelect.value=auth.dept;reportDept=auth.dept;currentDept=auth.dept;
