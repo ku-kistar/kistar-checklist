@@ -52,10 +52,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .dday-ok{background:rgba(16,185,129,.15);color:#5ec8a0;border:1px solid rgba(16,185,129,.25)}
 .dday-warn{background:rgba(200,57,43,.12);color:#f08070;border:1px solid rgba(200,57,43,.25)}
 .card-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:.9rem}
-.card-cat{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
-.card-name{font-size:14px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;line-height:1.35}
-.card-desc{font-size:11px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:1rem}
-.card-cta{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:7px 13px;border-radius:7px}
+.card-cat{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.card-name{font-size:15px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;line-height:1.35}
+.card-desc{font-size:12px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:1rem}
+.card-cta{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:7px 13px;border-radius:7px}
 .arrow{display:inline-block;transition:transform .15s}
 .form-card:hover .arrow{transform:translateX(3px)}
 .empty-state{display:none;text-align:center;padding:3rem 1.5rem;color:rgba(255,255,255,.3)}
@@ -311,13 +311,18 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       </div>
     </div>
     <div class="mileage-penalty" id="mileagePenalty"></div>
+    <!-- 학기별 소계 카드 -->
+    <div id="semesterSummaryCard" style="display:none;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:10px 16px;margin-bottom:12px;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:rgba(255,255,255,.55)" id="semesterSummaryLabel">학기 누적</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#0ea5e9"><span id="semesterSummaryNum">0</span><span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.4);margin-left:3px">점</span></span>
+    </div>
     <!-- [수정] 필터 값: 한자리 (시트와 일치) -->
     <div class="mileage-filter" id="mileageFilter" style="display:none">
-      <button class="mileage-filter-btn active" onclick="filterMileage('all', this)">전체</button>
-      <button class="mileage-filter-btn" onclick="filterMileage('2024-2', this)">2024-2</button>
-      <button class="mileage-filter-btn" onclick="filterMileage('2025-1', this)">2025-1</button>
-      <button class="mileage-filter-btn" onclick="filterMileage('2025-2', this)">2025-2</button>
-      <button class="mileage-filter-btn" onclick="filterMileage('2026-1', this)">2026-1</button>
+      <button class="mileage-filter-btn active" data-sem="all" onclick="filterMileage('all', this)">전체</button>
+      <button class="mileage-filter-btn" data-sem="2024-2" onclick="filterMileage('2024-2', this)">2024-2</button>
+      <button class="mileage-filter-btn" data-sem="2025-1" onclick="filterMileage('2025-1', this)">2025-1</button>
+      <button class="mileage-filter-btn" data-sem="2025-2" onclick="filterMileage('2025-2', this)">2025-2</button>
+      <button class="mileage-filter-btn" data-sem="2026-1" onclick="filterMileage('2026-1', this)">2026-1</button>
     </div>
     <div class="mileage-list" id="mileageList">
       <div class="mileage-loading" id="mileageLoading" style="display:none">마일리지 조회 중...</div>
@@ -689,29 +694,55 @@ function renderMileage(data) {
 
 function filterMileage(semester, btn) {
   currentFilter = semester;
+  // active 클래스 처리 — btn이 null이면 data-sem 속성으로 찾아서 처리
   document.querySelectorAll('.mileage-filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const target = document.querySelector('.mileage-filter-btn[data-sem="' + semester + '"]');
+    if (target) target.classList.add('active');
+  }
   if (!mileageData) return;
+
   const list = document.getElementById('mileageList');
   list.querySelectorAll('.mileage-item').forEach(el => el.remove());
-  let recs = mileageData.records.filter(r => r['상태'] === '정상');
-  if (semester !== 'all') recs = recs.filter(r => r['학기'] === semester);
+
+  const allNormal = mileageData.records.filter(r => r['상태'] === '정상');
+  let recs = semester === 'all' ? allNormal : allNormal.filter(r => r['학기'] === semester);
   recs.sort((a, b) => (b['날짜'] || b['학기']).localeCompare(a['날짜'] || a['학기']));
-  if (recs.length === 0) { document.getElementById('mileageEmpty').style.display = 'block'; return; }
-  document.getElementById('mileageEmpty').style.display = 'none';
+
+  // 학기별 소계 카드
+  const summaryCard = document.getElementById('semesterSummaryCard');
+  const summaryLabel = document.getElementById('semesterSummaryLabel');
+  const summaryNum = document.getElementById('semesterSummaryNum');
+  if (semester === 'all') {
+    summaryCard.style.display = 'none';
+  } else {
+    const semTotal = recs.reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
+    summaryLabel.textContent = semester + '학기 누적';
+    summaryNum.textContent = semTotal;
+    summaryCard.style.display = 'flex';
+  }
+
+  const emptyEl = document.getElementById('mileageEmpty');
+  if (recs.length === 0) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
   recs.forEach(r => {
     const isEdu = r['카테고리'] === '교과';
     const item = document.createElement('div');
     item.className = 'mileage-item';
     item.innerHTML =
       '<div class="mileage-item-left">' +
-        '<span class="mileage-item-name">' + r['프로그램명'] + '</span>' +
+        '<span class="mileage-item-name">' + (r['프로그램명'] || '') + '</span>' +
         '<div style="display:flex;gap:6px;align-items:center;margin-top:3px">' +
-          '<span class="mileage-item-badge ' + (isEdu ? 'badge-edu' : 'badge-extra') + '">' + r['카테고리'] + '</span>' +
-          '<span class="mileage-item-meta">' + r['학기'] + (r['날짜'] ? ' · ' + r['날짜'] : '') + '</span>' +
+          '<span class="mileage-item-badge ' + (isEdu ? 'badge-edu' : 'badge-extra') + '">' + (r['카테고리'] || '') + '</span>' +
+          '<span class="mileage-item-meta">' + (r['학기'] || '') + (r['날짜'] ? ' · ' + r['날짜'] : '') + '</span>' +
         '</div>' +
       '</div>' +
-      '<span class="mileage-item-pts">+' + r['점수'] + '점</span>';
+      '<span class="mileage-item-pts">+' + (r['점수'] || 0) + '점</span>';
     list.appendChild(item);
   });
 }
