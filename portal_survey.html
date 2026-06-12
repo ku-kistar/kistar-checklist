@@ -720,7 +720,9 @@ function filterMileage(semester, btn) {
   list.querySelectorAll('.mileage-item').forEach(el => el.remove());
 
   const allNormal = mileageData.records.filter(r => r['상태'] === '정상');
-  let recs = semester === 'all' ? allNormal : allNormal.filter(r => r['학기'] === semester);
+  // 시트 학기값 정규화: "2025-02" → "2025-2" (앞 0 제거)
+  const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
+  let recs = semester === 'all' ? allNormal : allNormal.filter(r => normSem(r['학기']) === semester);
   recs.sort((a, b) => (b['날짜'] || b['학기']).localeCompare(a['날짜'] || a['학기']));
 
   // 학기별 소계 카드
@@ -751,7 +753,7 @@ function filterMileage(semester, btn) {
         '<span class="mileage-item-name">' + (r['프로그램명'] || '') + '</span>' +
         '<div style="display:flex;gap:6px;align-items:center;margin-top:3px">' +
           '<span class="mileage-item-badge ' + (isEdu ? 'badge-edu' : 'badge-extra') + '">' + (r['카테고리'] || '') + '</span>' +
-          '<span class="mileage-item-meta">' + (r['학기'] || '') + (r['날짜'] ? ' · ' + r['날짜'] : '') + '</span>' +
+          '<span class="mileage-item-meta">' + normSem(r['학기'] || '') + (r['날짜'] ? ' · ' + r['날짜'] : '') + '</span>' +
         '</div>' +
       '</div>' +
       '<span class="mileage-item-pts">+' + (r['점수'] || 0) + '점</span>';
