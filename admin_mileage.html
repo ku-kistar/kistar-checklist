@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마일리지 현황 대시보드 | KI-STAR 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#dddbd3;
+  --text:#1a1916;--text2:#6b6960;--text3:#9a9890;
+  --navy:#0b1f3a;--accent:#7B1F2A;--accent-light:#fdf0ee;
+  --green:#2d7a4f;--green-light:#edf7f1;
+  --amber:#a0620a;--amber-light:#fdf5e6;
+  --blue:#1a5fa8;--blue-light:#eaf1fb;
+  --red:#c8392b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 4rem}
+
+/* 상단 바 */
+.top-bar{background:rgba(11,31,58,.96);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-bar-left{display:flex;align-items:center;gap:10px}
+.top-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:3px 8px;border-radius:4px}
+.top-title{font-size:13px;font-weight:600;color:#fff}
+.top-back{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.6);text-decoration:none;font-size:12px;transition:color .15s}
+.top-back:hover{color:#fff}
+.container{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+
+/* 학기 탭 */
+.sem-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.sem-tab{padding:8px 20px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
+.sem-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.sem-tab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+
+/* 요약 카드 그리드 */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+@media(max-width:700px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
+.summary-card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px}
+.summary-label{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.summary-val{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1}
+.summary-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.card-total .summary-val{color:var(--navy)}
+.card-pass .summary-val{color:var(--green)}
+.card-fail .summary-val{color:var(--red)}
+.card-rate .summary-val{color:var(--blue)}
+
+/* 상위 5명 */
+.top5-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:1.5rem}
+.section-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.top5-list{display:flex;flex-direction:column;gap:8px}
+.top5-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface2);border-radius:8px}
+.top5-rank{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.top5-rank.gold{background:#d4af37}
+.top5-rank.silver{background:#9e9e9e}
+.top5-rank.bronze{background:#cd7f32}
+.top5-info{flex:1}
+.top5-name{font-size:13px;font-weight:600}
+.top5-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.top5-pts{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--blue)}
+.top5-badge{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:600;margin-left:6px}
+.badge-pass{background:var(--green-light);color:var(--green)}
+.badge-fail{background:var(--accent-light);color:var(--accent)}
+
+/* 전체 테이블 */
+.table-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.table-header{padding:14px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.table-search{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;background:var(--surface2);outline:none;width:200px}
+.table-search:focus{border-color:var(--navy);background:var(--surface)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--navy);color:#fff;padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap;position:sticky;top:0}
+thead th.num{text-align:right}
+tbody tr{border-bottom:0.5px solid var(--border);transition:background .1s}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:9px 12px;white-space:nowrap}
+tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
+.badge-40{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.badge-40.pass{background:var(--green-light);color:var(--green)}
+.badge-40.fail{background:var(--accent-light);color:var(--accent)}
+.dept-tag{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--surface2);color:var(--text2);white-space:nowrap}
+
+/* 인쇄 버튼 */
+.btn-group{display:flex;gap:8px;flex-wrap:wrap}
+.btn-print{display:flex;align-items:center;gap:6px;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface2);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
+.btn-print:hover{border-color:var(--navy);color:var(--navy)}
+.btn-excel{display:flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:8px;background:var(--green);color:#fff;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:opacity .15s}
+.btn-excel:hover{opacity:.85}
+
+/* 로딩 / 빈 상태 */
+.loading-state{text-align:center;padding:3rem;color:var(--text3);font-size:13px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:3rem;color:var(--text3);font-size:13px}
+
+/* 접근 거부 */
+#access-denied{display:none;max-width:400px;margin:4rem auto;text-align:center;padding:2rem;background:var(--surface);border-radius:16px;border:1px solid var(--border)}
+
+/* 인쇄 */
+@media print{
+  .top-bar,.sem-tabs,.btn-group,.table-search{display:none!important}
+  body{background:#fff;padding:0}
+  .container{max-width:100%;padding:.5rem}
+  .summary-grid{grid-template-columns:repeat(4,1fr)!important}
+  .summary-card,.top5-section,.table-section{border:1px solid #ccc!important;break-inside:avoid}
+  .summary-val{font-size:22px!important}
+  thead th{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tbody tr:nth-child(even){background:#f8f8f8!important}
+  .print-header{display:block!important}
+  @page{margin:10mm 8mm}
+}
+.print-header{display:none;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #333}
+.print-header-title{font-size:15pt;font-weight:700}
+.print-header-sub{font-size:10pt;color:#555;margin-top:3px}
+</style>
+</head>
+<body>
+
+<div class="print-header" id="printHeader">
+  <div class="print-header-title" id="printTitle">마일리지 현황 대시보드</div>
+  <div class="print-header-sub" id="printSub"></div>
+</div>
+
+<div id="access-denied">
+  <p style="font-size:32px;margin-bottom:1rem">🔒</p>
+  <h2 style="font-size:18px;margin-bottom:.5rem">관리자 전용</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">관리자 계정으로 로그인 후 이용하세요.</p>
+  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">홈으로 돌아가기</a>
+</div>
+
+<div id="main-content" style="display:none">
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <span class="top-badge">관리자</span>
+    <span class="top-title">마일리지 현황 대시보드</span>
+  </div>
+  <a href="portal_survey.html" class="top-back">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    홈으로
+  </a>
+</div>
+
+<div class="container">
+
+  <!-- 학기 탭 -->
+  <div class="sem-tabs" id="semTabs">
+    <button class="sem-tab" data-sem="2024-2" onclick="selectSem('2024-2',this)">2024-2학기</button>
+    <button class="sem-tab" data-sem="2025-1" onclick="selectSem('2025-1',this)">2025-1학기</button>
+    <button class="sem-tab" data-sem="2025-2" onclick="selectSem('2025-2',this)">2025-2학기</button>
+    <button class="sem-tab active" data-sem="2026-1" onclick="selectSem('2026-1',this)">2026-1학기</button>
+  </div>
+
+  <!-- 로딩 -->
+  <div id="loadingState" class="loading-state">
+    <div class="spinner"></div>
+    마일리지 데이터를 불러오는 중...
+  </div>
+
+  <div id="dashContent" style="display:none">
+
+    <!-- 요약 카드 -->
+    <div class="summary-grid">
+      <div class="summary-card card-total">
+        <div class="summary-label">전체 인원</div>
+        <div class="summary-val" id="sumTotal">—</div>
+        <div class="summary-sub">등록 학생 수</div>
+      </div>
+      <div class="summary-card card-pass">
+        <div class="summary-label">40점 달성</div>
+        <div class="summary-val" id="sumPass">—</div>
+        <div class="summary-sub" id="sumPassPct">장학금 수급 자격</div>
+      </div>
+      <div class="summary-card card-fail">
+        <div class="summary-label">40점 미달</div>
+        <div class="summary-val" id="sumFail">—</div>
+        <div class="summary-sub" id="sumFailPct">추가 활동 필요</div>
+      </div>
+      <div class="summary-card card-rate">
+        <div class="summary-label">달성률</div>
+        <div class="summary-val" id="sumRate">—</div>
+        <div class="summary-sub">40점 기준</div>
+      </div>
+    </div>
+
+    <!-- 마일리지 상위 5명 -->
+    <div class="top5-section">
+      <div class="section-title">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.8 3.6L13 5.3l-3 2.9.7 4.1L7 10.3l-3.7 1.9.7-4.1-3-2.9 4.2-.7z" stroke="#d4af37" stroke-width="1.3" fill="#d4af37"/></svg>
+        마일리지 상위 5명
+        <span style="font-size:11px;font-weight:400;color:var(--text3)" id="semLabel"></span>
+      </div>
+      <div class="top5-list" id="top5List">
+        <div class="empty-state">데이터 없음</div>
+      </div>
+    </div>
+
+    <!-- 전체 테이블 -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="section-title" style="margin-bottom:0">
+          전체 명단
+          <span style="font-size:11px;font-weight:400;color:var(--text3)" id="tableCount"></span>
+        </div>
+        <div class="btn-group">
+          <input type="text" class="table-search" id="tableSearch" placeholder="이름 또는 학번 검색" oninput="filterTable(this.value)">
+          <button class="btn-excel" onclick="exportCSV()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2h6l3 3v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="white" stroke-width="1.3"/><path d="M7 2v4h4M4 7h5M4 9h3" stroke="white" stroke-width="1.1" stroke-linecap="round"/></svg>
+            CSV 내보내기
+          </button>
+          <button class="btn-print" onclick="printDash()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 4V1h7v3M3 9H1V5h11v4h-2M3 7h7v4H3V7z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            인쇄 / PDF
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="mainTable">
+          <thead>
+            <tr>
+              <th>순위</th>
+              <th>이름</th>
+              <th>학번</th>
+              <th>학과</th>
+              <th class="num">누적 마일리지</th>
+              <th class="num">교과</th>
+              <th class="num">비교과</th>
+              <th class="num">활동 건수</th>
+              <th>40점 달성</th>
+            </tr>
+          </thead>
+          <tbody id="mainTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /dashContent -->
+
+</div><!-- /container -->
+</div><!-- /main-content -->
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+
+// 마일리지 인정 기간
+const SEM_PERIODS = {
+  '2024-2': { start: '2024-09-01', end: '2025-02-12', label: '2024-2학기 (2024.09.01~2025.02.12)' },
+  '2025-1': { start: '2025-03-01', end: '2025-08-15', label: '2025-1학기 (2025.03.01~2025.08.15)' },
+  '2025-2': { start: '2025-09-01', end: '2026-02-20', label: '2025-2학기 (2025.09.01~2026.02.20)' },
+  '2026-1': { start: '2026-02-23', end: '2026-08-14', label: '2026-1학기 (2026.02.23~2026.08.14)' },
+};
+
+const GOAL = 40; // 장학금 기준 마일리지
+
+let currentSem = '2026-1';
+let allData = null; // 전체 마일리지 raw 데이터 (한 번만 로드)
+let tableRows = []; // 현재 렌더링된 행 데이터
+
+// ── 초기 실행 ──
+window.addEventListener('DOMContentLoaded', function() {
+  try {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    const EXPIRE_MS = 8 * 60 * 60 * 1000;
+    if (!auth || !auth.isAdmin || Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+      document.getElementById('access-denied').style.display = 'block';
+      return;
+    }
+    document.getElementById('main-content').style.display = 'block';
+    loadAllMileage();
+  } catch(e) {
+    document.getElementById('access-denied').style.display = 'block';
+  }
+});
+
+// ── 전체 마일리지 로드 (JSONP) ──
+function loadAllMileage() {
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('dashContent').style.display = 'none';
+
+  const cbName = '__allMileageCb_' + Date.now();
+  const timeout = setTimeout(() => {
+    if (window[cbName]) {
+      delete window[cbName];
+      document.getElementById('loadingState').innerHTML =
+        '<div style="color:var(--accent)">⚠️ 데이터 로드 실패. 새로고침 해주세요.</div>';
+    }
+  }, 10000);
+
+  window[cbName] = function(data) {
+    clearTimeout(timeout);
+    delete window[cbName];
+    const s = document.getElementById('__allMileageJsonp');
+    if (s) s.remove();
+
+    if (data.status !== 'ok') {
+      document.getElementById('loadingState').innerHTML =
+        '<div style="color:var(--accent)">⚠️ ' + (data.message || '데이터 로드 실패') + '</div>';
+      return;
+    }
+    allData = data.records || [];
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('dashContent').style.display = 'block';
+    renderDash(currentSem);
+  };
+
+  const s = document.createElement('script');
+  s.id = '__allMileageJsonp';
+  s.src = SCRIPT_URL + '?action=getAllMileage&callback=' + cbName;
+  s.onerror = function() {
+    clearTimeout(timeout);
+    delete window[cbName];
+    s.remove();
+    document.getElementById('loadingState').innerHTML =
+      '<div style="color:var(--accent)">⚠️ 네트워크 오류. 새로고침 해주세요.</div>';
+  };
+  document.head.appendChild(s);
+}
+
+// ── 학기 선택 ──
+function selectSem(sem, btn) {
+  currentSem = sem;
+  document.querySelectorAll('.sem-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (allData) renderDash(sem);
+}
+
+// ── 대시보드 렌더링 ──
+function renderDash(sem) {
+  const period = SEM_PERIODS[sem];
+  const startDate = new Date(period.start);
+  const endDate = new Date(period.end);
+  endDate.setHours(23, 59, 59);
+
+  // 해당 학기 + 정상 상태 레코드 필터
+  const semRecords = allData.filter(r => {
+    const status = String(r['상태'] || '').trim();
+    if (status !== '정상') return false;
+    // 날짜 필터: 날짜 컬럼이 있으면 날짜로, 없으면 학기 컬럼으로
+    const dateStr = String(r['날짜'] || '').trim();
+    if (dateStr) {
+      const d = new Date(dateStr);
+      if (!isNaN(d)) return d >= startDate && d <= endDate;
+    }
+    // 날짜 없으면 학기 컬럼 기준
+    return String(r['학기'] || '').trim() === sem;
+  });
+
+  // 학생별 집계
+  const studentMap = {};
+  semRecords.forEach(r => {
+    const sid = String(r['학번'] || '').trim();
+    if (!sid) return;
+    if (!studentMap[sid]) {
+      studentMap[sid] = {
+        studentId: sid,
+        name: String(r['이름'] || '').trim(),
+        dept: String(r['학과'] || '').trim(),
+        total: 0, edu: 0, extra: 0, count: 0,
+      };
+    }
+    const pts = Number(r['점수']) || 0;
+    const cat = String(r['카테고리'] || '').trim();
+    studentMap[sid].total += pts;
+    studentMap[sid].count += 1;
+    if (cat === '교과') studentMap[sid].edu += pts;
+    else studentMap[sid].extra += pts;
+  });
+
+  // 배열로 변환 후 점수 내림차순 정렬
+  const students = Object.values(studentMap).sort((a, b) => b.total - a.total);
+  tableRows = students;
+
+  // 요약
+  const total = students.length;
+  const passed = students.filter(s => s.total >= GOAL).length;
+  const failed = total - passed;
+  const rate = total > 0 ? Math.round(passed / total * 100) : 0;
+
+  document.getElementById('sumTotal').textContent = total;
+  document.getElementById('sumPass').textContent = passed;
+  document.getElementById('sumFail').textContent = failed;
+  document.getElementById('sumRate').textContent = rate + '%';
+  document.getElementById('sumPassPct').textContent = total > 0 ? '전체의 ' + rate + '%' : '—';
+  document.getElementById('sumFailPct').textContent = total > 0 ? '전체의 ' + (100 - rate) + '%' : '—';
+
+  // 학기 레이블
+  document.getElementById('semLabel').textContent = '(' + period.label + ')';
+  document.getElementById('tableCount').textContent = total + '명';
+
+  // 상위 5명
+  renderTop5(students.slice(0, 5));
+
+  // 전체 테이블
+  renderTable(students);
+
+  // 인쇄 헤더
+  document.getElementById('printTitle').textContent = sem + '학기 마일리지 현황';
+  document.getElementById('printSub').textContent =
+    period.label + ' | 기준: 40점 | 달성: ' + passed + '명 / 전체: ' + total + '명 | 출력일: ' + new Date().toLocaleDateString('ko-KR');
+}
+
+// ── 상위 5명 렌더링 ──
+function renderTop5(students) {
+  const el = document.getElementById('top5List');
+  if (!students.length) { el.innerHTML = '<div class="empty-state">데이터 없음</div>'; return; }
+  const rankClass = ['gold','silver','bronze','',''];
+  el.innerHTML = students.map((s, i) => `
+    <div class="top5-item">
+      <div class="top5-rank ${rankClass[i]}">${i+1}</div>
+      <div class="top5-info">
+        <div class="top5-name">${s.name} <span style="font-size:11px;color:var(--text3)">(${s.studentId})</span>
+          <span class="top5-badge ${s.total >= GOAL ? 'badge-pass' : 'badge-fail'}">${s.total >= GOAL ? '✓ 달성' : '미달성'}</span>
+        </div>
+        <div class="top5-meta">${s.dept} · 교과 ${s.edu}점 + 비교과 ${s.extra}점 · ${s.count}건</div>
+      </div>
+      <div class="top5-pts">${s.total}점</div>
+    </div>
+  `).join('');
+}
+
+// ── 전체 테이블 렌더링 ──
+function renderTable(students) {
+  const tbody = document.getElementById('mainTbody');
+  if (!students.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text3)">데이터 없음</td></tr>';
+    return;
+  }
+  tbody.innerHTML = students.map((s, i) => `
+    <tr>
+      <td class="num" style="color:var(--text3)">${i + 1}</td>
+      <td style="font-weight:600">${s.name}</td>
+      <td style="color:var(--text2);font-family:'JetBrains Mono',monospace">${s.studentId}</td>
+      <td><span class="dept-tag">${s.dept}</span></td>
+      <td class="num" style="font-weight:700;color:${s.total >= GOAL ? 'var(--green)' : 'var(--red)'}">${s.total}</td>
+      <td class="num">${s.edu}</td>
+      <td class="num">${s.extra}</td>
+      <td class="num">${s.count}</td>
+      <td>
+        <span class="badge-40 ${s.total >= GOAL ? 'pass' : 'fail'}">
+          ${s.total >= GOAL ? '✓ 달성' : '✗ 미달 (' + (GOAL - s.total) + '점 부족)'}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── 검색 필터 ──
+function filterTable(query) {
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? tableRows.filter(s => s.name.toLowerCase().includes(q) || s.studentId.includes(q))
+    : tableRows;
+  renderTable(filtered);
+  document.getElementById('tableCount').textContent = filtered.length + '명' + (q ? ' (필터됨)' : '');
+}
+
+// ── CSV 내보내기 ──
+function exportCSV() {
+  const period = SEM_PERIODS[currentSem];
+  const rows = [
+    ['순위', '이름', '학번', '학과', '누적마일리지', '교과', '비교과', '활동건수', '40점달성여부'],
+    ...tableRows.map((s, i) => [
+      i + 1, s.name, s.studentId, s.dept, s.total, s.edu, s.extra, s.count,
+      s.total >= GOAL ? '달성' : '미달성'
+    ])
+  ];
+  const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n'); // BOM 추가 (Excel 한글)
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = currentSem + '학기_마일리지현황_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── 인쇄 ──
+function printDash() {
+  window.print();
+}
+
+// bfcache 방지
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    const EXPIRE_MS = 8 * 60 * 60 * 1000;
+    if (!auth || !auth.isAdmin || Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('access-denied').style.display = 'block';
+    }
+  }
+});
+</script>
+</body>
+</html>
