@@ -264,6 +264,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
       <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
     </div>
+    <div id="loadingHint" style="display:none;text-align:center;font-size:11px;color:rgba(255,255,255,.3);padding:6px 0 4px;margin-top:-8px">서버 연결 중... 처음 접속 시 시간이 걸릴 수 있습니다</div>
     <div id="formsGrid"></div>
     <div class="empty-state" id="emptyState">
       <div style="font-size:36px;opacity:.3;margin-bottom:.8rem">📭</div>
@@ -388,11 +389,14 @@ function doAuth() {
   if (!sid || !birth) { showMsg('error','학번과 생년월일을 모두 입력해주세요.'); return; }
   if (birth.length !== 8 || !/^\d{8}$/.test(birth)) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
   btn.disabled = true;
-  showMsg('loading','확인 중...');
+  showMsg('loading','확인 중... (처음 접속 시 다소 시간이 걸릴 수 있습니다)');
+  const ctrl = new AbortController();
+  const loginTO = setTimeout(() => ctrl.abort(), 15000);
   const url = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth);
-  fetch(url)
+  fetch(url, { signal: ctrl.signal })
     .then(r => r.json())
     .then(result => {
+      clearTimeout(loginTO);
       if (result.status === 'ok') {
         showMsg('success', result.name + '님, 환영합니다!');
         localStorage.setItem(AUTH_KEY, JSON.stringify({
@@ -410,7 +414,11 @@ function doAuth() {
         btn.disabled = false;
       }
     })
-    .catch(() => { showMsg('error','오류가 발생했습니다. 다시 시도해주세요.'); btn.disabled = false; });
+    .catch(err => {
+      clearTimeout(loginTO);
+      const msg = err.name === 'AbortError' ? '서버 응답 시간이 초과되었습니다. 다시 시도해주세요.' : '오류가 발생했습니다. 다시 시도해주세요.';
+      showMsg('error', msg); btn.disabled = false;
+    });
 }
 
 function showMsg(type, text) {
@@ -563,18 +571,22 @@ function loadForms() {
   document.getElementById('formsGrid').classList.remove('show');
   document.getElementById('emptyState').classList.remove('show');
   document.getElementById('errorState').classList.remove('show');
+  document.getElementById('loadingHint').style.display='none';
+  // 3초 지나도 응답 없으면 안내 문구 표시
+  const hintTO = setTimeout(() => { document.getElementById('loadingHint').style.display='block'; }, 3000);
   cbName='__sCB_'+Date.now();
   window[cbName]=data=>{
-    clearTimeout(loadTO); delete window[cbName];
+    clearTimeout(loadTO); clearTimeout(hintTO); delete window[cbName];
     const s=document.getElementById('__jsonp'); if(s) s.remove();
     document.getElementById('skeletonGrid').style.display='none';
+    document.getElementById('loadingHint').style.display='none';
     renderForms(data.forms||[]);
   };
   loadTO=setTimeout(()=>{
     if(window[cbName]) delete window[cbName];
     document.getElementById('skeletonGrid').style.display='none';
     document.getElementById('errorState').classList.add('show');
-  },3000);
+  },10000);
   const s=document.createElement('script');
   s.id='__jsonp'; s.src=SCRIPT_URL+'?callback='+cbName;
   s.onerror=()=>{ clearTimeout(loadTO); if(window[cbName]) delete window[cbName]; document.getElementById('skeletonGrid').style.display='none'; document.getElementById('errorState').classList.add('show'); };
