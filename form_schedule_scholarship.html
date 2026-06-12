@@ -20,7 +20,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
 /* 카드 */
 .card{width:100%;max-width:640px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.75rem}
 .card-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
-.card-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.75;margin-bottom:16px}
+.card-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.75;margin-bottom:12px}
+.location-box{display:flex;align-items:flex-start;gap:8px;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.18);border-radius:8px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:16px}
+.location-box strong{color:#0ea5e9}
+.sched-slot.lunch{cursor:default;opacity:.2;pointer-events:none;background:repeating-linear-gradient(45deg,rgba(255,255,255,.03),rgba(255,255,255,.03) 3px,transparent 3px,transparent 8px)}
 .deadline-badge{display:inline-block;font-size:11px;font-weight:600;background:rgba(245,166,35,.12);color:#f5c842;border:1px solid rgba(245,166,35,.3);padding:3px 10px;border-radius:99px;margin-bottom:20px}
 .deadline-badge.closed{background:rgba(255,255,255,.06);color:rgba(255,255,255,.3);border-color:rgba(255,255,255,.1)}
 /* 그리드 */
@@ -89,6 +92,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
       <strong style="color:#fff">6월 15일(월) ~ 19일(금)</strong> 중 방문 가능한 시간을 <strong style="color:#0ea5e9">모두</strong> 선택해 주세요.
     </div>
     <div class="deadline-badge" id="deadlineBadge">📌 응답 마감: 6월 14일(일) 23:59</div>
+    <div class="location-box">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M7 1.5a3.5 3.5 0 0 1 3.5 3.5c0 2.5-3.5 7.5-3.5 7.5S3.5 7.5 3.5 5A3.5 3.5 0 0 1 7 1.5z" stroke="#0ea5e9" stroke-width="1.3"/><circle cx="7" cy="5" r="1.2" fill="#0ea5e9"/></svg>
+      <div><strong>방문 장소</strong>: 고려대학교 안암캠퍼스<br><span style="color:rgba(255,255,255,.4);font-size:11px">상세 장소는 추후 안내 예정입니다</span></div>
+    </div>
     <div class="submitted-notice" id="submittedNotice"></div>
     <div class="grid-wrap">
       <div class="sched-grid">
@@ -97,6 +104,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
 <div class="sched-grid-row"><div class="sched-time-cell">10:30</div><div class="sched-slot" data-slot="615-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="616-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1030" onclick="toggleSlot(this)"></div></div>
 <div class="sched-grid-row"><div class="sched-time-cell">11:00</div><div class="sched-slot" data-slot="615-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="616-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1100" onclick="toggleSlot(this)"></div></div>
 <div class="sched-grid-row"><div class="sched-time-cell">11:30</div><div class="sched-slot" data-slot="615-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="616-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1130" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell" style="color:rgba(255,255,255,.2)">12:00</div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell" style="color:rgba(255,255,255,.2)">12:30</div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div></div>
 <div class="sched-grid-row"><div class="sched-time-cell">13:00</div><div class="sched-slot" data-slot="615-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="616-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1300" onclick="toggleSlot(this)"></div></div>
 <div class="sched-grid-row"><div class="sched-time-cell">13:30</div><div class="sched-slot" data-slot="615-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="616-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1330" onclick="toggleSlot(this)"></div></div>
 <div class="sched-grid-row"><div class="sched-time-cell">14:00</div><div class="sched-slot" data-slot="615-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="616-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1400" onclick="toggleSlot(this)"></div></div>
@@ -191,36 +200,40 @@ function doSubmit() {
   btn.disabled = true;
   btn.textContent = '제출 중...';
 
-  const params = new URLSearchParams({
-    action: 'submitSchedule',
-    studentId: auth.studentId || '',
-    studentName: auth.name || '',
-    dept: auth.dept || '',
-    slots: selected.join(','),
-    slotCount: String(selected.length),
-  });
-
-  fetch(SCRIPT_URL, { method: 'POST', body: params })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'ok') {
-        localStorage.setItem(STORAGE_KEY + auth.studentId, JSON.stringify(selected));
-        const notice = document.getElementById('submittedNotice');
-        notice.textContent = '✓ 제출 완료! ' + selected.length + '개 시간 선택됨';
-        notice.classList.add('show');
-        showResult('ok','✅ 일정 조사가 제출되었습니다! (' + selected.length + '개 선택)');
-        btn.textContent = '제출 완료 ✓';
-      } else {
-        showResult('err','오류: ' + (data.message || '다시 시도해주세요.'));
-        btn.disabled = false;
-        btn.textContent = '선택 완료 · 제출하기';
-      }
-    })
-    .catch(() => {
-      showResult('err','네트워크 오류. 다시 시도해주세요.');
+  const cbName = '__schedCb_' + Date.now();
+  window[cbName] = function(data) {
+    delete window[cbName];
+    const s = document.getElementById('__schedJsonp');
+    if (s) s.remove();
+    if (data.status === 'ok') {
+      localStorage.setItem(STORAGE_KEY + auth.studentId, JSON.stringify(selected));
+      const notice = document.getElementById('submittedNotice');
+      notice.textContent = '✓ 제출 완료! ' + selected.length + '개 시간 선택됨';
+      notice.classList.add('show');
+      showResult('ok','✅ 일정 조사가 제출되었습니다! (' + selected.length + '개 선택)');
+      btn.textContent = '제출 완료 ✓';
+    } else {
+      showResult('err','오류: ' + (data.message || '다시 시도해주세요.'));
       btn.disabled = false;
       btn.textContent = '선택 완료 · 제출하기';
-    });
+    }
+  };
+  const s = document.createElement('script');
+  s.id = '__schedJsonp';
+  s.src = SCRIPT_URL + '?action=submitSchedule'
+    + '&studentId=' + encodeURIComponent(auth.studentId || '')
+    + '&studentName=' + encodeURIComponent(auth.name || '')
+    + '&dept=' + encodeURIComponent(auth.dept || '')
+    + '&slots=' + encodeURIComponent(selected.join(','))
+    + '&slotCount=' + selected.length
+    + '&callback=' + cbName;
+  s.onerror = function() {
+    delete window[cbName]; s.remove();
+    showResult('err','네트워크 오류. 다시 시도해주세요.');
+    btn.disabled = false;
+    btn.textContent = '선택 완료 · 제출하기';
+  };
+  document.head.appendChild(s);
 }
 
 function showResult(type, msg) {

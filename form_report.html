@@ -313,7 +313,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <td class="lbl">졸업예정</td>
         <td colspan="3"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
           <select id="f-grad-year" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer">
-            <option value="">년도 선택</option><option value="2025">2025년</option><option value="2026">2026년</option><option value="2027">2027년</option><option value="2028">2028년</option><option value="2029">2029년</option><option value="2030">2030년</option>
+            <option value="">년도 선택</option><option value="2025">2025년</option><option value="2026">2026년</option><option value="2027">2027년</option><option value="2028">2028년</option><option value="2029">2029년</option><option value="2030">2030년</option><option value="2031">2031년</option><option value="2032">2032년</option><option value="2033">2033년</option><option value="2034">2034년</option><option value="2035">2035년</option>
           </select>
           <select id="f-grad-month" style="border:none;outline:none;font-size:13px;background:transparent;cursor:pointer">
             <option value="">월 선택</option><option value="2">2월 (전기)</option><option value="8">8월 (후기)</option>
@@ -549,7 +549,7 @@ window.addEventListener('DOMContentLoaded',function(){
     const EXPIRE_MS=8*60*60*1000;
     if(Date.now()-(auth.loginTime||0)>EXPIRE_MS){
       localStorage.removeItem('kistar_auth_url2');
-      showAccessDenied('⏱️','로그인 만료','로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.','← 포털로 돌아가기');return;
+      showAccessDenied('⏱️','로그인 만료','로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.','← 홈으로 돌아가기');return;
     }
     const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_submitted';
     const prevSubmit=localStorage.getItem(SUBMIT_KEY);
@@ -728,7 +728,7 @@ function showResult(type,msg){
     try{
       const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');const now=new Date();const ts=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
       localStorage.setItem('kistar_report_'+(auth.studentId||'')+'_submitted',JSON.stringify({submittedAt:now.toISOString(),name:auth.name}));
-      el.innerHTML='✅ 결과보고서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">'+(auth.name||'')+' · '+(auth.studentId||'')+' · '+ts+'</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 포털로 돌아가기</a>';
+      el.innerHTML='✅ 결과보고서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">'+(auth.name||'')+' · '+(auth.studentId||'')+' · '+ts+'</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 홈으로 돌아가기</a>';
     }catch(e){el.textContent=msg;}
   }else el.textContent=msg;
 }
