@@ -590,22 +590,21 @@ function doAuth() {
   function showLogoutBtn() {
     const bar = document.getElementById('user-bar');
     if (!bar) return;
-    try {
-      const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
-      if (auth && auth.name) {
-        const badge = document.getElementById('user-name-badge');
-        if (badge) badge.textContent = auth.name + '님';
-        // admin 버튼 표시
-        if (auth.isAdmin) {
-          const adminWrap = document.getElementById('admin-btn-wrap');
-          if (adminWrap) adminWrap.style.display = 'block';
-          const adminBtn = document.getElementById('admin-btn');
-          if (adminBtn) adminBtn.style.display = 'flex';
-        }
+    // auth를 함수 스코프에서 선언
+    let auth = null;
+    try { auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null'); } catch(e) {}
+    if (auth && auth.name) {
+      const badge = document.getElementById('user-name-badge');
+      if (badge) badge.textContent = auth.name + '님';
+      if (auth.isAdmin) {
+        const adminWrap = document.getElementById('admin-btn-wrap');
+        if (adminWrap) adminWrap.style.display = 'block';
+        const adminBtn = document.getElementById('admin-btn');
+        if (adminBtn) adminBtn.style.display = 'flex';
       }
-    } catch(e) {}
+    }
     bar.style.display = 'flex';
-    // 데이터허브 이동 버튼 표시 (자동로그인 토큰 포함)
+    // 데이터허브 이동 버튼
     try {
       const dhBtn = document.getElementById('datahub-link');
       if (dhBtn && auth && auth.studentId) {
