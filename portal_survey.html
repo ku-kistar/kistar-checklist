@@ -506,7 +506,7 @@ function showUserBar() {
   // 체크리스트 이동 버튼 (학번 포함한 자동로그인 URL)
   const clBtn = document.getElementById('checklist-link');
   if (clBtn && auth.studentId) {
-    const token = btoa(auth.studentId + ':' + (auth.dept || ''));
+    const token = btoa(encodeURIComponent(auth.studentId + ':' + (auth.dept || '')));
     clBtn.href = 'https://ku-kistar.github.io/kistar-checklist/?sid=' + encodeURIComponent(auth.studentId) + '&t=' + token;
     clBtn.style.display = 'flex';
   }
