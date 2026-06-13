@@ -31,7 +31,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
 .grid-wrap::-webkit-scrollbar{height:3px}
 .grid-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:99px}
 .sched-grid{min-width:320px;display:flex;flex-direction:column;gap:3px}
-.sched-grid-row{display:grid;grid-template-columns:46px repeat(4,1fr);gap:3px;align-items:center}
+.sched-grid-row{display:grid;grid-template-columns:46px repeat(5,1fr);gap:3px;align-items:center}
 .sched-grid-row.sched-header{margin-bottom:3px}
 .sched-header .sched-day-cell{display:flex;flex-direction:column;align-items:center;padding:4px 2px}
 .sched-day{font-size:12px;font-weight:700;color:rgba(255,255,255,.8)}
@@ -61,7 +61,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
 @media(max-width:480px){
   .page{padding:4.5rem .8rem 2rem}
   .card{padding:1.25rem}
-  .sched-grid-row{grid-template-columns:40px repeat(4,1fr)}
+  .sched-grid-row{grid-template-columns:40px repeat(5,1fr)}
   .sched-time-cell{font-size:9px;padding-right:3px}
   .sched-slot{height:30px}
 }
@@ -91,7 +91,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
       장학금 신청서를 현장에서 직접 자필로 작성·제출해야 합니다.<br>
       <strong style="color:#fff">6월 16일(화) ~ 19일(금)</strong> 중 방문 가능한 시간을 <strong style="color:#0ea5e9">모두</strong> 선택해 주세요.
     </div>
-    <div class="deadline-badge" id="deadlineBadge">📌 응답 마감: 6월 14일(일) 23:59</div>
+    <div class="deadline-badge" id="deadlineBadge">📌 응답 마감: 6월 15일(월) 17:00</div>
     <div class="location-box">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M7 1.5a3.5 3.5 0 0 1 3.5 3.5c0 2.5-3.5 7.5-3.5 7.5S3.5 7.5 3.5 5A3.5 3.5 0 0 1 7 1.5z" stroke="#0ea5e9" stroke-width="1.3"/><circle cx="7" cy="5" r="1.2" fill="#0ea5e9"/></svg>
       <div><strong>방문 장소</strong>: 고려대학교 안암캠퍼스<br><span style="color:rgba(255,255,255,.4);font-size:11px">상세 장소는 추후 안내 예정입니다</span></div>
@@ -99,21 +99,21 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
     <div class="submitted-notice" id="submittedNotice"></div>
     <div class="grid-wrap">
       <div class="sched-grid">
-<div class="sched-grid-row sched-header"><div class="sched-time-cell"></div><div class="sched-day-cell"><span class="sched-day">화</span><span class="sched-date">6/16</span></div><div class="sched-day-cell"><span class="sched-day">수</span><span class="sched-date">6/17</span></div><div class="sched-day-cell"><span class="sched-day">목</span><span class="sched-date">6/18</span></div><div class="sched-day-cell"><span class="sched-day">금</span><span class="sched-date">6/19</span></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">10:00</div><div class="sched-slot" data-slot="616-1000" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1000" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1000" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1000" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">10:30</div><div class="sched-slot" data-slot="616-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1030" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">11:00</div><div class="sched-slot" data-slot="616-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1100" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">11:30</div><div class="sched-slot" data-slot="616-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1130" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell" style="color:rgba(255,255,255,.2)">12:00</div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell" style="color:rgba(255,255,255,.2)">12:30</div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">13:00</div><div class="sched-slot" data-slot="616-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1300" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">13:30</div><div class="sched-slot" data-slot="616-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1330" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">14:00</div><div class="sched-slot" data-slot="616-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1400" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">14:30</div><div class="sched-slot" data-slot="616-1430" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1430" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1430" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1430" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">15:00</div><div class="sched-slot" data-slot="616-1500" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1500" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1500" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1500" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">15:30</div><div class="sched-slot" data-slot="616-1530" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1530" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1530" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1530" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">16:00</div><div class="sched-slot" data-slot="616-1600" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1600" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1600" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1600" onclick="toggleSlot(this)"></div></div>
-<div class="sched-grid-row"><div class="sched-time-cell">16:30</div><div class="sched-slot" data-slot="616-1630" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1630" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1630" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1630" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row sched-header"><div class="sched-time-cell"></div><div class="sched-day-cell"><span class="sched-day" style="color:rgba(255,255,255,.25)">월</span><span class="sched-date" style="color:rgba(255,255,255,.15)">6/15</span></div><div class="sched-day-cell"><span class="sched-day">화</span><span class="sched-date">6/16</span></div><div class="sched-day-cell"><span class="sched-day">수</span><span class="sched-date">6/17</span></div><div class="sched-day-cell"><span class="sched-day">목</span><span class="sched-date">6/18</span></div><div class="sched-day-cell"><span class="sched-day">금</span><span class="sched-date">6/19</span></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">10:00</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1000" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1000" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1000" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1000" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">10:30</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1030" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1030" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">11:00</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1100" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1100" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">11:30</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1130" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1130" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell" style="color:rgba(255,255,255,.2)">12:00</div><div class="sched-slot lunch disabled" style="opacity:.1"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell" style="color:rgba(255,255,255,.2)">12:30</div><div class="sched-slot lunch disabled" style="opacity:.1"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div><div class="sched-slot lunch" title="점심시간"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">13:00</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1300" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1300" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">13:30</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1330" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1330" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">14:00</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1400" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1400" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">14:30</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1430" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1430" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1430" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1430" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">15:00</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1500" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1500" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1500" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1500" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">15:30</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1530" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1530" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1530" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1530" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">16:00</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1600" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1600" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1600" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1600" onclick="toggleSlot(this)"></div></div>
+<div class="sched-grid-row"><div class="sched-time-cell">16:30</div><div class="sched-slot disabled"></div><div class="sched-slot" data-slot="616-1630" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="617-1630" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="618-1630" onclick="toggleSlot(this)"></div><div class="sched-slot" data-slot="619-1630" onclick="toggleSlot(this)"></div></div>
       </div>
     </div>
     <div class="count-bar">선택한 시간: <span id="countNum">0</span>개</div>
@@ -125,7 +125,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
 const AUTH_KEY = 'kistar_auth_url2';
-const DEADLINE = new Date('2026-06-14T23:59:59+09:00');
+const DEADLINE = new Date('2026-06-15T17:00:00+09:00');
 const STORAGE_KEY = 'kistar_sched_2026_1_';
 
 function checkAuth() {
@@ -152,7 +152,7 @@ window.addEventListener('DOMContentLoaded', function() {
   const isClosed = new Date() > DEADLINE;
   if (isClosed) {
     const badge = document.getElementById('deadlineBadge');
-    badge.textContent = '🔒 응답 마감됨 (6월 14일 23:59)';
+    badge.textContent = '🔒 응답 마감됨 (6월 15일 17:00)';
     badge.classList.add('closed');
     document.getElementById('submitBtn').disabled = true;
     document.getElementById('submitBtn').textContent = '마감된 조사입니다';
