@@ -363,6 +363,14 @@ function render() {
 
   // 제출일시 내림차순 정렬
   const sorted = [...allRecords].sort((a, b) => (b['제출일시'] || '').localeCompare(a['제출일시'] || ''));
+  const fmtDate = s => {
+    if (!s) return '';
+    // "Sat Jun 13 2026 21:32:26 GMT+0900..." 또는 "2026-06-13 21:32:26" 모두 처리
+    const d = new Date(s);
+    if (isNaN(d)) return s.slice(0, 16);
+    const pad = n => String(n).padStart(2,'0');
+    return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  };
   sorted.forEach(r => {
     const tr = document.createElement('tr');
     tr.innerHTML =
@@ -370,7 +378,7 @@ function render() {
       '<td style="font-weight:500">' + (r['이름'] || '') + '</td>' +
       '<td style="color:rgba(255,255,255,.5)">' + (r['학과'] || '') + '</td>' +
       '<td><span class="slot-count">' + (r['선택건수'] || 0) + '개</span></td>' +
-      '<td class="submitted-at">' + (r['제출일시'] || '') + '</td>';
+      '<td class="submitted-at">' + fmtDate(r['제출일시']) + '</td>';
     tbody.appendChild(tr);
   });
 }
