@@ -744,16 +744,24 @@ function filterMileage(semester, btn) {
     return;
   }
   emptyEl.style.display = 'none';
+  // 프로그램명에서 날짜 패턴 자동 분리: "프로그램명26.02.25(수)" → 이름 + 날짜 배지
+  const splitProgName = name => {
+    const m = name.match(/^(.+?)(\d{2,4}[\.\-]\d{2}[\.\-]\d{2}[^\s]*)(.*)$/);
+    if (m) return { title: m[1].trim(), date: m[2] + (m[3]||'').trim() };
+    return { title: name, date: '' };
+  };
   recs.forEach(r => {
     const isEdu = r['카테고리'] === '교과';
+    const { title, date } = splitProgName(r['프로그램명'] || '');
     const item = document.createElement('div');
     item.className = 'mileage-item';
     item.innerHTML =
       '<div class="mileage-item-left">' +
-        '<span class="mileage-item-name">' + (r['프로그램명'] || '') + '</span>' +
+        '<span class="mileage-item-name">' + title + '</span>' +
+        (date ? '<span style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px;display:block">' + date + '</span>' : '') +
         '<div style="display:flex;gap:6px;align-items:center;margin-top:3px">' +
           '<span class="mileage-item-badge ' + (isEdu ? 'badge-edu' : 'badge-extra') + '">' + (r['카테고리'] || '') + '</span>' +
-          '<span class="mileage-item-meta">' + normSem(r['학기'] || '') + (r['날짜'] ? ' · ' + r['날짜'] : '') + '</span>' +
+          '<span class="mileage-item-meta">' + normSem(r['학기'] || '') + '</span>' +
         '</div>' +
       '</div>' +
       '<span class="mileage-item-pts">+' + (r['점수'] || 0) + '점</span>';
