@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일정조사 현황 | KI-STAR 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+:root{
+  --navy:#0b1f3a;--blue:#0ea5e9;--green:#10b981;
+  --surface:rgba(255,255,255,.05);--border:rgba(255,255,255,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy);min-height:100vh;color:#fff;word-break:keep-all}
+.bg-wrap{position:fixed;inset:0;z-index:0;background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%)}
+.bg-grid{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(90deg,#0ea5e9 1px,transparent 1px),linear-gradient(0deg,#0ea5e9 1px,transparent 1px);background-size:48px 48px}
+.page{position:relative;z-index:1;min-height:100vh;padding:5rem 1rem 3rem;max-width:900px;margin:0 auto}
+
+/* 상단 바 */
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(11,31,58,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.back-btn{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);text-decoration:none;font-size:12px;transition:color .15s}
+.back-btn:hover{color:#fff}
+.top-right{display:flex;align-items:center;gap:12px}
+.top-user{font-size:12px;color:rgba(255,255,255,.4)}
+.refresh-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:rgba(255,255,255,.6);font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s}
+.refresh-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* 헤더 */
+.page-header{margin-bottom:1.5rem}
+.page-eyebrow{font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.page-sub{font-size:13px;color:rgba(255,255,255,.45)}
+
+/* 요약 카드 */
+.summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.summary-label{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.summary-num{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:#fff}
+.summary-num.blue{color:var(--blue)}
+.summary-num.green{color:var(--green)}
+
+/* 히트맵 */
+.heatmap-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.heatmap-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.heatmap-title{font-size:14px;font-weight:700}
+.legend{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.4)}
+.legend-bar{display:flex;gap:2px}
+.legend-dot{width:14px;height:14px;border-radius:3px}
+
+.heatmap-wrap{overflow-x:auto;padding:16px 18px 20px}
+.heatmap-grid{display:flex;flex-direction:column;gap:3px;min-width:440px}
+.hm-row{display:grid;grid-template-columns:46px repeat(5,1fr);gap:3px;align-items:center}
+.hm-header-row{margin-bottom:4px}
+.hm-day{display:flex;flex-direction:column;align-items:center;padding:4px 2px}
+.hm-day-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.7)}
+.hm-day-date{font-size:10px;color:rgba(255,255,255,.35)}
+.hm-time{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);text-align:right;padding-right:5px;white-space:nowrap}
+.hm-cell{height:36px;border-radius:6px;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;position:relative;user-select:none}
+.hm-cell:hover{transform:scale(1.08);z-index:2;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.hm-cell.empty{background:rgba(255,255,255,.03);color:rgba(255,255,255,.15);cursor:default}
+.hm-cell.empty:hover{transform:none;box-shadow:none}
+.hm-cell.lunch{background:repeating-linear-gradient(45deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 3px,transparent 3px,transparent 8px);cursor:default;border-color:transparent}
+.hm-cell.lunch:hover{transform:none;box-shadow:none}
+.hm-cell.lv1{background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.25);color:rgba(14,165,233,.8)}
+.hm-cell.lv2{background:rgba(14,165,233,.28);border-color:rgba(14,165,233,.45);color:#0ea5e9}
+.hm-cell.lv3{background:rgba(14,165,233,.45);border-color:rgba(14,165,233,.65);color:#38bdf8}
+.hm-cell.lv4{background:rgba(14,165,233,.65);border-color:#0ea5e9;color:#fff}
+.hm-cell.lv5{background:#0ea5e9;border-color:#38bdf8;color:#fff;font-size:12px}
+.hm-cell.top{box-shadow:0 0 0 2px #f59e0b,0 0 12px rgba(245,158,11,.4)}
+
+/* 명단 패널 */
+.detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:none}
+.detail-panel.show{display:block}
+.detail-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.detail-title{font-size:13px;font-weight:700}
+.detail-close{background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
+.detail-close:hover{color:#fff}
+.detail-list{padding:10px 18px 14px;display:flex;flex-wrap:wrap;gap:7px}
+.detail-chip{font-size:12px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);border-radius:99px;padding:4px 11px;color:rgba(255,255,255,.8)}
+.detail-empty{padding:14px 18px;font-size:13px;color:rgba(255,255,255,.35)}
+
+/* 전체 응답 테이블 */
+.resp-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:1.5rem}
+.resp-header{padding:14px 18px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700}
+.resp-table-wrap{overflow-x:auto}
+.resp-table{width:100%;border-collapse:collapse;font-size:12px}
+.resp-table th{padding:8px 14px;text-align:left;font-size:11px;font-weight:600;color:rgba(255,255,255,.4);background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);white-space:nowrap}
+.resp-table td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.05);color:rgba(255,255,255,.8);vertical-align:top}
+.resp-table tr:last-child td{border-bottom:none}
+.resp-table tr:hover td{background:rgba(255,255,255,.03)}
+.slot-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--blue)}
+.submitted-at{color:rgba(255,255,255,.35);font-size:11px}
+
+/* 접근거부 */
+#access-denied{display:none;text-align:center;padding:4rem 1.5rem;color:rgba(255,255,255,.4)}
+/* 로딩 */
+.loading{text-align:center;padding:3rem;color:rgba(255,255,255,.35);font-size:13px}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .summary-row{grid-template-columns:1fr 1fr}
+  .page{padding:4.5rem .8rem 2rem}
+}
+</style>
+</head>
+<body>
+<div class="bg-wrap"><div class="bg-grid"></div></div>
+
+<div class="top-bar">
+  <a href="portal_survey.html" class="back-btn">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    데이터 허브
+  </a>
+  <div class="top-right">
+    <span class="top-user" id="topUser"></span>
+    <button class="refresh-btn" onclick="loadData()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 6A4.5 4.5 0 1 0 6 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M1.5 1.5v4h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      새로고침
+    </button>
+  </div>
+</div>
+
+<div class="page">
+  <div id="access-denied">
+    <p style="font-size:2.5rem;margin-bottom:1rem">🔒</p>
+    <p style="font-size:14px;margin-bottom:1.5rem">관리자 권한이 필요합니다</p>
+    <a href="portal_survey.html" style="padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">로그인하러 가기</a>
+  </div>
+
+  <div id="mainContent" style="display:none">
+    <div class="page-header">
+      <div class="page-eyebrow">관리자 · 일정조사</div>
+      <div class="page-title">장학금 신청서 방문 일정 현황</div>
+      <div class="page-sub">2026-1학기 · 6월 15일(월) ~ 19일(금)</div>
+    </div>
+
+    <div id="loadingArea" class="loading">
+      <span class="spinner"></span>데이터 불러오는 중...
+    </div>
+
+    <div id="dataArea" style="display:none">
+      <!-- 요약 -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-label">총 응답자</div>
+          <div class="summary-num blue" id="sumTotal">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">최다 선택 시간대</div>
+          <div class="summary-num green" id="sumPeak" style="font-size:14px;margin-top:4px">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">평균 선택 수</div>
+          <div class="summary-num" id="sumAvg">—</div>
+        </div>
+      </div>
+
+      <!-- 히트맵 -->
+      <div class="heatmap-card">
+        <div class="heatmap-header">
+          <span class="heatmap-title">시간대별 방문 가능 인원</span>
+          <div class="legend">
+            <span>적음</span>
+            <div class="legend-bar">
+              <div class="legend-dot" style="background:rgba(14,165,233,.15)"></div>
+              <div class="legend-dot" style="background:rgba(14,165,233,.28)"></div>
+              <div class="legend-dot" style="background:rgba(14,165,233,.45)"></div>
+              <div class="legend-dot" style="background:rgba(14,165,233,.65)"></div>
+              <div class="legend-dot" style="background:#0ea5e9"></div>
+            </div>
+            <span>많음</span>
+          </div>
+        </div>
+        <div class="heatmap-wrap">
+          <div class="heatmap-grid" id="heatmapGrid"></div>
+        </div>
+      </div>
+
+      <!-- 클릭 시 명단 -->
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+          <span class="detail-title" id="detailTitle"></span>
+          <button class="detail-close" onclick="closeDetail()">×</button>
+        </div>
+        <div id="detailBody"></div>
+      </div>
+
+      <!-- 전체 응답 테이블 -->
+      <div class="resp-card">
+        <div class="resp-header">전체 응답 목록 <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.35);margin-left:6px" id="respCount"></span></div>
+        <div class="resp-table-wrap">
+          <table class="resp-table">
+            <thead>
+              <tr>
+                <th>학번</th>
+                <th>이름</th>
+                <th>학과</th>
+                <th>선택 수</th>
+                <th>제출일시</th>
+              </tr>
+            </thead>
+            <tbody id="respTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+const AUTH_KEY   = 'kistar_auth_url2';
+const EXPIRE_MS  = 8 * 60 * 60 * 1000;
+
+// 날짜·시간 정의
+const DAYS   = [{key:'615',label:'월',date:'6/15'},{key:'616',label:'화',date:'6/16'},{key:'617',label:'수',date:'6/17'},{key:'618',label:'목',date:'6/18'},{key:'619',label:'금',date:'6/19'}];
+const TIMES  = ['1000','1030','1100','1130','LUNCH1','LUNCH2','1300','1330','1400','1430','1500','1530','1600','1630'];
+const TIME_LABELS = {'1000':'10:00','1030':'10:30','1100':'11:00','1130':'11:30','LUNCH1':'12:00','LUNCH2':'12:30','1300':'13:00','1330':'13:30','1400':'14:00','1430':'14:30','1500':'15:00','1530':'15:30','1600':'16:00','1630':'16:30'};
+const LUNCH  = ['LUNCH1','LUNCH2'];
+
+let allRecords = []; // 전체 응답 원본
+
+function checkAuth() {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (!raw) return null;
+    const auth = JSON.parse(raw);
+    if (!auth || !auth.isAdmin) return null;
+    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) { localStorage.removeItem(AUTH_KEY); return null; }
+    return auth;
+  } catch(e) { return null; }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  const auth = checkAuth();
+  if (!auth) { document.getElementById('access-denied').style.display = 'block'; return; }
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('topUser').textContent = auth.name + ' (관리자)';
+  loadData();
+});
+
+function loadData() {
+  document.getElementById('loadingArea').style.display = 'block';
+  document.getElementById('dataArea').style.display = 'none';
+  closeDetail();
+
+  const cbName = '__schedAdminCb_' + Date.now();
+  window[cbName] = function(data) {
+    delete window[cbName];
+    const s = document.getElementById('__adminJsonp');
+    if (s) s.remove();
+    document.getElementById('loadingArea').style.display = 'none';
+    if (data.status !== 'ok') { alert('데이터 로드 실패: ' + (data.message||'')); return; }
+    allRecords = data.records || [];
+    render();
+    document.getElementById('dataArea').style.display = 'block';
+  };
+
+  const s = document.createElement('script');
+  s.id = '__adminJsonp';
+  s.src = SCRIPT_URL + '?action=getScheduleData&callback=' + cbName;
+  s.onerror = function() {
+    delete window[cbName]; s.remove();
+    document.getElementById('loadingArea').style.display = 'none';
+    alert('데이터를 불러오지 못했습니다. 다시 시도해주세요.');
+  };
+  document.head.appendChild(s);
+}
+
+function render() {
+  // 슬롯별 집계: { '615-1000': [학생명, ...], ... }
+  const slotMap = {};
+  DAYS.forEach(d => TIMES.filter(t => !LUNCH.includes(t)).forEach(t => { slotMap[d.key + '-' + t] = []; }));
+
+  allRecords.forEach(r => {
+    const slots = (r['선택슬롯'] || '').split(',').map(s => s.trim()).filter(Boolean);
+    slots.forEach(slot => {
+      if (slotMap[slot]) slotMap[slot].push(r['이름'] || r['학번'] || '?');
+    });
+  });
+
+  // 최대값 계산
+  const counts = Object.values(slotMap).map(arr => arr.length);
+  const maxCount = Math.max(...counts, 1);
+
+  // 요약
+  const total = allRecords.length;
+  const totalSlots = allRecords.reduce((s, r) => s + (parseInt(r['선택건수']) || 0), 0);
+  const avg = total ? (totalSlots / total).toFixed(1) : '0';
+
+  // 최다 시간대
+  let peakSlot = '', peakCount = 0;
+  Object.entries(slotMap).forEach(([slot, arr]) => {
+    if (arr.length > peakCount) { peakCount = arr.length; peakSlot = slot; }
+  });
+  const peakLabel = peakSlot ? formatSlotLabel(peakSlot) + ' (' + peakCount + '명)' : '—';
+
+  document.getElementById('sumTotal').textContent = total + '명';
+  document.getElementById('sumPeak').textContent = peakLabel;
+  document.getElementById('sumAvg').textContent = avg + '개';
+
+  // 히트맵 렌더
+  const grid = document.getElementById('heatmapGrid');
+  grid.innerHTML = '';
+
+  // 헤더행
+  const headerRow = document.createElement('div');
+  headerRow.className = 'hm-row hm-header-row';
+  headerRow.innerHTML = '<div class="hm-time"></div>' +
+    DAYS.map(d => '<div class="hm-day"><span class="hm-day-name">' + d.label + '</span><span class="hm-day-date">' + d.date + '</span></div>').join('');
+  grid.appendChild(headerRow);
+
+  // 데이터행
+  TIMES.forEach(time => {
+    const row = document.createElement('div');
+    row.className = 'hm-row';
+    const isLunch = LUNCH.includes(time);
+    const timeLabel = TIME_LABELS[time] || time;
+
+    row.innerHTML = '<div class="hm-time" style="' + (isLunch ? 'color:rgba(255,255,255,.15)' : '') + '">' + timeLabel + '</div>';
+
+    DAYS.forEach(d => {
+      const cell = document.createElement('div');
+      cell.className = 'hm-cell';
+      if (isLunch) {
+        cell.classList.add('lunch');
+        cell.title = '점심시간';
+      } else {
+        const slotKey = d.key + '-' + time;
+        const names = slotMap[slotKey] || [];
+        const cnt = names.length;
+        if (cnt === 0) {
+          cell.classList.add('empty');
+          cell.textContent = '0';
+        } else {
+          const ratio = cnt / maxCount;
+          if (ratio <= 0.2)      cell.classList.add('lv1');
+          else if (ratio <= 0.4) cell.classList.add('lv2');
+          else if (ratio <= 0.6) cell.classList.add('lv3');
+          else if (ratio <= 0.8) cell.classList.add('lv4');
+          else                   cell.classList.add('lv5');
+          if (cnt === maxCount && maxCount > 0) cell.classList.add('top');
+          cell.textContent = cnt;
+          cell.title = formatSlotLabel(slotKey) + ' — ' + cnt + '명';
+          cell.onclick = () => showDetail(slotKey, names, cnt);
+        }
+      }
+      row.appendChild(cell);
+    });
+    grid.appendChild(row);
+  });
+
+  // 응답 테이블
+  const tbody = document.getElementById('respTableBody');
+  tbody.innerHTML = '';
+  document.getElementById('respCount').textContent = total + '명';
+
+  if (total === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:rgba(255,255,255,.3)">응답 없음</td></tr>';
+    return;
+  }
+
+  // 제출일시 내림차순 정렬
+  const sorted = [...allRecords].sort((a, b) => (b['제출일시'] || '').localeCompare(a['제출일시'] || ''));
+  sorted.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px">' + (r['학번'] || '') + '</td>' +
+      '<td style="font-weight:500">' + (r['이름'] || '') + '</td>' +
+      '<td style="color:rgba(255,255,255,.5)">' + (r['학과'] || '') + '</td>' +
+      '<td><span class="slot-count">' + (r['선택건수'] || 0) + '개</span></td>' +
+      '<td class="submitted-at">' + (r['제출일시'] || '') + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function formatSlotLabel(slotKey) {
+  const [dayKey, time] = slotKey.split('-');
+  const day = DAYS.find(d => d.key === dayKey);
+  return (day ? day.label + '(' + day.date + ') ' : '') + (TIME_LABELS[time] || time);
+}
+
+function showDetail(slotKey, names, cnt) {
+  const panel = document.getElementById('detailPanel');
+  document.getElementById('detailTitle').textContent = formatSlotLabel(slotKey) + ' — ' + cnt + '명 가능';
+  const body = document.getElementById('detailBody');
+  if (names.length === 0) {
+    body.innerHTML = '<div class="detail-empty">선택한 학생이 없습니다.</div>';
+  } else {
+    body.innerHTML = '<div class="detail-list">' +
+      names.map(n => '<span class="detail-chip">' + n + '</span>').join('') +
+      '</div>';
+  }
+  panel.classList.add('show');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('show');
+}
+</script>
+</body>
+</html>
