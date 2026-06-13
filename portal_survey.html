@@ -163,6 +163,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="1" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.5l1.5 1.5L8 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     이수 체크리스트
   </a>
+  <a id="admin-dash-btn" href="admin_mileage.html" class="checklist-nav-btn" style="display:none;background:rgba(123,31,42,.18);border-color:rgba(200,57,43,.35);color:#f08070">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="1" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.5h5M3 3.5h5M3 7.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    관리자 대시보드
+  </a>
   <span class="user-badge" id="user-name-badge"></span>
   <button class="logout-btn" onclick="doLogout()">
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2M7 8l3-3-3-3M10 5.5H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -465,6 +469,7 @@ function showUserBar() {
   if (auth.isAdmin) {
     document.getElementById('admin-section').classList.add('show');
     document.getElementById('adminMileageToggle').style.display = 'flex';
+    document.getElementById('admin-dash-btn').style.display = 'flex';
   }
   if (auth.studentId) {
     loadMileage(auth.studentId);
