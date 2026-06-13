@@ -49,7 +49,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy
 
 .heatmap-wrap{overflow-x:auto;padding:16px 18px 20px}
 .heatmap-grid{display:flex;flex-direction:column;gap:3px;min-width:440px}
-.hm-row{display:grid;grid-template-columns:46px repeat(4,1fr);gap:3px;align-items:center}
+.hm-row{display:grid;grid-template-columns:46px repeat(5,1fr);gap:3px;align-items:center}
 .hm-header-row{margin-bottom:4px}
 .hm-day{display:flex;flex-direction:column;align-items:center;padding:4px 2px}
 .hm-day-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.7)}
@@ -214,7 +214,7 @@ const AUTH_KEY   = 'kistar_auth_url2';
 const EXPIRE_MS  = 8 * 60 * 60 * 1000;
 
 // 날짜·시간 정의
-const DAYS   = [{key:'616',label:'화',date:'6/16'},{key:'617',label:'수',date:'6/17'},{key:'618',label:'목',date:'6/18'},{key:'619',label:'금',date:'6/19'}];
+const DAYS   = [{key:'615',label:'월',date:'6/15',disabled:true},{key:'616',label:'화',date:'6/16'},{key:'617',label:'수',date:'6/17'},{key:'618',label:'목',date:'6/18'},{key:'619',label:'금',date:'6/19'}];
 const TIMES  = ['1000','1030','1100','1130','LUNCH1','LUNCH2','1300','1330','1400','1430','1500','1530','1600','1630'];
 const TIME_LABELS = {'1000':'10:00','1030':'10:30','1100':'11:00','1130':'11:30','LUNCH1':'12:00','LUNCH2':'12:30','1300':'13:00','1330':'13:30','1400':'14:00','1430':'14:30','1500':'15:00','1530':'15:30','1600':'16:00','1630':'16:30'};
 const LUNCH  = ['LUNCH1','LUNCH2'];
@@ -308,7 +308,7 @@ function render() {
   const headerRow = document.createElement('div');
   headerRow.className = 'hm-row hm-header-row';
   headerRow.innerHTML = '<div class="hm-time"></div>' +
-    DAYS.map(d => '<div class="hm-day"><span class="hm-day-name">' + d.label + '</span><span class="hm-day-date">' + d.date + '</span></div>').join('');
+    DAYS.map(d => '<div class="hm-day"><span class="hm-day-name" style="' + (d.disabled?'color:rgba(255,255,255,.25)':'') + '">' + d.label + '</span><span class="hm-day-date" style="' + (d.disabled?'color:rgba(255,255,255,.15)':'') + '">' + d.date + '</span></div>').join('');
   grid.appendChild(headerRow);
 
   // 데이터행
@@ -323,6 +323,14 @@ function render() {
     DAYS.forEach(d => {
       const cell = document.createElement('div');
       cell.className = 'hm-cell';
+      if (d.disabled) {
+        cell.classList.add('empty');
+        cell.style.opacity = '.15';
+        cell.style.pointerEvents = 'none';
+        cell.style.cursor = 'default';
+        row.appendChild(cell);
+        return;
+      }
       if (isLunch) {
         cell.classList.add('lunch');
         cell.title = '점심시간';
