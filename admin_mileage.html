@@ -318,9 +318,9 @@ function renderDash(sem) {
     const status = String(r['상태'] || '').trim();
     if (status !== '정상') return false;
     const dateStr = String(r['날짜'] || '').trim();
-    if (dateStr) {
+    if (dateStr && !dateStr.startsWith('1899') && !dateStr.startsWith('1900')) {
       const d = new Date(dateStr);
-      if (!isNaN(d)) return d >= startDate && d <= endDate;
+      if (!isNaN(d) && d.getFullYear() > 1900) return d >= startDate && d <= endDate;
     }
     return String(r['학기'] || '').trim() === sem;
   });
