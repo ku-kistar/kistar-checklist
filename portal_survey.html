@@ -288,32 +288,48 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
             <div class="notice-timing-val">8월</div>
           </div>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:7px;line-height:1.6">
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:7px;line-height:1.6;margin-bottom:7px">
           · 우수학생 마일리지 인정기간: ~2026.08.14(금)<br>
           · 우수학생 접수 마감: 2026.08.16(일) 23:00
         </div>
+        <!-- 우수학생 구글폼 링크 -->
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfHwybNDSTGaYxCctCnoTDxXWas0gEPtziaC8v9lmvN-g106w/viewform" target="_blank"
+           style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:8px 12px;text-decoration:none">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#5ec8a0;margin-bottom:1px">우수학생 활동 증빙 제출</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.4)">마감 8/16(일) 23:00 · 구글폼</div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H6M11 3v5" stroke="#5ec8a0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
       <div class="notice-divider"></div>
       <!-- 노쇼 강조 -->
       <div class="notice-noshow">
-        <div class="notice-noshow-title">⚠️ No-show 패널티</div>
-        <div class="notice-noshow-body">비교과 프로그램 무단 불참(No-show) 시<br><strong>이후 프로그램 2회 참여 제한</strong> — 부득이한 사유는 반드시 사전 연락</div>
-      </div>
-      <div class="notice-divider"></div>
-      <!-- 일정조사 -->
-      <div class="notice-sched">
-        <div class="notice-sched-left">
-          <div class="notice-sched-title">📅 장학금 신청서 방문 일정 조사</div>
-          <div class="notice-sched-dead">마감 6/15(월) 17:00</div>
+        <div class="notice-noshow-title">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="vertical-align:-1px;margin-right:4px"><circle cx="6.5" cy="6.5" r="5.8" stroke="#f08070" stroke-width="1.2"/><path d="M6.5 3.5v3.5" stroke="#f08070" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9" r=".65" fill="#f08070"/></svg>
+          No-show 패널티
         </div>
-        <a href="form_schedule_scholarship.html" class="notice-sched-btn" onclick="closeNoticePopup()">
-          제출하러 가기 →
-        </a>
+        <div class="notice-noshow-body">비교과 프로그램 <strong style="color:#fff">신청 및 선발 후</strong> 무단 불참 시<br><strong>직후 2개 프로그램 참여 자동 제한</strong><br><span style="font-size:11px;color:rgba(255,255,255,.55)">부득이한 경우 <strong style="color:rgba(255,255,255,.8)">행사 하루 전날까지</strong> 사전 연락 필수</span></div>
       </div>
     </div>
     <div class="notice-footer">
-      <button class="notice-btn-dismiss" onclick="dismissNoticeToday()">오늘 하루 보지 않기</button>
-      <button class="notice-btn-confirm" onclick="closeNoticePopup()">확인</button>
+      <!-- 일정조사 버튼 (강조) -->
+      <div style="width:100%;margin-bottom:8px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:10px 12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#f5c842;margin-bottom:2px">장학금 신청서 방문 일정 조사</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.45)">마감 6/15(월) 17:00</div>
+          </div>
+          <a href="form_schedule_scholarship.html" onclick="closeNoticePopup()"
+             style="flex-shrink:0;padding:8px 14px;border-radius:8px;background:rgba(245,166,35,.85);color:#fff;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">
+            제출하러 가기 →
+          </a>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;width:100%">
+        <button class="notice-btn-dismiss" onclick="dismissNoticeToday()">오늘 하루 보지 않기</button>
+        <button class="notice-btn-confirm" onclick="closeNoticePopup()">확인</button>
+      </div>
     </div>
   </div>
 </div>
