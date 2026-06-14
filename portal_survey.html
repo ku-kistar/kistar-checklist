@@ -837,20 +837,23 @@ function renderMileage(data) {
     penaltyEl.classList.add('show');
   }
 
-  // ★ 40점 달성 여부 표시
-  const pts = data.totalPoints || 0;
+  // ★ 40점 달성 여부 — 2026-1학기 마일리지 기준
+  const normSemCheck = s => (s || '').replace(/-0*(\d)$/, '-$1');
+  const pts261 = (data.records || [])
+    .filter(r => r['상태'] === '정상' && normSemCheck(r['학기']) === '2026-1')
+    .reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
   const achieveBadge = document.getElementById('mileageAchieveBadge');
   const progressWrap = document.getElementById('mileageProgressWrap');
-  if (pts >= 40) {
+  if (pts261 >= 40) {
     achieveBadge.classList.add('show');
     progressWrap.classList.remove('show');
   } else {
     achieveBadge.classList.remove('show');
     progressWrap.classList.add('show');
-    const pct = Math.min(pts / 40 * 100, 100);
+    const pct = Math.min(pts261 / 40 * 100, 100);
     document.getElementById('mileageProgressFill').style.width = pct + '%';
-    document.getElementById('mileageProgressText').textContent = pts + ' / 40점';
-    document.getElementById('mileageRemain').textContent = '장학금까지 ' + (40 - pts) + '점 남음';
+    document.getElementById('mileageProgressText').textContent = pts261 + ' / 40점 (2026-1학기)';
+    document.getElementById('mileageRemain').textContent = '장학금까지 ' + (40 - pts261) + '점 남음';
   }
 
   filterMileage(currentFilter, null);
@@ -891,14 +894,21 @@ function filterMileage(semester, btn) {
   if (recs.length === 0) { emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
 
-  const splitProgName = name => {
+  const splitProgName = (name, recDate) => {
+    // 날짜 열에 값이 있으면 우선 사용
+    if (recDate && recDate.trim()) {
+      // 프로그램명에서 날짜 패턴 제거하고 제목만 추출
+      const cleaned = name.replace(/\s*\d{2,4}[\.\-]\d{2}[\.\-]\d{2}[^\s]*\s*/g, '').replace(/\s*\(\s*$/, '').trim();
+      return { title: cleaned || name, date: recDate.trim() };
+    }
+    // 날짜 열이 없으면 프로그램명에서 추출 시도
     const m = name.match(/^(.+?)(\d{2,4}[\.\-]\d{2}[\.\-]\d{2}[^\s]*)(.*)$/);
-    if (m) return { title: m[1].trim(), date: m[2] + (m[3]||'').trim() };
+    if (m) return { title: m[1].replace(/\($/, '').trim(), date: m[2] + (m[3]||'').trim() };
     return { title: name, date: '' };
   };
   recs.forEach(r => {
     const isEdu = r['카테고리'] === '교과';
-    const { title, date } = splitProgName(r['프로그램명'] || '');
+    const { title, date } = splitProgName(r['프로그램명'] || '', r['날짜'] || '');
     const item = document.createElement('div');
     item.className = 'mileage-item';
     item.innerHTML =
