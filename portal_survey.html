@@ -399,7 +399,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
       <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
     </div>
-    <div id="loadingHint" style="display:none;text-align:center;font-size:11px;color:rgba(255,255,255,.3);padding:6px 0 4px;margin-top:-8px">서버 연결 중... 처음 접속 시 시간이 걸릴 수 있습니다</div>
+
     <div id="formsGrid"></div>
     <div class="empty-state" id="emptyState">
       <div style="font-size:36px;opacity:.3;margin-bottom:.8rem">📭</div>
@@ -515,7 +515,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 </div>
 
 <script>
-const EXEC_URL   = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
+const EXEC_URL   = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec'; // URL2 통일 v14
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
 const AUTH_KEY   = 'kistar_auth_url2';
 const EXPIRE_MS  = 8 * 60 * 60 * 1000;
@@ -568,7 +568,7 @@ function doAuth() {
   if (!sid || !birth) { showMsg('error','학번과 생년월일을 모두 입력해주세요.'); return; }
   if (birth.length !== 8 || !/^\d{8}$/.test(birth)) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
   btn.disabled = true;
-  showMsg('loading','확인 중... (처음 접속 시 다소 시간이 걸릴 수 있습니다)');
+  showMsg('loading','확인 중...');
   const ctrl = new AbortController();
   const loginTO = setTimeout(() => ctrl.abort(), 15000);
   const url = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth);
@@ -625,14 +625,6 @@ function showUserBar() {
   if (!auth) return;
   document.getElementById('user-name-badge').textContent = auth.name + '님';
   document.getElementById('user-bar').style.display = 'flex';
-  try {
-    const clBtn = document.getElementById('checklist-link');
-    if (clBtn && auth && auth.studentId) {
-      const token = btoa(encodeURIComponent(auth.studentId + ':' + (auth.dept || '')));
-      clBtn.href = 'https://ku-kistar.github.io/kistar-checklist/?sid=' + encodeURIComponent(auth.studentId) + '&t=' + encodeURIComponent(token);
-      clBtn.style.display = 'flex';
-    }
-  } catch(e3) {}
   const clBtn = document.getElementById('checklist-link');
   if (clBtn && auth.studentId) {
     const token = btoa(encodeURIComponent(auth.studentId + ':' + (auth.dept || '')));
@@ -719,14 +711,14 @@ function loadForms() {
   document.getElementById('formsGrid').classList.remove('show');
   document.getElementById('emptyState').classList.remove('show');
   document.getElementById('errorState').classList.remove('show');
-  document.getElementById('loadingHint').style.display='none';
-  const hintTO = setTimeout(() => { document.getElementById('loadingHint').style.display='block'; }, 3000);
+
+
   cbName='__sCB_'+Date.now();
   window[cbName]=data=>{
-    clearTimeout(loadTO); clearTimeout(hintTO); delete window[cbName];
+    clearTimeout(loadTO); delete window[cbName];
     const s=document.getElementById('__jsonp'); if(s) s.remove();
     document.getElementById('skeletonGrid').style.display='none';
-    document.getElementById('loadingHint').style.display='none';
+  
     renderForms(data.forms||[]);
   };
   loadTO=setTimeout(()=>{
