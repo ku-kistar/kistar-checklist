@@ -677,8 +677,8 @@ function initDraft(studentId){
   document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el=>el.addEventListener('change',scheduleDraftSave));
 }
 function scheduleDraftSave(){if(!draftKey)return;clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,2000);}
-function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);try{const data=collectFormData();data.savedAt=new Date().toISOString();localStorage.setItem(draftKey,JSON.stringify(data));const now=new Date();document.getElementById('draftStatus').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0')+' 저장됨';}catch(e){document.getElementById('draftStatus').textContent='저장 실패';}}
-function loadDraft(){
+function isLocalStorageAvailable(){try{const t='__ls_test__';localStorage.setItem(t,t);localStorage.removeItem(t);return true;}catch(e){return false;}}
+function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalStorageAvailable()){document.getElementById('draftStatus').textContent='⚠ 저장 불가 (브라우저 설정 확인)';return;}try{const data=collectFormData();data.savedAt=new Date().toISOString();localStorage.setItem(draftKey,JSON.stringify(data));const now=new Date();document.getElementById('draftStatus').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0')+' 저장됨';}catch(e){if(e.name==='QuotaExceededError'||e.code===22){document.getElementById('draftStatus').textContent='⚠ 저장 실패 (저장 공간 부족)';}else{document.getElementById('draftStatus').textContent='⚠ 저장 실패: '+e.message;}}}function loadDraft(){
   if(!draftData)return;document.getElementById('draftModal').style.display='none';
   try{const d=draftData;
     if(d.phone){const el=document.getElementById('f-phone');el.value=d.phone;validatePhone(el);}
