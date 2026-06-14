@@ -137,8 +137,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .notice-sched-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;background:rgba(245,166,35,.2);border:1px solid rgba(245,166,35,.4);color:#f5c842;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s;white-space:nowrap}
 .notice-sched-btn:hover{background:rgba(245,166,35,.35)}
 
-.notice-footer{padding:.9rem 1.4rem;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:8px;flex-shrink:0}
-.notice-btn-confirm{flex:1;padding:10px;border-radius:9px;border:none;background:rgba(14,165,233,.85);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s}
+.notice-footer{padding:.9rem 1.4rem;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.notice-btn-confirm{padding:10px;border-radius:9px;border:none;background:rgba(14,165,233,.85);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s;flex:1}
 .notice-btn-confirm:hover{opacity:.88}
 .notice-btn-dismiss{padding:10px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.4);font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
 .notice-btn-dismiss:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.65)}
@@ -314,7 +314,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </div>
     <div class="notice-footer">
       <!-- 일정조사 버튼 (강조) -->
-      <div style="width:100%;margin-bottom:8px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:10px 12px">
+      <div style="width:100%;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:10px;padding:10px 12px">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
           <div>
             <div style="font-size:12px;font-weight:700;color:#f5c842;margin-bottom:2px">장학금 신청서 방문 일정 조사</div>
