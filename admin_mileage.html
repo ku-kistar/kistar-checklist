@@ -322,7 +322,11 @@ function renderDash(sem) {
       const d = new Date(dateStr);
       if (!isNaN(d) && d.getFullYear() > 1900) return d >= startDate && d <= endDate;
     }
-    return String(r['학기'] || '').trim() === sem;
+    // GAS가 학기를 날짜로 변환하는 경우 대응 (예: 2026-01-01 → 2026-1)
+    let semVal = String(r['학기'] || '').trim();
+    if (semVal.match(/^(\d{4})-0?1-01$/)) semVal = semVal.substring(0,4) + '-1';
+    else if (semVal.match(/^(\d{4})-0?7-01$/)) semVal = semVal.substring(0,4) + '-2';
+    return semVal === sem;
   });
 
   const studentMap = {};
