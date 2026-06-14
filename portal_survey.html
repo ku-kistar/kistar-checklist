@@ -99,27 +99,75 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admin-btns{display:flex;flex-wrap:wrap;gap:8px}
 .admin-form-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,rgba(200,57,43,.2),rgba(200,57,43,.12));border:1px solid rgba(200,57,43,.4);color:#f08070;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap}
 .admin-form-btn:hover{background:linear-gradient(135deg,rgba(200,57,43,.35),rgba(200,57,43,.22));border-color:rgba(200,57,43,.65);color:#fff}
-#deadline-popup{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:1.5rem}
-#deadline-popup.show{display:flex}
-.popup-card{background:#0f2035;border:1px solid rgba(200,57,43,.35);border-radius:16px;padding:1.75rem 1.5rem;max-width:360px;width:100%;text-align:center;animation:popUp .25s ease}
+
+/* ── 통합 공지 팝업 ── */
+#notice-popup{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:1.5rem}
+#notice-popup.show{display:flex}
+.notice-card{background:#0f2035;border:1px solid rgba(14,165,233,.25);border-radius:16px;max-width:400px;width:100%;animation:popUp .25s ease;max-height:90vh;display:flex;flex-direction:column}
 @keyframes popUp{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-.popup-icon{font-size:32px;margin-bottom:.75rem}
-.popup-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;background:rgba(200,57,43,.15);color:#f08070;border:1px solid rgba(200,57,43,.3);padding:3px 10px;border-radius:99px;margin-bottom:.75rem}
-.popup-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:.5rem;line-height:1.35}
-.popup-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:1.25rem}
-.popup-btns{display:flex;flex-direction:column;gap:8px}
-.popup-go{display:block;padding:11px;border-radius:9px;background:rgba(200,57,43,.85);border:none;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none;transition:opacity .15s}
-.popup-go:hover{opacity:.88}
-.popup-dismiss{padding:9px;border-radius:9px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s}
-.popup-dismiss:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7)}
-@media(max-width:480px){
-  .header{padding:1.8rem 1.2rem 0;gap:14px}
-  .main-msg{padding:1.4rem 1.2rem .2rem}
-  .forms-section{padding:1.2rem 1.2rem 0}
-}
+.notice-card-header{padding:1.2rem 1.4rem .8rem;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
+.notice-card-header .badge{display:inline-block;font-size:10px;font-weight:700;background:rgba(14,165,233,.15);color:#0ea5e9;border:1px solid rgba(14,165,233,.3);padding:2px 9px;border-radius:99px;margin-bottom:8px}
+.notice-card-header h3{font-size:14px;font-weight:700;color:#fff;line-height:1.4}
+.notice-body{overflow-y:auto;padding:1rem 1.4rem;flex:1}
+.notice-body::-webkit-scrollbar{width:3px}
+.notice-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:99px}
+
+/* 장학금 요건 블록 */
+.notice-req-block{margin-bottom:14px}
+.notice-req-title{font-size:11px;font-weight:700;color:rgba(14,165,233,.8);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.notice-req-list{display:flex;flex-direction:column;gap:5px}
+.notice-req-item{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:rgba(255,255,255,.75);line-height:1.5}
+.notice-req-num{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:rgba(14,165,233,.2);border:1px solid rgba(14,165,233,.4);color:#0ea5e9;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.notice-divider{height:1px;background:rgba(255,255,255,.07);margin:12px 0}
+/* 지급시기 */
+.notice-timing-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.notice-timing-cell{background:rgba(255,255,255,.05);border-radius:8px;padding:7px 10px}
+.notice-timing-label{font-size:10px;color:rgba(255,255,255,.45);margin-bottom:2px}
+.notice-timing-val{font-size:13px;font-weight:700;color:#fff}
+.notice-timing-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+/* 노쇼 강조 */
+.notice-noshow{background:rgba(200,57,43,.12);border:1px solid rgba(200,57,43,.3);border-radius:8px;padding:9px 12px;margin-top:6px}
+.notice-noshow-title{font-size:11px;font-weight:700;color:#f08070;margin-bottom:4px}
+.notice-noshow-body{font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
+.notice-noshow-body strong{color:#ff6b6b}
+/* 일정조사 섹션 */
+.notice-sched{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:10px 14px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.notice-sched-left .notice-sched-title{font-size:12px;font-weight:700;color:#f5c842;margin-bottom:2px}
+.notice-sched-left .notice-sched-dead{font-size:11px;color:rgba(255,255,255,.5)}
+.notice-sched-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:7px;background:rgba(245,166,35,.2);border:1px solid rgba(245,166,35,.4);color:#f5c842;font-size:12px;font-weight:700;text-decoration:none;transition:all .15s;white-space:nowrap}
+.notice-sched-btn:hover{background:rgba(245,166,35,.35)}
+
+.notice-footer{padding:.9rem 1.4rem;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:8px;flex-shrink:0}
+.notice-btn-confirm{flex:1;padding:10px;border-radius:9px;border:none;background:rgba(14,165,233,.85);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s}
+.notice-btn-confirm:hover{opacity:.88}
+.notice-btn-dismiss{padding:10px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.4);font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+.notice-btn-dismiss:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.65)}
+
+/* 공지 배너 (팝업 닫은 후 상단 고정) */
+#notice-banner{display:none;width:100%;background:rgba(14,165,233,.08);border-bottom:1px solid rgba(14,165,233,.18)}
+#notice-banner.show{display:block}
+.notice-banner-inner{max-width:680px;margin:0 auto;padding:8px 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.notice-banner-text{font-size:11px;color:rgba(14,165,233,.85);display:flex;align-items:center;gap:6px}
+.notice-banner-link{font-size:11px;color:rgba(14,165,233,.7);text-decoration:underline;cursor:pointer;white-space:nowrap;background:none;border:none;font-family:inherit}
+.notice-banner-link:hover{color:#0ea5e9}
+
+/* 마일리지 섹션 */
 .mileage-section{width:100%;max-width:680px;padding:1.2rem 2rem 0;display:none}
 .mileage-section.show{display:block}
 .mileage-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+/* ★ 40점 달성 배지 */
+.mileage-achieve-badge{background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(5,150,105,.15));border:1px solid rgba(16,185,129,.5);border-radius:10px;padding:10px 14px;display:none;align-items:center;gap:10px;margin-bottom:10px}
+.mileage-achieve-badge.show{display:flex}
+.mileage-achieve-icon{font-size:22px;flex-shrink:0}
+.mileage-achieve-text{font-size:12px;color:#5ec8a0;line-height:1.5}
+.mileage-achieve-text strong{font-size:14px;color:#10b981;display:block;margin-bottom:2px}
+/* ★ 미달성 진행바 */
+.mileage-progress-wrap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;display:none;margin-bottom:10px}
+.mileage-progress-wrap.show{display:block}
+.mileage-progress-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px}
+.mileage-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.mileage-progress-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#06c8d4);border-radius:99px;transition:width .5s ease}
+.mileage-progress-remain{font-size:11px;color:rgba(255,255,255,.4);margin-top:5px;text-align:right}
 .mileage-total-card{background:linear-gradient(135deg,#0b1f3a,#1a3a6e);border-radius:14px;padding:1.2rem 1.5rem;color:#fff;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
 .mileage-total-label{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px}
 .mileage-total-num{font-size:32px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#0ea5e9}
@@ -154,7 +202,12 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .mileage-result-msg.err{background:rgba(200,57,43,.15);color:#ff8a80;display:block}
 .checklist-nav-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:99px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.3);color:rgba(14,165,233,.9);font-size:11px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap}
 .checklist-nav-btn:hover{background:rgba(14,165,233,.2);border-color:rgba(14,165,233,.6);color:#fff}
-
+@media(max-width:480px){
+  .header{padding:1.8rem 1.2rem 0;gap:14px}
+  .main-msg{padding:1.4rem 1.2rem .2rem}
+  .forms-section{padding:1.2rem 1.2rem 0}
+  .notice-timing-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -173,6 +226,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     로그아웃
   </button>
 </div>
+
 <div id="auth-overlay">
   <div class="auth-card">
     <div class="auth-logo">
@@ -202,18 +256,79 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div class="auth-msg" id="auth-msg"></div>
   </div>
 </div>
-<div id="deadline-popup">
-  <div class="popup-card">
-    <div class="popup-icon">⏰</div>
-    <div class="popup-badge" id="popup-dday"></div>
-    <div class="popup-title" id="popup-title"></div>
-    <div class="popup-desc" id="popup-desc"></div>
-    <div class="popup-btns">
-      <a class="popup-go" id="popup-go" href="#">지금 제출하기 →</a>
-      <button class="popup-dismiss" id="popup-dismiss">오늘 하루 안 보기</button>
+
+<!-- ★ 통합 공지 팝업 -->
+<div id="notice-popup">
+  <div class="notice-card">
+    <div class="notice-card-header">
+      <div class="badge">📢 공지사항</div>
+      <h3>2026-1학기 차세대반도체 인재장학금 안내</h3>
+    </div>
+    <div class="notice-body">
+      <!-- 지급 요건 -->
+      <div class="notice-req-block">
+        <div class="notice-req-title">지급 요건 — 3가지 모두 충족 필수</div>
+        <div class="notice-req-list">
+          <div class="notice-req-item"><div class="notice-req-num">1</div><span>사업단 <strong style="color:#fff">마일리지 40점 이상</strong></span></div>
+          <div class="notice-req-item"><div class="notice-req-num">2</div><span><strong style="color:#fff">활동계획서</strong>(학기 초) + <strong style="color:#fff">결과보고서</strong>(학기 말) 제출</span></div>
+          <div class="notice-req-item"><div class="notice-req-num">3</div><span>장학금 신청서 <strong style="color:#fff">현장 직접 작성·제출</strong></span></div>
+        </div>
+      </div>
+      <div class="notice-divider"></div>
+      <!-- 지급 시기 -->
+      <div class="notice-req-block">
+        <div class="notice-req-title">지급 시기</div>
+        <div class="notice-timing-grid">
+          <div class="notice-timing-cell">
+            <div class="notice-timing-label">인재장학금</div>
+            <div class="notice-timing-val">7월</div>
+          </div>
+          <div class="notice-timing-cell">
+            <div class="notice-timing-label">우수학생 장학금</div>
+            <div class="notice-timing-val">8월</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:7px;line-height:1.6">
+          · 우수학생 마일리지 인정기간: ~2026.08.14(금)<br>
+          · 우수학생 접수 마감: 2026.08.16(일) 23:00
+        </div>
+      </div>
+      <div class="notice-divider"></div>
+      <!-- 노쇼 강조 -->
+      <div class="notice-noshow">
+        <div class="notice-noshow-title">⚠️ No-show 패널티</div>
+        <div class="notice-noshow-body">비교과 프로그램 무단 불참(No-show) 시<br><strong>이후 프로그램 2회 참여 제한</strong> — 부득이한 사유는 반드시 사전 연락</div>
+      </div>
+      <div class="notice-divider"></div>
+      <!-- 일정조사 -->
+      <div class="notice-sched">
+        <div class="notice-sched-left">
+          <div class="notice-sched-title">📅 장학금 신청서 방문 일정 조사</div>
+          <div class="notice-sched-dead">마감 6/15(월) 17:00</div>
+        </div>
+        <a href="form_schedule_scholarship.html" class="notice-sched-btn" onclick="closeNoticePopup()">
+          제출하러 가기 →
+        </a>
+      </div>
+    </div>
+    <div class="notice-footer">
+      <button class="notice-btn-dismiss" onclick="dismissNoticeToday()">오늘 하루 보지 않기</button>
+      <button class="notice-btn-confirm" onclick="closeNoticePopup()">확인</button>
     </div>
   </div>
 </div>
+
+<!-- 공지 배너 (팝업 닫은 후) -->
+<div id="notice-banner">
+  <div class="notice-banner-inner">
+    <div class="notice-banner-text">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#0ea5e9" stroke-width="1.2"/><path d="M6.5 4v3" stroke="#0ea5e9" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="9" r=".6" fill="#0ea5e9"/></svg>
+      2026-1학기 인재장학금 안내 · No-show 2회 참여제한
+    </div>
+    <button class="notice-banner-link" onclick="showNoticePopup()">자세히 보기</button>
+  </div>
+</div>
+
 <div class="bg-wrap"><div class="bg-grid"></div><div class="bg-g1"></div><div class="bg-g2"></div></div>
 <div class="page">
   <div class="header">
@@ -278,7 +393,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div class="error-state" id="errorState">⚠️ 목록을 불러오지 못했습니다. 새로고침 해주세요. (☎ 02-3290-4988)</div>
   </div>
 
-
   <div class="mileage-section" id="mileage-section">
     <div class="mileage-header">
       <div class="admin-section-label" style="margin-bottom:0">🎖 사업단 마일리지</div>
@@ -302,6 +416,27 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <button class="mileage-submit-btn" onclick="submitMileage()">적립하기</button>
       <div class="mileage-result-msg" id="mileageResultMsg"></div>
     </div>
+
+    <!-- ★ 40점 달성 배지 -->
+    <div class="mileage-achieve-badge" id="mileageAchieveBadge">
+      <div class="mileage-achieve-icon">🎉</div>
+      <div class="mileage-achieve-text">
+        <strong>장학금 수혜 요건 충족!</strong>
+        마일리지 40점을 달성했습니다. 나머지 요건(활동계획서·결과보고서·신청서 현장 제출)도 챙겨주세요!
+      </div>
+    </div>
+    <!-- ★ 미달성 진행바 -->
+    <div class="mileage-progress-wrap" id="mileageProgressWrap">
+      <div class="mileage-progress-label">
+        <span>마일리지 달성 현황</span>
+        <span id="mileageProgressText">0 / 40점</span>
+      </div>
+      <div class="mileage-progress-bar">
+        <div class="mileage-progress-fill" id="mileageProgressFill" style="width:0%"></div>
+      </div>
+      <div class="mileage-remain" id="mileageRemain" style="font-size:11px;color:rgba(255,255,255,.4);margin-top:5px;text-align:right"></div>
+    </div>
+
     <div class="mileage-total-card" id="mileageTotalCard" style="display:none">
       <div>
         <div class="mileage-total-label">누적 마일리지</div>
@@ -316,12 +451,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       </div>
     </div>
     <div class="mileage-penalty" id="mileagePenalty"></div>
-    <!-- 학기별 소계 카드 -->
     <div id="semesterSummaryCard" style="display:none;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:10px 16px;margin-bottom:12px;align-items:center;justify-content:space-between">
       <span style="font-size:12px;color:rgba(255,255,255,.55)" id="semesterSummaryLabel">학기 누적</span>
       <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#0ea5e9"><span id="semesterSummaryNum">0</span><span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.4);margin-left:3px">점</span></span>
     </div>
-    <!-- [수정] 필터 값: 한자리 (시트와 일치) -->
     <div class="mileage-filter" id="mileageFilter" style="display:none">
       <button class="mileage-filter-btn active" data-sem="all" onclick="filterMileage('all', this)">전체</button>
       <button class="mileage-filter-btn" data-sem="2024-2" onclick="filterMileage('2024-2', this)">2024-2</button>
@@ -370,6 +503,32 @@ const EXEC_URL   = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2S
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
 const AUTH_KEY   = 'kistar_auth_url2';
 const EXPIRE_MS  = 8 * 60 * 60 * 1000;
+const NOTICE_DISMISS_KEY = 'kistar_notice_2026_1_v1';
+
+// ── 공지 팝업 ──
+function showNoticePopup() {
+  document.getElementById('notice-popup').classList.add('show');
+}
+function closeNoticePopup() {
+  document.getElementById('notice-popup').classList.remove('show');
+  document.getElementById('notice-banner').classList.add('show');
+}
+function dismissNoticeToday() {
+  const today = new Date().toISOString().substring(0,10);
+  localStorage.setItem(NOTICE_DISMISS_KEY, today);
+  document.getElementById('notice-popup').classList.remove('show');
+  document.getElementById('notice-banner').classList.add('show');
+}
+function checkNoticePopup() {
+  const today = new Date().toISOString().substring(0,10);
+  const dismissed = localStorage.getItem(NOTICE_DISMISS_KEY);
+  if (dismissed === today) {
+    // 오늘 이미 닫음 → 배너만 표시
+    document.getElementById('notice-banner').classList.add('show');
+    return;
+  }
+  setTimeout(() => showNoticePopup(), 600);
+}
 
 function checkAuth() {
   try {
@@ -412,6 +571,7 @@ function doAuth() {
           document.getElementById('auth-overlay').classList.add('hidden');
           showUserBar();
           loadForms();
+          checkNoticePopup();
         }, 700);
       } else {
         showMsg('error','학번 또는 생년월일이 일치하지 않습니다.');
@@ -435,6 +595,7 @@ function doLogout() {
   localStorage.removeItem(AUTH_KEY);
   document.getElementById('auth-overlay').classList.remove('hidden');
   document.getElementById('user-bar').style.display = 'none';
+  document.getElementById('notice-banner').classList.remove('show');
   document.getElementById('auth-id').value = '';
   document.getElementById('auth-birth').value = '';
   document.getElementById('auth-msg').textContent = '';
@@ -448,7 +609,6 @@ function showUserBar() {
   if (!auth) return;
   document.getElementById('user-name-badge').textContent = auth.name + '님';
   document.getElementById('user-bar').style.display = 'flex';
-  // 체크리스트 이동 버튼
   try {
     const clBtn = document.getElementById('checklist-link');
     if (clBtn && auth && auth.studentId) {
@@ -457,7 +617,6 @@ function showUserBar() {
       clBtn.style.display = 'flex';
     }
   } catch(e3) {}
-  // 체크리스트 이동 버튼 (학번 포함한 자동로그인 URL)
   const clBtn = document.getElementById('checklist-link');
   if (clBtn && auth.studentId) {
     const token = btoa(encodeURIComponent(auth.studentId + ':' + (auth.dept || '')));
@@ -527,42 +686,10 @@ function createCard(form) {
 function renderForms(forms) {
   const grid = document.getElementById('formsGrid');
   const empty = document.getElementById('emptyState');
-  // 장학금 일정조사 섹션 ON/OFF: 설문관리 시트에서 id='schedule_scholarship' 행 ON이면 표시
-  const schedForm = forms.find(f => f.id === 'schedule_scholarship');
-  const schedSection = document.getElementById('sched-section');
-  if (schedSection) {
-    if (schedForm) schedSection.classList.add('show');
-    else schedSection.classList.remove('show');
-  }
-  // 일반 설문카드 (schedule_scholarship 제외)
   const cardForms = forms.filter(f => f.id !== 'schedule_scholarship');
   grid.innerHTML = '';
   if (!cardForms||!cardForms.length) { grid.classList.remove('show'); empty.classList.add('show'); }
   else { empty.classList.remove('show'); cardForms.forEach(f=>grid.appendChild(createCard(f))); grid.classList.add('show'); }
-  checkDeadlinePopup(cardForms);
-}
-
-function checkDeadlinePopup(forms) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const urgent = forms.filter(f => {
-    if (!f.deadline) return false;
-    const d = new Date(f.deadline); d.setHours(0,0,0,0);
-    const days = Math.ceil((d - today) / 86400000);
-    return days >= 0 && days <= 3;
-  }).sort((a,b) => new Date(a.deadline) - new Date(b.deadline))[0];
-  if (!urgent) return;
-  const todayStr = today.toISOString().substring(0,10);
-  const dismissKey = 'kistar_popup_' + urgent.id + '_' + todayStr;
-  if (localStorage.getItem(dismissKey)) return;
-  const dl = new Date(urgent.deadline); dl.setHours(0,0,0,0);
-  const daysLeft = Math.ceil((dl - today) / 86400000);
-  document.getElementById('popup-dday').textContent = daysLeft === 0 ? '오늘 마감!' : 'D-' + daysLeft + ' 마감 임박';
-  document.getElementById('popup-title').textContent = urgent.name + ' 마감이 임박했습니다';
-  document.getElementById('popup-desc').textContent = urgent.deadline + ' 마감 · 아직 제출하지 않으셨다면\n지금 바로 제출해 주세요.';
-  document.getElementById('popup-go').href = urgent.link || '#';
-  document.getElementById('popup-dismiss').onclick = () => { localStorage.setItem(dismissKey,'1'); document.getElementById('deadline-popup').classList.remove('show'); };
-  document.getElementById('popup-go').onclick = () => { document.getElementById('deadline-popup').classList.remove('show'); };
-  setTimeout(() => document.getElementById('deadline-popup').classList.add('show'), 500);
 }
 
 let cbName=null, loadTO=null;
@@ -577,7 +704,6 @@ function loadForms() {
   document.getElementById('emptyState').classList.remove('show');
   document.getElementById('errorState').classList.remove('show');
   document.getElementById('loadingHint').style.display='none';
-  // 3초 지나도 응답 없으면 안내 문구 표시
   const hintTO = setTimeout(() => { document.getElementById('loadingHint').style.display='block'; }, 3000);
   cbName='__sCB_'+Date.now();
   window[cbName]=data=>{
@@ -606,7 +732,6 @@ function reloadForms() {
 }
 
 (function() {
-  // URL 파라미터 자동로그인 (체크리스트에서 넘어온 경우)
   const urlParams = new URLSearchParams(window.location.search);
   const sid = urlParams.get('sid');
   const token = urlParams.get('t');
@@ -614,14 +739,10 @@ function reloadForms() {
     try {
       const decoded = atob(token);
       if (decoded.startsWith(sid + ':')) {
-        // URL1로 verify 요청 (실제 검증)
-        const url = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=AUTO&fromHub=1';
-        // 기존 auth가 있으면 그대로 사용, 없으면 verify 시도
         const existing = checkAuth();
         if (existing && existing.studentId === sid) {
-          // 이미 로그인됨 - 그냥 진행
+          // 이미 로그인됨
         } else {
-          // auto-login: URL 파라미터 정보로 임시 세션 (GAS에서 sid만으로 인증)
           fetch(EXEC_URL + '?action=verifyBySid&studentId=' + encodeURIComponent(sid) + '&token=' + encodeURIComponent(token))
             .then(r => r.json())
             .then(result => {
@@ -632,8 +753,8 @@ function reloadForms() {
                   isStaff: result.isStaff || false, loginTime: Date.now()
                 }));
                 document.getElementById('auth-overlay').classList.add('hidden');
-                showUserBar(); loadForms();
-                loadMileage(sid);
+                showUserBar(); loadForms(); loadMileage(sid);
+                checkNoticePopup();
               }
             }).catch(() => {});
           return;
@@ -647,9 +768,8 @@ function reloadForms() {
     document.getElementById('auth-overlay').classList.add('hidden');
     showUserBar();
     loadForms();
-    if (auth.studentId) {
-      loadMileage(auth.studentId);
-    }
+    checkNoticePopup();
+    if (auth.studentId) loadMileage(auth.studentId);
   }
 })();
 
@@ -701,17 +821,35 @@ function renderMileage(data) {
   const normalRecs = data.records.filter(r => r['상태'] === '정상');
   document.getElementById('mileageActCount').textContent = normalRecs.length + '건';
   document.getElementById('mileageFilter').style.display = 'flex';
+
+  // ★ 노쇼 패널티 배너
   const penaltyEl = document.getElementById('mileagePenalty');
   if (data.penaltyLeft > 0) {
     penaltyEl.textContent = '⚠️ 노쇼 패널티: 비교과 프로그램 신청 ' + data.penaltyLeft + '회 제한 중';
     penaltyEl.classList.add('show');
   }
+
+  // ★ 40점 달성 여부 표시
+  const pts = data.totalPoints || 0;
+  const achieveBadge = document.getElementById('mileageAchieveBadge');
+  const progressWrap = document.getElementById('mileageProgressWrap');
+  if (pts >= 40) {
+    achieveBadge.classList.add('show');
+    progressWrap.classList.remove('show');
+  } else {
+    achieveBadge.classList.remove('show');
+    progressWrap.classList.add('show');
+    const pct = Math.min(pts / 40 * 100, 100);
+    document.getElementById('mileageProgressFill').style.width = pct + '%';
+    document.getElementById('mileageProgressText').textContent = pts + ' / 40점';
+    document.getElementById('mileageRemain').textContent = '장학금까지 ' + (40 - pts) + '점 남음';
+  }
+
   filterMileage(currentFilter, null);
 }
 
 function filterMileage(semester, btn) {
   currentFilter = semester;
-  // active 클래스 처리 — btn이 null이면 data-sem 속성으로 찾아서 처리
   document.querySelectorAll('.mileage-filter-btn').forEach(b => b.classList.remove('active'));
   if (btn) {
     btn.classList.add('active');
@@ -725,12 +863,10 @@ function filterMileage(semester, btn) {
   list.querySelectorAll('.mileage-item').forEach(el => el.remove());
 
   const allNormal = mileageData.records.filter(r => r['상태'] === '정상');
-  // 시트 학기값 정규화: "2025-02" → "2025-2" (앞 0 제거)
   const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
   let recs = semester === 'all' ? allNormal : allNormal.filter(r => normSem(r['학기']) === semester);
   recs.sort((a, b) => (b['날짜'] || b['학기']).localeCompare(a['날짜'] || a['학기']));
 
-  // 학기별 소계 카드
   const summaryCard = document.getElementById('semesterSummaryCard');
   const summaryLabel = document.getElementById('semesterSummaryLabel');
   const summaryNum = document.getElementById('semesterSummaryNum');
@@ -744,12 +880,9 @@ function filterMileage(semester, btn) {
   }
 
   const emptyEl = document.getElementById('mileageEmpty');
-  if (recs.length === 0) {
-    emptyEl.style.display = 'block';
-    return;
-  }
+  if (recs.length === 0) { emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
-  // 프로그램명에서 날짜 패턴 자동 분리: "프로그램명26.02.25(수)" → 이름 + 날짜 배지
+
   const splitProgName = name => {
     const m = name.match(/^(.+?)(\d{2,4}[\.\-]\d{2}[\.\-]\d{2}[^\s]*)(.*)$/);
     if (m) return { title: m[1].trim(), date: m[2] + (m[3]||'').trim() };
@@ -779,6 +912,11 @@ function renderMileageEmpty() {
   document.getElementById('mileageTotalNum').textContent = '0';
   document.getElementById('mileageActCount').textContent = '0건';
   document.getElementById('mileageEmpty').style.display = 'block';
+  // 0점 진행바 표시
+  document.getElementById('mileageProgressWrap').classList.add('show');
+  document.getElementById('mileageProgressFill').style.width = '0%';
+  document.getElementById('mileageProgressText').textContent = '0 / 40점';
+  document.getElementById('mileageRemain').textContent = '장학금까지 40점 남음';
 }
 
 function toggleAdminMileage() {
@@ -819,7 +957,6 @@ function submitMileage() {
     })
     .catch(() => { msgEl.textContent = '네트워크 오류가 발생했습니다.'; msgEl.classList.add('err'); });
 }
-
 </script>
 </body>
 </html>
