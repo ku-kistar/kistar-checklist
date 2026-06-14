@@ -290,7 +290,6 @@ function loadAllMileage() {
 
   const s = document.createElement('script');
   s.id = '__allMileageJsonp';
-  s.src = SCRIPT_URL + '?action=getAllMileage&callback=' + cbName;
   s.onerror = function() {
     clearTimeout(timeout);
     delete window[cbName];
@@ -298,7 +297,8 @@ function loadAllMileage() {
     document.getElementById('loadingState').innerHTML =
       '<div style="color:var(--accent)">⚠️ 네트워크 오류. 새로고침 해주세요.</div>';
   };
-  document.head.appendChild(s);
+  s.src = SCRIPT_URL + '?action=getAllMileage&callback=' + cbName;
+  document.body.appendChild(s);
 }
 
 function selectSem(sem, btn) {
