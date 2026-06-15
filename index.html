@@ -565,7 +565,7 @@ function doAuth() {
 }
 
   // 이미 인증된 경우 오버레이 바로 숨기기 + URL 파라미터 자동로그인
-  (function() {
+  function runAutoLogin() {
     // 1. URL 파라미터 자동로그인 (데이터허브에서 넘어온 경우)
     try {
       const urlParams = new URLSearchParams(window.location.search);
@@ -595,7 +595,7 @@ function doAuth() {
           const s = document.createElement('script');
           s.id = '__autoLoginScript';
           s.src = SCRIPT_URL2 + '?action=verifyBySid&studentId=' + encodeURIComponent(sid) + '&token=' + encodeURIComponent(token) + '&callback=' + cbName;
-          document.head.appendChild(s);
+          (document.head || document.documentElement).appendChild(s);
           return;
         }
       }
@@ -610,7 +610,12 @@ function doAuth() {
         showLogoutBtn();
       }
     } catch(e) {}
-  })();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runAutoLogin);
+  } else {
+    runAutoLogin();
+  }
 
   function doLogout() {
     localStorage.removeItem('kistar_auth');
