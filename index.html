@@ -572,7 +572,7 @@ function doAuth() {
       const sid = urlParams.get('sid');
       const token = urlParams.get('t');
       if (sid && token) {
-        const decoded = atob(token);
+        const decoded = decodeURIComponent(atob(token));
         if (decoded.startsWith(sid + ':')) {
           // GAS URL2로 verifyBySid 요청
           const SCRIPT_URL2 = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
