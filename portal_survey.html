@@ -872,44 +872,28 @@ function filterMileage(semester, btn) {
   const allNormal = mileageData.records.filter(r => r['상태'] === '정상');
   const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
   let recs = semester === 'all' ? allNormal : allNormal.filter(r => normSem(r['학기']) === semester);
-  recs.sort((a, b) => (b['날짜'] || b['학기']).localeCompare(a['날짜'] || a['학기']));
 
-  const summaryCard = document.getElementById('semesterSummaryCard');
-  const summaryLabel = document.getElementById('semesterSummaryLabel');
-  const summaryNum = document.getElementById('semesterSummaryNum');
-  if (semester === 'all') {
-    summaryCard.style.display = 'none';
-  } else {
-    const semTotal = recs.reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
-    summaryLabel.textContent = semester + '학기 누적';
-    summaryNum.textContent = semTotal;
-    summaryCard.style.display = 'flex';
-  }
+  // 교과 먼저, 비교과 나중 / 각 그룹 내 날짜 오름차순
+  recs.sort((a, b) => {
+    const catA = a['카테고리'] === '교과' ? 0 : 1;
+    const catB = b['카테고리'] === '교과' ? 0 : 1;
+    if (catA !== catB) return catA - catB;
+    return (a['날짜'] || '').localeCompare(b['날짜'] || '');
+  });
 
   const emptyEl = document.getElementById('mileageEmpty');
   if (recs.length === 0) { emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
 
-  const splitProgName = (name, recDate) => {
-    // 날짜 열에 값이 있으면 우선 사용
-    if (recDate && recDate.trim()) {
-      // 프로그램명에서 날짜 패턴 제거하고 제목만 추출
-      const cleaned = name.replace(/\s*\d{2,4}[\.\-]\d{2}[\.\-]\d{2}[^\s]*\s*/g, '').replace(/\s*\(\s*$/, '').trim();
-      return { title: cleaned || name, date: recDate.trim() };
-    }
-    // 날짜 열이 없으면 프로그램명에서 추출 시도
-    const m = name.match(/^(.+?)(\d{2,4}[\.\-]\d{2}[\.\-]\d{2}[^\s]*)(.*)$/);
-    if (m) return { title: m[1].replace(/\($/, '').trim(), date: m[2] + (m[3]||'').trim() };
-    return { title: name, date: '' };
-  };
   recs.forEach(r => {
     const isEdu = r['카테고리'] === '교과';
-    const { title, date } = splitProgName(r['프로그램명'] || '', r['날짜'] || '');
+    const progName = r['프로그램명'] || '';
+    const date = r['날짜'] || '';
     const item = document.createElement('div');
     item.className = 'mileage-item';
     item.innerHTML =
       '<div class="mileage-item-left">' +
-        '<span class="mileage-item-name">' + title + '</span>' +
+        '<span class="mileage-item-name">' + progName + '</span>' +
         (date ? '<span style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px;display:block">' + date + '</span>' : '') +
         '<div style="display:flex;gap:6px;align-items:center;margin-top:3px">' +
           '<span class="mileage-item-badge ' + (isEdu ? 'badge-edu' : 'badge-extra') + '">' + (r['카테고리'] || '') + '</span>' +
