@@ -651,7 +651,7 @@ function doAuth() {
       const dhBtn = document.getElementById('datahub-link');
       const authNow = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
       if (dhBtn && authNow && authNow.studentId) {
-        const token = btoa(authNow.studentId + ':' + (authNow.dept || ''));
+        const token = btoa(encodeURIComponent(authNow.studentId + ':' + (authNow.dept || '')));
         dhBtn.href = 'portal_survey.html?sid=' + encodeURIComponent(authNow.studentId) + '&t=' + encodeURIComponent(token);
         dhBtn.style.display = 'flex';
       }
