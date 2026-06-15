@@ -472,11 +472,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#0ea5e9"><span id="semesterSummaryNum">0</span><span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.4);margin-left:3px">점</span></span>
     </div>
     <div class="mileage-filter" id="mileageFilter" style="display:none">
-      <button class="mileage-filter-btn active" data-sem="all" onclick="filterMileage('all', this)">전체</button>
-      <button class="mileage-filter-btn" data-sem="2024-2" onclick="filterMileage('2024-2', this)">2024-2</button>
-      <button class="mileage-filter-btn" data-sem="2025-1" onclick="filterMileage('2025-1', this)">2025-1</button>
-      <button class="mileage-filter-btn" data-sem="2025-2" onclick="filterMileage('2025-2', this)">2025-2</button>
-      <button class="mileage-filter-btn" data-sem="2026-1" onclick="filterMileage('2026-1', this)">2026-1</button>
+      <button class="mileage-filter-btn active" data-sem="2026-1" onclick="filterMileage('2026-1', this)">2026-1학기</button>
     </div>
     <div class="mileage-list" id="mileageList">
       <div class="mileage-loading" id="mileageLoading" style="display:none">마일리지 조회 중...</div>
@@ -856,7 +852,7 @@ function renderMileage(data) {
     document.getElementById('mileageRemain').textContent = '장학금까지 ' + (40 - pts261) + '점 남음';
   }
 
-  filterMileage(currentFilter, null);
+  filterMileage('2026-1', null);
 }
 
 function filterMileage(semester, btn) {
