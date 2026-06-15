@@ -174,6 +174,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .mileage-total-unit{font-size:13px;color:rgba(255,255,255,.5);margin-left:4px}
 .mileage-penalty{background:rgba(200,57,43,.15);border:1px solid rgba(200,57,43,.3);border-radius:8px;padding:8px 12px;font-size:12px;color:#ff8a80;margin-bottom:1rem;display:none}
 .mileage-penalty.show{display:block}
+.mileage-penalty-title{font-weight:700;margin-bottom:5px}
+.mileage-penalty-list{margin-top:4px;padding-left:0;list-style:none}
+.mileage-penalty-list li{font-size:11px;color:rgba(255,150,130,.85);padding:2px 0;border-top:1px solid rgba(200,57,43,.2);margin-top:3px}
+.mileage-penalty-list li:first-child{border-top:none;margin-top:0}
 .mileage-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .mileage-filter-btn{padding:4px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s}
 .mileage-filter-btn.active{background:rgba(14,165,233,.2);border-color:#0ea5e9;color:#0ea5e9}
@@ -836,10 +840,23 @@ function renderMileage(data) {
   document.getElementById('mileageActCount').textContent = normalRecs.length + '건';
   document.getElementById('mileageFilter').style.display = 'flex';
 
-  // ★ 노쇼 패널티 배너
+  // ★ 노쇼 패널티 배너 (이력 포함)
   const penaltyEl = document.getElementById('mileagePenalty');
-  if (data.penaltyLeft > 0) {
-    penaltyEl.textContent = '⚠️ 노쇼 패널티: 비교과 프로그램 신청 ' + data.penaltyLeft + '회 제한 중';
+  const noShows = data.noShows || [];
+  if (noShows.length > 0) {
+    const activeLeft = noShows.filter(n => (parseInt(n.penaltyLeft) || 0) > 0);
+    let html = '<div class="mileage-penalty-title">⚠️ 노쇼 이력 ' + noShows.length + '건';
+    if (activeLeft.length > 0) {
+      const total = activeLeft.reduce((s, n) => s + (parseInt(n.penaltyLeft) || 0), 0);
+      html += ' · 비교과 신청 <strong style="color:#ff6b6b">' + total + '회 제한 중</strong>';
+    }
+    html += '</div><ul class="mileage-penalty-list">';
+    noShows.forEach(function(n) {
+      const left = parseInt(n.penaltyLeft) || 0;
+      html += '<li>· ' + (n.program || '') + (left > 0 ? ' <span style="color:#ff6b6b">(제한 ' + left + '회 잔여)</span>' : ' <span style="color:rgba(255,150,130,.5)">(제한 해소)</span>') + '</li>';
+    });
+    html += '</ul>';
+    penaltyEl.innerHTML = html;
     penaltyEl.classList.add('show');
   }
 
