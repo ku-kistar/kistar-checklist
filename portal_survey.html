@@ -455,7 +455,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 
     <div class="mileage-total-card" id="mileageTotalCard" style="display:none">
       <div>
-        <div class="mileage-total-label">누적 마일리지</div>
+        <div class="mileage-total-label">2026-1학기 마일리지</div>
         <div style="display:flex;align-items:baseline;gap:4px">
           <span class="mileage-total-num" id="mileageTotalNum">0</span>
           <span class="mileage-total-unit">점</span>
@@ -467,9 +467,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       </div>
     </div>
     <div class="mileage-penalty" id="mileagePenalty"></div>
-    <div id="semesterSummaryCard" style="display:none;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:10px 16px;margin-bottom:12px;align-items:center;justify-content:space-between">
-      <span style="font-size:12px;color:rgba(255,255,255,.55)" id="semesterSummaryLabel">학기 누적</span>
-      <span style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:#0ea5e9"><span id="semesterSummaryNum">0</span><span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.4);margin-left:3px">점</span></span>
+    <div id="semesterSummaryCard" style="display:none!important">
+      <span id="semesterSummaryLabel"></span>
+      <span id="semesterSummaryNum"></span>
     </div>
     <div class="mileage-filter" id="mileageFilter" style="display:none">
       <button class="mileage-filter-btn active" data-sem="2026-1" onclick="filterMileage('2026-1', this)">2026-1학기</button>
