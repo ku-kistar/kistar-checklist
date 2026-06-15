@@ -575,7 +575,7 @@ function doAuth() {
         const decoded = decodeURIComponent(atob(token));
         if (decoded.startsWith(sid + ':')) {
           // GAS URL2로 verifyBySid 요청
-          const SCRIPT_URL2 = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+          const SCRIPT_URL2 = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
           const cbName = '__autoLoginCb_' + Date.now();
           window[cbName] = function(result) {
             delete window[cbName];
