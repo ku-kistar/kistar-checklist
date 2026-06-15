@@ -649,9 +649,10 @@ function doAuth() {
     // 데이터허브 이동 버튼 (자동로그인 토큰 포함)
     try {
       const dhBtn = document.getElementById('datahub-link');
-      if (dhBtn && auth && auth.studentId) {
-        const token = btoa(auth.studentId + ':' + (auth.dept || ''));
-        dhBtn.href = 'portal_survey.html?sid=' + encodeURIComponent(auth.studentId) + '&t=' + encodeURIComponent(token);
+      const authNow = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+      if (dhBtn && authNow && authNow.studentId) {
+        const token = btoa(authNow.studentId + ':' + (authNow.dept || ''));
+        dhBtn.href = 'portal_survey.html?sid=' + encodeURIComponent(authNow.studentId) + '&t=' + encodeURIComponent(token);
         dhBtn.style.display = 'flex';
       }
     } catch(e2) {}
