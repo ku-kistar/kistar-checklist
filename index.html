@@ -564,8 +564,44 @@ function doAuth() {
     });
 }
 
-  // 이미 인증된 경우 오버레이 바로 숨기기
+  // 이미 인증된 경우 오버레이 바로 숨기기 + URL 파라미터 자동로그인
   (function() {
+    // 1. URL 파라미터 자동로그인 (데이터허브에서 넘어온 경우)
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sid = urlParams.get('sid');
+      const token = urlParams.get('t');
+      if (sid && token) {
+        const decoded = atob(token);
+        if (decoded.startsWith(sid + ':')) {
+          // GAS URL2로 verifyBySid 요청
+          const SCRIPT_URL2 = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+          const cbName = '__autoLoginCb_' + Date.now();
+          window[cbName] = function(result) {
+            delete window[cbName];
+            const s = document.getElementById('__autoLoginScript');
+            if (s) s.remove();
+            if (result.status === 'ok') {
+              localStorage.setItem('kistar_auth', JSON.stringify({
+                name: result.name, dept: result.dept, studentId: sid,
+                role: result.role || '', isAdmin: result.isAdmin || false,
+                isStaff: result.isStaff || false, loginTime: Date.now()
+              }));
+              const overlay = document.getElementById('auth-overlay');
+              if (overlay) overlay.classList.add('hidden');
+              showLogoutBtn();
+            }
+          };
+          const s = document.createElement('script');
+          s.id = '__autoLoginScript';
+          s.src = SCRIPT_URL2 + '?action=verifyBySid&studentId=' + encodeURIComponent(sid) + '&token=' + encodeURIComponent(token) + '&callback=' + cbName;
+          document.head.appendChild(s);
+          return;
+        }
+      }
+    } catch(e) {}
+
+    // 2. 기존 로그인 세션 복원
     try {
       const auth = localStorage.getItem('kistar_auth');
       if (auth) {
