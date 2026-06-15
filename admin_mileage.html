@@ -315,7 +315,7 @@ function renderTable(students) {
   const tbody = document.getElementById('mainTbody');
   if (!students.length) { tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:var(--text3)">데이터 없음</td></tr>'; return; }
   tbody.innerHTML = students.map(function(s,i) {
-    return '<tr><td class="num" style="color:var(--text3)">'+(i+1)+'</td><td style="font-weight:600">'+s.name+'</td><td style="color:var(--text2);font-family:'JetBrains Mono',monospace">'+s.studentId+'</td><td><span class="dept-tag">'+s.dept+'</span></td><td class="num" style="font-weight:700;color:'+(s.total>=GOAL?'var(--green)':'var(--red)')+'">'+s.total+'</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td><span class="badge-40 '+(s.total>=GOAL?'pass':'fail')+'">'+(s.total>=GOAL?'✓ 달성':'✗ 미달 ('+(GOAL-s.total)+'점 부족)')+'</span></td></tr>';
+    return '<tr><td class="num" style="color:var(--text3)">'+(i+1)+'</td><td style="font-weight:600">'+s.name+'</td><td style="color:var(--text2);font-family:JetBrains Mono,monospace">'+s.studentId+'</td><td><span class="dept-tag">'+s.dept+'</span></td><td class="num" style="font-weight:700;color:'+(s.total>=GOAL?'var(--green)':'var(--red)')+'">'+s.total+'</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td><span class="badge-40 '+(s.total>=GOAL?'pass':'fail')+'">'+(s.total>=GOAL?'✓ 달성':'✗ 미달 ('+(GOAL-s.total)+'점 부족)')+'</span></td></tr>';
   }).join('');
 }
 
