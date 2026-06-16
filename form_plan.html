@@ -244,6 +244,22 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .print-header-logo{font-size:11pt;font-weight:700;color:#000;line-height:1.6}
   .print-header-sub{font-size:10pt;color:#333}
 }
+/* 관리자 조회 바 */
+.admin-lookup-bar{background:#eaf1fb;border:0.5px solid #b5d4f4;border-radius:10px;padding:12px 16px;margin:0 0 1rem;display:none;flex-direction:column;gap:8px}
+.admin-lookup-bar.show{display:flex}
+.admin-lookup-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.admin-lookup-label{font-size:11px;font-weight:700;color:#1a5fa8;background:#b5d4f4;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.admin-lookup-input{border:0.5px solid #b5d4f4;border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit;background:#fff;color:#1a1916;outline:none;width:150px}
+.admin-lookup-btn{padding:6px 14px;border-radius:6px;border:none;background:#1a5fa8;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
+.admin-lookup-btn:hover{background:#154e8a}
+.admin-lookup-reset{padding:6px 12px;border-radius:6px;border:0.5px solid #b5d4f4;background:#fff;color:#1a5fa8;font-size:13px;font-family:inherit;cursor:pointer;transition:all .15s}
+.admin-lookup-result{font-size:12px;color:#2d7a4f;background:#edf7f1;border:0.5px solid #b7e4c7;border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-lookup-result.error{color:#c8392b;background:#fdf0ee;border-color:#f5c6c0}
+.admin-lookup-result .alr-name{font-weight:700;font-size:13px;color:#1a1916}
+.admin-lookup-result .alr-date{margin-left:auto;font-size:11px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.admin-lookup-result.error .alr-date{display:none}
+.admin-readonly-notice{display:flex;align-items:center;gap:6px;font-size:11px;color:#a0620a;background:#fdf5e6;border:0.5px solid #f0d9a8;border-radius:6px;padding:7px 12px;margin:0 0 .5rem}
+@media print{.admin-lookup-bar,.admin-readonly-notice{display:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
@@ -264,6 +280,26 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 </div>
 
 <div id="main-content" style="display:none">
+
+<!-- 관리자 학번 조회 바 -->
+<div class="admin-lookup-bar" id="adminLookupBar">
+  <div class="admin-lookup-top">
+    <span class="admin-lookup-label">관리자 조회 모드</span>
+    <input class="admin-lookup-input" type="text" id="lookupId" placeholder="학번 입력" maxlength="20" onkeydown="if(event.key==='Enter')lookupStudent()">
+    <button class="admin-lookup-btn" onclick="lookupStudent()">조회</button>
+    <button class="admin-lookup-reset" id="lookupResetBtn" style="display:none" onclick="resetLookup()">내 폼으로</button>
+  </div>
+  <div class="admin-lookup-result" id="lookupResult" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6.5" fill="#2d7a4f"/><path d="M4 7l2 2 4-3.5" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+    <span class="alr-name" id="lookupName"></span>
+    <span id="lookupDeptGrade" style="color:#6b6960;font-size:12px"></span>
+    <span class="alr-date" id="lookupSubmitDate"></span>
+  </div>
+</div>
+<div class="admin-readonly-notice" id="adminReadonlyNotice" style="display:none">
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" stroke="#a0620a" stroke-width="1.2"/><path d="M6.5 4v3.5M6.5 9.5h.01" stroke="#a0620a" stroke-width="1.2" stroke-linecap="round"/></svg>
+  관리자 조회 모드 — 읽기 전용으로 표시됩니다. 학생이 제출한 내용은 수정되지 않습니다.
+</div>
 
 <div class="top-bar">
   <div class="top-bar-left">
@@ -613,6 +649,147 @@ const DEFAULT_COURSES = ['고급 AI 반도체소자','ASIC 설계','인공지능
 
 let currentDept = '';
 let isAdmin = false;
+let adminViewMode = false;  // 관리자가 타 학생 조회 중인지
+let lookupStudentId = '';   // 현재 조회 중인 학생 학번
+
+// ── 관리자 학번 조회 ──
+function lookupStudent() {
+  const sid = document.getElementById('lookupId').value.trim();
+  if (!sid) { alert('학번을 입력해주세요.'); return; }
+  const resultEl = document.getElementById('lookupResult');
+  const nameEl = document.getElementById('lookupName');
+  const deptEl = document.getElementById('lookupDeptGrade');
+  const dateEl = document.getElementById('lookupSubmitDate');
+  resultEl.className = 'admin-lookup-result';
+  resultEl.style.display = 'flex';
+  nameEl.textContent = '조회 중...';
+  deptEl.textContent = '';
+  dateEl.textContent = '';
+  fetch(EXEC_URL + '?action=getPlanByAdmin&studentId=' + encodeURIComponent(sid))
+    .then(r => r.json())
+    .then(data => {
+      if (data.status !== 'ok' || !data.found) {
+        resultEl.className = 'admin-lookup-result error';
+        nameEl.textContent = '⚠️ ' + (data.message || '제출 내역이 없습니다.');
+        deptEl.textContent = '';
+        adminViewMode = false;
+        document.getElementById('lookupResetBtn').style.display = 'none';
+        document.getElementById('adminReadonlyNotice').style.display = 'none';
+        return;
+      }
+      // 결과 표시
+      nameEl.textContent = data.name || sid;
+      deptEl.textContent = (data.dept || '') + (data.grade ? ' · ' + data.grade : '');
+      dateEl.textContent = data.submittedAt ? data.submittedAt.slice(0,16) + ' 제출' : '';
+      resultEl.className = 'admin-lookup-result';
+      // 폼 채우기
+      fillFormWithData(data);
+      lookupStudentId = sid;
+      adminViewMode = true;
+      document.getElementById('lookupResetBtn').style.display = 'inline-block';
+      document.getElementById('adminReadonlyNotice').style.display = 'flex';
+      setFormReadonly(true);
+    })
+    .catch(() => {
+      resultEl.className = 'admin-lookup-result error';
+      nameEl.textContent = '⚠️ 조회 중 오류가 발생했습니다.';
+    });
+}
+
+function resetLookup() {
+  adminViewMode = false;
+  lookupStudentId = '';
+  document.getElementById('lookupId').value = '';
+  document.getElementById('lookupResult').style.display = 'none';
+  document.getElementById('lookupResetBtn').style.display = 'none';
+  document.getElementById('adminReadonlyNotice').style.display = 'none';
+  setFormReadonly(false);
+  // 내 폼(관리자 기본 상태)으로 복원
+  const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+  if (auth) {
+    document.getElementById('f-name').value = auth.name || '';
+    document.getElementById('f-id').value = auth.studentId || '';
+    document.getElementById('f-dept').value = '';
+    document.getElementById('f-univ').value = '';
+    // 나머지 필드 초기화
+    ['f-phone','f-email','f-grade','f-semester','f-prev-result','goal1','goal2','goal3',
+     'tech-note','study-plan','self-project','career-plan','support-request'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    syncSignName();
+  }
+}
+
+function setFormReadonly(readonly) {
+  const fields = document.querySelectorAll('#main-content input:not([readonly][id="f-id"]):not([readonly][id="f-name"]), #main-content textarea, #main-content select');
+  fields.forEach(el => {
+    if (readonly) {
+      el.setAttribute('data-orig-disabled', el.disabled);
+      el.disabled = true;
+    } else {
+      const orig = el.getAttribute('data-orig-disabled');
+      el.disabled = orig === 'true';
+      el.removeAttribute('data-orig-disabled');
+    }
+  });
+  // 제출 버튼 숨김/표시
+  const submitArea = document.querySelector('.submit-area');
+  if (submitArea) submitArea.style.display = readonly ? 'none' : '';
+  const draftBar = document.querySelector('.draft-bar');
+  if (draftBar) draftBar.style.display = readonly ? 'none' : '';
+}
+
+function fillFormWithData(data) {
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
+  setVal('f-id', data.studentId || data.id || '');
+  setVal('f-name', data.name || '');
+  setVal('f-phone', data.phone || '');
+  setVal('f-email', data.email || '');
+  setVal('f-grade', data.grade || '');
+  setVal('f-semester', data.semester || '');
+  // 학과
+  if (data.dept) {
+    const deptSel = document.getElementById('f-dept');
+    if (deptSel) { deptSel.value = data.dept; onDeptChange(data.dept); }
+    const univEl = document.getElementById('f-univ');
+    if (univEl && data.univ) univEl.value = data.univ;
+  }
+  setVal('f-prev-result', data.prevResult || '');
+  setVal('goal1', data.goal1 || '');
+  setVal('goal2', data.goal2 || '');
+  setVal('goal3', data.goal3 || '');
+  setVal('tech-note', data.techNote || '');
+  setVal('study-plan', data.studyPlan || '');
+  setVal('self-project', data.selfProject || '');
+  setVal('career-plan', data.careerPlan || '');
+  setVal('support-request', data.supportRequest || '');
+  // 서명 이름
+  const signEl = document.getElementById('signName');
+  if (signEl) signEl.textContent = data.name || '';
+  // 기술분야 체크박스
+  if (data.techAreas) {
+    try {
+      const areas = typeof data.techAreas === 'string' ? JSON.parse(data.techAreas) : data.techAreas;
+      document.querySelectorAll('input[name="techArea"]').forEach(cb => { cb.checked = areas.includes(cb.value); });
+    } catch(e) {}
+  }
+  // 교과 계획 테이블 채우기
+  if (data.coursePlan) {
+    try {
+      const rows = typeof data.coursePlan === 'string' ? JSON.parse(data.coursePlan) : data.coursePlan;
+      const tbody = document.getElementById('coursePlanBody');
+      if (tbody && Array.isArray(rows)) {
+        tbody.innerHTML = '';
+        rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><select disabled>${buildCourseOptions(data.dept)}</select></td><td><input type="text" value="${r.goal||''}" disabled></td><td><input type="text" value="${r.method||''}" disabled></td>`;
+          const sel = tr.querySelector('select'); if (sel && r.course) sel.value = r.course;
+          tbody.appendChild(tr);
+        });
+      }
+    } catch(e) {}
+  }
+}
 
 function buildCourseOptions(dept) {
   const courses = DEPT_COURSES[dept] || DEFAULT_COURSES;
@@ -708,6 +885,8 @@ window.addEventListener('DOMContentLoaded', function() {
     if (isAdmin) {
       const badge = document.getElementById('adminBadge');
       if (badge) badge.style.display = 'inline-block';
+      const lookupBar = document.getElementById('adminLookupBar');
+      if (lookupBar) lookupBar.classList.add('show');
     }
     document.getElementById('f-name').value = auth.name || '';
     syncSignName();
@@ -880,8 +1059,9 @@ function showResult(type,msg){
 function printWithDeadline(){
   const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
   if(!auth||!auth.studentId){alert('로그인 정보가 없습니다.');return;}
-  fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(auth.studentId)).then(r=>r.json()).then(data=>{
-    if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.');return;}
+  const targetId = (adminViewMode && lookupStudentId) ? lookupStudentId : auth.studentId;
+  fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(targetId)).then(r=>r.json()).then(data=>{
+    if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.\n구글 시트 명단 탭 F열을 확인해주세요.');return;}
     const parts=data.deadline.split('-');const formatted=parts.length===3?parts[0]+'. '+parts[1]+' . '+parts[2]+' .':data.deadline;
     document.getElementById('signDateDisplay').textContent=formatted;
     setTimeout(()=>window.print(),100);

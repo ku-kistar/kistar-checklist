@@ -230,6 +230,21 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .sign-img-preview{display:block!important}
   .sign-body{padding:8px 0!important}
 }
+.admin-lookup-bar{background:#eaf1fb;border:0.5px solid #b5d4f4;border-radius:10px;padding:12px 16px;margin:0 0 1rem;display:none;flex-direction:column;gap:8px}
+.admin-lookup-bar.show{display:flex}
+.admin-lookup-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.admin-lookup-label{font-size:11px;font-weight:700;color:#1a5fa8;background:#b5d4f4;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.admin-lookup-input{border:0.5px solid #b5d4f4;border-radius:6px;padding:6px 10px;font-size:13px;font-family:inherit;background:#fff;color:#1a1916;outline:none;width:150px}
+.admin-lookup-btn{padding:6px 14px;border-radius:6px;border:none;background:#1a5fa8;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.admin-lookup-btn:hover{background:#154e8a}
+.admin-lookup-reset{padding:6px 12px;border-radius:6px;border:0.5px solid #b5d4f4;background:#fff;color:#1a5fa8;font-size:13px;font-family:inherit;cursor:pointer}
+.admin-lookup-result{font-size:12px;color:#2d7a4f;background:#edf7f1;border:0.5px solid #b7e4c7;border-radius:6px;padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-lookup-result.error{color:#c8392b;background:#fdf0ee;border-color:#f5c6c0}
+.admin-lookup-result .alr-name{font-weight:700;font-size:13px;color:#1a1916}
+.admin-lookup-result .alr-date{margin-left:auto;font-size:11px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.admin-lookup-result.error .alr-date{display:none}
+.admin-readonly-notice{display:flex;align-items:center;gap:6px;font-size:11px;color:#a0620a;background:#fdf5e6;border:0.5px solid #f0d9a8;border-radius:6px;padding:7px 12px;margin:0 0 .5rem}
+@media print{.admin-lookup-bar,.admin-readonly-notice{display:none!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
@@ -247,6 +262,25 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 </div>
 
 <div id="main-content" style="display:none">
+<!-- 관리자 학번 조회 바 -->
+<div class="admin-lookup-bar" id="adminLookupBar">
+  <div class="admin-lookup-top">
+    <span class="admin-lookup-label">관리자 조회 모드</span>
+    <input class="admin-lookup-input" type="text" id="lookupId" placeholder="학번 입력" maxlength="20" onkeydown="if(event.key==='Enter')lookupStudent()">
+    <button class="admin-lookup-btn" onclick="lookupStudent()">조회</button>
+    <button class="admin-lookup-reset" id="lookupResetBtn" style="display:none" onclick="resetLookup()">내 폼으로</button>
+  </div>
+  <div class="admin-lookup-result" id="lookupResult" style="display:none">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6.5" fill="#2d7a4f"/><path d="M4 7l2 2 4-3.5" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+    <span class="alr-name" id="lookupName"></span>
+    <span id="lookupDeptGrade" style="color:#6b6960;font-size:12px"></span>
+    <span class="alr-date" id="lookupSubmitDate"></span>
+  </div>
+</div>
+<div class="admin-readonly-notice" id="adminReadonlyNotice" style="display:none">
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="6" stroke="#a0620a" stroke-width="1.2"/><path d="M6.5 4v3.5M6.5 9.5h.01" stroke="#a0620a" stroke-width="1.2" stroke-linecap="round"/></svg>
+  관리자 조회 모드 — 읽기 전용으로 표시됩니다. 학생이 제출한 내용은 수정되지 않습니다.
+</div>
 <div class="top-bar">
   <div class="top-bar-left">
     <span class="top-badge" id="adminBadge" style="display:none">관리자</span>
@@ -541,6 +575,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 const EXEC_URL='https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
 const SCRIPT_URL_HUB='https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
 let courseCardCount=1,extraCardCount=1,internCardCount=1;
+let adminViewMode=false, lookupStudentId='';
 
 window.addEventListener('DOMContentLoaded',function(){
   try{
@@ -555,7 +590,9 @@ window.addEventListener('DOMContentLoaded',function(){
     const prevSubmit=localStorage.getItem(SUBMIT_KEY);
     if(prevSubmit){try{const prev=JSON.parse(prevSubmit);const prevDate=new Date(prev.submittedAt).toLocaleDateString('ko-KR');const el=document.getElementById('submitResult');el.className='submit-result show success';el.innerHTML='⚠️ <strong>'+prevDate+'</strong>에 이미 제출한 이력이 있습니다. 재제출하면 기존 내용을 덮어씁니다.';}catch(e){}}
     document.getElementById('main-content').style.display='block';
-    if(auth.isAdmin){const pdf=document.getElementById('btn-pdf');if(pdf)pdf.style.display='flex';const badge=document.getElementById('adminBadge');if(badge)badge.style.display='inline-block';}
+    if(auth.isAdmin){const pdf=document.getElementById('btn-pdf');if(pdf)pdf.style.display='flex';const badge=document.getElementById('adminBadge');if(badge)badge.style.display='inline-block';
+      const lookupBar=document.getElementById('adminLookupBar');if(lookupBar)lookupBar.classList.add('show');
+    }
     setTimeout(initCourseSelects,100);
     document.getElementById('f-name').value=auth.name||'';syncSignName();
     document.getElementById('f-id').value=auth.studentId||'';
@@ -758,8 +795,83 @@ function initCourseSelects(){document.querySelectorAll('.course-select').forEach
 function printWithDeadline(){
   const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
   if(!auth||!auth.studentId){alert('로그인 정보가 없습니다.');return;}
-  fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(auth.studentId)).then(r=>r.json()).then(data=>{
-    if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.');return;}
+  const targetId=(adminViewMode&&lookupStudentId)?lookupStudentId:auth.studentId;
+  fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(targetId)).then(r=>r.json()).then(data=>{
+    if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.\n구글 시트 명단 탭 F열을 확인해주세요.');return;}
+    const parts=data.deadline.split('-');const formatted=parts.length===3?parts[0]+'. '+parts[1]+' . '+parts[2]+' .':data.deadline;
+    document.getElementById('signDateDisplay').textContent=formatted;
+    setTimeout(()=>window.print(),100);
+  }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
+}
+
+function lookupStudent(){
+  const sid=document.getElementById('lookupId').value.trim();
+  if(!sid){alert('학번을 입력해주세요.');return;}
+  const resultEl=document.getElementById('lookupResult');
+  const nameEl=document.getElementById('lookupName');
+  const deptEl=document.getElementById('lookupDeptGrade');
+  const dateEl=document.getElementById('lookupSubmitDate');
+  resultEl.className='admin-lookup-result';
+  resultEl.style.display='flex';
+  nameEl.textContent='조회 중...';deptEl.textContent='';dateEl.textContent='';
+  fetch(EXEC_URL+'?action=getReportByAdmin&studentId='+encodeURIComponent(sid))
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.status!=='ok'||!data.found){
+        resultEl.className='admin-lookup-result error';
+        nameEl.textContent='⚠️'+(data.message||'제출 내역이 없습니다.');
+        adminViewMode=false;
+        document.getElementById('lookupResetBtn').style.display='none';
+        document.getElementById('adminReadonlyNotice').style.display='none';
+        return;
+      }
+      nameEl.textContent=data.name||sid;
+      deptEl.textContent=(data.dept||'')+(data.grade?' · '+data.grade:'');
+      dateEl.textContent=data.submittedAt?data.submittedAt.slice(0,16)+' 제출':'';
+      fillReportFormWithData(data);
+      lookupStudentId=sid;adminViewMode=true;
+      document.getElementById('lookupResetBtn').style.display='inline-block';
+      document.getElementById('adminReadonlyNotice').style.display='flex';
+      setFormReadonly(true);
+    })
+    .catch(()=>{resultEl.className='admin-lookup-result error';nameEl.textContent='⚠️ 조회 중 오류가 발생했습니다.';});
+}
+
+function resetLookup(){
+  adminViewMode=false;lookupStudentId='';
+  document.getElementById('lookupId').value='';
+  document.getElementById('lookupResult').style.display='none';
+  document.getElementById('lookupResetBtn').style.display='none';
+  document.getElementById('adminReadonlyNotice').style.display='none';
+  setFormReadonly(false);
+  const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
+  if(auth){
+    document.getElementById('f-name').value=auth.name||'';
+    document.getElementById('f-id').value=auth.studentId||'';
+    syncSignName();
+  }
+}
+
+function setFormReadonly(readonly){
+  document.querySelectorAll('#main-content input,#main-content textarea,#main-content select').forEach(el=>{
+    if(readonly){el.setAttribute('data-od',el.disabled);el.disabled=true;}
+    else{el.disabled=el.getAttribute('data-od')==='true';el.removeAttribute('data-od');}
+  });
+  const sa=document.querySelector('.submit-area');if(sa)sa.style.display=readonly?'none':'';
+  const db=document.querySelector('.draft-bar');if(db)db.style.display=readonly?'none':'';
+}
+
+function fillReportFormWithData(data){
+  const sv=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;};
+  sv('f-id',data.studentId||data.id||'');sv('f-name',data.name||'');
+  sv('f-phone',data.phone||'');sv('f-email',data.email||'');
+  sv('f-grade',data.grade||'');sv('f-semester',data.semester||'');
+  if(data.dept){const ds=document.getElementById('f-dept');if(ds)ds.value=data.dept;}
+  if(data.univ){const uv=document.getElementById('f-univ');if(uv)uv.value=data.univ;}
+  sv('prev-result',data.prevResult||'');sv('self-eval-text',data.selfEval||'');
+  sv('career-direction',data.careerDirection||'');sv('support-request',data.supportRequest||'');
+  const signEl=document.getElementById('signName');if(signEl)signEl.textContent=data.name||'';
+}
     const parts=data.deadline.split('-');const formatted=parts.length===3?parts[0]+'. '+parts[1]+' . '+parts[2]+' .':data.deadline;
     document.getElementById('signDateDisplay').textContent=formatted;
     setTimeout(()=>window.print(),100);
