@@ -314,6 +314,14 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
           No-show 패널티
         </div>
         <div class="notice-noshow-body">비교과 프로그램 <strong style="color:#fff">신청 및 선발 후</strong> 무단 불참 시<br><strong>직후 2개 프로그램 참여 자동 제한</strong><br><span style="font-size:11px;color:rgba(255,255,255,.55)">부득이한 경우 <strong style="color:rgba(255,255,255,.8)">행사 하루 전날까지</strong> 사전 연락 필수</span></div>
+        <div style="margin-top:8px;padding:7px 9px;background:rgba(200,57,43,.25);border-radius:6px;font-size:11px;color:#ffaa88;line-height:1.7;border:1px solid rgba(200,57,43,.4)">
+          <strong style="color:#ff8060">⛔ 노쇼 누적 3회 이상 시</strong><br>
+          인재장학금 미지급 및 우수학생 선발에서 제외됩니다.
+        </div>
+        <div style="margin-top:8px;padding:7px 9px;background:rgba(255,255,255,.06);border-radius:6px;font-size:11px;color:rgba(255,255,255,.5);line-height:1.7">
+          <span style="color:#f0c080;font-weight:700">※ 3기 학생 안내</span><br>
+          <strong style="color:rgba(255,255,255,.75)">2026학년도 2학기 모집</strong>으로 선발된 3기 학생은 <strong style="color:rgba(255,255,255,.75)">6/15(월) 이후</strong> 발생하는 노쇼부터 직후 프로그램 2회 참여 제한이 적용됩니다.
+        </div>
       </div>
     </div>
     <div class="notice-footer">
@@ -843,19 +851,40 @@ function renderMileage(data) {
   // ★ 노쇼 패널티 배너 (이력 포함)
   const penaltyEl = document.getElementById('mileagePenalty');
   const noShows = data.noShows || [];
+  const generation = data.generation || '';
+  const isGen3 = generation === '3기';
   if (noShows.length > 0) {
     const activeLeft = noShows.filter(n => (parseInt(n.penaltyLeft) || 0) > 0);
     let html = '<div class="mileage-penalty-title">⚠️ 노쇼 이력 ' + noShows.length + '건';
-    if (activeLeft.length > 0) {
+    if (isGen3) {
+      html += ' · 패널티 미적용';
+    } else if (activeLeft.length > 0) {
       const total = activeLeft.reduce((s, n) => s + (parseInt(n.penaltyLeft) || 0), 0);
       html += ' · 비교과 신청 <strong style="color:#ff6b6b">' + total + '회 제한 중</strong>';
     }
     html += '</div><ul class="mileage-penalty-list">';
     noShows.forEach(function(n) {
       const left = parseInt(n.penaltyLeft) || 0;
-      html += '<li>· ' + (n.program || '') + (left > 0 ? ' <span style="color:#ff6b6b">(제한 ' + left + '회 잔여)</span>' : ' <span style="color:rgba(255,150,130,.5)">(제한 해소)</span>') + '</li>';
+      if (isGen3) {
+        html += '<li>· ' + (n.program || '') + ' <span style="color:rgba(255,150,130,.5)">(패널티 미적용)</span></li>';
+      } else {
+        html += '<li>· ' + (n.program || '') + (left > 0
+          ? ' <span style="color:#ff6b6b">(제한 ' + left + '회 잔여)</span>'
+          : ' <span style="color:rgba(255,150,130,.5)">(제한 해소)</span>') + '</li>';
+      }
     });
     html += '</ul>';
+    if (isGen3) {
+      // 3기: 향후 적용 안내
+      html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(200,57,43,.2);font-size:11px;color:rgba(255,200,150,.7)">※ 6/15(월) 이후 노쇼 발생 시 직후 프로그램 2회 제한 적용</div>';
+      // 3기 노쇼 2건 이상: 경고
+      if (noShows.length >= 2) {
+        html += '<div style="margin-top:6px;padding:7px 8px;background:rgba(200,57,43,.3);border-radius:5px;border:1px solid rgba(200,57,43,.5);font-size:11px;color:#ffaa88;line-height:1.7">'
+          + '<strong style="color:#ff7050">⛔ 경고 — 노쇼 이력 ' + noShows.length + '건입니다.</strong><br>'
+          + '6/15(월) 이후 노쇼 1회 추가 발생 시 <strong style="color:#ff6040">인재장학금 미지급 및 우수학생 선발 제외</strong>가 적용될 수 있습니다.'
+          + '</div>';
+      }
+    }
     penaltyEl.innerHTML = html;
     penaltyEl.classList.add('show');
   }
