@@ -863,14 +863,39 @@ function setFormReadonly(readonly){
 
 function fillReportFormWithData(data){
   const sv=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;};
-  sv('f-id',data.studentId||data.id||'');sv('f-name',data.name||'');
-  sv('f-phone',data.phone||'');sv('f-email',data.email||'');
-  sv('f-grade',data.grade||'');sv('f-semester',data.semester||'');
-  if(data.dept){const ds=document.getElementById('f-dept');if(ds)ds.value=data.dept;}
-  if(data.univ){const uv=document.getElementById('f-univ');if(uv)uv.value=data.univ;}
-  sv('prev-result',data.prevResult||'');sv('self-eval-text',data.selfEval||'');
-  sv('career-direction',data.careerDirection||'');sv('support-request',data.supportRequest||'');
-  const signEl=document.getElementById('signName');if(signEl)signEl.textContent=data['이름']||data.name||'';
+  sv('f-id', data['학번']||data.studentId||'');
+  sv('f-name', data['이름']||data.name||'');
+  sv('f-phone', data['연락처']||'');
+  sv('f-email', data['이메일']||'');
+  // 학년 select
+  const gradeEl=document.getElementById('f-grade');
+  if(gradeEl&&data['학년']) gradeEl.value=data['학년'];
+  // 학기 select
+  const semEl=document.getElementById('f-semester');
+  if(semEl&&data['학기']) semEl.value=data['학기'];
+  // 졸업예정년도/월
+  const gradYearEl=document.getElementById('f-grad-year');
+  const gradMonthEl=document.getElementById('f-grad-month');
+  if(gradYearEl&&data['졸업예정년도']) gradYearEl.value=data['졸업예정년도'];
+  if(gradMonthEl&&data['졸업예정월']) gradMonthEl.value=data['졸업예정월'];
+  // 학과
+  if(data['학과']){const ds=document.getElementById('f-dept');if(ds)ds.value=data['학과'];}
+  // 역량 별점
+  const starMajor=document.getElementById('star-major');
+  const starSkill=document.getElementById('star-skill');
+  const starCareer=document.getElementById('star-career');
+  if(starMajor&&data['역량_전공(별점)']) starMajor.value=data['역량_전공(별점)'];
+  if(starSkill&&data['역량_실무(별점)']) starSkill.value=data['역량_실무(별점)'];
+  if(starCareer&&data['역량_진로(별점)']) starCareer.value=data['역량_진로(별점)'];
+  // 텍스트 필드
+  sv('major-understanding', data['전공이해도']||'');
+  sv('practical-skill',     data['실무역량']||'');
+  sv('career-awareness',    data['진로인식']||'');
+  sv('future-study',        data['향후학업계획']||'');
+  sv('future-career',       data['향후진로계획']||'');
+  sv('support-request',     data['지원요청']||'');
+  // 서명
+  const signEl=document.getElementById('signName');if(signEl)signEl.textContent=data['이름']||'';
 }
 
 window.addEventListener('pageshow',function(e){
