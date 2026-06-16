@@ -741,54 +741,66 @@ function setFormReadonly(readonly) {
 
 function fillFormWithData(data) {
   const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
-  setVal('f-id', data.studentId || data.id || '');
-  setVal('f-name', data.name || '');
-  setVal('f-phone', data.phone || '');
-  setVal('f-email', data.email || '');
-  setVal('f-grade', data.grade || '');
-  setVal('f-semester', data.semester || '');
+  // 시트 헤더명 그대로 키로 들어옴
+  setVal('f-id',   data['학번'] || data.studentId || '');
+  setVal('f-name', data['이름'] || data.name || '');
+  setVal('f-phone', data['연락처'] || '');
+  setVal('f-email', data['이메일'] || '');
+  setVal('f-grade', data['학년'] || '');
+  setVal('f-semester', data['학기'] || '');
+  // 졸업예정
+  if (data['졸업예정']) {
+    const parts = String(data['졸업예정']).split('-');
+    const gradYearEl = document.getElementById('f-grad-year');
+    const gradMonthEl = document.getElementById('f-grad-month');
+    if (gradYearEl && parts[0]) gradYearEl.value = parts[0];
+    if (gradMonthEl && parts[1]) gradMonthEl.value = parts[1];
+  }
   // 학과
-  if (data.dept) {
+  const dept = data['학과'] || data.dept || '';
+  if (dept) {
     const deptSel = document.getElementById('f-dept');
-    if (deptSel) { deptSel.value = data.dept; onDeptChange(data.dept); }
-    const univEl = document.getElementById('f-univ');
-    if (univEl && data.univ) univEl.value = data.univ;
+    if (deptSel) { deptSel.value = dept; onDeptChange(dept); }
   }
-  setVal('f-prev-result', data.prevResult || '');
-  setVal('goal1', data.goal1 || '');
-  setVal('goal2', data.goal2 || '');
-  setVal('goal3', data.goal3 || '');
-  setVal('tech-note', data.techNote || '');
-  setVal('study-plan', data.studyPlan || '');
-  setVal('self-project', data.selfProject || '');
-  setVal('career-plan', data.careerPlan || '');
-  setVal('support-request', data.supportRequest || '');
-  // 서명 이름
-  const signEl = document.getElementById('signName');
-  if (signEl) signEl.textContent = data.name || '';
+  setVal('prev-achievement', data['이전학기성과'] || '');
+  setVal('goal1', data['목표1'] || '');
+  setVal('goal2', data['목표2'] || '');
+  setVal('goal3', data['목표3'] || '');
+  setVal('academic-plan',   data['학술계획'] || '');
+  setVal('industry-plan',   data['산업계획'] || '');
+  setVal('project-plan',    data['프로젝트계획'] || '');
+  setVal('support-request', data['지원요청'] || '');
+  setVal('f-semester-input', data['학기'] || '');
   // 기술분야 체크박스
-  if (data.techAreas) {
+  if (data['기술분야']) {
     try {
-      const areas = typeof data.techAreas === 'string' ? JSON.parse(data.techAreas) : data.techAreas;
+      const areas = typeof data['기술분야'] === 'string' ? JSON.parse(data['기술분야']) : data['기술분야'];
       document.querySelectorAll('input[name="techArea"]').forEach(cb => { cb.checked = areas.includes(cb.value); });
-    } catch(e) {}
+    } catch(e) {
+      // JSON이 아닌 경우 쉼표 구분 문자열로 처리
+      const areas = String(data['기술분야']).split(',').map(s=>s.trim());
+      document.querySelectorAll('input[name="techArea"]').forEach(cb => { cb.checked = areas.includes(cb.value); });
+    }
   }
-  // 교과 계획 테이블 채우기
-  if (data.coursePlan) {
+  // 교과 계획 (이수과목계획 컬럼 — JSON 배열이면 테이블로, 아니면 텍스트로)
+  if (data['이수과목계획']) {
     try {
-      const rows = typeof data.coursePlan === 'string' ? JSON.parse(data.coursePlan) : data.coursePlan;
+      const rows = JSON.parse(data['이수과목계획']);
       const tbody = document.getElementById('coursePlanBody');
       if (tbody && Array.isArray(rows)) {
         tbody.innerHTML = '';
         rows.forEach(r => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td><select disabled>${buildCourseOptions(data.dept)}</select></td><td><input type="text" value="${r.goal||''}" disabled></td><td><input type="text" value="${r.method||''}" disabled></td>`;
+          tr.innerHTML = `<td><select disabled>${buildCourseOptions(dept)}</select></td><td><input type="text" value="${r.goal||''}" disabled></td><td><input type="text" value="${r.method||''}" disabled></td>`;
           const sel = tr.querySelector('select'); if (sel && r.course) sel.value = r.course;
           tbody.appendChild(tr);
         });
       }
-    } catch(e) {}
+    } catch(e) { /* JSON 아니면 무시 */ }
   }
+  // 서명 이름
+  const signEl = document.getElementById('signName');
+  if (signEl) signEl.textContent = data['이름'] || data.name || '';
 }
 
 function buildCourseOptions(dept) {
