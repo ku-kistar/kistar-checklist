@@ -721,18 +721,14 @@ function resetLookup() {
 }
 
 function setFormReadonly(readonly) {
-  const fields = document.querySelectorAll('#main-content input:not([readonly][id="f-id"]):not([readonly][id="f-name"]), #main-content textarea, #main-content select');
-  fields.forEach(el => {
-    if (readonly) {
-      el.setAttribute('data-orig-disabled', el.disabled);
-      el.disabled = true;
-    } else {
-      const orig = el.getAttribute('data-orig-disabled');
-      el.disabled = orig === 'true';
-      el.removeAttribute('data-orig-disabled');
-    }
+  document.querySelectorAll('#main-content input, #main-content textarea').forEach(el => {
+    if (readonly) { el.setAttribute('data-orig-ro', el.readOnly); el.readOnly = true; }
+    else { el.readOnly = el.getAttribute('data-orig-ro') === 'true'; el.removeAttribute('data-orig-ro'); }
   });
-  // 제출 버튼 숨김/표시
+  document.querySelectorAll('#main-content select').forEach(el => {
+    el.style.pointerEvents = readonly ? 'none' : '';
+    el.style.opacity = readonly ? '0.7' : '';
+  });
   const submitArea = document.querySelector('.submit-area');
   if (submitArea) submitArea.style.display = readonly ? 'none' : '';
   const draftBar = document.querySelector('.draft-bar');
@@ -746,16 +742,17 @@ function fillFormWithData(data) {
   setVal('f-name', data['이름'] || data.name || '');
   setVal('f-phone', data['연락처'] || '');
   setVal('f-email', data['이메일'] || '');
-  setVal('f-grade', data['학년'] || '');
-  setVal('f-semester', data['학기'] || '');
-  // 졸업예정
-  if (data['졸업예정']) {
-    const parts = String(data['졸업예정']).split('-');
-    const gradYearEl = document.getElementById('f-grad-year');
-    const gradMonthEl = document.getElementById('f-grad-month');
-    if (gradYearEl && parts[0]) gradYearEl.value = parts[0];
-    if (gradMonthEl && parts[1]) gradMonthEl.value = parts[1];
-  }
+  // 학년 (select)
+  const gradeEl = document.getElementById('f-grade');
+  if (gradeEl && data['학년']) gradeEl.value = data['학년'];
+  // 학기 (select)
+  const semEl = document.getElementById('f-semester-input');
+  if (semEl && data['학기']) semEl.value = data['학기'];
+  // 졸업예정년도/월
+  const gradYearEl = document.getElementById('f-grad-year');
+  const gradMonthEl = document.getElementById('f-grad-month');
+  if (gradYearEl && data['졸업예정년도']) gradYearEl.value = data['졸업예정년도'];
+  if (gradMonthEl && data['졸업예정월']) gradMonthEl.value = data['졸업예정월'];
   // 학과
   const dept = data['학과'] || data.dept || '';
   if (dept) {
