@@ -870,12 +870,7 @@ function fillReportFormWithData(data){
   if(data.univ){const uv=document.getElementById('f-univ');if(uv)uv.value=data.univ;}
   sv('prev-result',data.prevResult||'');sv('self-eval-text',data.selfEval||'');
   sv('career-direction',data.careerDirection||'');sv('support-request',data.supportRequest||'');
-  const signEl=document.getElementById('signName');if(signEl)signEl.textContent=data.name||'';
-}
-    const parts=data.deadline.split('-');const formatted=parts.length===3?parts[0]+'. '+parts[1]+' . '+parts[2]+' .':data.deadline;
-    document.getElementById('signDateDisplay').textContent=formatted;
-    setTimeout(()=>window.print(),100);
-  }).catch(()=>alert('제출기한일시 조회 중 오류가 발생했습니다.'));
+  const signEl=document.getElementById('signName');if(signEl)signEl.textContent=data['이름']||data.name||'';
 }
 
 window.addEventListener('pageshow',function(e){
