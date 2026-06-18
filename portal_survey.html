@@ -101,8 +101,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admin-form-btn:hover{background:linear-gradient(135deg,rgba(200,57,43,.35),rgba(200,57,43,.22));border-color:rgba(200,57,43,.65);color:#fff}
 
 /* ── 통합 공지 팝업 ── */
-#notice-popup{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:1.5rem}
-#notice-popup.show{display:flex}
+#notice-popup{display:none!important}
+#notice-popup.show{display:none!important}
 .notice-card{background:#0f2035;border:1px solid rgba(14,165,233,.25);border-radius:16px;max-width:400px;width:100%;animation:popUp .25s ease;max-height:90vh;display:flex;flex-direction:column}
 @keyframes popUp{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
 .notice-card-header{padding:1.2rem 1.4rem .8rem;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}
@@ -130,7 +130,52 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .notice-noshow-title{font-size:11px;font-weight:700;color:#f08070;margin-bottom:4px}
 .notice-noshow-body{font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
 .notice-noshow-body strong{color:#ff6b6b}
-/* 일정조사 섹션 */
+/* ── 공지사항 아코디언 ── */
+.notice-section{width:100%;max-width:680px;margin:1.2rem 0 0;padding:0 1.2rem}
+.notice-section-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.notice-section-icon{width:28px;height:28px;background:rgba(200,57,43,.2);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.notice-section-title{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.01em;white-space:nowrap}
+.notice-section-line{flex:1;height:1px;background:rgba(255,255,255,.12)}
+.notice-new-dot{width:7px;height:7px;border-radius:50%;background:#ff4444;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,68,68,.3)}
+.notice-accordion-item{border-radius:11px;overflow:hidden;margin-bottom:7px}
+.notice-accordion-item.urgent{border:1.5px solid rgba(200,57,43,.55);background:rgba(200,57,43,.08)}
+.notice-accordion-item.warn{border:1.5px solid rgba(245,166,35,.4);background:rgba(245,166,35,.05)}
+.notice-accordion-item.info{border:1.5px solid rgba(14,165,233,.35);background:rgba(14,165,233,.06)}
+.notice-accordion-head{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;user-select:none}
+.notice-accordion-badge{font-size:9px;font-weight:800;padding:3px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0;letter-spacing:.03em}
+.badge-urgent{background:rgba(200,57,43,.3);color:#ff8a80}
+.badge-warn{background:rgba(245,166,35,.25);color:#f5c842}
+.badge-info{background:rgba(14,165,233,.25);color:#7dd3fc}
+.notice-accordion-title{flex:1;font-size:clamp(11px,1.6vw,13px);font-weight:700;color:rgba(255,255,255,.92);line-height:1.4;word-break:keep-all}
+.notice-accordion-expand{flex-shrink:0;display:flex;align-items:center;gap:3px;font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;background:rgba(255,255,255,.07);border-radius:5px;padding:3px 8px;transition:background .15s}
+.notice-accordion-item.open .notice-accordion-expand{background:rgba(255,255,255,.12);color:rgba(255,255,255,.75)}
+.notice-accordion-expand .n-arr{transition:transform .25s;display:inline-block}
+.notice-accordion-body{display:none;padding:0 13px 13px;border-top:1px solid rgba(255,255,255,.08);font-size:clamp(11px,1.5vw,12px);color:rgba(255,255,255,.65);line-height:1.75;word-break:keep-all}
+.notice-accordion-item.open .notice-accordion-body{display:block}
+.notice-accordion-body strong{color:rgba(255,255,255,.9)}
+.notice-req-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.notice-req-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:2px}
+.notice-req-row{display:flex;align-items:flex-start;gap:7px;font-size:clamp(11px,1.5vw,12px);color:rgba(255,255,255,.65);word-break:keep-all}
+.notice-req-num{background:rgba(14,165,233,.3);color:#7dd3fc;font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;flex-shrink:0;margin-top:2px}
+.notice-timing-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.notice-timing-cell{background:rgba(255,255,255,.06);border-radius:8px;padding:9px 10px;text-align:center}
+.notice-timing-label{font-size:10px;color:rgba(255,255,255,.4);margin-bottom:3px}
+.notice-timing-val{font-size:16px;font-weight:800;color:#fff}
+.notice-proof-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(16,185,129,.14);border:1.5px solid rgba(16,185,129,.45);border-radius:9px;padding:10px 12px;margin-top:10px;text-decoration:none}
+.notice-proof-title{font-size:12px;font-weight:700;color:#5ec8a0;word-break:keep-all}
+.notice-proof-dates{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.notice-proof-date{font-size:10px;color:rgba(255,255,255,.5);word-break:keep-all}
+.notice-proof-tag{flex-shrink:0;background:rgba(16,185,129,.3);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#5ec8a0;white-space:nowrap}
+.notice-inner-box{margin-top:9px;padding:9px 11px;border-radius:8px;font-size:11px;line-height:1.7;word-break:keep-all}
+.notice-inner-box.red{background:rgba(200,57,43,.15);border:1px solid rgba(200,57,43,.3);color:#ffaa88}
+.notice-inner-box.amber{background:rgba(160,98,10,.15);border:1px solid rgba(160,98,10,.3);color:#f0c080}
+.notice-sheet-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(14,165,233,.1);border:1.5px solid rgba(14,165,233,.3);border-radius:9px;padding:10px 12px;margin-top:10px;text-decoration:none}
+.notice-sheet-title{font-size:12px;font-weight:700;color:#7dd3fc;word-break:keep-all;line-height:1.5}
+.notice-sheet-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+.notice-sheet-tag{flex-shrink:0;background:rgba(14,165,233,.2);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#7dd3fc;white-space:nowrap}
+@media(max-width:480px){
+  .notice-section{padding:0 .8rem}
+}
 .notice-sched{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:10px 14px;margin-top:4px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .notice-sched-left .notice-sched-title{font-size:12px;font-weight:700;color:#f5c842;margin-bottom:2px}
 .notice-sched-left .notice-sched-dead{font-size:11px;color:rgba(255,255,255,.5)}
@@ -298,12 +343,14 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         </div>
         <!-- 우수학생 구글폼 링크 -->
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSfHwybNDSTGaYxCctCnoTDxXWas0gEPtziaC8v9lmvN-g106w/viewform" target="_blank"
-           style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:8px;padding:8px 12px;text-decoration:none">
+           style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(16,185,129,.15);border:1.5px solid rgba(16,185,129,.45);border-radius:10px;padding:10px 14px;text-decoration:none;cursor:pointer">
           <div>
-            <div style="font-size:11px;font-weight:700;color:#5ec8a0;margin-bottom:1px">우수학생 활동 증빙 제출</div>
-            <div style="font-size:10px;color:rgba(255,255,255,.4)">마감 8/16(일) 23:00 · 구글폼</div>
+            <div style="font-size:12px;font-weight:700;color:#5ec8a0;margin-bottom:3px">📎 외부활동 증빙 제출 (구글폼)</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5)">마감 8/16(일) 23:00 · 누르면 제출 페이지로 이동합니다</div>
           </div>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H6M11 3v5" stroke="#5ec8a0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div style="flex-shrink:0;background:rgba(16,185,129,.3);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#5ec8a0;white-space:nowrap">
+            제출하기 →
+          </div>
         </a>
       </div>
       <div class="notice-divider"></div>
@@ -399,6 +446,103 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <li class="msg-main"><span class="dot">·</span><span>수시 개설 · 수시 마감 운영</span></li>
     </ul>
   </div>
+
+  <!-- ★ 공지사항 아코디언 -->
+  <div class="notice-section">
+    <div class="notice-section-header">
+      <div class="notice-section-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5L8.5 5l3.5.4-2.5 2.4.6 3.5L7 9.5l-3.1 1.8.6-3.5L2 5.4l3.5-.4z" stroke="#ff8a80" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="notice-section-title">공지사항</span>
+      <div class="notice-new-dot"></div>
+      <div class="notice-section-line"></div>
+    </div>
+
+    <!-- 공지 1: 인재장학금 -->
+    <div class="notice-accordion-item urgent open" id="noti-1">
+      <div class="notice-accordion-head" onclick="toggleNotice('noti-1')">
+        <span class="notice-accordion-badge badge-urgent">필독</span>
+        <span class="notice-accordion-title">2026-1학기 차세대반도체 인재장학금 안내</span>
+        <span class="notice-accordion-expand" id="noti-1-btn">접기 <span class="n-arr">▲</span></span>
+      </div>
+      <div class="notice-accordion-body" id="noti-1-body">
+        <div class="notice-req-list">
+          <div class="notice-req-label">지급 요건 — 3가지 모두 충족 필수</div>
+          <div class="notice-req-row"><span class="notice-req-num">1</span><span>사업단 <strong>마일리지 40점 이상</strong></span></div>
+          <div class="notice-req-row"><span class="notice-req-num">2</span><span><strong>활동계획서</strong>(학기 초) + <strong>결과보고서</strong>(학기 말) 제출</span></div>
+          <div class="notice-req-row"><span class="notice-req-num">3</span><span>장학금 신청서 <strong>현장 직접 작성·제출</strong></span></div>
+        </div>
+        <div class="notice-timing-grid">
+          <div class="notice-timing-cell">
+            <div class="notice-timing-label">인재장학금</div>
+            <div class="notice-timing-val">7월</div>
+          </div>
+          <div class="notice-timing-cell">
+            <div class="notice-timing-label">우수학생 장학금</div>
+            <div class="notice-timing-val">8월</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.4);line-height:1.8;word-break:keep-all">
+          · 우수학생 마일리지 인정기간: ~2026.08.14(금)<br>
+          · 우수학생 접수 마감: 2026.08.16(일) 23:00
+        </div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfHwybNDSTGaYxCctCnoTDxXWas0gEPtziaC8v9lmvN-g106w/viewform" target="_blank" class="notice-proof-btn">
+          <div>
+            <div class="notice-proof-title">📎 외부활동 증빙 제출 (구글폼)</div>
+            <div class="notice-proof-dates">
+              <div class="notice-proof-date">인재장학금: <strong style="color:rgba(255,255,255,.75)">7/24(금) 23:00</strong>까지</div>
+              <div class="notice-proof-date">우수장학금: <strong style="color:rgba(255,255,255,.75)">8/16(일) 23:00</strong>까지</div>
+            </div>
+            <div style="font-size:10px;color:rgba(16,185,129,.7);margin-top:3px">누르면 제출 페이지로 이동합니다</div>
+          </div>
+          <span class="notice-proof-tag">제출하기 →</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 공지 2: 노쇼 패널티 -->
+    <div class="notice-accordion-item warn" id="noti-2">
+      <div class="notice-accordion-head" onclick="toggleNotice('noti-2')">
+        <span class="notice-accordion-badge badge-warn">주의</span>
+        <span class="notice-accordion-title">No-show 패널티 안내</span>
+        <span class="notice-accordion-expand" id="noti-2-btn">펼치기 <span class="n-arr">▼</span></span>
+      </div>
+      <div class="notice-accordion-body" id="noti-2-body" style="display:none">
+        비교과 프로그램 <strong>신청 및 선발 후</strong> 무단 불참 시,<br>
+        <strong>직후 2개 프로그램 참여가 자동 제한</strong>됩니다.<br>
+        부득이한 경우 <strong>행사 하루 전날까지</strong> 사전 연락 필수입니다.
+        <div class="notice-inner-box red">
+          <strong>⛔ 노쇼 누적 3회 이상 시</strong><br>
+          인재장학금 미지급 및 우수학생 선발에서 제외됩니다.
+        </div>
+        <div class="notice-inner-box amber">
+          <strong>※ 3기 학생 안내</strong><br>
+          2026학년도 2학기 모집으로 선발된 3기 학생은 <strong>6/15(월) 이후</strong> 발생하는 노쇼부터 직후 프로그램 2회 참여 제한이 적용됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 공지 3: 마일리지 현황 -->
+    <div class="notice-accordion-item info" id="noti-3">
+      <div class="notice-accordion-head" onclick="toggleNotice('noti-3')">
+        <span class="notice-accordion-badge badge-info">안내</span>
+        <span class="notice-accordion-title">2026-1학기 차세대반도체 융합전공 마일리지 현황</span>
+        <span class="notice-accordion-expand" id="noti-3-btn">펼치기 <span class="n-arr">▼</span></span>
+      </div>
+      <div class="notice-accordion-body" id="noti-3-body" style="display:none">
+        전체 학생의 마일리지 현황을 확인할 수 있습니다.<br>
+        학번은 일부 마스킹 처리되어 있습니다.
+        <a href="https://docs.google.com/spreadsheets/d/1RV74nASvf5dSyPx7Cx8qYTAXpyD6WLceJUiKcajOK_U/edit" target="_blank" class="notice-sheet-btn">
+          <div>
+            <div class="notice-sheet-title">📊 2026-1학기 차세대반도체 융합전공<br>마일리지 현황</div>
+            <div class="notice-sheet-sub">누르면 구글시트로 이동합니다</div>
+          </div>
+          <span class="notice-sheet-tag">보기 →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="forms-section">
     <div class="sec-header">
       <div class="sec-label">진행 중인 설문 &amp; 제출</div>
@@ -417,6 +561,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div style="font-size:36px;opacity:.3;margin-bottom:.8rem">📭</div>
       <h3>현재 진행 중인 설문이 없습니다</h3>
       <p>새로운 설문이 시작되면 이 화면에 자동으로 표시됩니다.<br>문의: ☎ 02-3290-4988</p>
+
     </div>
     <div class="error-state" id="errorState">⚠️ 목록을 불러오지 못했습니다. 새로고침 해주세요. (☎ 02-3290-4988)</div>
   </div>
@@ -538,6 +683,17 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx
 const AUTH_KEY   = 'kistar_auth_url2';
 const EXPIRE_MS  = 8 * 60 * 60 * 1000;
 const NOTICE_DISMISS_KEY = 'kistar_notice_2026_1_v1';
+
+// ── 공지사항 아코디언 ──
+function toggleNotice(id) {
+  const item = document.getElementById(id);
+  const body = document.getElementById(id + '-body');
+  const btn  = document.getElementById(id + '-btn');
+  const isOpen = item.classList.contains('open');
+  item.classList.toggle('open');
+  body.style.display = isOpen ? 'none' : 'block';
+  btn.innerHTML = isOpen ? '펼치기 <span class="n-arr">▼</span>' : '접기 <span class="n-arr">▲</span>';
+}
 
 // ── 공지 팝업 ──
 function showNoticePopup() {
