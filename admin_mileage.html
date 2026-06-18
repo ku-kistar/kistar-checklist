@@ -258,10 +258,11 @@ async function loadData() {
     const res = await callGAS({action: "getMileageSummary"});
     if (!res || res.status !== "ok") throw new Error("데이터 오류");
 
-    // res.data: { studentId: { name, dept, total, bySemester: {"2026-1": N, ...}, ... } }
+    // res.summary: 배열 [ { studentId, name, dept, total, bySemester: {"2026-1": N, ...}, ... } ]
     MILEAGE_DATA = {};
     ROSTER_2026_1 = {};
-    Object.entries(res.data).forEach(function([sid, d]) {
+    (res.summary || []).forEach(function(d) {
+      var sid = d.studentId;
       // MILEAGE_DATA 재구성
       MILEAGE_DATA[sid] = { name: d.name, dept: d.dept };
       Object.entries(d.bySemester || {}).forEach(function([sem, pts]) {
