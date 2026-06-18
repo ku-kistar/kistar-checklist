@@ -376,8 +376,7 @@ function exportCSV() {
   const rows = [["순위","이름","학번","학과","마일리지","40점달성여부"]].concat(
     tableRows.map(function(s,i){return [i+1,s.name,s.studentId,s.dept,s.total,s.total>=GOAL?"달성":"미달성"];})
   );
-  const csv = "\ufeff"+rows.map(function(r){return r.join(",");}).join("
-");
+  const csv = "\ufeff"+rows.map(function(r){return r.join(",");}).join("\n");
   const blob = new Blob([csv],{type:"text/csv;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
