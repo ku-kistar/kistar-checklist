@@ -86,6 +86,7 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
   body{background:#fff;padding:0}
   .container{max-width:100%;padding:.5rem}
   .summary-grid{grid-template-columns:repeat(5,1fr)!important}
+@media(max-width:700px){#top5Grid{grid-template-columns:1fr!important}}
   .summary-card,.top5-section,.table-section{border:1px solid #ccc!important;break-inside:avoid}
   .summary-val{font-size:22px!important}
   thead th{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -175,11 +176,22 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
     <div class="top5-section">
       <div class="section-title">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.8 3.6L13 5.3l-3 2.9.7 4.1L7 10.3l-3.7 1.9.7-4.1-3-2.9 4.2-.7z" stroke="#d4af37" stroke-width="1.3" fill="#d4af37"/></svg>
-        마일리지 상위 5명
+        학년별 우수학생 장학금 후보 (상위 5명)
         <span style="font-size:11px;font-weight:400;color:var(--text3)" id="semLabel"></span>
       </div>
-      <div class="top5-list" id="top5List">
-        <div class="empty-state">데이터 없음</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="top5Grid">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:8px;padding:4px 8px;background:var(--blue-light);border-radius:6px;text-align:center">2학년</div>
+          <div class="top5-list" id="top5List2"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:8px;padding:4px 8px;background:var(--green-light);border-radius:6px;text-align:center">3학년</div>
+          <div class="top5-list" id="top5List3"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:8px;padding:4px 8px;background:var(--purple-light);border-radius:6px;text-align:center">4학년</div>
+          <div class="top5-list" id="top5List4"></div>
+        </div>
       </div>
     </div>
 
@@ -270,7 +282,7 @@ async function loadData() {
       });
       // 2026-1 등록 학생이면 ROSTER에도 추가
       if (d.bySemester && d.bySemester["2026-1"] !== undefined) {
-        ROSTER_2026_1[sid] = { name: d.name, dept: d.dept, score: d.bySemester["2026-1"] || 0 };
+        ROSTER_2026_1[sid] = { name: d.name, dept: d.dept, score: d.bySemester["2026-1"] || 0, grade: d.grade || '' };
       }
     });
 
@@ -321,7 +333,7 @@ function renderDash(sem) {
   if (sem === "2026-1") {
     Object.entries(ROSTER_2026_1).forEach(function([sid, d]) {
       const total = (MILEAGE_DATA[sid] && MILEAGE_DATA[sid]["2026-1"]) || d.score || 0;
-      students.push({studentId:sid, name:d.name, dept:d.dept, total:total});
+      students.push({studentId:sid, name:d.name, dept:d.dept, total:total, grade:d.grade||''});
     });
   } else {
     Object.entries(MILEAGE_DATA).forEach(function([sid, d]) {
@@ -331,7 +343,7 @@ function renderDash(sem) {
       } else {
         total = d[sem] || 0;
       }
-      if (total > 0) students.push({studentId:sid, name:d.name, dept:d.dept, total:total});
+      if (total > 0) students.push({studentId:sid, name:d.name, dept:d.dept, total:total, grade:d.grade||''});
     });
   }
   students.sort(function(a,b){return b.total-a.total;});
@@ -356,19 +368,34 @@ function renderDash(sem) {
   const semLabel = sem==="전체" ? "(2025-1 + 2025-2 + 2026-1)" : "("+sem+"학기)";
   document.getElementById("semLabel").textContent = semLabel;
   document.getElementById("tableCount").textContent = dataCount+"명";
-  renderTop5(students.slice(0,5));
+  renderTop5(students);
   renderTable(students);
   document.getElementById("printTitle").textContent = (sem==="전체"?"전체":sem+"학기")+" 마일리지 현황";
   document.getElementById("printSub").textContent = semLabel+" | 기준: 40점 | 달성: "+passed+"명 / 데이터: "+dataCount+"명 / 전체: "+(totalReg||"—")+"명 | 출력일: "+new Date().toLocaleDateString("ko-KR");
 }
 
 function renderTop5(students) {
-  const el = document.getElementById("top5List");
-  if (!students.length) { el.innerHTML="<div class=\"empty-state\">데이터 없음</div>"; return; }
   const rankClass = ["gold","silver","bronze","",""];
-  el.innerHTML = students.map(function(s,i) {
-    return "<div class=\"top5-item\"><div class=\"top5-rank "+rankClass[i]+"\">"+(i+1)+"</div><div class=\"top5-info\"><div class=\"top5-name\">"+s.name+" <span style=\"font-size:11px;color:var(--text3)\">("+s.studentId+")</span><span class=\"top5-badge "+(s.total>=GOAL?"badge-pass":"badge-fail")+"\">"+(s.total>=GOAL?"✓ 달성":"미달성")+"</span></div><div class=\"top5-meta\">"+s.dept+"</div></div><div class=\"top5-pts\">"+s.total+"점</div></div>";
-  }).join("");
+  [2,3,4].forEach(function(grade) {
+    const el = document.getElementById("top5List" + grade);
+    if (!el) return;
+    const gradeStudents = students
+      .filter(function(s){ return String(s.grade) === String(grade); })
+      .slice(0, 5);
+    if (!gradeStudents.length) {
+      el.innerHTML = "<div class=\"empty-state\" style=\"font-size:11px;padding:12px 0\">해당 학년 데이터 없음</div>";
+      return;
+    }
+    el.innerHTML = gradeStudents.map(function(s,i) {
+      return "<div class=\"top5-item\"><div class=\"top5-rank "+rankClass[i]+"\">"+(i+1)+"</div>"
+        +"<div class=\"top5-info\"><div class=\"top5-name\">"+s.name
+        +" <span style=\"font-size:11px;color:var(--text3)\">("+s.studentId+")</span>"
+        +"<span class=\"top5-badge "+(s.total>=GOAL?"badge-pass":"badge-fail")+"\">"
+        +(s.total>=GOAL?"✓ 달성":"미달성")+"</span></div>"
+        +"<div class=\"top5-meta\">"+s.dept+"</div></div>"
+        +"<div class=\"top5-pts\">"+s.total+"점</div></div>";
+    }).join("");
+  });
 }
 
 function renderTable(students) {
