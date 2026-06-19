@@ -1179,10 +1179,10 @@ function renderMileage(data) {
   const penaltyEl = document.getElementById('mileagePenalty');
   if (penaltyEl) penaltyEl.style.display = 'none';
 
-  // ★ 40점 달성 여부 — 2026-1학기 마일리지 기준
+  // ★ 40점 달성 여부 — 정상 + 패널티 모두 합산 (실제 점수 기준)
   const normSemCheck = s => (s || '').replace(/-0*(\d)$/, '-$1');
   const pts261 = (data.records || [])
-    .filter(r => r['상태'] === '정상' && normSemCheck(r['학기']) === '2026-1')
+    .filter(r => (r['상태'] === '정상' || r['상태'] === '패널티') && normSemCheck(r['학기']) === '2026-1')
     .reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
   const achieveBadge = document.getElementById('mileageAchieveBadge');
   const progressWrap = document.getElementById('mileageProgressWrap');
@@ -1229,14 +1229,15 @@ function filterMileage(semester, btn) {
   const list = document.getElementById('mileageList');
   list.querySelectorAll('.mileage-item').forEach(el => el.remove());
 
-  const allNormal = mileageData.records.filter(r => r['상태'] === '정상');
+  const allNormal = mileageData.records.filter(r => r['상태'] === '정상' || r['상태'] === '패널티');
   const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
   let recs = semester === 'all' ? allNormal : allNormal.filter(r => normSem(r['학기']) === semester);
 
-  // 교과 먼저, 비교과 나중 / 각 그룹 내 날짜 오름차순
+  // 교과 먼저, 비교과 나중, 패널티 맨 마지막 / 각 그룹 내 날짜 오름차순
   recs.sort((a, b) => {
-    const catA = a['카테고리'] === '교과' ? 0 : 1;
-    const catB = b['카테고리'] === '교과' ? 0 : 1;
+    const catOrder = {'교과':0,'비교과':1,'패널티':2};
+    const catA = catOrder[a['카테고리']] ?? 1;
+    const catB = catOrder[b['카테고리']] ?? 1;
     if (catA !== catB) return catA - catB;
     return (a['날짜'] || '').localeCompare(b['날짜'] || '');
   });
@@ -1246,21 +1247,27 @@ function filterMileage(semester, btn) {
   emptyEl.style.display = 'none';
 
   recs.forEach(r => {
+    const isPenalty = r['상태'] === '패널티';
     const isEdu = r['카테고리'] === '교과';
     const progName = r['프로그램명'] || '';
     const date = r['날짜'] || '';
+    const pts = parseInt(r['점수']) || 0;
     const item = document.createElement('div');
     item.className = 'mileage-item';
+    if (isPenalty) item.style.cssText = 'border-color:rgba(200,57,43,.3);background:rgba(200,57,43,.06)';
     item.innerHTML =
       '<div class="mileage-item-left">' +
         '<span class="mileage-item-name">' + progName + '</span>' +
         (date ? '<span style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px;display:block">' + date + '</span>' : '') +
         '<div style="display:flex;gap:6px;align-items:center;margin-top:3px">' +
-          '<span class="mileage-item-badge ' + (isEdu ? 'badge-edu' : 'badge-extra') + '">' + (r['카테고리'] || '') + '</span>' +
+          '<span class="mileage-item-badge ' + (isPenalty ? '' : isEdu ? 'badge-edu' : 'badge-extra') + '"'
+            + (isPenalty ? ' style="background:rgba(200,57,43,.25);color:#ff8a80"' : '') + '>'
+            + (r['카테고리'] || '') + '</span>' +
           '<span class="mileage-item-meta">' + normSem(r['학기'] || '') + '</span>' +
         '</div>' +
       '</div>' +
-      '<span class="mileage-item-pts">+' + (r['점수'] || 0) + '점</span>';
+      '<span class="mileage-item-pts" style="' + (isPenalty ? 'color:#ff8a80' : '') + '">'
+        + (isPenalty ? '' : '+') + pts + '점</span>';
     list.appendChild(item);
   });
 }
