@@ -287,11 +287,25 @@ window.addEventListener("DOMContentLoaded", function() {
   try {
     const auth = JSON.parse(localStorage.getItem("kistar_auth_url2") || "null");
     const EXPIRE_MS = 8*60*60*1000;
-    if (!auth || !auth.isAdmin || Date.now()-(auth.loginTime||0)>EXPIRE_MS) {
+    if (!auth || !auth.studentId || Date.now()-(auth.loginTime||0)>EXPIRE_MS) {
       document.getElementById("access-denied").style.display="block"; return;
     }
-    document.getElementById("main-content").style.display="block";
-    loadData();
+    // GAS 서버사이드 관리자 재검증
+    callGAS({
+      action: "verifyAdmin",
+      studentId: auth.studentId,
+      page: "admin_mileage",
+      userAgent: navigator.userAgent
+    }).then(function(res) {
+      if (res && res.isAdmin) {
+        document.getElementById("main-content").style.display="block";
+        loadData();
+      } else {
+        document.getElementById("access-denied").style.display="block";
+      }
+    }).catch(function() {
+      document.getElementById("access-denied").style.display="block";
+    });
   } catch(e) { document.getElementById("access-denied").style.display="block"; }
 });
 
@@ -390,7 +404,7 @@ window.addEventListener("pageshow", function(e) {
   if (e.persisted) {
     const auth = JSON.parse(localStorage.getItem("kistar_auth_url2")||"null");
     const EXPIRE_MS = 8*60*60*1000;
-    if (!auth||!auth.isAdmin||Date.now()-(auth.loginTime||0)>EXPIRE_MS) {
+    if (!auth||!auth.studentId||Date.now()-(auth.loginTime||0)>EXPIRE_MS) {
       document.getElementById("main-content").style.display="none";
       document.getElementById("access-denied").style.display="block";
     }

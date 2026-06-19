@@ -221,12 +221,25 @@ const LUNCH  = ['LUNCH1','LUNCH2'];
 
 let allRecords = []; // 전체 응답 원본
 
+function callGAS(params) {
+  return new Promise(function(resolve, reject) {
+    const cbName = "_cb_" + Date.now() + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+    const url = SCRIPT_URL + "?" + Object.entries(Object.assign({callback: cbName}, params))
+      .map(function(e){return e[0]+"="+encodeURIComponent(e[1]);}).join("&");
+    window[cbName] = function(data) { delete window[cbName]; document.body.removeChild(script); resolve(data); };
+    script.onerror = function() { delete window[cbName]; document.body.removeChild(script); reject(new Error("GAS 호출 실패")); };
+    script.src = url;
+    document.body.appendChild(script);
+  });
+}
+
 function checkAuth() {
   try {
     const raw = localStorage.getItem(AUTH_KEY);
     if (!raw) return null;
     const auth = JSON.parse(raw);
-    if (!auth || !auth.isAdmin) return null;
+    if (!auth || !auth.studentId) return null;
     if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) { localStorage.removeItem(AUTH_KEY); return null; }
     return auth;
   } catch(e) { return null; }
@@ -235,9 +248,23 @@ function checkAuth() {
 window.addEventListener('DOMContentLoaded', function() {
   const auth = checkAuth();
   if (!auth) { document.getElementById('access-denied').style.display = 'block'; return; }
-  document.getElementById('mainContent').style.display = 'block';
-  document.getElementById('topUser').textContent = auth.name + ' (관리자)';
-  loadData();
+  // GAS 서버사이드 관리자 재검증
+  callGAS({
+    action: 'verifyAdmin',
+    studentId: auth.studentId,
+    page: 'admin_schedule',
+    userAgent: navigator.userAgent
+  }).then(function(res) {
+    if (res && res.isAdmin) {
+      document.getElementById('mainContent').style.display = 'block';
+      document.getElementById('topUser').textContent = (auth.name||'관리자') + ' (관리자)';
+      loadData();
+    } else {
+      document.getElementById('access-denied').style.display = 'block';
+    }
+  }).catch(function() {
+    document.getElementById('access-denied').style.display = 'block';
+  });
 });
 
 function loadData() {
