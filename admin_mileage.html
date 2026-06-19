@@ -494,7 +494,6 @@ function filterTable(query) {
   renderTable(filtered);
   document.getElementById("tableCount").textContent = filtered.length + "명" + (q ? " (필터됨)" : "");
 }
-}
 
 function exportCSV() {
   const rows = [["순위","이름","학번","학과","마일리지","40점달성여부"]].concat(
