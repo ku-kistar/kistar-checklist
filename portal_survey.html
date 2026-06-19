@@ -31,6 +31,39 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .msg-list li .dot{flex-shrink:0;margin-top:.15em}
 .msg-main{font-size:clamp(11px,1.7vw,13px);color:rgba(255,255,255,.7)}
 .msg-main .dot{color:var(--blue);font-size:1.1em;font-weight:900}
+/* ── 개인 알림 (노쇼 경고) ── */
+.personal-alert-wrap{width:100%;max-width:680px;padding:1rem 1.4rem 0;display:none}
+.personal-alert-wrap.show{display:block}
+.personal-alert-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.personal-alert-icon{width:26px;height:26px;background:rgba(200,57,43,.25);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px}
+.personal-alert-title{font-size:12px;font-weight:800;color:#ff8a80}
+.personal-alert-line{flex:1;height:1px;background:rgba(200,57,43,.2)}
+.noshow-alert-card{background:rgba(200,57,43,.1);border:1.5px solid rgba(200,57,43,.45);border-radius:11px;overflow:hidden;margin-bottom:6px}
+.noshow-alert-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none}
+.noshow-alert-badge{font-size:9px;font-weight:800;background:rgba(200,57,43,.35);color:#ff8a80;padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.noshow-alert-ttl{flex:1;font-size:11px;font-weight:700;color:#ff8a80;word-break:keep-all;line-height:1.35}
+.noshow-alert-toggle{font-size:10px;color:rgba(255,138,128,.6);background:rgba(200,57,43,.2);border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0}
+.noshow-alert-card.open .noshow-alert-toggle{background:rgba(200,57,43,.3);color:#ff8a80}
+.noshow-alert-body{display:none;padding:0 12px 12px;border-top:1px solid rgba(200,57,43,.2);font-size:11px;color:rgba(255,200,190,.85);line-height:1.7;word-break:keep-all}
+.noshow-alert-card.open .noshow-alert-body{display:block}
+.noshow-prog-list{margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.noshow-prog-item{background:rgba(200,57,43,.1);border:1px solid rgba(200,57,43,.25);border-radius:7px;padding:7px 10px}
+.noshow-prog-name{font-size:11px;font-weight:700;color:#ffaa99;margin-bottom:2px;word-break:keep-all}
+.noshow-prog-meta{font-size:10px;color:rgba(255,180,170,.6)}
+.noshow-remain{display:inline-block;background:rgba(200,57,43,.3);color:#ff8a80;font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;margin-top:3px}
+.noshow-warning-box{margin-top:8px;background:rgba(200,57,43,.15);border:1px solid rgba(200,57,43,.3);border-radius:7px;padding:8px 10px;font-size:10.5px;color:#ffaa88;line-height:1.65;word-break:keep-all}
+/* ── 탭 ── */
+.tab-wrap{width:100%;max-width:680px;padding:1rem 1.4rem 0}
+.tab-bar{display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.1)}
+.tab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border-radius:9px 9px 0 0;font-size:12px;font-weight:700;color:rgba(255,255,255,.4);cursor:pointer;border:1px solid transparent;border-bottom:none;transition:all .18s;background:transparent;user-select:none}
+.tab-btn.active{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:#fff}
+.tab-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;transition:background .18s}
+.tab-btn.active .tab-dot{background:#0ea5e9}
+.tab-content{display:none;width:100%;max-width:680px;padding:1rem 1.4rem 0}
+.tab-content.active{display:block}
+@media(max-width:600px){
+  .personal-alert-wrap,.tab-wrap,.tab-content{padding-left:1rem;padding-right:1rem}
+}
 .forms-section{width:100%;max-width:680px;padding:1.4rem 2rem 0}
 .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
 .sec-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;flex:1}
@@ -197,7 +230,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .notice-banner-link:hover{color:#0ea5e9}
 
 /* 마일리지 섹션 */
-.mileage-section{width:100%;max-width:680px;padding:1.2rem 2rem 0;display:none}
+.mileage-section{width:100%;max-width:680px;padding:.4rem 0 0}
 .mileage-section.show{display:block}
 .mileage-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
 /* ★ 40점 달성 배지 */
@@ -459,13 +492,13 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </div>
 
     <!-- 공지 1: 인재장학금 -->
-    <div class="notice-accordion-item urgent open" id="noti-1">
+    <div class="notice-accordion-item urgent" id="noti-1">
       <div class="notice-accordion-head" onclick="toggleNotice('noti-1')">
         <span class="notice-accordion-badge badge-urgent">필독</span>
         <span class="notice-accordion-title">2026-1학기 차세대반도체 인재장학금 안내</span>
-        <span class="notice-accordion-expand" id="noti-1-btn">접기 <span class="n-arr">▲</span></span>
+        <span class="notice-accordion-expand" id="noti-1-btn">펼치기 <span class="n-arr">▼</span></span>
       </div>
-      <div class="notice-accordion-body" id="noti-1-body">
+      <div class="notice-accordion-body" id="noti-1-body" style="display:none">
         <div class="notice-req-list">
           <div class="notice-req-label">지급 요건 — 3가지 모두 충족 필수</div>
           <div class="notice-req-row"><span class="notice-req-num">1</span><span>사업단 <strong>마일리지 40점 이상</strong></span></div>
@@ -543,7 +576,33 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </div>
   </div>
 
-  <div class="forms-section">
+
+  <!-- ★ 개인 알림 — 노쇼 있는 학생만 표시 -->
+  <div class="personal-alert-wrap" id="personalAlertWrap">
+    <div class="personal-alert-header">
+      <div class="personal-alert-icon">⚠️</div>
+      <span class="personal-alert-title">내 알림</span>
+      <div class="personal-alert-line"></div>
+    </div>
+    <div id="personalAlertContent"></div>
+  </div>
+
+  <!-- ★ 탭 바 -->
+  <div class="tab-wrap">
+    <div class="tab-bar">
+      <div class="tab-btn active" id="tab-forms" onclick="switchTab('forms')">
+        <div class="tab-dot"></div>
+        📋 설문·제출
+      </div>
+      <div class="tab-btn" id="tab-mileage" onclick="switchTab('mileage')">
+        <div class="tab-dot"></div>
+        🏆 내 마일리지
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭1: 설문·제출 -->
+  <div class="tab-content active" id="content-forms">
     <div class="sec-header">
       <div class="sec-label">진행 중인 설문 &amp; 제출</div>
       <button class="refresh-btn" id="refreshBtn" onclick="reloadForms()">
@@ -555,18 +614,18 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
       <div class="skeleton-card"><div class="sk sk-tag"></div><div class="sk sk-title"></div><div class="sk sk-text"></div><div class="sk sk-text2"></div><div class="sk sk-btn"></div></div>
     </div>
-
     <div id="formsGrid"></div>
     <div class="empty-state" id="emptyState">
       <div style="font-size:36px;opacity:.3;margin-bottom:.8rem">📭</div>
       <h3>현재 진행 중인 설문이 없습니다</h3>
       <p>새로운 설문이 시작되면 이 화면에 자동으로 표시됩니다.<br>문의: ☎ 02-3290-4988</p>
-
     </div>
     <div class="error-state" id="errorState">⚠️ 목록을 불러오지 못했습니다. 새로고침 해주세요. (☎ 02-3290-4988)</div>
   </div>
 
-  <div class="mileage-section" id="mileage-section">
+  <!-- 탭2: 내 마일리지 -->
+  <div class="tab-content" id="content-mileage">
+    <div class="mileage-section show" id="mileage-section">
     <div class="mileage-header">
       <div class="admin-section-label" style="margin-bottom:0">🎖 사업단 마일리지</div>
       <button class="admin-mileage-btn" id="adminMileageToggle" style="display:none" onclick="toggleAdminMileage()">+ 마일리지 입력</button>
@@ -646,9 +705,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="mileage-empty" id="mileageEmpty" style="display:none">참여 내역이 없습니다.</div>
     </div>
   </div>
+  </div><!-- /content-mileage -->
 
   <div id="admin-section">
-    <div class="admin-section-label">관리자 전용</div>
     <div class="admin-btns">
       <a href="form_plan.html" class="admin-form-btn">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="1" width="9" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 4h5M4 6.5h5M4 9h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
@@ -693,6 +752,115 @@ function toggleNotice(id) {
   item.classList.toggle('open');
   body.style.display = isOpen ? 'none' : 'block';
   btn.innerHTML = isOpen ? '펼치기 <span class="n-arr">▼</span>' : '접기 <span class="n-arr">▲</span>';
+}
+
+// ── 탭 전환 ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('content-'+tab).classList.add('active');
+}
+
+// ── 개인 알림 (노쇼 경고) 렌더링 ──
+function renderPersonalAlert(data) {
+  const noShows = data.noShows || [];
+  const generation = data.generation || '';
+  const isGen3 = generation === '3기';
+  const wrap = document.getElementById('personalAlertWrap');
+  const content = document.getElementById('personalAlertContent');
+  if (!noShows.length) { wrap.classList.remove('show'); return; }
+
+  const GEN3_CUTOFF = new Date('2026-06-15');
+  const activeLeft = noShows.filter(function(n){ return (parseInt(n.penaltyLeft)||0) > 0; });
+  const totalLeft  = activeLeft.reduce(function(s,n){ return s+(parseInt(n.penaltyLeft)||0); }, 0);
+  const isResolved = totalLeft === 0; // 모든 제한 해소
+
+  // 카드 색상 결정
+  // 빨간: 제한 잔여 있음 (3기는 6/15 이후 발생분만)
+  // 노란: 이력은 있지만 제한 해소 or 3기 6/15 이전 이력
+  const isRed = !isResolved && !isGen3 ||
+    (!isResolved && isGen3 && noShows.some(function(n){
+      try { return new Date(n.date||n.semester) >= GEN3_CUTOFF; } catch(e){ return false; }
+    }));
+
+  const cardColor = isRed
+    ? { border:'rgba(200,57,43,.45)', bg:'rgba(200,57,43,.1)', badgeBg:'rgba(200,57,43,.35)', badgeColor:'#ff8a80', ttlColor:'#ff8a80', toggleBg:'rgba(200,57,43,.2)', toggleColor:'rgba(255,138,128,.6)', bodyBorder:'rgba(200,57,43,.2)', bodyColor:'rgba(255,200,190,.85)' }
+    : { border:'rgba(245,166,35,.4)',  bg:'rgba(245,166,35,.06)', badgeBg:'rgba(245,166,35,.25)', badgeColor:'#f5c842', ttlColor:'#f5c842', toggleBg:'rgba(245,166,35,.15)', toggleColor:'rgba(245,200,66,.6)', bodyBorder:'rgba(245,166,35,.2)', bodyColor:'rgba(255,230,180,.85)' };
+
+  // 제목 부제
+  let titleSub = '';
+  if (isGen3) {
+    if (isResolved) titleSub = '노쇼 이력 있음 (패널티 미적용) — 6/15 이후 재발 시 제한 적용';
+    else titleSub = '무단 불참 이력이 있습니다';
+  } else {
+    if (isResolved) titleSub = '노쇼 이력 있음 (제한 해소) — 재발 시 즉시 제한 적용됩니다';
+    else titleSub = '무단 불참 이력이 있습니다 — 비교과 신청 ' + totalLeft + '회 제한 중';
+  }
+
+  // 프로그램 목록
+  const progHtml = noShows.map(function(n) {
+    const left = parseInt(n.penaltyLeft) || 0;
+    let remainHtml = '';
+    if (isGen3) {
+      remainHtml = '<span style="display:inline-block;background:rgba(160,98,10,.3);color:#f0c080;font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;margin-top:3px">패널티 미적용</span>';
+    } else if (left > 0) {
+      remainHtml = '<span style="display:inline-block;background:rgba(200,57,43,.3);color:#ff8a80;font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;margin-top:3px">참여 제한 잔여 ' + left + '회</span>';
+    } else {
+      remainHtml = '<span style="display:inline-block;background:rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;margin-top:3px">제한 해소</span>';
+    }
+    return '<div style="background:rgba(0,0,0,.15);border:1px solid ' + cardColor.border + ';border-radius:7px;padding:7px 10px;margin-bottom:5px">'
+      + '<div style="font-size:11px;font-weight:700;color:' + cardColor.ttlColor + ';margin-bottom:2px;word-break:keep-all">' + (n.program||'') + '</div>'
+      + '<div style="font-size:10px;color:rgba(255,255,255,.45)">' + (n.semester||'') + '학기</div>'
+      + remainHtml + '</div>';
+  }).join('');
+
+  // 경고 박스
+  let warnHtml = '';
+  if (isGen3) {
+    warnHtml = '<div style="margin-top:8px;background:rgba(160,98,10,.15);border:1px solid rgba(160,98,10,.3);border-radius:7px;padding:8px 10px;font-size:10.5px;color:#f0c080;line-height:1.65;word-break:keep-all">'
+      + '<strong>※ 3기 학생 안내</strong><br>'
+      + '6/15(월) 이후 발생하는 노쇼부터 <strong>직후 프로그램 2회 참여 제한</strong>이 적용됩니다.<br>'
+      + (noShows.length >= 2 ? '<strong style="color:#ff8a80">⚠️ 누적 이력 ' + noShows.length + '건 — 추가 발생 시 장학금 요건에 영향을 줄 수 있습니다.</strong>' : '')
+      + '</div>';
+  } else if (noShows.length >= 3) {
+    warnHtml = '<div style="margin-top:8px;background:rgba(200,57,43,.18);border:1px solid rgba(200,57,43,.4);border-radius:7px;padding:8px 10px;font-size:10.5px;color:#ffaa88;line-height:1.65;word-break:keep-all">'
+      + '<strong style="color:#ff8a80">⛔ 노쇼 누적 ' + noShows.length + '회 — 장학금 요건 미충족</strong><br>'
+      + '인재장학금 미지급 및 우수학생 선발에서 제외됩니다. 사업단에 문의해주세요.</div>';
+  } else if (isResolved) {
+    warnHtml = '<div style="margin-top:8px;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:7px;padding:8px 10px;font-size:10.5px;color:#f0c080;line-height:1.65;word-break:keep-all">'
+      + '현재 참여 제한은 해소되었습니다.<br>'
+      + '재발 시 <strong>직후 2개 프로그램 참여가 즉시 제한</strong>되며, 누적 3회 이상 시 장학금 수혜 자격이 제한됩니다.</div>';
+  } else {
+    warnHtml = '<div style="margin-top:8px;background:rgba(200,57,43,.15);border:1px solid rgba(200,57,43,.3);border-radius:7px;padding:8px 10px;font-size:10.5px;color:#ffaa88;line-height:1.65;word-break:keep-all">'
+      + '노쇼 누적 ' + noShows.length + '회 · 3회 이상 시 인재장학금 미지급 및 우수학생 선발 제외.<br>'
+      + '부득이한 사정은 <strong style="color:#ffaa88">행사 하루 전날까지</strong> 반드시 사전 연락해주세요.</div>';
+  }
+
+  const badgeText = isRed ? '⛔ 노쇼 이력 ' + noShows.length + '건' : '⚠️ 노쇼 이력 ' + noShows.length + '건';
+
+  content.innerHTML = '<div id="nsCard" style="background:' + cardColor.bg + ';border:1.5px solid ' + cardColor.border + ';border-radius:11px;overflow:hidden;margin-bottom:6px">'
+    + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none" onclick="toggleNsCard()">'
+    + '<span style="font-size:9px;font-weight:800;background:' + cardColor.badgeBg + ';color:' + cardColor.badgeColor + ';padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0">' + badgeText + '</span>'
+    + '<span style="flex:1;font-size:11px;font-weight:700;color:' + cardColor.ttlColor + ';word-break:keep-all;line-height:1.35">' + titleSub + '</span>'
+    + '<span id="nsCardToggle" style="font-size:10px;color:' + cardColor.toggleColor + ';background:' + cardColor.toggleBg + ';border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0">접기 ▲</span>'
+    + '</div>'
+    + '<div id="nsCardBody" style="padding:0 12px 12px;border-top:1px solid ' + cardColor.bodyBorder + ';font-size:11px;color:' + cardColor.bodyColor + ';line-height:1.7;word-break:keep-all">'
+    + '<div style="margin-top:8px"><div class="noshow-prog-list">' + progHtml + '</div></div>'
+    + warnHtml
+    + '</div></div>';
+
+  wrap.classList.add('show');
+}
+
+function toggleNsCard() {
+  const card = document.getElementById('nsCard');
+  const body = document.getElementById('nsCardBody');
+  const btn  = document.getElementById('nsCardToggle');
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open');
+  body.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '펼치기 ▼' : '접기 ▲';
 }
 
 // ── 공지 팝업 ──
@@ -1004,46 +1172,12 @@ function renderMileage(data) {
   document.getElementById('mileageActCount').textContent = normalRecs.length + '건';
   document.getElementById('mileageFilter').style.display = 'flex';
 
-  // ★ 노쇼 패널티 배너 (이력 포함)
+  // ★ 개인 알림 (노쇼 경고) — 상단 개인알림 영역에 렌더링
+  renderPersonalAlert(data);
+
+  // 기존 mileagePenalty 숨김 (탭 구조로 대체)
   const penaltyEl = document.getElementById('mileagePenalty');
-  const noShows = data.noShows || [];
-  const generation = data.generation || '';
-  const isGen3 = generation === '3기';
-  if (noShows.length > 0) {
-    const activeLeft = noShows.filter(n => (parseInt(n.penaltyLeft) || 0) > 0);
-    let html = '<div class="mileage-penalty-title">⚠️ 노쇼 이력 ' + noShows.length + '건';
-    if (isGen3) {
-      html += ' · 패널티 미적용';
-    } else if (activeLeft.length > 0) {
-      const total = activeLeft.reduce((s, n) => s + (parseInt(n.penaltyLeft) || 0), 0);
-      html += ' · 비교과 신청 <strong style="color:#ff6b6b">' + total + '회 제한 중</strong>';
-    }
-    html += '</div><ul class="mileage-penalty-list">';
-    noShows.forEach(function(n) {
-      const left = parseInt(n.penaltyLeft) || 0;
-      if (isGen3) {
-        html += '<li>· ' + (n.program || '') + ' <span style="color:rgba(255,150,130,.5)">(패널티 미적용)</span></li>';
-      } else {
-        html += '<li>· ' + (n.program || '') + (left > 0
-          ? ' <span style="color:#ff6b6b">(제한 ' + left + '회 잔여)</span>'
-          : ' <span style="color:rgba(255,150,130,.5)">(제한 해소)</span>') + '</li>';
-      }
-    });
-    html += '</ul>';
-    if (isGen3) {
-      // 3기: 향후 적용 안내
-      html += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(200,57,43,.2);font-size:11px;color:rgba(255,200,150,.7)">※ 6/15(월) 이후 노쇼 발생 시 직후 프로그램 2회 제한 적용</div>';
-      // 3기 노쇼 2건 이상: 경고
-      if (noShows.length >= 2) {
-        html += '<div style="margin-top:6px;padding:7px 8px;background:rgba(200,57,43,.3);border-radius:5px;border:1px solid rgba(200,57,43,.5);font-size:11px;color:#ffaa88;line-height:1.7">'
-          + '<strong style="color:#ff7050">⛔ 경고 — 노쇼 이력 ' + noShows.length + '건입니다.</strong><br>'
-          + '6/15(월) 이후 노쇼 1회 추가 발생 시 <strong style="color:#ff6040">인재장학금 미지급 및 우수학생 선발 제외</strong>가 적용될 수 있습니다.'
-          + '</div>';
-      }
-    }
-    penaltyEl.innerHTML = html;
-    penaltyEl.classList.add('show');
-  }
+  if (penaltyEl) penaltyEl.style.display = 'none';
 
   // ★ 40점 달성 여부 — 2026-1학기 마일리지 기준
   const normSemCheck = s => (s || '').replace(/-0*(\d)$/, '-$1');
