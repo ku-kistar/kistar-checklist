@@ -170,16 +170,17 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .notice-section-title{font-size:13px;font-weight:800;color:#fff;letter-spacing:-.01em;white-space:nowrap}
 .notice-section-line{flex:1;height:1px;background:rgba(255,255,255,.12)}
 .notice-new-dot{width:7px;height:7px;border-radius:50%;background:#ff4444;flex-shrink:0;box-shadow:0 0 0 2px rgba(255,68,68,.3)}
-.notice-accordion-item{border-radius:11px;overflow:hidden;margin-bottom:7px}
+.notice-accordion-item{border-radius:11px;overflow:hidden;margin-bottom:7px;border:0.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
 .notice-accordion-item.urgent{border:1.5px solid rgba(200,57,43,.55);background:rgba(200,57,43,.08)}
-.notice-accordion-item.warn{border:1.5px solid rgba(245,166,35,.4);background:rgba(245,166,35,.05)}
-.notice-accordion-item.info{border:1.5px solid rgba(14,165,233,.35);background:rgba(14,165,233,.06)}
+.notice-accordion-item.warn{border:0.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
+.notice-accordion-item.info{border:0.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03)}
 .notice-accordion-head{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;user-select:none}
 .notice-accordion-badge{font-size:9px;font-weight:800;padding:3px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0;letter-spacing:.03em}
 .badge-urgent{background:rgba(200,57,43,.3);color:#ff8a80}
-.badge-warn{background:rgba(245,166,35,.25);color:#f5c842}
-.badge-info{background:rgba(14,165,233,.25);color:#7dd3fc}
-.notice-accordion-title{flex:1;font-size:clamp(11px,1.6vw,13px);font-weight:700;color:rgba(255,255,255,.92);line-height:1.4;word-break:keep-all}
+.badge-warn{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.badge-info{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.notice-accordion-title{flex:1;font-size:clamp(11px,1.6vw,13px);font-weight:700;color:rgba(255,255,255,.75);line-height:1.4;word-break:keep-all}
+.notice-accordion-item.urgent .notice-accordion-title{color:rgba(255,255,255,.92)}
 .notice-accordion-expand{flex-shrink:0;display:flex;align-items:center;gap:3px;font-size:10px;color:rgba(255,255,255,.5);white-space:nowrap;background:rgba(255,255,255,.07);border-radius:5px;padding:3px 8px;transition:background .15s}
 .notice-accordion-item.open .notice-accordion-expand{background:rgba(255,255,255,.12);color:rgba(255,255,255,.75)}
 .notice-accordion-expand .n-arr{transition:transform .25s;display:inline-block}
@@ -265,8 +266,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .mileage-item-name{font-size:13px;color:#fff;font-weight:500}
 .mileage-item-meta{font-size:11px;color:rgba(255,255,255,.4)}
 .mileage-item-badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600}
-.badge-edu{background:rgba(14,165,233,.2);color:#0ea5e9}
-.badge-extra{background:rgba(16,185,129,.2);color:#10b981}
+.badge-edu{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
+.badge-extra{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
 .mileage-item-pts{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#0ea5e9;white-space:nowrap}
 .mileage-empty{text-align:center;padding:2rem;color:rgba(255,255,255,.3);font-size:13px}
 .mileage-loading{text-align:center;padding:2rem;color:rgba(255,255,255,.4);font-size:13px}
@@ -843,9 +844,9 @@ function renderPersonalAlert(data) {
     + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none" onclick="toggleNsCard()">'
     + '<span style="font-size:9px;font-weight:800;background:' + cardColor.badgeBg + ';color:' + cardColor.badgeColor + ';padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0">' + badgeText + '</span>'
     + '<span style="flex:1;font-size:11px;font-weight:700;color:' + cardColor.ttlColor + ';word-break:keep-all;line-height:1.35">' + titleSub + '</span>'
-    + '<span id="nsCardToggle" style="font-size:10px;color:' + cardColor.toggleColor + ';background:' + cardColor.toggleBg + ';border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0">접기 ▲</span>'
+    + '<span id="nsCardToggle" style="font-size:10px;color:' + cardColor.toggleColor + ';background:' + cardColor.toggleBg + ';border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0">펼치기 ▼</span>'
     + '</div>'
-    + '<div id="nsCardBody" style="padding:0 12px 12px;border-top:1px solid ' + cardColor.bodyBorder + ';font-size:11px;color:' + cardColor.bodyColor + ';line-height:1.7;word-break:keep-all">'
+    + '<div id="nsCardBody" style="display:none;padding:0 12px 12px;border-top:1px solid ' + cardColor.bodyBorder + ';font-size:11px;color:' + cardColor.bodyColor + ';line-height:1.7;word-break:keep-all">'
     + '<div style="margin-top:8px"><div class="noshow-prog-list">' + progHtml + '</div></div>'
     + warnHtml
     + '</div></div>';
