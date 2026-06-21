@@ -622,12 +622,13 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <h3>💾 이전 작성 내용이 있습니다</h3>
     <p id="draftModalDesc"></p>
     <div class="draft-modal-note">
-      · 임시저장은 현재 기기의 브라우저에만 저장됩니다<br>
-      · 다른 기기에서는 불러올 수 없습니다<br>
+      · 임시저장은 <strong>현재 기기의 브라우저에만</strong> 저장됩니다<br>
+      · 다른 기기 또는 다른 브라우저에서는 불러올 수 없습니다<br>
       · 서명 이미지는 임시저장되지 않으므로 제출 시 다시 업로드해 주세요
     </div>
+    <div style="background:#fdf0ee;border:1px solid #f5c6c0;border-radius:6px;padding:8px 10px;font-size:11px;color:#c8392b;line-height:1.7;margin-bottom:4px">⚠️ <strong>새로 작성</strong>을 누르면 이전에 입력한 내용이 <strong>모두 삭제</strong>됩니다.<br>이전 내용을 이어서 작성하려면 반드시 <strong>불러오기</strong>를 선택하세요.</div>
     <div class="draft-modal-btns">
-      <button class="draft-modal-btn-discard" onclick="discardDraft()">새로 작성</button>
+      <button class="draft-modal-btn-discard" onclick="confirmDiscard()">새로 작성</button>
       <button class="draft-modal-btn-load" onclick="loadDraft()">불러오기</button>
     </div>
   </div>
@@ -635,7 +636,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
 <script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
-const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbw3cbuhl22T-R0GCh7jJ5DrALgqRqBxzRVLE67XxnCKfiwUgltIgSJP6Q3MkkhGoDLV/exec';
+const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
 
 const DEPT_COURSES = {
   '신소재공학부': ['--- [1] 전공트랙 ---','고급 AI 반도체소자','ASIC 설계','인공지능물리학','고급 AI 반도체공정및응용','반도체프로세스','디지털집적회로','AI반도체신소재개론','반도체재료','나노전자공학','반도체패키징 1','반도체패키징 2','--- [2] 공동운영 ---','AI반도체개론','반도체공정실습','진공장비실습','반도체머신러닝','--- [3] 산학연계 ---','PBL산학프로젝트 1','PBL산학프로젝트 2','차세대반도체콜로키움 1','차세대반도체콜로키움 2','--- [4] 자유이수(자과) ---','세라믹재료개론','유기재료화학 1','유기재료개론','X-선 결정학','고체물리','박막공학','반도체공정','광소재 및 소자','전자재료응용물성','디스플레이소재및공정','나노소재','--- [4] 자유이수(크로스) ---','VLSI설계 및 실험','정보기억소자','마이크로프로세서프로그래밍','나노공학입문','반도체화학공정','광학','--- [5] 학부인정 ---','반응속도론','융합기술및신소재응용','공학수학 1','공학수학 2','물리화학 1','물리화학 2','재료열역학','전자및반도체재료공학','재료구조물성','재료전자기물성','상평형론','열전달및확산'],
@@ -1000,7 +1001,7 @@ function initDraft(studentId){
   document.querySelectorAll('textarea, input[type=text]').forEach(el=>el.addEventListener('input',scheduleDraftSave));
   document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el=>el.addEventListener('change',scheduleDraftSave));
 }
-function scheduleDraftSave(){if(!draftKey)return;clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,2000);}
+function scheduleDraftSave(){if(!draftKey||adminViewMode)return;clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,2000);}
 function isLocalStorageAvailable(){try{const t='__ls_test__';localStorage.setItem(t,t);localStorage.removeItem(t);return true;}catch(e){return false;}}
 function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalStorageAvailable()){document.getElementById('draftStatus').textContent='⚠ 저장 불가 (브라우저 설정 확인)';return;}try{const data=collectFormData();data.savedAt=new Date().toISOString();localStorage.setItem(draftKey,JSON.stringify(data));const now=new Date();document.getElementById('draftStatus').textContent=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0')+' 저장됨';}catch(e){if(e.name==='QuotaExceededError'||e.code===22){document.getElementById('draftStatus').textContent='⚠ 저장 실패 (저장 공간 부족)';}else{document.getElementById('draftStatus').textContent='⚠ 저장 실패: '+e.message;}}}
   function loadDraft(){
@@ -1029,6 +1030,7 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
   }catch(e){}
 }
 function discardDraft(){document.getElementById('draftModal').style.display='none';draftData=null;}
+function confirmDiscard(){if(confirm('⚠️ 이전에 입력한 내용이 모두 삭제됩니다.\n정말 새로 작성하시겠습니까?'))discardDraft();}
 
 let resetPending=false,resetTimer=null;
 function resetStep(){
