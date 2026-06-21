@@ -956,7 +956,10 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('f-id').value = auth.studentId || '';
     const deptSelect = document.getElementById('f-dept');
     if (auth.dept && DEPT_COURSES[auth.dept]) {
-      deptSelect.value = auth.dept; currentDept = auth.dept; loadChecklistStatus(auth.dept);
+      deptSelect.value = auth.dept; currentDept = auth.dept;
+      const univEl = document.getElementById('f-univ');
+      if (univEl) univEl.value = COLLEGE_MAP[auth.dept] || '';
+      loadChecklistStatus(auth.dept);
     } else loadChecklistStatus('');
     const today = new Date();
     document.getElementById('docDate').textContent = today.getFullYear() + '.' + String(today.getMonth()+1).padStart(2,'0') + '.' + String(today.getDate()).padStart(2,'0');
