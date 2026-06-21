@@ -594,6 +594,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="tab-btn active" id="tab-forms" onclick="switchTab('forms')">
         <div class="tab-dot"></div>
         📋 설문·제출
+        <span id="tabFormsDday" style="display:none;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;margin-left:2px"></span>
       </div>
       <div class="tab-btn" id="tab-mileage" onclick="switchTab('mileage')">
         <div class="tab-dot"></div>
@@ -632,21 +633,51 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <button class="admin-mileage-btn" id="adminMileageToggle" style="display:none" onclick="toggleAdminMileage()">+ 마일리지 입력</button>
     </div>
     <div class="mileage-admin-panel" id="adminMileagePanel">
-      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-weight:600">참여자 일괄 마일리지 적립</div>
-      <select class="mileage-input" id="mileageSemester">
-        <option value="2024-2">2024-2학기</option>
-        <option value="2025-1">2025-1학기</option>
-        <option value="2025-2">2025-2학기</option>
-        <option value="2026-1" selected>2026-1학기</option>
-      </select>
-      <input class="mileage-input" id="mileageProgName" placeholder="프로그램명 (예: STOB 리그 Insight Sharing Day)">
-      <select class="mileage-input" id="mileageCategory">
-        <option value="교과">교과</option>
-        <option value="비교과" selected>비교과</option>
-      </select>
-      <input class="mileage-input" id="mileagePoints" type="number" placeholder="마일리지 점수 (예: 10)" min="1">
-      <textarea class="mileage-input" id="mileageStudentIds" rows="4" placeholder="학번 목록 (줄바꿈 또는 콤마로 구분)&#10;예: 2022170155&#10;2023170222&#10;2021170738"></textarea>
-      <button class="mileage-submit-btn" onclick="submitMileage()">적립하기</button>
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;font-weight:600">참여자 일괄 마일리지 적립</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">학기</div>
+          <select class="mileage-input" id="mileageSemester" style="margin-bottom:0">
+            <option value="2024-2">2024-2학기</option>
+            <option value="2025-1">2025-1학기</option>
+            <option value="2025-2">2025-2학기</option>
+            <option value="2026-1" selected>2026-1학기</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">날짜</div>
+          <input class="mileage-input" id="mileageDate" type="date" style="margin-bottom:0;color-scheme:dark">
+        </div>
+      </div>
+      <div style="margin-bottom:4px">
+        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">프로그램명</div>
+        <input class="mileage-input" id="mileageProgName" placeholder="예: 글로벌역량 강화프로그램 1" style="margin-bottom:0">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">카테고리</div>
+          <select class="mileage-input" id="mileageCategory" style="margin-bottom:0">
+            <option value="교과">교과</option>
+            <option value="비교과" selected>비교과</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">상태</div>
+          <select class="mileage-input" id="mileageStatus" style="margin-bottom:0">
+            <option value="정상" selected>정상</option>
+            <option value="패널티">패널티</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">점수</div>
+          <input class="mileage-input" id="mileagePoints" type="number" placeholder="예: 10" min="1" style="margin-bottom:0">
+        </div>
+      </div>
+      <div style="margin-bottom:4px">
+        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">학번 목록 <span style="font-weight:400">(줄바꿈 또는 콤마로 구분)</span></div>
+        <textarea class="mileage-input" id="mileageStudentIds" rows="4" placeholder="2022170155&#10;2023170222&#10;2021170738" style="margin-bottom:0"></textarea>
+      </div>
+      <button class="mileage-submit-btn" onclick="submitMileage()" style="margin-top:8px">적립하기</button>
       <div class="mileage-result-msg" id="mileageResultMsg"></div>
     </div>
 
@@ -840,6 +871,7 @@ function renderPersonalAlert(data) {
 
   const badgeText = isRed ? '⛔ 노쇼 이력 ' + noShows.length + '건' : '⚠️ 노쇼 이력 ' + noShows.length + '건';
 
+  // 기본 접힘 상태 (display:none) — 사용자가 직접 펼쳐야 함
   content.innerHTML = '<div id="nsCard" style="background:' + cardColor.bg + ';border:1.5px solid ' + cardColor.border + ';border-radius:11px;overflow:hidden;margin-bottom:6px">'
     + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none" onclick="toggleNsCard()">'
     + '<span style="font-size:9px;font-weight:800;background:' + cardColor.badgeBg + ';color:' + cardColor.badgeColor + ';padding:2px 7px;border-radius:99px;white-space:nowrap;flex-shrink:0">' + badgeText + '</span>'
@@ -852,6 +884,15 @@ function renderPersonalAlert(data) {
     + '</div></div>';
 
   wrap.classList.add('show');
+  // 빨간 카드(제한 잔여)는 자동 펼침, 노란 카드(해소/3기)는 접힘 유지
+  if (isRed) {
+    const body = content.querySelector('#nsCardBody');
+    const btn  = content.querySelector('#nsCardToggle');
+    const card = content.querySelector('#nsCard');
+    if (body) body.style.display = 'block';
+    if (btn)  btn.textContent = '접기 ▲';
+    if (card) card.classList.add('open');
+  }
 }
 
 function toggleNsCard() {
@@ -1041,6 +1082,28 @@ function renderForms(forms) {
   grid.innerHTML = '';
   if (!cardForms||!cardForms.length) { grid.classList.remove('show'); empty.classList.add('show'); }
   else { empty.classList.remove('show'); cardForms.forEach(f=>grid.appendChild(createCard(f))); grid.classList.add('show'); }
+
+  // 탭 D-day 뱃지: 활성 폼 중 마감 가장 임박한 것 기준
+  const ddayBadge = document.getElementById('tabFormsDday');
+  if (ddayBadge) {
+    const active = cardForms.filter(f => { const dl = getDaysLeft(f.deadline); return dl !== null && dl >= 0; });
+    if (active.length === 0) {
+      ddayBadge.style.display = 'none';
+    } else {
+      const minDl = Math.min(...active.map(f => getDaysLeft(f.deadline)));
+      ddayBadge.style.display = 'inline-block';
+      if (minDl === 0) {
+        ddayBadge.textContent = '오늘 마감';
+        ddayBadge.style.cssText += ';background:rgba(200,57,43,.3);color:#ff8a80;display:inline-block';
+      } else if (minDl <= 3) {
+        ddayBadge.textContent = 'D-' + minDl;
+        ddayBadge.style.cssText += ';background:rgba(200,57,43,.25);color:#ff8a80;display:inline-block';
+      } else {
+        ddayBadge.textContent = 'D-' + minDl;
+        ddayBadge.style.cssText += ';background:rgba(14,165,233,.2);color:#7dd3fc;display:inline-block';
+      }
+    }
+  }
 }
 
 let cbName=null, loadTO=null;
@@ -1293,35 +1356,54 @@ function submitMileage() {
   const semester   = document.getElementById('mileageSemester').value;
   const progName   = document.getElementById('mileageProgName').value.trim();
   const category   = document.getElementById('mileageCategory').value;
-  const points     = document.getElementById('mileagePoints').value;
+  const status     = document.getElementById('mileageStatus').value;
+  const date       = document.getElementById('mileageDate').value;
   const idsRaw     = document.getElementById('mileageStudentIds').value;
   const studentIds = idsRaw.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
   const msgEl      = document.getElementById('mileageResultMsg');
   msgEl.className  = 'mileage-result-msg';
-  if (!progName || !points || studentIds.length === 0) {
+  msgEl.textContent = '';
+
+  let rawPoints = parseInt(document.getElementById('mileagePoints').value);
+  if (!progName || !rawPoints || studentIds.length === 0) {
     msgEl.textContent = '프로그램명, 점수, 학번을 모두 입력해주세요.';
     msgEl.classList.add('err'); return;
   }
+  // 패널티는 점수를 음수로 저장
+  const points = status === '패널티' ? -Math.abs(rawPoints) : Math.abs(rawPoints);
+
   const pid = 'P' + Date.now().toString().slice(-6);
   const params = new URLSearchParams({
     action: 'addMileage', semester, programId: pid, programName: progName,
-    category, points, studentIds: studentIds.join(',')
+    category, status, date, points, studentIds: studentIds.join(',')
   });
+
+  const btn = document.querySelector('.mileage-submit-btn');
+  btn.disabled = true; btn.textContent = '처리 중...';
+
   fetch(SCRIPT_URL, { method: 'POST', body: params })
     .then(r => r.json())
     .then(data => {
+      btn.disabled = false; btn.textContent = '적립하기';
       if (data.status === 'ok') {
-        msgEl.textContent = '✓ ' + data.added + '명 적립 완료' + (data.notFound.length > 0 ? ' / 미확인 학번: ' + data.notFound.join(', ') : '');
+        const notFoundMsg = data.notFound && data.notFound.length > 0 ? '\n미확인 학번: ' + data.notFound.join(', ') : '';
+        msgEl.textContent = '✓ ' + data.added + '명 완료' + notFoundMsg;
         msgEl.classList.add('ok');
         document.getElementById('mileageProgName').value = '';
         document.getElementById('mileagePoints').value = '';
         document.getElementById('mileageStudentIds').value = '';
+        document.getElementById('mileageDate').value = '';
+        document.getElementById('mileageStatus').value = '정상';
       } else {
-        msgEl.textContent = '오류: ' + data.message;
+        msgEl.textContent = '오류: ' + (data.message || '알 수 없는 오류');
         msgEl.classList.add('err');
       }
     })
-    .catch(() => { msgEl.textContent = '네트워크 오류가 발생했습니다.'; msgEl.classList.add('err'); });
+    .catch(() => {
+      btn.disabled = false; btn.textContent = '적립하기';
+      msgEl.textContent = '네트워크 오류가 발생했습니다.';
+      msgEl.classList.add('err');
+    });
 }
 </script>
 </body>
