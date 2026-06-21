@@ -1081,14 +1081,11 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     // 교과 계획 테이블 복원 — 학과 먼저 세팅해야 옵션이 올바르게 채워짐
     if(d.dept){
       const deptSel=document.getElementById('f-dept');
-      if(deptSel&&deptSel.value!==d.dept){
-        deptSel.value=d.dept;
-        // onDeptChange 대신 currentDept만 세팅 (onDeptChange는 테이블을 초기화하므로 호출 금지)
-        currentDept=d.dept;
-        const univEl=document.getElementById('f-univ');
-        if(univEl&&typeof COLLEGE_MAP!=='undefined')univEl.value=COLLEGE_MAP[d.dept]||'';
-        loadChecklistStatus(d.dept);
-      }
+      if(deptSel)deptSel.value=d.dept;
+      currentDept=d.dept;
+      const univEl=document.getElementById('f-univ');
+      if(univEl&&typeof COLLEGE_MAP!=='undefined')univEl.value=COLLEGE_MAP[d.dept]||'';
+      loadChecklistStatus(d.dept);
     }
     if(d.coursePlanRaw){try{
       const rows=JSON.parse(d.coursePlanRaw);
