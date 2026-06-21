@@ -883,6 +883,25 @@ function getRadio(name) {
   return el.value;
 }
 
+function getCoursePlanRaw() {
+  const rows = document.querySelectorAll('#coursePlanBody tr');
+  const result = [];
+  rows.forEach(row => {
+    const sel = row.querySelector('select');
+    const inputs = row.querySelectorAll('input[type=text]');
+    const directInput = inputs[0]; // 직접입력 텍스트
+    const creditInput = inputs[inputs.length - 2];
+    const goalInput = inputs[inputs.length - 1];
+    result.push({
+      course: sel ? sel.value : '',
+      directName: directInput ? directInput.value : '',
+      credit: creditInput ? creditInput.value : '',
+      goal: goalInput ? goalInput.value : ''
+    });
+  });
+  return JSON.stringify(result);
+}
+
 function getCoursePlan() {
   const rows = document.querySelectorAll('#coursePlanBody tr');
   const result = [];
@@ -1059,6 +1078,26 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     if(d.career2){document.getElementById('career2').value=d.career2;if(d.career2==='기타'&&d.career2Other){document.getElementById('career2Other').style.display='inline-block';document.getElementById('career2Other').value=d.career2Other;}}
     if(d.career3){document.getElementById('career3').value=d.career3;if(d.career3==='기타'&&d.career3Other){document.getElementById('career3Other').style.display='inline-block';document.getElementById('career3Other').value=d.career3Other;}}
     syncCareerSelects();
+    // 교과 계획 테이블 복원
+    if(d.coursePlanRaw){try{
+      const rows=JSON.parse(d.coursePlanRaw);
+      const tbody=document.getElementById('coursePlanBody');
+      if(tbody&&Array.isArray(rows)&&rows.length){
+        tbody.innerHTML='';
+        rows.forEach(r=>{
+          const tr=document.createElement('tr');
+          const opts=buildCourseOptions(d.dept||currentDept||'');
+          tr.innerHTML=`<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><input type="text" placeholder="학습목표 및 기대효과"></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
+          const sel=tr.querySelector('select');
+          const inputs=tr.querySelectorAll('input[type=text]');
+          if(sel&&r.course){sel.value=r.course;}
+          if(r.course==='직접입력'&&inputs[0]){inputs[0].style.display='block';inputs[0].value=r.directName||'';}
+          if(inputs[inputs.length-2])inputs[inputs.length-2].value=r.credit||'';
+          if(inputs[inputs.length-1])inputs[inputs.length-1].value=r.goal||'';
+          tbody.appendChild(tr);
+        });
+      }
+    }catch(e){}}
     const savedTs=new Date(d.savedAt);document.getElementById('draftStatus').textContent=String(savedTs.getHours()).padStart(2,'0')+':'+String(savedTs.getMinutes()).padStart(2,'0')+' 불러옴';
   }catch(e){}
 }
@@ -1105,7 +1144,7 @@ function getCareerGoal(){
   return [r1, r2 ? '2순위:'+r2 : '', r3 ? '3순위:'+r3 : ''].filter(Boolean).join(' / ');
 }
 
-function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value};}
+function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value,coursePlanRaw:getCoursePlanRaw()};}
 function restoreChecks(name,csv){if(!csv)return;const vals=csv.split(', ');document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{el.checked=vals.includes(el.value);});}
 
 function submitForm(){
