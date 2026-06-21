@@ -297,17 +297,31 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 <script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVPp6U8ccymu4_PZjqUgtleXEQVmKD35s3p7SvCpAmR4P0mH/exec';
 
-// ── 접근 권한 체크 ──
+// ── 접근 권한 체크 (서버사이드 재검증) ──
+const HUB_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
 (function(){
   try {
     const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
-    if (!auth || !auth.isAdmin) {
-      document.getElementById('access-denied').style.display = 'block';
-      return;
+    if (!auth || !auth.studentId) {
+      document.getElementById('access-denied').style.display = 'block'; return;
     }
-    document.getElementById('main-content').style.display = 'block';
-    document.getElementById('admin-user-info').textContent =
-      auth.name + ' · ' + auth.dept;
+    // GAS 서버사이드 관리자 검증
+    const cbName = 'adminVerifyCb_' + Date.now();
+    window[cbName] = function(result) {
+      delete window[cbName]; document.head.removeChild(s);
+      if (result && result.isAdmin) {
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('admin-user-info').textContent = auth.name + ' · ' + auth.dept;
+      } else {
+        document.getElementById('access-denied').style.display = 'block';
+      }
+    };
+    const s = document.createElement('script');
+    s.src = HUB_URL + '?action=verifyAdmin&studentId=' + encodeURIComponent(auth.studentId)
+      + '&birthdate=' + encodeURIComponent(auth.birthdate || '')
+      + '&page=admin_dashboard&callback=' + cbName;
+    s.onerror = () => { document.getElementById('access-denied').style.display = 'block'; };
+    document.head.appendChild(s);
   } catch(e) {
     document.getElementById('access-denied').style.display = 'block';
   }
