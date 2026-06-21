@@ -512,20 +512,50 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     </div>
 
     <div class="field">
-      <div class="field-label">진로 비전 및 장기 계획 <span class="field-hint">※ 졸업 후 희망 진로</span></div>
-      <div class="check-group" style="margin-bottom:10px">
-        <label class="check-item"><input type="radio" name="career" value="대학원 진학"> 대학원 진학</label>
-        <label class="check-item"><input type="radio" name="career" value="국내 기업 취업"> 국내 기업 취업</label>
-        <label class="check-item"><input type="radio" name="career" value="해외 기업 취업"> 해외 기업 취업</label>
-        <label class="check-item"><input type="radio" name="career" value="연구소"> 연구소</label>
-        <label class="check-item"><input type="radio" name="career" value="창업"> 창업</label>
-        <label class="check-item"><input type="radio" name="career" value="미정"> 미정</label>
-        <!-- [FIX C] 진로 비전 기타 추가 -->
-        <label class="check-item-other" style="white-space:nowrap">
-          <input type="radio" name="career" value="기타" id="careerOtherChk">
-          <span class="other-label">기타:</span>
-          <input type="text" class="other-input" id="careerOtherText" placeholder="직접 입력">
-        </label>
+      <div class="field-label">진로 비전 및 장기 계획 <span class="field-hint">※ 졸업 후 희망 진로 — 1순위 필수, 2·3순위 선택</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:700;color:var(--accent);width:42px;flex-shrink:0">1순위</span>
+          <select id="career1" class="field-input" style="flex:1;min-width:160px;max-width:260px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
+            <option value="">선택하세요 (필수)</option>
+            <option value="대학원 진학">대학원 진학</option>
+            <option value="국내 기업 취업">국내 기업 취업</option>
+            <option value="해외 기업 취업">해외 기업 취업</option>
+            <option value="연구소">연구소</option>
+            <option value="창업">창업</option>
+            <option value="미정">미정</option>
+            <option value="기타">기타</option>
+          </select>
+          <input type="text" id="career1Other" class="field-input" placeholder="직접 입력" style="display:none;width:140px;padding:7px 10px;font-size:13px">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:700;color:var(--text3);width:42px;flex-shrink:0">2순위</span>
+          <select id="career2" class="field-input" style="flex:1;min-width:160px;max-width:260px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
+            <option value="">선택 안 함</option>
+            <option value="대학원 진학">대학원 진학</option>
+            <option value="국내 기업 취업">국내 기업 취업</option>
+            <option value="해외 기업 취업">해외 기업 취업</option>
+            <option value="연구소">연구소</option>
+            <option value="창업">창업</option>
+            <option value="미정">미정</option>
+            <option value="기타">기타</option>
+          </select>
+          <input type="text" id="career2Other" class="field-input" placeholder="직접 입력" style="display:none;width:140px;padding:7px 10px;font-size:13px">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:12px;font-weight:700;color:var(--text3);width:42px;flex-shrink:0">3순위</span>
+          <select id="career3" class="field-input" style="flex:1;min-width:160px;max-width:260px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
+            <option value="">선택 안 함</option>
+            <option value="대학원 진학">대학원 진학</option>
+            <option value="국내 기업 취업">국내 기업 취업</option>
+            <option value="해외 기업 취업">해외 기업 취업</option>
+            <option value="연구소">연구소</option>
+            <option value="창업">창업</option>
+            <option value="미정">미정</option>
+            <option value="기타">기타</option>
+          </select>
+          <input type="text" id="career3Other" class="field-input" placeholder="직접 입력" style="display:none;width:140px;padding:7px 10px;font-size:13px">
+        </div>
       </div>
     </div>
 
@@ -846,7 +876,7 @@ function getChecked(name) {
 function getRadio(name) {
   const el = document.querySelector(`input[name="${name}"]:checked`);
   if (!el) return '';
-  if (name === 'career' && el.value === '기타') {
+  if (name === 'career_legacy' && el.value === '기타') {
     const txt = document.getElementById('careerOtherText');
     return txt && txt.value.trim() ? '기타: ' + txt.value.trim() : '기타';
   }
@@ -1025,7 +1055,10 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     if(d.intern)restoreChecks('intern',d.intern);
     if(d.project)restoreChecks('project',d.project);
     if(d.support)restoreChecks('support',d.support);
-    if(d.career){const r=document.querySelector(`input[name="career"][value="${d.career}"]`);if(r)r.checked=true;}
+    if(d.career1){document.getElementById('career1').value=d.career1;if(d.career1==='기타'&&d.career1Other){document.getElementById('career1Other').style.display='inline-block';document.getElementById('career1Other').value=d.career1Other;}}
+    if(d.career2){document.getElementById('career2').value=d.career2;if(d.career2==='기타'&&d.career2Other){document.getElementById('career2Other').style.display='inline-block';document.getElementById('career2Other').value=d.career2Other;}}
+    if(d.career3){document.getElementById('career3').value=d.career3;if(d.career3==='기타'&&d.career3Other){document.getElementById('career3Other').style.display='inline-block';document.getElementById('career3Other').value=d.career3Other;}}
+    syncCareerSelects();
     const savedTs=new Date(d.savedAt);document.getElementById('draftStatus').textContent=String(savedTs.getHours()).padStart(2,'0')+':'+String(savedTs.getMinutes()).padStart(2,'0')+' 불러옴';
   }catch(e){}
 }
@@ -1040,7 +1073,39 @@ function resetStep(){
 
 function clearDraft(){if(!draftKey)return;if(!confirm('임시저장된 내용을 삭제하시겠습니까?'))return;localStorage.removeItem(draftKey);document.getElementById('draftStatus').textContent='삭제됨';draftData=null;}
 
-function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),career:getRadio('career')};}
+// 진로 순위 드롭다운 동기화 (중복 방지 + 기타 텍스트 표시)
+function syncCareerSelects(){
+  const ids = ['career1','career2','career3'];
+  const vals = ids.map(id => document.getElementById(id).value);
+  ids.forEach((id, i) => {
+    const sel = document.getElementById(id);
+    const otherEl = document.getElementById(id+'Other');
+    // 기타 텍스트 표시
+    otherEl.style.display = vals[i] === '기타' ? 'inline-block' : 'none';
+    if (vals[i] !== '기타') otherEl.value = '';
+    // 다른 순위에서 이미 선택된 값 비활성화 (1순위는 제외)
+    const others = vals.filter((v,j) => j !== i && v);
+    Array.from(sel.options).forEach(opt => {
+      if (!opt.value || opt.value === vals[i]) { opt.disabled = false; return; }
+      opt.disabled = others.includes(opt.value);
+    });
+  });
+}
+
+function getCareerGoal(){
+  const get = (id, otherId) => {
+    const v = document.getElementById(id).value;
+    if (!v) return '';
+    if (v === '기타') { const t = document.getElementById(otherId).value.trim(); return t ? '기타('+t+')' : '기타'; }
+    return v;
+  };
+  const r1 = get('career1','career1Other');
+  const r2 = get('career2','career2Other');
+  const r3 = get('career3','career3Other');
+  return [r1, r2 ? '2순위:'+r2 : '', r3 ? '3순위:'+r3 : ''].filter(Boolean).join(' / ');
+}
+
+function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value};}
 function restoreChecks(name,csv){if(!csv)return;const vals=csv.split(', ');document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{el.checked=vals.includes(el.value);});}
 
 function submitForm(){
@@ -1051,7 +1116,7 @@ function submitForm(){
   const longFields=[{id:'prev-achievement',label:'지난 학기 주요 성과',min:100},{id:'academic-plan',label:'학업 역량 강화 계획',min:100},{id:'industry-plan',label:'실무 경험 및 외부 연계 활동',min:50},{id:'project-plan',label:'자기 주도형 프로젝트 계획',min:50},{id:'support-request',label:'사업단 지원 요청',min:30}];
   [...shortFields,...longFields].forEach(f=>{const val=(document.getElementById(f.id).value||'').trim();if(val.length<f.min)warnings.push('· '+f.label+' (현재 '+val.length+'자 / 최소 '+f.min+'자 권장)');});
   if(warnings.length>0&&!confirm('다음 항목의 내용이 너무 짧습니다.\n\n'+warnings.join('\n')+'\n\n그래도 제출하시겠습니까?'))return;
-  const params=new URLSearchParams({action:'submitPlan',signatureImage:signFileBase64,studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,grade:document.getElementById('f-grade').value,phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,semester:document.getElementById('f-semester-input').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,techField:getChecked('tech'),coursePlan:getCoursePlan(),academicPlan:document.getElementById('academic-plan').value,internType:getChecked('intern'),industryPlan:document.getElementById('industry-plan').value,projectType:getChecked('project'),projectPlan:document.getElementById('project-plan').value,careerGoal:getRadio('career'),supportRequest:getChecked('support')+'\n'+document.getElementById('support-request').value});
+  const params=new URLSearchParams({action:'submitPlan',signatureImage:signFileBase64,studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,grade:document.getElementById('f-grade').value,phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,semester:document.getElementById('f-semester-input').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,techField:getChecked('tech'),coursePlan:getCoursePlan(),academicPlan:document.getElementById('academic-plan').value,internType:getChecked('intern'),industryPlan:document.getElementById('industry-plan').value,projectType:getChecked('project'),projectPlan:document.getElementById('project-plan').value,careerGoal:getCareerGoal(),supportRequest:getChecked('support')+'\n'+document.getElementById('support-request').value});
   showResult('success','제출 중...');
   fetch(SCRIPT_URL_HUB,{method:'POST',body:params}).then(r=>r.json()).then(result=>{
     if(result.status==='ok'){if(draftKey)localStorage.removeItem(draftKey);showResult('success','✅ 활동계획서가 제출되었습니다! ('+sname+')');}
