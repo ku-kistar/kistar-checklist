@@ -335,7 +335,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <td class="lbl">학&nbsp;년</td>
         <td><select id="f-grade" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option>2학년</option><option>3학년</option><option>4학년</option></select></td>
         <td class="lbl">학&nbsp;기</td>
-        <td><select id="f-semester" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option value="2026-1">2026-1학기</option><option value="2025-2">2025-2학기</option><option value="2025-1">2025-1학기</option><option value="2024-2">2024-2학기</option></select></td>
+        <td><select id="f-semester" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option value="1학기">1학기</option><option value="2학기">2학기</option></select></td>
       </tr>
       <tr>
         <td class="lbl">연락처</td>
@@ -873,8 +873,15 @@ function fillReportFormWithData(data){
   // 학년/학기/졸업예정
   const gradeEl=document.getElementById('f-grade');
   if(gradeEl&&data['학년'])gradeEl.value=data['학년'];
+  // 학기 - 시트값(2026-1 형식)을 select 옆에 텍스트로 표시
   const semEl=document.getElementById('f-semester');
-  if(semEl&&data['학기'])semEl.value=data['학기'];
+  if(semEl&&data['학기']){
+    // 2026-1 → 1학기 변환 시도
+    const semVal=data['학기'];
+    const semMatch=semVal.match(/-(\d)$/);
+    if(semMatch)semEl.value=semMatch[1]==='1'?'1학기':'2학기';
+    else semEl.value=semVal;
+  }
   const gradYearEl=document.getElementById('f-grad-year');
   const gradMonthEl=document.getElementById('f-grad-month');
   if(gradYearEl&&data['졸업예정년도'])gradYearEl.value=data['졸업예정년도'];
