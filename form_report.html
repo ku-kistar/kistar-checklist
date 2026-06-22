@@ -335,7 +335,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <td class="lbl">학&nbsp;년</td>
         <td><select id="f-grade" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option>2학년</option><option>3학년</option><option>4학년</option></select></td>
         <td class="lbl">학&nbsp;기</td>
-        <td><select id="f-semester" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option>1학기</option><option>2학기</option></select></td>
+        <td><select id="f-semester" style="width:100%;border:none;outline:none;font-size:13px;background:transparent;cursor:pointer"><option value="">선택</option><option value="2026-1">2026-1학기</option><option value="2025-2">2025-2학기</option><option value="2025-1">2025-1학기</option><option value="2024-2">2024-2학기</option></select></td>
       </tr>
       <tr>
         <td class="lbl">연락처</td>
@@ -904,15 +904,15 @@ function fillReportFormWithData(data){
         const cards=container.querySelectorAll('.course-card');
         const card=cards[cards.length-1];
         const sel=card.querySelector('.course-select');
-        const inputs=card.querySelectorAll('input[type=text]');
+        const inputs=card.querySelectorAll('input[type=text]'); // 담당교원/강의장소/강의시간/강의주제
         const ta=card.querySelectorAll('textarea');
         if(sel&&c.name)sel.value=c.name;
-        if(inputs[0])inputs[0].value=c.teacher||'';
-        if(inputs[1])inputs[1].value=c.room||'';
-        if(inputs[2])inputs[2].value=c.time||'';
-        if(inputs[3])inputs[3].value=c.topic||'';
-        if(ta[0])ta[0].value=c.change||'';
-        if(ta[1])ta[1].value=c.summary||'';
+        if(inputs[0])inputs[0].value=c.teacher||''; // 담당교원
+        if(inputs[1])inputs[1].value=c.room||'';    // 강의장소
+        if(inputs[2])inputs[2].value=c.time||'';    // 강의시간
+        if(inputs[3])inputs[3].value=c.topic||'';   // 강의주제
+        if(ta[0])ta[0].value=c.change||'';          // 달라진 점
+        if(ta[1])ta[1].value=c.summary||'';         // 강의 요약
       });
     }
   }catch(e){}}
@@ -926,13 +926,15 @@ function fillReportFormWithData(data){
         if(i>0)addExtraCard();
         const cards=container.querySelectorAll('.extracurr-card');
         const card=cards[cards.length-1];
-        const inputs=card.querySelectorAll('input[type=text]');
-        const ta=card.querySelector('textarea');
+        const nameInput=card.querySelector('.extracurr-card-title input[type=text]');
         const catSel=card.querySelector('.extracurr-cat-select');
-        if(inputs[0])inputs[0].value=ex.name||'';
+        const dateInput=card.querySelectorAll('.course-card-grid input[type=text]')[0];
+        const placeInput=card.querySelectorAll('.course-card-grid input[type=text]')[1];
+        const ta=card.querySelector('textarea');
+        if(nameInput)nameInput.value=ex.name||'';
         if(catSel&&ex.cat)catSel.value=ex.cat;
-        if(inputs[1])inputs[1].value=ex.date||'';
-        if(inputs[2])inputs[2].value=ex.place||'';
+        if(dateInput)dateInput.value=ex.date||'';
+        if(placeInput)placeInput.value=ex.place||'';
         if(ta)ta.value=ex.content||'';
       });
     }
@@ -949,12 +951,13 @@ function fillReportFormWithData(data){
         if(i>0)addInternCard();
         const cards=wrap.querySelectorAll('.intern-card');
         const card=cards[cards.length-1];
-        const inputs=card.querySelectorAll('input[type=text]');
-        const selects=card.querySelectorAll('select');
+        const orgInput=card.querySelector('.intern-inst-input');
+        const periodInput=card.querySelectorAll('input[type=text]')[1];
+        const typeSel=card.querySelector('select');
         const ta=card.querySelectorAll('textarea');
-        if(inputs[0])inputs[0].value=it.org||'';
-        if(inputs[1])inputs[1].value=it.period||'';
-        if(selects[0])selects[0].value=it.type||'';
+        if(orgInput)orgInput.value=it.org||'';
+        if(periodInput)periodInput.value=it.period||'';
+        if(typeSel)typeSel.value=it.type||'';
         if(ta[0])ta[0].value=it.work||'';
         if(ta[1])ta[1].value=it.learn||'';
       });
