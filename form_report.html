@@ -865,30 +865,27 @@ function setFormReadonly(readonly){
 
 function fillReportFormWithData(data){
   const sv=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;};
-  sv('f-id', data['학번']||data.studentId||'');
-  sv('f-name', data['이름']||data.name||'');
+  const name=data['이름']||data.name||'';
+  sv('f-id',    data['학번']||data.studentId||'');
+  sv('f-name',  name);
   sv('f-phone', data['연락처']||'');
   sv('f-email', data['이메일']||'');
-  // 학년 select
+  // 학년/학기/졸업예정
   const gradeEl=document.getElementById('f-grade');
-  if(gradeEl&&data['학년']) gradeEl.value=data['학년'];
-  // 학기 select
+  if(gradeEl&&data['학년'])gradeEl.value=data['학년'];
   const semEl=document.getElementById('f-semester');
-  if(semEl&&data['학기']) semEl.value=data['학기'];
-  // 졸업예정년도/월
+  if(semEl&&data['학기'])semEl.value=data['학기'];
   const gradYearEl=document.getElementById('f-grad-year');
   const gradMonthEl=document.getElementById('f-grad-month');
-  if(gradYearEl&&data['졸업예정년도']) gradYearEl.value=data['졸업예정년도'];
-  if(gradMonthEl&&data['졸업예정월']) gradMonthEl.value=data['졸업예정월'];
+  if(gradYearEl&&data['졸업예정년도'])gradYearEl.value=data['졸업예정년도'];
+  if(gradMonthEl&&data['졸업예정월'])gradMonthEl.value=data['졸업예정월'];
   // 학과
-  if(data['학과']){const ds=document.getElementById('f-dept');if(ds)ds.value=data['학과'];}
-  // 역량 별점
-  const starMajor=document.getElementById('star-major');
-  const starSkill=document.getElementById('star-skill');
-  const starCareer=document.getElementById('star-career');
-  if(starMajor&&data['역량_전공(별점)']) starMajor.value=data['역량_전공(별점)'];
-  if(starSkill&&data['역량_실무(별점)']) starSkill.value=data['역량_실무(별점)'];
-  if(starCareer&&data['역량_진로(별점)']) starCareer.value=data['역량_진로(별점)'];
+  if(data['학과']){const ds=document.getElementById('f-dept');if(ds){ds.value=data['학과'];onReportDeptChange(data['학과']);}}
+  // 역량 별점 (라디오 + 시각 UI)
+  const setRating=(name,val)=>{if(!val)return;const r=document.querySelector('input[name="'+name+'"][value="'+val+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change'));}};
+  setRating('r-major', data['역량_전공(별점)']||'');
+  setRating('r-skill', data['역량_실무(별점)']||'');
+  setRating('r-career',data['역량_진로(별점)']||'');
   // 텍스트 필드
   sv('major-understanding', data['전공이해도']||'');
   sv('practical-skill',     data['실무역량']||'');
@@ -896,8 +893,90 @@ function fillReportFormWithData(data){
   sv('future-study',        data['향후학업계획']||'');
   sv('future-career',       data['향후진로계획']||'');
   sv('support-request',     data['지원요청']||'');
-  // 서명
-  const signEl=document.getElementById('signName');if(signEl)signEl.textContent=data['이름']||'';
+  // 교과 활동 복원
+  if(data['이수과목활동']){try{
+    const courses=JSON.parse(data['이수과목활동']);
+    const container=document.getElementById('courseCards');
+    if(container&&Array.isArray(courses)&&courses.length){
+      container.innerHTML='';
+      courses.forEach((c,i)=>{
+        if(i>0)addCourseCard();
+        const cards=container.querySelectorAll('.course-card');
+        const card=cards[cards.length-1];
+        const sel=card.querySelector('.course-select');
+        const inputs=card.querySelectorAll('input[type=text]');
+        const ta=card.querySelectorAll('textarea');
+        if(sel&&c.name)sel.value=c.name;
+        if(inputs[0])inputs[0].value=c.teacher||'';
+        if(inputs[1])inputs[1].value=c.room||'';
+        if(inputs[2])inputs[2].value=c.time||'';
+        if(inputs[3])inputs[3].value=c.topic||'';
+        if(ta[0])ta[0].value=c.change||'';
+        if(ta[1])ta[1].value=c.summary||'';
+      });
+    }
+  }catch(e){}}
+  // 비교과 활동 복원
+  if(data['비교과활동']){try{
+    const extras=JSON.parse(data['비교과활동']);
+    const container=document.getElementById('extraCards');
+    if(container&&Array.isArray(extras)&&extras.length){
+      container.innerHTML='';
+      extras.forEach((ex,i)=>{
+        if(i>0)addExtraCard();
+        const cards=container.querySelectorAll('.extracurr-card');
+        const card=cards[cards.length-1];
+        const inputs=card.querySelectorAll('input[type=text]');
+        const ta=card.querySelector('textarea');
+        const catSel=card.querySelector('.extracurr-cat-select');
+        if(inputs[0])inputs[0].value=ex.name||'';
+        if(catSel&&ex.cat)catSel.value=ex.cat;
+        if(inputs[1])inputs[1].value=ex.date||'';
+        if(inputs[2])inputs[2].value=ex.place||'';
+        if(ta)ta.value=ex.content||'';
+      });
+    }
+  }catch(e){}}
+  // 인턴십 체크박스 복원 (컬럼명: '인턴유형')
+  if(data['인턴유형'])restoreChecks('internDone',data['인턴유형']);
+  // 인턴 상세 복원
+  if(data['인턴활동']){try{
+    const interns=JSON.parse(data['인턴활동']);
+    const wrap=document.getElementById('internDetailWrap');
+    if(wrap&&Array.isArray(interns)&&interns.length){
+      wrap.innerHTML='';
+      interns.forEach((it,i)=>{
+        if(i>0)addInternCard();
+        const cards=wrap.querySelectorAll('.intern-card');
+        const card=cards[cards.length-1];
+        const inputs=card.querySelectorAll('input[type=text]');
+        const selects=card.querySelectorAll('select');
+        const ta=card.querySelectorAll('textarea');
+        if(inputs[0])inputs[0].value=it.org||'';
+        if(inputs[1])inputs[1].value=it.period||'';
+        if(selects[0])selects[0].value=it.type||'';
+        if(ta[0])ta[0].value=it.work||'';
+        if(ta[1])ta[1].value=it.learn||'';
+      });
+    }
+  }catch(e){}}
+  // docWriter 학생 이름으로 업데이트
+  const dw=document.getElementById('docWriter');if(dw)dw.textContent=name;
+  // 서명란 이름
+  const signNameDisp=document.getElementById('sign-name-display');if(signNameDisp)signNameDisp.textContent=name;
+  // 서명 이미지 표시 (투명배경 PNG → (인) 위에 오버레이)
+  if(data['서명이미지Base64']&&data['서명이미지Base64'].length>100){
+    const preview=document.getElementById('signPreview');
+    if(preview){
+      preview.src=data['서명이미지Base64'];
+      preview.style.display='block';
+    }
+    // 업로드 버튼 숨김 (관리자 조회 모드에서 불필요)
+    const uploadBtn=document.getElementById('signUploadBtn');
+    if(uploadBtn)uploadBtn.style.display='none';
+  }
+  // PDF 버튼 표시
+  const pdfBtn=document.getElementById('btn-pdf');if(pdfBtn)pdfBtn.style.display='flex';
 }
 
 window.addEventListener('pageshow',function(e){
