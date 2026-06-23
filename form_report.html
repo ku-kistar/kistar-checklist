@@ -944,8 +944,8 @@ function fillReportFormWithData(data){
         const dateInput=allInputs[allInputs.length-2]||null;
         const placeInput=allInputs[allInputs.length-1]||null;
         const ta=card.querySelector('textarea');
-        if(nameInput)nameInput.value=ex.name||'';
-        if(catSel&&ex.cat)catSel.value=ex.cat;
+        if(nameInput)nameInput.value=ex.name||ex.program||'';
+        if(catSel&&(ex.cat||ex.category))catSel.value=ex.cat||ex.category||'';
         if(dateInput)dateInput.value=ex.date||'';
         if(placeInput)placeInput.value=ex.place||'';
         if(ta)ta.value=ex.content||'';
@@ -980,7 +980,9 @@ function fillReportFormWithData(data){
   // 채용연계 인턴십 현황 복원
   const empVal=data['취업상태']||data['employmentStatus']||'';
   if(empVal){
-    const empR=document.querySelector('input[name="employmentStatus"][value="'+empVal+'"]');
+    const empValNorm=empVal.replace(/\s/g,'');
+    let empR=document.querySelector('input[name="employmentStatus"][value="'+empVal+'"]');
+    if(!empR){document.querySelectorAll('input[name="employmentStatus"]').forEach(r=>{if(r.value.replace(/\s/g,'')===empValNorm)empR=r;});}
     if(empR){empR.checked=true;empR.dispatchEvent(new Event('change'));}
   }
   // docWriter 학생 이름으로 업데이트
