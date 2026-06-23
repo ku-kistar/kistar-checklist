@@ -873,13 +873,16 @@ function fillReportFormWithData(data){
   // 학년/학기/졸업예정
   const gradeEl=document.getElementById('f-grade');
   if(gradeEl&&data['학년'])gradeEl.value=data['학년'];
-  // 학기 - 시트값(2026-1 형식)을 select 옆에 텍스트로 표시
+  // 학기 - 시트값(2026-1 또는 날짜형식)을 select에 표시
   const semEl=document.getElementById('f-semester');
   if(semEl&&data['학기']){
-    // 2026-1 → 1학기 변환 시도
-    const semVal=data['학기'];
-    const semMatch=semVal.match(/-(\d)$/);
-    if(semMatch)semEl.value=semMatch[1]==='1'?'1학기':'2학기';
+    const semVal=String(data['학기']);
+    // "2026-1" 형식
+    const m1=semVal.match(/[-](\d)(?:\s|$)/);
+    // "2026-01-01" 날짜 형식 → 월로 판별 (1~6월=1학기, 7~12월=2학기)
+    const m2=semVal.match(/\d{4}-0?(\d+)-/);
+    if(m1) semEl.value=m1[1]==='1'?'1학기':'2학기';
+    else if(m2) semEl.value=parseInt(m2[1])<=6?'1학기':'2학기';
     else semEl.value=semVal;
   }
   const gradYearEl=document.getElementById('f-grad-year');
@@ -890,9 +893,9 @@ function fillReportFormWithData(data){
   if(data['학과']){const ds=document.getElementById('f-dept');if(ds){ds.value=data['학과'];onReportDeptChange(data['학과']);}}
   // 역량 별점 (라디오 + 시각 UI)
   const setRating=(name,val)=>{if(!val)return;const r=document.querySelector('input[name="'+name+'"][value="'+val+'"]');if(r){r.checked=true;r.dispatchEvent(new Event('change'));}};
-  setRating('r-major', data['역량_전공(별점)']||'');
-  setRating('r-skill', data['역량_실무(별점)']||'');
-  setRating('r-career',data['역량_진로(별점)']||'');
+  setRating('r-major', data['역량_전공(별점)']||data['역량평가_전공']||'');
+  setRating('r-skill', data['역량_실무(별점)']||data['역량평가_실무']||'');
+  setRating('r-career',data['역량_진로(별점)']||data['역량평가_진로']||'');
   // 텍스트 필드
   sv('major-understanding', data['전공이해도']||'');
   sv('practical-skill',     data['실무역량']||'');
