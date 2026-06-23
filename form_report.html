@@ -909,31 +909,33 @@ function fillReportFormWithData(data){
     const container=document.getElementById('courseCards');
     if(container&&Array.isArray(courses)&&courses.length){
       container.innerHTML='';
-      courses.forEach((c,i)=>{
-        if(i>0)addCourseCard();
+      courseCardCount=0;
+      courses.forEach((c)=>{
+        addCourseCard();
         const cards=container.querySelectorAll('.course-card');
         const card=cards[cards.length-1];
         const sel=card.querySelector('.course-select');
-        const inputs=card.querySelectorAll('input.field-input'); // 담당교원/강의장소/강의시간/강의주제
+        const inputs=card.querySelectorAll('input.field-input');
         const ta=card.querySelectorAll('textarea');
         if(sel&&c.name)sel.value=c.name;
-        if(inputs[0])inputs[0].value=c.teacher||''; // 담당교원
-        if(inputs[1])inputs[1].value=c.room||'';    // 강의장소
-        if(inputs[2])inputs[2].value=c.time||'';    // 강의시간
-        if(inputs[3])inputs[3].value=c.topic||'';   // 강의주제
-        if(ta[0])ta[0].value=c.change||'';          // 달라진 점
-        if(ta[1])ta[1].value=c.summary||'';         // 강의 요약
+        if(inputs[0])inputs[0].value=c.teacher||'';
+        if(inputs[1])inputs[1].value=c.room||'';
+        if(inputs[2])inputs[2].value=c.time||'';
+        if(inputs[3])inputs[3].value=c.topic||'';
+        if(ta[0])ta[0].value=c.change||'';
+        if(ta[1])ta[1].value=c.summary||'';
       });
     }
-  }catch(e){}}
+  }catch(e){console.error('교과복원오류',e);}}
   // 비교과 활동 복원
   if(data['비교과활동']){try{
     const extras=JSON.parse(data['비교과활동']);
     const container=document.getElementById('extraCards');
     if(container&&Array.isArray(extras)&&extras.length){
       container.innerHTML='';
-      extras.forEach((ex,i)=>{
-        if(i>0)addExtraCard();
+      extraCardCount=0;
+      extras.forEach((ex)=>{
+        addExtraCard();
         const cards=container.querySelectorAll('.extracurr-card');
         const card=cards[cards.length-1];
         const nameInput=card.querySelector('.extracurr-card-title input[type=text]');
@@ -947,7 +949,7 @@ function fillReportFormWithData(data){
         if(ta)ta.value=ex.content||'';
       });
     }
-  }catch(e){}}
+  }catch(e){console.error('비교과복원오류',e);}}
   // 인턴십 체크박스 복원 (컬럼명: '인턴유형')
   if(data['인턴유형'])restoreChecks('internDone',data['인턴유형']);
   // 인턴 상세 복원
@@ -956,8 +958,9 @@ function fillReportFormWithData(data){
     const wrap=document.getElementById('internDetailWrap');
     if(wrap&&Array.isArray(interns)&&interns.length){
       wrap.innerHTML='';
-      interns.forEach((it,i)=>{
-        if(i>0)addInternCard();
+      internCardCount=0;
+      interns.forEach((it)=>{
+        addInternCard();
         const cards=wrap.querySelectorAll('.intern-card');
         const card=cards[cards.length-1];
         const orgInput=card.querySelector('.intern-inst-input');
@@ -971,7 +974,7 @@ function fillReportFormWithData(data){
         if(ta[1])ta[1].value=it.learn||'';
       });
     }
-  }catch(e){}}
+  }catch(e){console.error('인턴복원오류',e);}}
   // 채용연계 인턴십 현황 복원
   const empVal=data['취업상태']||data['employmentStatus']||'';
   if(empVal){
