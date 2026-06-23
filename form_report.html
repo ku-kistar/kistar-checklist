@@ -938,14 +938,16 @@ function fillReportFormWithData(data){
         addExtraCard();
         const cards=container.querySelectorAll('.extracurr-card');
         const card=cards[cards.length-1];
-        const nameInput=card.querySelector('.extracurr-card-title input[type=text]');
+        const allInputs=card.querySelectorAll('input[type=text]');
+        const nameInput=card.querySelector('.extracurr-card-title input[type=text]')||allInputs[0];
         const catSel=card.querySelector('.extracurr-cat-select');
-        const gridInputs=card.querySelectorAll('.course-card-grid input[type=text]');
+        const dateInput=allInputs[allInputs.length-2]||null;
+        const placeInput=allInputs[allInputs.length-1]||null;
         const ta=card.querySelector('textarea');
         if(nameInput)nameInput.value=ex.name||'';
         if(catSel&&ex.cat)catSel.value=ex.cat;
-        if(gridInputs[0])gridInputs[0].value=ex.date||'';
-        if(gridInputs[1])gridInputs[1].value=ex.place||'';
+        if(dateInput)dateInput.value=ex.date||'';
+        if(placeInput)placeInput.value=ex.place||'';
         if(ta)ta.value=ex.content||'';
       });
     }
