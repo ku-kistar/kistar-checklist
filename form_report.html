@@ -190,7 +190,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .field-hint,.sign-header ul{display:none!important}
 
   /* 기본 */
-  @page{margin:15mm 12mm;size:A4}
+  @page{margin:12mm 10mm;size:A4}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{background:#fff!important;padding:0!important;font-size:9.5pt!important;color:#000!important}
   .container{padding:0!important;max-width:100%!important;width:100%!important}
@@ -199,30 +199,53 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   a[href]:after{content:none!important}
   a::after{content:'' !important;display:none!important}
 
-  /* 섹션 - 페이지 끊김 자연스럽게 */
-  .form-section,.doc-header,.status-card{
+  /* ── 섹션 컨테이너
+     - 섹션 자체는 내부에서 끊길 수 있도록 auto
+     - 섹션 타이틀(헤더)과 바로 아래 첫 content가 분리되지 않도록 avoid-after */
+  .form-section,.doc-header{
     border:1px solid #bbb!important;margin-bottom:8pt!important;
-    break-inside:auto!important;page-break-inside:auto!important
+    break-inside:auto!important;page-break-inside:auto!important;
+    overflow:visible!important
   }
   .section-title{
     background:#0b1f3a!important;color:#fff!important;
     padding:6pt 10pt!important;font-size:10pt!important;
     break-after:avoid!important;page-break-after:avoid!important;
-    break-before:auto!important
+    break-before:avoid!important;page-break-before:avoid!important
   }
   .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
-  .section-body{padding:8pt 12pt!important;break-inside:auto!important}
+  .section-body{padding:8pt 12pt!important;break-inside:auto!important;page-break-inside:auto!important}
 
-  /* 필드 */
-  .field{margin-bottom:5pt!important;break-inside:avoid!important;page-break-inside:avoid!important}
-  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;break-after:avoid!important}
-  .field-input,.field-textarea{
+  /* ── 필드
+     - 라벨+입력이 함께 다음 페이지로 넘어가도록 avoid
+     - 단, textarea가 매우 길면 어쩔 수 없이 끊릴 수 있으므로
+       textarea 단독 필드는 auto로 완화하여 하단 공백 방지 */
+  .field{
+    margin-bottom:5pt!important;
+    break-inside:avoid!important;page-break-inside:avoid!important
+  }
+  .field-label{
+    font-size:8.5pt!important;font-weight:700!important;
+    margin-bottom:2pt!important;
+    break-after:avoid!important;page-break-after:avoid!important
+  }
+  .field-input{
     background:#fff!important;border:1px solid #ccc!important;
     height:auto!important;min-height:0!important;
     overflow:visible!important;resize:none!important;
     font-size:9pt!important;padding:4pt 6pt!important
   }
-  /* textarea - 스크롤바 없이 전체 내용 출력 */
+  .field-textarea{
+    background:#fff!important;border:1px solid #ccc!important;
+    height:auto!important;min-height:0!important;
+    overflow:visible!important;resize:none!important;
+    font-size:9pt!important;padding:4pt 6pt!important
+  }
+  /* textarea를 포함한 .field는 내부 분리 허용 → 하단 공백 방지 */
+  .field:has(textarea){
+    break-inside:auto!important;page-break-inside:auto!important
+  }
+  /* textarea 전체 출력 (스크롤 없이) */
   textarea,textarea.field-textarea{
     height:auto!important;overflow:visible!important;
     max-height:none!important;min-height:0!important;
@@ -230,40 +253,49 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     resize:none!important;display:block!important
   }
 
-  /* 카드 - 페이지 안에서 최대한 안 끊기되 너무 길면 허용 */
+  /* ── 카드류 (교과/비교과/인턴)
+     짧은 카드는 안 끊기게, 길면 자연 분리 허용 */
   .course-card,.extracurr-card,.intern-card{
-    break-inside:avoid;page-break-inside:avoid;
+    break-inside:avoid!important;page-break-inside:avoid!important;
     margin-bottom:6pt!important;border:1px solid #ddd!important
   }
+  /* 카드 내 textarea는 분리 허용 (너무 길면 끊겨도 무방) */
+  .course-card:has(textarea),.extracurr-card:has(textarea),.intern-card:has(textarea){
+    break-inside:auto!important;page-break-inside:auto!important
+  }
 
-  /* 별점 */
-  .star-rating-wrap{break-inside:avoid;page-break-inside:avoid}
+  /* ── 별점 */
+  .star-rating-wrap{break-inside:avoid!important;page-break-inside:avoid!important}
 
-  /* 서명 */
-  .sign-section{break-inside:avoid;page-break-inside:avoid}
+  /* ── 서명란 — 무조건 한 페이지에 */
+  .sign-section{
+    break-inside:avoid!important;page-break-inside:avoid!important;
+    break-before:auto!important
+  }
   .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
   .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important;padding:10pt 16pt!important}
   .sign-table .name-cell{justify-content:center!important;gap:10px!important;letter-spacing:0.03em!important}
   .sign-img-preview{display:block!important;width:70px!important;height:70px!important;object-fit:contain!important;margin:0 6pt!important}
 
-  /* 이수현황 카드 */
-  .status-card{break-inside:avoid;page-break-inside:avoid}
+  /* ── 이수현황 카드 */
+  .status-card{
+    break-inside:avoid!important;page-break-inside:avoid!important;
+    border:1px solid #bbb!important;margin-bottom:8pt!important
+  }
 
-  /* doc-header */
+  /* ── doc-header */
   .doc-header-top{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 
-  /* 그리드 */
+  /* ── 그리드 */
   .course-card-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6pt!important}
 
-  /* 체크박스/라디오 레이블 */
+  /* ── 체크박스/라디오 레이블 */
   .check-group{gap:4pt 12pt!important;margin:3pt 0 6pt!important}
   .check-item{font-size:9pt!important}
 
-  /* footer 대체 텍스트 */
+  /* ── footer */
   .print-footer-text{display:block!important}
-  /* 기존 footer 숨김 */
   .footer{display:none!important}
-  /* 페이지 하단 여백 최소화 */
   .form-section:last-of-type{margin-bottom:0!important}
 }
 .print-footer-text{display:none}
@@ -873,6 +905,16 @@ function initCourseSelects(){document.querySelectorAll('.course-select').forEach
 function printWithDeadline(){
   const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
   if(!auth||!auth.studentId){alert('로그인 정보가 없습니다.');return;}
+  // 인쇄 전 안내 팝업
+  const ok=confirm(
+    '📄 PDF 저장 전 확인사항\n\n' +
+    '브라우저 인쇄 다이얼로그에서 아래 설정을 변경해주세요:\n\n' +
+    '  ✅ "머리글 및 바닥글" → 체크 해제\n' +
+    '     (날짜·URL이 인쇄되지 않도록)\n\n' +
+    '  ✅ 대상 → "PDF로 저장"\n\n' +
+    '확인 버튼을 누르면 인쇄 창이 열립니다.'
+  );
+  if(!ok)return;
   const targetId=(adminViewMode&&lookupStudentId)?lookupStudentId:auth.studentId;
   fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(targetId)).then(r=>r.json()).then(data=>{
     if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.\n구글 시트 명단 탭 F열을 확인해주세요.');return;}
