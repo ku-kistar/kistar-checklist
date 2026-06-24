@@ -754,7 +754,7 @@ function submitForm(){
   const warnings=[];
   [{id:'major-understanding',label:'전공 이해도',min:100},{id:'practical-skill',label:'실무 역량',min:100},{id:'career-awareness',label:'진로 인식',min:100},{id:'future-study',label:'향후 학습 계획',min:100},{id:'future-career',label:'향후 진로 계획',min:100}].forEach(f=>{const val=(document.getElementById(f.id).value||'').trim();if(val.length<f.min)warnings.push('· '+f.label+' (현재 '+val.length+'자 / 최소 '+f.min+'자 권장)');});
   if(warnings.length>0&&!confirm('다음 항목의 내용이 너무 짧습니다.\n\n'+warnings.join('\n')+'\n\n그래도 제출하시겠습니까?'))return;
-  const params=new URLSearchParams({action:'submitReport',studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,grade:document.getElementById('f-grade').value,semester:'2026-1',phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,gradYear:document.getElementById('f-grad-year')?.value||'',gradMonth:document.getElementById('f-grad-month')?.value||'',ratingMajor:getRadio('r-major'),ratingSkill:getRadio('r-skill'),ratingCareer:getRadio('r-career'),majorUnderstanding:document.getElementById('major-understanding').value,practicalSkill:document.getElementById('practical-skill').value,careerAwareness:document.getElementById('career-awareness').value,futureStudy:document.getElementById('future-study').value,futureCareer:document.getElementById('future-career').value,courseActivities:collectCourseData(),extraActivities:collectExtraData(),internActivities:collectInternData(),internTypes:getChecked('internDone'),employmentStatus:getRadio('employmentStatus'),employmentStatusOther:document.getElementById('employmentStatusOther')?.value||'',internPeriodStart:document.getElementById('internPeriodStart')?.value||'',internPeriodEnd:document.getElementById('internPeriodEnd')?.value||'',internConvertTime:document.getElementById('internConvertTime')?.value||'',internConvertCond:getRadio('internConvertCond'),signatureImage:signFileBase64});
+  const params=new URLSearchParams({action:'submitReport',studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,grade:document.getElementById('f-grade').value,semester:'2026-1',phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,gradYear:document.getElementById('f-grad-year')?.value||'',gradMonth:document.getElementById('f-grad-month')?.value||'',ratingMajor:getRadio('r-major'),ratingSkill:getRadio('r-skill'),ratingCareer:getRadio('r-career'),majorUnderstanding:document.getElementById('major-understanding').value,practicalSkill:document.getElementById('practical-skill').value,careerAwareness:document.getElementById('career-awareness').value,futureStudy:document.getElementById('future-study').value,futureCareer:document.getElementById('future-career').value,courseActivities:collectCourseData(),extraActivities:collectExtraData(),internActivities:collectInternData(),internTypes:getChecked('internDone'),employmentStatus:getRadio('employmentStatus'),employmentStatusOther:document.getElementById('employmentStatusOther')?.value||'',empCompany:document.getElementById('empCompany')?.value||'',empDept:document.getElementById('empDept')?.value||'',empType:getRadio('empType'),empTypeOther:document.getElementById('empTypeOther')?.value||'',empStartDate:document.getElementById('empStartDate')?.value||'',internPeriodStart:document.getElementById('internStart')?.value||'',internPeriodEnd:document.getElementById('internEnd')?.value||'',internConvertTime:document.getElementById('internConvertDate')?.value||'',internConvertCond:getRadio('internConvert'),signatureImage:signFileBase64});
   showResult('success','제출 중...');
   fetch(SCRIPT_URL_HUB,{method:'POST',body:params}).then(r=>r.json()).then(result=>{
     if(result.status==='ok'){if(draftKey)localStorage.removeItem(draftKey);showResult('success','✅ 결과보고서가 제출되었습니다! ('+sname+')');}
@@ -984,6 +984,28 @@ function fillReportFormWithData(data){
     let empR=document.querySelector('input[name="employmentStatus"][value="'+empVal+'"]');
     if(!empR){document.querySelectorAll('input[name="employmentStatus"]').forEach(r=>{if(r.value.replace(/\s/g,'')===empValNorm)empR=r;});}
     if(empR){empR.checked=true;empR.dispatchEvent(new Event('change'));}
+    // 채용 상세 복원
+    setTimeout(()=>{
+      const setVal=(id,v)=>{const el=document.getElementById(id);if(el&&v)el.value=v;};
+      setVal('empCompany',data['회사명']||data['empCompany']||'');
+      setVal('empDept',data['직무부서']||data['empDept']||'');
+      setVal('empStartDate',data['입사예정일']||data['empStartDate']||'');
+      const empTypeVal=data['고용형태']||data['empType']||'';
+      if(empTypeVal){
+        let tr=document.querySelector('input[name="empType"][value="'+empTypeVal+'"]');
+        if(!tr)document.querySelectorAll('input[name="empType"]').forEach(r=>{if(r.value.replace(/\s/g,'')===empTypeVal.replace(/\s/g,''))tr=r;});
+        if(tr){tr.checked=true;tr.dispatchEvent(new Event('change'));}
+      }
+      setVal('internStart',data['인턴기간시작']||data['internPeriodStart']||'');
+      setVal('internEnd',data['인턴기간종료']||data['internPeriodEnd']||'');
+      setVal('internConvertDate',data['채용전환예정시기']||data['internConvertTime']||'');
+      const convVal=data['채용전환조건']||data['internConvertCond']||'';
+      if(convVal){
+        let cr=document.querySelector('input[name="internConvert"][value="'+convVal+'"]');
+        if(!cr)document.querySelectorAll('input[name="internConvert"]').forEach(r=>{if(r.value.replace(/\s/g,'')===convVal.replace(/\s/g,''))cr=r;});
+        if(cr)cr.checked=true;
+      }
+    },100);
   }
   // docWriter 학생 이름으로 업데이트
   const dw=document.getElementById('docWriter');if(dw)dw.textContent=name;
