@@ -183,19 +183,79 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .status-total-val.complete{color:var(--green)}
 .status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 @media print{
-  .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.footer,.char-counter,#resetBtn,.btn-print,.sign-upload-btn,#access-denied{display:none!important}
-  body{background:#fff;padding:0;font-size:10pt}
-  .container{padding:0;max-width:100%}
-  .form-section,.doc-header,.status-card{border:1px solid #ccc;margin-bottom:.6rem}
-  .field{break-inside:avoid;page-break-inside:avoid;margin-bottom:.5rem}
-  .field-textarea{background:#fff!important;border:1px solid #ccc!important;height:auto!important;min-height:0!important;overflow:visible!important;resize:none!important}
-  .course-card,.extracurr-card,.intern-card{break-inside:avoid;page-break-inside:avoid;margin-bottom:.4rem!important}
-  .doc-header-top,.section-title{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .section-body{padding:10px 16px!important}
-  @page{margin:10mm 8mm}
-  .form-section{margin-bottom:.3rem!important}
-  .container{max-width:100%!important;padding:0!important;width:100%!important}
+  /* 숨김 요소 */
+  .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.footer,
+  .char-counter,#resetBtn,.btn-print,.sign-upload-btn,#access-denied,
+  .admin-lookup-bar,.admin-readonly-notice,#btn-pdf,
+  .field-hint,.sign-header ul{display:none!important}
+
+  /* 기본 */
+  @page{margin:15mm 12mm;size:A4}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;padding:0!important;font-size:9.5pt!important;color:#000!important}
+  .container{padding:0!important;max-width:100%!important;width:100%!important}
+
+  /* URL 하단 제거 */
+  a[href]:after{content:none!important}
+
+  /* 섹션 */
+  .form-section,.doc-header,.status-card{
+    border:1px solid #bbb!important;margin-bottom:6pt!important;
+    break-inside:auto;page-break-inside:auto
+  }
+  .section-title{
+    background:#0b1f3a!important;color:#fff!important;
+    padding:6pt 10pt!important;font-size:10pt!important;
+    break-after:avoid;page-break-after:avoid
+  }
+  .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
+  .section-body{padding:8pt 12pt!important}
+
+  /* 필드 */
+  .field{margin-bottom:6pt!important;break-inside:avoid;page-break-inside:avoid}
+  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important}
+  .field-input,.field-textarea{
+    background:#fff!important;border:1px solid #ccc!important;
+    height:auto!important;min-height:0!important;
+    overflow:visible!important;resize:none!important;
+    font-size:9pt!important;padding:4pt 6pt!important
+  }
+  textarea.field-textarea{
+    height:auto!important;overflow:visible!important;
+    white-space:pre-wrap!important;word-break:break-word!important
+  }
+
+  /* 카드 - 페이지 안에서 최대한 안 끊기되 너무 길면 허용 */
+  .course-card,.extracurr-card,.intern-card{
+    break-inside:avoid;page-break-inside:avoid;
+    margin-bottom:6pt!important;border:1px solid #ddd!important
+  }
+
+  /* 별점 */
+  .star-rating-wrap{break-inside:avoid;page-break-inside:avoid}
+
+  /* 서명 */
+  .sign-section{break-inside:avoid;page-break-inside:avoid}
+  .sign-table td{padding:6pt 10pt!important;font-size:9.5pt!important;text-align:center;vertical-align:middle}
+  .sign-img-preview{display:block!important;width:80px!important;height:80px!important;object-fit:contain!important}
+
+  /* 이수현황 카드 */
+  .status-card{break-inside:avoid;page-break-inside:avoid}
+
+  /* doc-header */
+  .doc-header-top{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* 그리드 */
+  .course-card-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6pt!important}
+
+  /* 체크박스/라디오 레이블 */
+  .check-group{gap:4pt 12pt!important;margin:3pt 0 6pt!important}
+  .check-item{font-size:9pt!important}
+
+  /* footer 대체 텍스트 */
+  .print-footer-text{display:block!important}
 }
+.print-footer-text{display:none}
 .check-group{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px}
 .check-item{display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;color:var(--text)}
 .check-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0}
@@ -221,14 +281,16 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .sign-table .name-cell{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .print-header{display:none}
 @media print{
-  .print-header{display:flex!important;justify-content:space-between;align-items:flex-start;margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid #333}
-  .print-header-logo{font-size:11pt;font-weight:700;color:#000;line-height:1.6}
-  .print-header-sub{font-size:10pt;color:#333}
-  .sign-section{border:none!important;margin-bottom:0!important}
+  .print-header{display:flex!important;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #0b1f3a}
+  .print-header-logo{font-size:10pt;font-weight:700;color:#0b1f3a;line-height:1.5}
+  .print-header-right{font-size:10pt;font-weight:600;color:#0b1f3a}
+  .sign-section{border:1px solid #ccc!important;margin-bottom:0!important;break-inside:avoid;page-break-inside:avoid}
   .sign-header{display:none!important}
   .sign-upload-btn{display:none!important}
   .sign-img-preview{display:block!important}
   .sign-body{padding:8px 0!important}
+  .sign-table td{text-align:center;vertical-align:middle}
+  .sign-table .name-cell{justify-content:center}
 }
 .admin-lookup-bar{background:#eaf1fb;border:0.5px solid #b5d4f4;border-radius:10px;padding:12px 16px;margin:0 0 1rem;display:none;flex-direction:column;gap:8px}
 .admin-lookup-bar.show{display:flex}
@@ -249,7 +311,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
-<div class="print-header"><div><div class="print-header-logo">차세대AI반도체특성화대학사업단</div><div class="print-header-sub">차세대반도체 융합전공</div></div></div>
+<div class="print-header"><div class="print-header-logo">차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</div><div class="print-header-right">2026학년도 결과보고서 제출</div></div>
 
 <!-- [FIX 1] 접근거부: fixed fullscreen + inner div -->
 <div id="access-denied" style="display:none">
