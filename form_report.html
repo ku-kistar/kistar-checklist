@@ -197,32 +197,37 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
   /* URL 하단 제거 */
   a[href]:after{content:none!important}
+  a::after{content:'' !important;display:none!important}
 
-  /* 섹션 */
+  /* 섹션 - 페이지 끊김 자연스럽게 */
   .form-section,.doc-header,.status-card{
-    border:1px solid #bbb!important;margin-bottom:6pt!important;
-    break-inside:auto;page-break-inside:auto
+    border:1px solid #bbb!important;margin-bottom:8pt!important;
+    break-inside:auto!important;page-break-inside:auto!important
   }
   .section-title{
     background:#0b1f3a!important;color:#fff!important;
     padding:6pt 10pt!important;font-size:10pt!important;
-    break-after:avoid;page-break-after:avoid
+    break-after:avoid!important;page-break-after:avoid!important;
+    break-before:auto!important
   }
   .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
-  .section-body{padding:8pt 12pt!important}
+  .section-body{padding:8pt 12pt!important;break-inside:auto!important}
 
   /* 필드 */
-  .field{margin-bottom:6pt!important;break-inside:avoid;page-break-inside:avoid}
-  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important}
+  .field{margin-bottom:5pt!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;break-after:avoid!important}
   .field-input,.field-textarea{
     background:#fff!important;border:1px solid #ccc!important;
     height:auto!important;min-height:0!important;
     overflow:visible!important;resize:none!important;
     font-size:9pt!important;padding:4pt 6pt!important
   }
-  textarea.field-textarea{
+  /* textarea - 스크롤바 없이 전체 내용 출력 */
+  textarea,textarea.field-textarea{
     height:auto!important;overflow:visible!important;
-    white-space:pre-wrap!important;word-break:break-word!important
+    max-height:none!important;min-height:0!important;
+    white-space:pre-wrap!important;word-break:break-word!important;
+    resize:none!important;display:block!important
   }
 
   /* 카드 - 페이지 안에서 최대한 안 끊기되 너무 길면 허용 */
@@ -236,8 +241,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
   /* 서명 */
   .sign-section{break-inside:avoid;page-break-inside:avoid}
-  .sign-table td{padding:6pt 10pt!important;font-size:9.5pt!important;text-align:center;vertical-align:middle}
-  .sign-img-preview{display:block!important;width:80px!important;height:80px!important;object-fit:contain!important}
+  .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
+  .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important;padding:10pt 16pt!important}
+  .sign-table .name-cell{justify-content:center!important;gap:10px!important;letter-spacing:0.03em!important}
+  .sign-img-preview{display:block!important;width:70px!important;height:70px!important;object-fit:contain!important;margin:0 6pt!important}
 
   /* 이수현황 카드 */
   .status-card{break-inside:avoid;page-break-inside:avoid}
@@ -254,6 +261,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
   /* footer 대체 텍스트 */
   .print-footer-text{display:block!important}
+  /* 기존 footer 숨김 */
+  .footer{display:none!important}
+  /* 페이지 하단 여백 최소화 */
+  .form-section:last-of-type{margin-bottom:0!important}
 }
 .print-footer-text{display:none}
 .check-group{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px}
