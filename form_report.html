@@ -846,6 +846,7 @@ function resetLookup(){
   document.getElementById('lookupResult').style.display='none';
   document.getElementById('lookupResetBtn').style.display='none';
   document.getElementById('adminReadonlyNotice').style.display='none';
+  const pdfBtnReset=document.getElementById('btn-pdf');if(pdfBtnReset)pdfBtnReset.style.display='none';
   setFormReadonly(false);
   const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
   if(auth){
