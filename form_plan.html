@@ -97,21 +97,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .draft-modal-btn-load{padding:9px 20px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .draft-modal-btn-discard{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit}
 
-@media print{
-  .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.add-row-btn,.del-row-btn,.char-counter,.draft-modal-overlay,#resetBtn,.btn-print,.sign-upload-btn,.status-card{display:none!important}
-  body{background:#fff;padding:0;font-size:11pt}
-  .container{padding:0;max-width:100%}
-  .form-section{border:1px solid #ccc;margin-bottom:.8rem}
-  .field{break-inside:avoid;page-break-inside:avoid;margin-bottom:.6rem}
-  .field-textarea{background:#fff!important;border:1px solid #ccc!important;height:auto!important;min-height:0!important;overflow:visible!important;resize:none!important}
-  .field-input,.course-plan-table td select,.course-plan-table td input{background:#fff!important;border-bottom:1px solid #ccc!important}
-  .course-plan-table{break-inside:avoid;page-break-inside:avoid}
-  .check-group,.check-item,.check-item-other{break-inside:avoid}
-  .doc-header-top,.section-title{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#fff!important;break-after:avoid;page-break-after:avoid}
-  p,li,td{orphans:3;widows:3}
-  .goal-row{break-inside:avoid}
-  .check-group{break-inside:avoid;page-break-inside:avoid}
-}
+
 
 @media(max-width:768px){
   .container{padding:1.2rem 1rem}
@@ -188,24 +174,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .status-total-val.complete{color:var(--green)}
 .status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 
-@media print{
-  .top-bar,.submit-area,.add-row-btn,.del-row-btn,.footer{display:none!important}
-  body{background:#fff;padding:0;font-size:10pt}
-  .container{padding:0;max-width:100%}
-  .form-section,.doc-header,.status-card{border:1px solid #ccc;margin-bottom:.6rem}
-  .field{break-inside:avoid;page-break-inside:avoid;margin-bottom:.5rem}
-  .field-textarea{background:#fff!important;border:1px solid #ccc!important;height:auto!important;min-height:0!important;overflow:visible!important;resize:none!important}
-  .goal-row{break-inside:avoid}
-  .check-group{break-inside:avoid;page-break-inside:avoid}
-  .doc-header-top,.section-title{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;break-after:avoid;page-break-after:avoid}
-  p,li,td{orphans:3;widows:3}
-  .section-body{padding:10px 16px!important}
-  .field-label{margin-bottom:4px!important}
-  .info-table td{padding:5px 10px!important}
-  @page{margin:10mm 8mm}
-  .form-section{margin-bottom:.3rem!important}
-  .container{max-width:100%!important;padding:0!important;width:100%!important}
-}
+
 
 .sign-section{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;break-inside:avoid;page-break-inside:avoid}
 .sign-header{padding:14px 18px;border-bottom:0.5px solid var(--border);background:var(--surface2)}
@@ -224,14 +193,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .sign-input{display:none}
 .sign-guide{font-size:11px;color:var(--text3);line-height:1.7;margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:8px}
 .sign-guide strong{color:var(--text2)}
-@media print{
-  .sign-section{border:none!important;margin-bottom:0!important}
-  .sign-header{display:none!important}
-  .sign-upload-btn{display:none!important}
-  .sign-img-preview{display:block!important}
-  .sign-guide{display:none!important}
-  .sign-body{padding:8px 0!important}
-}
+
 .sign-table{width:100%;border-collapse:collapse;margin-top:4px}
 .sign-table td{border:1px solid var(--border);padding:10px 16px;font-size:13px}
 .sign-table .lbl{background:var(--surface2);font-weight:700;text-align:center;width:90px;color:var(--text2)}
@@ -239,11 +201,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .sign-table .name-cell{display:flex;align-items:center;gap:8px}
 .sign-date-input{border:none;outline:none;font-size:13px;background:transparent;font-family:inherit;color:var(--text);width:160px}
 .print-header{display:none}
-@media print{
-  .print-header{display:flex!important;justify-content:space-between;align-items:flex-start;margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid #333}
-  .print-header-logo{font-size:11pt;font-weight:700;color:#000;line-height:1.6}
-  .print-header-sub{font-size:10pt;color:#333}
-}
+
 /* 관리자 조회 바 */
 .admin-lookup-bar{background:#eaf1fb;border:0.5px solid #b5d4f4;border-radius:10px;padding:12px 16px;margin:0 0 1rem;display:none;flex-direction:column;gap:8px}
 .admin-lookup-bar.show{display:flex}
@@ -259,7 +217,88 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .admin-lookup-result .alr-date{margin-left:auto;font-size:11px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:99px;white-space:nowrap}
 .admin-lookup-result.error .alr-date{display:none}
 .admin-readonly-notice{display:flex;align-items:center;gap:6px;font-size:11px;color:#a0620a;background:#fdf5e6;border:0.5px solid #f0d9a8;border-radius:6px;padding:7px 12px;margin:0 0 .5rem}
-@media print{.admin-lookup-bar,.admin-readonly-notice{display:none!important}}
+
+/* ── 화면에서 숨김 (print 전용) */
+.ta-print-clone{display:none}
+
+@media print{
+  /* ── 숨김 요소 */
+  .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.add-row-btn,.del-row-btn,
+  .char-counter,.draft-modal-overlay,#resetBtn,.btn-print,.sign-upload-btn,.status-card,
+  .admin-lookup-bar,.admin-readonly-notice,#btn-pdf,
+  .field-hint,.sign-header,.sign-guide{display:none!important}
+
+  /* ── 페이지 설정 */
+  @page{margin:12mm 10mm;size:A4}
+
+  /* ── 기본 */
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;padding:0!important;font-size:9.5pt!important;color:#000!important}
+  .container{padding:0!important;max-width:100%!important;width:100%!important}
+  a[href]:after{content:none!important}
+  a::after{content:''!important;display:none!important}
+
+  /* ── 섹션 — 자연 분리 허용 */
+  .form-section,.doc-header,.status-card{
+    border:1px solid #bbb!important;margin-bottom:8pt!important;
+    break-inside:auto!important;page-break-inside:auto!important;overflow:visible!important
+  }
+  .section-title{
+    background:#0b1f3a!important;color:#fff!important;
+    padding:6pt 10pt!important;font-size:10pt!important;
+    break-after:avoid!important;page-break-after:avoid!important
+  }
+  .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
+  .section-body{padding:8pt 12pt!important;break-inside:auto!important}
+
+  /* ── 필드 — 모두 auto (공백 방지) */
+  .field{margin-bottom:5pt!important;break-inside:auto!important;page-break-inside:auto!important}
+  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;break-after:avoid!important}
+  .field-input,.course-plan-table td select,.course-plan-table td input{
+    background:#fff!important;border:1px solid #ccc!important;
+    height:auto!important;overflow:visible!important;font-size:9pt!important;padding:4pt 6pt!important
+  }
+
+  /* ── textarea → beforeprint에서 div.ta-print-clone으로 교체됨 */
+  textarea{display:none!important}
+  .ta-print-clone{
+    display:block!important;
+    background:#fff!important;border:1px solid #ccc!important;border-radius:4px;
+    font-size:9pt!important;padding:4pt 6pt!important;
+    white-space:pre-wrap!important;word-break:break-word!important;
+    line-height:1.55!important;color:#000!important;
+    min-height:0!important;width:100%!important;box-sizing:border-box!important
+  }
+
+  /* ── 교과계획 테이블 */
+  .course-plan-table{break-inside:auto!important;page-break-inside:auto!important}
+  .info-table td{padding:5pt 10pt!important}
+
+  /* ── goal-row / check-group */
+  .goal-row{break-inside:avoid!important;page-break-inside:avoid!important}
+  .check-group{gap:4pt 12pt!important;margin:3pt 0 6pt!important;break-inside:avoid!important}
+  .check-item{font-size:9pt!important}
+
+  /* ── 서명란 */
+  .sign-section{border:1px solid #ccc!important;margin-bottom:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .sign-body{padding:8px 0!important}
+  .sign-img-preview{display:block!important}
+  .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
+  .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important}
+  .sign-table .name-cell{justify-content:center!important;gap:10px!important}
+
+  /* ── print-header */
+  .print-header{display:flex!important;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #0b1f3a}
+  .print-header-logo{font-size:10pt;font-weight:700;color:#0b1f3a;line-height:1.5}
+  .print-header-sub{font-size:9pt;color:#555}
+
+  /* ── doc-header */
+  .doc-header-top{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* ── footer */
+  .footer,.form-footer{display:none!important}
+  .form-section:last-of-type{margin-bottom:0!important}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
@@ -614,13 +653,16 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   </div>
 </div>
 
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">
+  <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    PDF로 저장
+  </button>
+</div>
+
 <div class="submit-area">
   <div class="submit-note">본인은 위 계획을 성실히 실천하며, 차세대 AI 반도체 분야의 혁신적인 인재로 성장하기 위해 최선을 다할 것을 다짐합니다.</div>
   <div class="btn-group">
-    <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      PDF로 저장
-    </button>
     <button class="btn-submit" onclick="submitForm()">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       제출하기
@@ -719,6 +761,7 @@ function lookupStudent() {
       adminViewMode = true;
       document.getElementById('lookupResetBtn').style.display = 'inline-block';
       document.getElementById('adminReadonlyNotice').style.display = 'flex';
+      document.getElementById('btn-pdf').style.display = 'flex';
       setFormReadonly(true);
     })
     .catch(() => {
@@ -734,6 +777,7 @@ function resetLookup() {
   document.getElementById('lookupResult').style.display = 'none';
   document.getElementById('lookupResetBtn').style.display = 'none';
   document.getElementById('adminReadonlyNotice').style.display = 'none';
+  document.getElementById('btn-pdf').style.display = 'none';
   setFormReadonly(false);
   // 내 폼(관리자 기본 상태)으로 복원
   const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
@@ -1185,6 +1229,18 @@ function showResult(type,msg){
 function printWithDeadline(){
   const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
   if(!auth||!auth.studentId){alert('로그인 정보가 없습니다.');return;}
+  const ok=confirm(
+    '📄 PDF 저장 안내\n\n' +
+    '인쇄 다이얼로그에서 아래 설정을 확인해주세요:\n\n' +
+    '  ① 대상: "PDF로 저장"\n' +
+    '  ② 머리글 및 바닥글:\n' +
+    '     · 웨일/크롬: 체크 해제하거나\n' +
+    '       "맞춤" 선택 후 바닥글 왼쪽에\n' +
+    '       "고려대학교 차세대AI반도체특성화대학사업단"\n' +
+    '       입력 권장\n\n' +
+    '확인을 누르면 인쇄 창이 열립니다.'
+  );
+  if(!ok)return;
   const targetId = (adminViewMode && lookupStudentId) ? lookupStudentId : auth.studentId;
   fetch(SCRIPT_URL_HUB+'?action=getDeadline&studentId='+encodeURIComponent(targetId)).then(r=>r.json()).then(data=>{
     if(data.status!=='ok'||!data.deadline){alert('⚠️ 제출기한일시가 설정되지 않았습니다.\n구글 시트 명단 탭 F열을 확인해주세요.');return;}
@@ -1193,6 +1249,24 @@ function printWithDeadline(){
     setTimeout(()=>window.print(),100);
   }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
 }
+
+// ── beforeprint: textarea → div 교체 (스크롤바/잘림 완전 해결) ──
+const _taCloneMap = new Map();
+window.addEventListener('beforeprint', function(){
+  document.querySelectorAll('textarea').forEach(function(ta){
+    const clone = document.createElement('div');
+    clone.className = 'ta-print-clone';
+    clone.textContent = ta.value;
+    ta.parentNode.insertBefore(clone, ta.nextSibling);
+    _taCloneMap.set(ta, clone);
+  });
+});
+window.addEventListener('afterprint', function(){
+  _taCloneMap.forEach(function(clone){
+    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
+  });
+  _taCloneMap.clear();
+});
 
 window.addEventListener('pageshow',function(e){
   if(e.persisted){const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');const EXPIRE_MS=8*60*60*1000;if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS){document.getElementById('main-content').style.display='none';document.getElementById('access-denied').style.display='block';}}
