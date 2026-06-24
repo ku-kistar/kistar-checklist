@@ -832,6 +832,7 @@ function lookupStudent(){
       dateEl.textContent=data.submittedAt?data.submittedAt.slice(0,16)+' 제출':'';
       fillReportFormWithData(data);
       lookupStudentId=sid;adminViewMode=true;
+      const pdfBtnLookup=document.getElementById('btn-pdf');if(pdfBtnLookup)pdfBtnLookup.style.display='flex';
       document.getElementById('lookupResetBtn').style.display='inline-block';
       document.getElementById('adminReadonlyNotice').style.display='flex';
       setFormReadonly(true);
