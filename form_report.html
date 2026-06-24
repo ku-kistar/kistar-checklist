@@ -183,50 +183,70 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .status-total-val.complete{color:var(--green)}
 .status-no-data{font-size:12px;color:var(--text3);text-align:center;padding:12px 0}
 @media print{
-  /* 숨김 요소 */
+  /* ── 숨김 요소 */
   .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.footer,
   .char-counter,#resetBtn,.btn-print,.sign-upload-btn,#access-denied,
   .admin-lookup-bar,.admin-readonly-notice,#btn-pdf,
   .field-hint,.sign-header ul{display:none!important}
 
-  /* 기본 */
-  @page{margin:12mm 10mm;size:A4}
+  /* ── 페이지 설정 (하단 14mm: CSS 푸터 공간) */
+  @page{
+    margin:12mm 10mm 18mm 10mm;
+    size:A4;
+    @bottom-left{content:none}
+    @bottom-right{content:none}
+  }
+
+  /* ── 페이지 번호 + 기관명 푸터 (CSS counter 방식) */
+  body{
+    counter-reset:page-counter;
+  }
+  /* 각 페이지 하단에 고정 푸터 출력 */
+  .print-page-footer{
+    display:block!important;
+    position:fixed;
+    bottom:0;left:0;right:0;
+    height:14mm;
+    padding:0 10mm;
+    display:flex!important;
+    align-items:center;
+    justify-content:space-between;
+    font-size:8pt;
+    color:#555;
+    border-top:0.5pt solid #ccc;
+    background:#fff;
+  }
+  .print-page-footer-left{font-size:8pt;color:#333;font-weight:500}
+  .print-page-footer-right{font-size:8pt;color:#555}
+
+  /* ── 기본 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{background:#fff!important;padding:0!important;font-size:9.5pt!important;color:#000!important}
   .container{padding:0!important;max-width:100%!important;width:100%!important}
-
-  /* URL 하단 제거 */
   a[href]:after{content:none!important}
-  a::after{content:'' !important;display:none!important}
+  a::after{content:''!important;display:none!important}
 
-  /* ── 섹션 컨테이너
-     - 섹션 자체는 내부에서 끊길 수 있도록 auto
-     - 섹션 타이틀(헤더)과 바로 아래 첫 content가 분리되지 않도록 avoid-after */
-  .form-section,.doc-header{
-    border:1px solid #bbb!important;margin-bottom:8pt!important;
-    break-inside:auto!important;page-break-inside:auto!important;
+  /* ── 섹션 — 모든 break 제거, 자연 분리 허용 */
+  .form-section,.doc-header,.status-card{
+    border:1px solid #bbb!important;
+    margin-bottom:8pt!important;
+    break-inside:auto!important;
+    page-break-inside:auto!important;
     overflow:visible!important
   }
+  /* 섹션 타이틀이 페이지 맨 아래에 혼자 남지 않도록만 */
   .section-title{
     background:#0b1f3a!important;color:#fff!important;
     padding:6pt 10pt!important;font-size:10pt!important;
-    break-after:avoid!important;page-break-after:avoid!important;
-    break-before:avoid!important;page-break-before:avoid!important
+    break-after:avoid!important;page-break-after:avoid!important
   }
   .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
-  .section-body{padding:8pt 12pt!important;break-inside:auto!important;page-break-inside:auto!important}
+  .section-body{padding:8pt 12pt!important;break-inside:auto!important}
 
-  /* ── 필드
-     - 라벨+입력이 함께 다음 페이지로 넘어가도록 avoid
-     - 단, textarea가 매우 길면 어쩔 수 없이 끊릴 수 있으므로
-       textarea 단독 필드는 auto로 완화하여 하단 공백 방지 */
-  .field{
-    margin-bottom:5pt!important;
-    break-inside:avoid!important;page-break-inside:avoid!important
-  }
+  /* ── 필드 — 모두 auto (공백 방지 최우선) */
+  .field{margin-bottom:5pt!important;break-inside:auto!important;page-break-inside:auto!important}
   .field-label{
-    font-size:8.5pt!important;font-weight:700!important;
-    margin-bottom:2pt!important;
+    font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;
     break-after:avoid!important;page-break-after:avoid!important
   }
   .field-input{
@@ -241,47 +261,30 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     overflow:visible!important;resize:none!important;
     font-size:9pt!important;padding:4pt 6pt!important
   }
-  /* textarea를 포함한 .field는 내부 분리 허용 → 하단 공백 방지 */
-  .field:has(textarea){
-    break-inside:auto!important;page-break-inside:auto!important
-  }
-  /* textarea 전체 출력 (스크롤 없이) */
+  /* textarea — 스크롤 완전 제거, 내용 전체 표시 */
   textarea,textarea.field-textarea{
     height:auto!important;overflow:visible!important;
     max-height:none!important;min-height:0!important;
     white-space:pre-wrap!important;word-break:break-word!important;
-    resize:none!important;display:block!important
+    resize:none!important;display:block!important;
+    /* scrollHeight 기반 확장은 JS beforeprint에서 처리 */
   }
 
-  /* ── 카드류 (교과/비교과/인턴)
-     짧은 카드는 안 끊기게, 길면 자연 분리 허용 */
+  /* ── 카드류 — auto (어디서든 자연 분리) */
   .course-card,.extracurr-card,.intern-card{
-    break-inside:avoid!important;page-break-inside:avoid!important;
+    break-inside:auto!important;page-break-inside:auto!important;
     margin-bottom:6pt!important;border:1px solid #ddd!important
-  }
-  /* 카드 내 textarea는 분리 허용 (너무 길면 끊겨도 무방) */
-  .course-card:has(textarea),.extracurr-card:has(textarea),.intern-card:has(textarea){
-    break-inside:auto!important;page-break-inside:auto!important
   }
 
   /* ── 별점 */
   .star-rating-wrap{break-inside:avoid!important;page-break-inside:avoid!important}
 
-  /* ── 서명란 — 무조건 한 페이지에 */
-  .sign-section{
-    break-inside:avoid!important;page-break-inside:avoid!important;
-    break-before:auto!important
-  }
+  /* ── 서명란 — 한 페이지에 유지 */
+  .sign-section{break-inside:avoid!important;page-break-inside:avoid!important}
   .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
   .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important;padding:10pt 16pt!important}
   .sign-table .name-cell{justify-content:center!important;gap:10px!important;letter-spacing:0.03em!important}
   .sign-img-preview{display:block!important;width:70px!important;height:70px!important;object-fit:contain!important;margin:0 6pt!important}
-
-  /* ── 이수현황 카드 */
-  .status-card{
-    break-inside:avoid!important;page-break-inside:avoid!important;
-    border:1px solid #bbb!important;margin-bottom:8pt!important
-  }
 
   /* ── doc-header */
   .doc-header-top{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -289,16 +292,17 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   /* ── 그리드 */
   .course-card-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6pt!important}
 
-  /* ── 체크박스/라디오 레이블 */
+  /* ── 체크박스/라디오 */
   .check-group{gap:4pt 12pt!important;margin:3pt 0 6pt!important}
   .check-item{font-size:9pt!important}
 
-  /* ── footer */
-  .print-footer-text{display:block!important}
-  .footer{display:none!important}
+  /* ── 기존 footer 숨김 */
+  .print-footer-text{display:none!important}
+  .footer,.form-footer{display:none!important}
   .form-section:last-of-type{margin-bottom:0!important}
 }
 .print-footer-text{display:none}
+.print-page-footer{display:none}
 .check-group{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px}
 .check-item{display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;color:var(--text)}
 .check-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0}
@@ -355,6 +359,11 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 </head>
 <body>
 <div class="print-header"><div class="print-header-logo">차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</div><div class="print-header-right">2026학년도 결과보고서 제출</div></div>
+<!-- 인쇄 전용 하단 푸터 (position:fixed로 매 페이지 표시) -->
+<div class="print-page-footer" id="printPageFooter" style="display:none">
+  <span class="print-page-footer-left">© 고려대학교 차세대AI반도체특성화대학사업단</span>
+  <span class="print-page-footer-right" id="printPageNum"></span>
+</div>
 
 <!-- [FIX 1] 접근거부: fixed fullscreen + inner div -->
 <div id="access-denied" style="display:none">
@@ -923,6 +932,38 @@ function printWithDeadline(){
     setTimeout(()=>window.print(),100);
   }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
 }
+
+// ── beforeprint: textarea 높이 강제 확장 + 푸터 표시 ──
+const _taOrigHeights = new Map();
+window.addEventListener('beforeprint', function(){
+  // 1) 모든 textarea를 scrollHeight 기준으로 펼치기
+  document.querySelectorAll('textarea').forEach(function(ta){
+    _taOrigHeights.set(ta, {h: ta.style.height, oh: ta.style.overflow});
+    ta.style.overflow = 'visible';
+    ta.style.height = 'auto';
+    // scrollHeight가 0이면 내용 기준으로 재측정
+    const sh = ta.scrollHeight;
+    ta.style.height = (sh > 0 ? sh : 60) + 'px';
+  });
+  // 2) 인쇄 푸터 표시
+  const footer = document.getElementById('printPageFooter');
+  if(footer) footer.style.display = 'flex';
+});
+
+window.addEventListener('afterprint', function(){
+  // textarea 원복
+  document.querySelectorAll('textarea').forEach(function(ta){
+    const orig = _taOrigHeights.get(ta);
+    if(orig){
+      ta.style.height = orig.h;
+      ta.style.overflow = orig.oh;
+    }
+  });
+  _taOrigHeights.clear();
+  // 푸터 숨김
+  const footer = document.getElementById('printPageFooter');
+  if(footer) footer.style.display = 'none';
+});
 
 function lookupStudent(){
   const sid=document.getElementById('lookupId').value.trim();
