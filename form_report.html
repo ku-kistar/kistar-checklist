@@ -187,37 +187,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.footer,
   .char-counter,#resetBtn,.btn-print,.sign-upload-btn,#access-denied,
   .admin-lookup-bar,.admin-readonly-notice,#btn-pdf,
-  .field-hint,.sign-header ul{display:none!important}
+  .field-hint,.sign-header ul,.print-page-footer{display:none!important}
 
-  /* ── 페이지 설정 (하단 14mm: CSS 푸터 공간) */
-  @page{
-    margin:12mm 10mm 18mm 10mm;
-    size:A4;
-    @bottom-left{content:none}
-    @bottom-right{content:none}
-  }
-
-  /* ── 페이지 번호 + 기관명 푸터 (CSS counter 방식) */
-  body{
-    counter-reset:page-counter;
-  }
-  /* 각 페이지 하단에 고정 푸터 출력 */
-  .print-page-footer{
-    display:block!important;
-    position:fixed;
-    bottom:0;left:0;right:0;
-    height:14mm;
-    padding:0 10mm;
-    display:flex!important;
-    align-items:center;
-    justify-content:space-between;
-    font-size:8pt;
-    color:#555;
-    border-top:0.5pt solid #ccc;
-    background:#fff;
-  }
-  .print-page-footer-left{font-size:8pt;color:#333;font-weight:500}
-  .print-page-footer-right{font-size:8pt;color:#555}
+  /* ── 페이지 설정 */
+  @page{margin:12mm 10mm;size:A4}
 
   /* ── 기본 */
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
@@ -226,15 +199,11 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   a[href]:after{content:none!important}
   a::after{content:''!important;display:none!important}
 
-  /* ── 섹션 — 모든 break 제거, 자연 분리 허용 */
+  /* ── 섹션 — 자연 분리 허용 */
   .form-section,.doc-header,.status-card{
-    border:1px solid #bbb!important;
-    margin-bottom:8pt!important;
-    break-inside:auto!important;
-    page-break-inside:auto!important;
-    overflow:visible!important
+    border:1px solid #bbb!important;margin-bottom:8pt!important;
+    break-inside:auto!important;page-break-inside:auto!important;overflow:visible!important
   }
-  /* 섹션 타이틀이 페이지 맨 아래에 혼자 남지 않도록만 */
   .section-title{
     background:#0b1f3a!important;color:#fff!important;
     padding:6pt 10pt!important;font-size:10pt!important;
@@ -243,34 +212,27 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
   .section-body{padding:8pt 12pt!important;break-inside:auto!important}
 
-  /* ── 필드 — 모두 auto (공백 방지 최우선) */
+  /* ── 필드 — 모두 auto */
   .field{margin-bottom:5pt!important;break-inside:auto!important;page-break-inside:auto!important}
-  .field-label{
-    font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;
-    break-after:avoid!important;page-break-after:avoid!important
-  }
+  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;break-after:avoid!important}
   .field-input{
     background:#fff!important;border:1px solid #ccc!important;
-    height:auto!important;min-height:0!important;
-    overflow:visible!important;resize:none!important;
+    height:auto!important;overflow:visible!important;resize:none!important;
     font-size:9pt!important;padding:4pt 6pt!important
-  }
-  .field-textarea{
-    background:#fff!important;border:1px solid #ccc!important;
-    height:auto!important;min-height:0!important;
-    overflow:visible!important;resize:none!important;
-    font-size:9pt!important;padding:4pt 6pt!important
-  }
-  /* textarea — 스크롤 완전 제거, 내용 전체 표시 */
-  textarea,textarea.field-textarea{
-    height:auto!important;overflow:visible!important;
-    max-height:none!important;min-height:0!important;
-    white-space:pre-wrap!important;word-break:break-word!important;
-    resize:none!important;display:block!important;
-    /* scrollHeight 기반 확장은 JS beforeprint에서 처리 */
   }
 
-  /* ── 카드류 — auto (어디서든 자연 분리) */
+  /* ── textarea → beforeprint에서 div.ta-print-clone으로 교체됨 */
+  textarea{display:none!important}
+  .ta-print-clone{
+    display:block!important;
+    background:#fff!important;border:1px solid #ccc!important;border-radius:4px;
+    font-size:9pt!important;padding:4pt 6pt!important;
+    white-space:pre-wrap!important;word-break:break-word!important;
+    line-height:1.55!important;color:#000!important;
+    min-height:0!important;width:100%!important;box-sizing:border-box!important
+  }
+
+  /* ── 카드류 — auto */
   .course-card,.extracurr-card,.intern-card{
     break-inside:auto!important;page-break-inside:auto!important;
     margin-bottom:6pt!important;border:1px solid #ddd!important
@@ -279,11 +241,11 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   /* ── 별점 */
   .star-rating-wrap{break-inside:avoid!important;page-break-inside:avoid!important}
 
-  /* ── 서명란 — 한 페이지에 유지 */
+  /* ── 서명란 */
   .sign-section{break-inside:avoid!important;page-break-inside:avoid!important}
   .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
   .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important;padding:10pt 16pt!important}
-  .sign-table .name-cell{justify-content:center!important;gap:10px!important;letter-spacing:0.03em!important}
+  .sign-table .name-cell{justify-content:center!important;gap:10px!important}
   .sign-img-preview{display:block!important;width:70px!important;height:70px!important;object-fit:contain!important;margin:0 6pt!important}
 
   /* ── doc-header */
@@ -296,13 +258,13 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .check-group{gap:4pt 12pt!important;margin:3pt 0 6pt!important}
   .check-item{font-size:9pt!important}
 
-  /* ── 기존 footer 숨김 */
-  .print-footer-text{display:none!important}
-  .footer,.form-footer{display:none!important}
+  /* ── footer */
+  .footer,.form-footer,.print-footer-text{display:none!important}
   .form-section:last-of-type{margin-bottom:0!important}
 }
 .print-footer-text{display:none}
 .print-page-footer{display:none}
+.ta-print-clone{display:none}
 .check-group{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px}
 .check-item{display:inline-flex;align-items:center;gap:5px;font-size:13px;cursor:pointer;color:var(--text)}
 .check-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0}
@@ -916,12 +878,15 @@ function printWithDeadline(){
   if(!auth||!auth.studentId){alert('로그인 정보가 없습니다.');return;}
   // 인쇄 전 안내 팝업
   const ok=confirm(
-    '📄 PDF 저장 전 확인사항\n\n' +
-    '브라우저 인쇄 다이얼로그에서 아래 설정을 변경해주세요:\n\n' +
-    '  ✅ "머리글 및 바닥글" → 체크 해제\n' +
-    '     (날짜·URL이 인쇄되지 않도록)\n\n' +
-    '  ✅ 대상 → "PDF로 저장"\n\n' +
-    '확인 버튼을 누르면 인쇄 창이 열립니다.'
+    '📄 PDF 저장 안내\n\n' +
+    '인쇄 다이얼로그에서 아래 설정을 확인해주세요:\n\n' +
+    '  ① 대상: "PDF로 저장"\n' +
+    '  ② 머리글 및 바닥글:\n' +
+    '     · 웨일/크롬: 체크 해제하거나\n' +
+    '       "맞춤" 선택 후 바닥글 왼쪽에\n' +
+    '       "고려대학교 차세대AI반도체특성화대학사업단"\n' +
+    '       입력 권장\n\n' +
+    '확인을 누르면 인쇄 창이 열립니다.'
   );
   if(!ok)return;
   const targetId=(adminViewMode&&lookupStudentId)?lookupStudentId:auth.studentId;
@@ -933,36 +898,26 @@ function printWithDeadline(){
   }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
 }
 
-// ── beforeprint: textarea 높이 강제 확장 + 푸터 표시 ──
-const _taOrigHeights = new Map();
+// ── beforeprint: textarea → div 교체 (스크롤바/잘림 완전 해결) ──
+const _taCloneMap = new Map();
+
 window.addEventListener('beforeprint', function(){
-  // 1) 모든 textarea를 scrollHeight 기준으로 펼치기
   document.querySelectorAll('textarea').forEach(function(ta){
-    _taOrigHeights.set(ta, {h: ta.style.height, oh: ta.style.overflow});
-    ta.style.overflow = 'visible';
-    ta.style.height = 'auto';
-    // scrollHeight가 0이면 내용 기준으로 재측정
-    const sh = ta.scrollHeight;
-    ta.style.height = (sh > 0 ? sh : 60) + 'px';
+    const clone = document.createElement('div');
+    clone.className = 'ta-print-clone';
+    // textarea와 동일한 내용 표시
+    clone.textContent = ta.value;
+    // textarea 바로 뒤에 삽입
+    ta.parentNode.insertBefore(clone, ta.nextSibling);
+    _taCloneMap.set(ta, clone);
   });
-  // 2) 인쇄 푸터 표시
-  const footer = document.getElementById('printPageFooter');
-  if(footer) footer.style.display = 'flex';
 });
 
 window.addEventListener('afterprint', function(){
-  // textarea 원복
-  document.querySelectorAll('textarea').forEach(function(ta){
-    const orig = _taOrigHeights.get(ta);
-    if(orig){
-      ta.style.height = orig.h;
-      ta.style.overflow = orig.oh;
-    }
+  _taCloneMap.forEach(function(clone){
+    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
   });
-  _taOrigHeights.clear();
-  // 푸터 숨김
-  const footer = document.getElementById('printPageFooter');
-  if(footer) footer.style.display = 'none';
+  _taCloneMap.clear();
 });
 
 function lookupStudent(){
