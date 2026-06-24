@@ -938,11 +938,11 @@ function fillReportFormWithData(data){
         addExtraCard();
         const cards=container.querySelectorAll('.extracurr-card');
         const card=cards[cards.length-1];
-        const allInputs=card.querySelectorAll('input[type=text]');
-        const nameInput=card.querySelector('.extracurr-card-title input[type=text]')||allInputs[0];
+        const nameInput=card.querySelector('.extracurr-card-title input[type=text]');
         const catSel=card.querySelector('.extracurr-cat-select');
-        const dateInput=allInputs[allInputs.length-2]||null;
-        const placeInput=allInputs[allInputs.length-1]||null;
+        const gridInputs=card.querySelectorAll('.course-card-grid input[type=text]');
+        const dateInput=gridInputs[0]||null;
+        const placeInput=gridInputs[1]||null;
         const ta=card.querySelector('textarea');
         if(nameInput)nameInput.value=ex.name||ex.program||'';
         if(catSel&&(ex.cat||ex.category))catSel.value=ex.cat||ex.category||'';
