@@ -415,8 +415,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
             <input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력">
           </div>
           <div class="course-card-grid">
-            <div class="field"><div class="field-label">활동일시</div><input class="field-input" placeholder="활동일시"></div>
-            <div class="field"><div class="field-label">활동장소</div><input class="field-input" placeholder="활동장소"></div>
+            <div class="field"><div class="field-label">활동일시</div><input type="text" class="field-input" placeholder="활동일시"></div>
+            <div class="field"><div class="field-label">활동장소</div><input type="text" class="field-input" placeholder="활동장소"></div>
           </div>
           <div class="field"><div class="field-label">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>
         </div>
@@ -446,7 +446,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       <div class="intern-card">
         <div class="intern-card-header"><span>활동 ① — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span><button class="del-card-btn" onclick="delInternCard(this)">삭제</button></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
+          <div class="field"><div class="field-label">활동 기간</div><input type="text" class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div>
           <div class="field"><div class="field-label">활동 유형</div><select class="field-input" style="cursor:pointer"><option value="">선택</option><option>기업 인턴십(국내)</option><option>기업 인턴십(해외)</option><option>대학 연구실 인턴</option><option>산학협력 프로젝트</option><option>기업 견학</option><option>기타</option></select></div>
         </div>
         <div class="field"><div class="field-label">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div>
@@ -637,13 +637,13 @@ function addCourseCard(){
 function delCourseCard(btn){if(document.querySelectorAll('#courseCards .course-card').length>1)btn.closest('.course-card').remove();}
 function addExtraCard(){
   extraCardCount++;const div=document.createElement('div');div.className='extracurr-card';
-  div.innerHTML='<div class="extracurr-card-title"><span>비교과 '+toCircled(extraCardCount)+' — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px" placeholder="프로그램명 입력"></span><button class="del-card-btn" onclick="delExtraCard(this)">삭제</button></div><div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div><select class="field-input extracurr-cat-select" onchange="handleExtraCatChange(this)" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select><input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력"></div><div class="course-card-grid"><div class="field"><div class="field-label">활동일시</div><input class="field-input" placeholder="활동일시"></div><div class="field"><div class="field-label">활동장소</div><input class="field-input" placeholder="활동장소"></div></div><div class="field"><div class="field-label">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>';
+  div.innerHTML='<div class="extracurr-card-title"><span>비교과 '+toCircled(extraCardCount)+' — <input type="text" style="border:none;border-bottom:1px solid var(--border);outline:none;font-size:13px;font-weight:700;color:var(--accent);background:transparent;width:180px" placeholder="프로그램명 입력"></span><button class="del-card-btn" onclick="delExtraCard(this)">삭제</button></div><div class="field" style="margin-bottom:10px"><div class="field-label" style="font-size:11px">활동 카테고리</div><select class="field-input extracurr-cat-select" onchange="handleExtraCatChange(this)" style="padding:6px 8px;font-size:12px"><option value="">카테고리 선택</option><option value="학술/연구">학술 / 연구</option><option value="산업체 연계">산업체 연계</option><option value="해외 활동">해외 활동</option><option value="세미나/특강">세미나 / 특강</option><option value="기타">기타</option></select><input type="text" class="extracurr-cat-other field-input" style="display:none;margin-top:6px" placeholder="카테고리 직접 입력"></div><div class="course-card-grid"><div class="field"><div class="field-label">활동일시</div><input type="text" class="field-input" placeholder="활동일시"></div><div class="field"><div class="field-label">활동장소</div><input type="text" class="field-input" placeholder="활동장소"></div></div><div class="field"><div class="field-label">활동 내용</div><textarea class="field-textarea" placeholder="주제, 주요 활동 내용, 참여 후 느낀 점 등을 구체적으로 작성해주세요." rows="5"></textarea></div>';
   document.getElementById('extraCards').appendChild(div);
 }
 function delExtraCard(btn){if(document.querySelectorAll('#extraCards .extracurr-card').length>1)btn.closest('.extracurr-card').remove();}
 function addInternCard(){
   internCardCount++;const div=document.createElement('div');div.className='intern-card';
-  div.innerHTML='<div class="intern-card-header"><span>활동 '+toCircled(internCardCount)+' — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span><button class="del-card-btn" onclick="delInternCard(this)">삭제</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><div class="field"><div class="field-label">활동 기간</div><input class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div><div class="field"><div class="field-label">활동 유형</div><select class="field-input" style="cursor:pointer"><option value="">선택</option><option>기업 인턴십(국내)</option><option>기업 인턴십(해외)</option><option>대학 연구실 인턴</option><option>산학협력 프로젝트</option><option>기업 견학</option></select></div></div><div class="field"><div class="field-label">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div><div class="field"><div class="field-label">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>';
+  div.innerHTML='<div class="intern-card-header"><span>활동 '+toCircled(internCardCount)+' — <input type="text" class="intern-inst-input" placeholder="기관명/기업명 입력"></span><button class="del-card-btn" onclick="delInternCard(this)">삭제</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px"><div class="field"><div class="field-label">활동 기간</div><input type="text" class="field-input" placeholder="예: 2025.07 ~ 2025.08"></div><div class="field"><div class="field-label">활동 유형</div><select class="field-input" style="cursor:pointer"><option value="">선택</option><option>기업 인턴십(국내)</option><option>기업 인턴십(해외)</option><option>대학 연구실 인턴</option><option>산학협력 프로젝트</option><option>기업 견학</option></select></div></div><div class="field"><div class="field-label">담당 업무 / 연구 내용</div><textarea class="field-textarea" placeholder="담당한 업무나 연구 내용을 구체적으로 작성해주세요." rows="3"></textarea></div><div class="field"><div class="field-label">배운 점 및 느낀 점</div><textarea class="field-textarea" placeholder="활동을 통해 배운 점, 느낀 점, 역량 변화 등을 작성해주세요." rows="3"></textarea></div>';
   document.getElementById('internDetailWrap').appendChild(div);
 }
 function delInternCard(btn){if(document.querySelectorAll('.intern-card').length>1)btn.closest('.intern-card').remove();}
@@ -953,7 +953,15 @@ function fillReportFormWithData(data){
     }
   }catch(e){console.error('비교과복원오류',e);}}
   // 인턴십 체크박스 복원 (컬럼명: '인턴유형')
-  if(data['인턴유형'])restoreChecks('internDone',data['인턴유형']);
+  if(data['인턴유형']){
+    restoreChecks('internDone',data['인턴유형']);
+    // 기타 직접입력 복원
+    const internTypes=data['인턴유형'];
+    const knownTypes=['기업 인턴십(국내)','기업 인턴십(해외)','대학 연구실 인턴','산학협력 프로젝트','기업 견학','해당 없음','기타'];
+    const otherVal=internTypes.split(', ').find(v=>!knownTypes.includes(v.trim()))||'';
+    const otherInput=document.getElementById('internOtherText');
+    if(otherInput&&otherVal)otherInput.value=otherVal;
+  }
   // 인턴 상세 복원
   if(data['인턴활동']){try{
     const interns=JSON.parse(data['인턴활동']);
@@ -1015,8 +1023,29 @@ function fillReportFormWithData(data){
   if(data['서명이미지Base64']&&data['서명이미지Base64'].length>100){
     const preview=document.getElementById('signPreview');
     if(preview){
-      preview.src=data['서명이미지Base64'];
-      preview.style.display='block';
+      // 크롭: canvas로 여백 제거
+      const tmpImg=new Image();
+      tmpImg.onload=function(){
+        const c=document.createElement('canvas');
+        c.width=tmpImg.width;c.height=tmpImg.height;
+        const ctx=c.getContext('2d');ctx.drawImage(tmpImg,0,0);
+        const d=ctx.getImageData(0,0,c.width,c.height).data;
+        let minX=c.width,minY=c.height,maxX=0,maxY=0;
+        for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){
+          const a=d[(y*c.width+x)*4+3];
+          if(a>20){if(x<minX)minX=x;if(x>maxX)maxX=x;if(y<minY)minY=y;if(y>maxY)maxY=y;}
+        }
+        if(maxX>minX&&maxY>minY){
+          const pad=10;
+          minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+          maxX=Math.min(c.width,maxX+pad);maxY=Math.min(c.height,maxY+pad);
+          const c2=document.createElement('canvas');c2.width=maxX-minX;c2.height=maxY-minY;
+          c2.getContext('2d').drawImage(c,minX,minY,c2.width,c2.height,0,0,c2.width,c2.height);
+          preview.src=c2.toDataURL('image/png');
+        }else{preview.src=data['서명이미지Base64'];}
+        preview.style.display='block';
+      };
+      tmpImg.src=data['서명이미지Base64'];
     }
     // 업로드 버튼 숨김 (관리자 조회 모드에서 불필요)
     const uploadBtn=document.getElementById('signUploadBtn');
