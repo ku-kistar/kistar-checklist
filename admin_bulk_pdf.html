@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일괄 PDF 출력 — KI-STAR 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#dddbd3;
+  --text:#1a1916;--text2:#6b6960;--text3:#9a9890;
+  --navy:#0b1f3a;--navy-light:#eaf1fb;
+  --green:#2d7a4f;--green-light:#edf7f1;
+  --accent:#c8392b;--accent-light:#fdf0ee;
+  --amber:#a0620a;--amber-light:#fdf5e6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem}
+
+/* 상단 바 */
+.top-bar{background:var(--navy);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.top-title{font-size:14px;font-weight:700}
+.top-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:2px 8px;border-radius:99px;margin-right:8px}
+.back-btn{font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;display:flex;align-items:center;gap:4px}
+.back-btn:hover{color:#fff}
+
+/* 컨테이너 */
+.container{max-width:900px;margin:1.5rem auto 0}
+
+/* 카드 */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.card-header{padding:14px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-body{padding:16px 20px}
+
+/* 탭 */
+.tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:700}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* 필터 바 */
+.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.filter-bar input[type=text]{flex:1;min-width:160px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.filter-bar input:focus{border-color:var(--navy)}
+.select-all-btn,.deselect-btn{padding:6px 14px;border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:500;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:all .15s}
+.select-all-btn:hover{border-color:var(--navy);color:var(--navy)}
+.selected-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2)}
+
+/* 학생 목록 테이블 */
+.student-table{width:100%;border-collapse:collapse;font-size:13px}
+.student-table th{background:var(--navy);color:#fff;padding:8px 12px;text-align:left;font-weight:600;font-size:12px}
+.student-table td{padding:8px 12px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.student-table tr:last-child td{border-bottom:none}
+.student-table tr:hover td{background:var(--surface2)}
+.student-table input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer}
+.badge-dept{font-size:10px;font-weight:600;background:var(--navy-light);color:var(--navy);padding:2px 7px;border-radius:99px}
+.badge-date{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace}
+
+/* 실행 영역 */
+.run-area{background:var(--surface2);border-top:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.run-btn{display:flex;align-items:center;gap:6px;padding:10px 24px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;transition:background .15s}
+.run-btn:hover{background:#163255}
+.run-btn:disabled{background:#999;cursor:not-allowed}
+.run-note{font-size:12px;color:var(--text2)}
+
+/* 진행 상태 */
+.progress-area{display:none;padding:16px 20px;border-top:1px solid var(--border)}
+.progress-bar-wrap{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.progress-bar-fill{height:100%;background:var(--navy);border-radius:99px;transition:width .3s;width:0%}
+.progress-label{font-size:12px;color:var(--text2)}
+
+/* 결과 영역 */
+.result-area{display:none;padding:16px 20px;border-top:1px solid var(--border)}
+.result-folder{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--green-light);border:1px solid #b7e4c7;border-radius:8px;margin-bottom:10px}
+.result-folder a{color:var(--green);font-weight:600;font-size:13px;text-decoration:none}
+.result-folder a:hover{text-decoration:underline}
+.result-list{font-size:12px;color:var(--text2);max-height:200px;overflow-y:auto}
+.result-list li{padding:3px 0;border-bottom:0.5px solid var(--border)}
+.result-list li:last-child{border-bottom:none}
+.error-list{margin-top:8px}
+.error-item{font-size:12px;color:var(--accent);padding:3px 0}
+
+/* 빈 상태 */
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+
+/* 접근 차단 */
+#access-denied{display:none;text-align:center;padding:4rem 2rem}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="top-badge">관리자</span>
+    <span class="top-title">일괄 PDF 출력</span>
+  </div>
+  <a href="portal_survey.html" class="back-btn">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M8 2L3 6.5 8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    홈으로
+  </a>
+</div>
+
+<div id="access-denied">
+  <p style="font-size:32px;margin-bottom:1rem">🔒</p>
+  <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">관리자 계정으로 로그인 후 이용하세요.</p>
+  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">홈으로 돌아가기</a>
+</div>
+
+<div class="container" id="main-content" style="display:none">
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 2h8l3 3v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="var(--navy)" stroke-width="1.3"/><path d="M11 2v4H5M5 9h6M5 12h4" stroke="var(--navy)" stroke-width="1.3" stroke-linecap="round"/></svg>
+        제출 목록 조회
+      </div>
+      <button onclick="loadAllSubmissions()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);font-size:12px;font-family:inherit;cursor:pointer;color:var(--text2)" id="refreshBtn">
+        새로고침
+      </button>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('plan')">📋 활동계획서 <span id="planCount" style="font-family:monospace;font-size:11px"></span></div>
+      <div class="tab" onclick="switchTab('report')">📄 결과보고서 <span id="reportCount" style="font-family:monospace;font-size:11px"></span></div>
+    </div>
+
+    <!-- 활동계획서 탭 -->
+    <div class="tab-panel active" id="panel-plan">
+      <div class="card-body">
+        <div class="filter-bar">
+          <input type="text" placeholder="이름 또는 학번 검색..." id="searchPlan" oninput="filterTable('plan')">
+          <button class="select-all-btn" onclick="selectAll('plan')">전체 선택</button>
+          <button class="deselect-btn" onclick="deselectAll('plan')">선택 해제</button>
+          <span class="selected-count" id="planSelected">0명 선택</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="student-table" id="tablePlan">
+            <thead><tr><th style="width:36px"><input type="checkbox" id="chkAllPlan" onchange="toggleAllPlan(this)"></th><th>이름</th><th>학번</th><th>학과</th><th>학기</th><th>제출일시</th></tr></thead>
+            <tbody id="tbodyPlan"><tr><td colspan="6" class="empty">데이터를 불러오는 중...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="run-area">
+        <button class="run-btn" id="runPlanBtn" onclick="generatePDF('plan')" disabled>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          PDF 생성
+        </button>
+        <span class="run-note">선택된 학생의 활동계획서를 Google Drive에 PDF로 저장합니다</span>
+      </div>
+      <div class="progress-area" id="progressPlan">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressPlanFill"></div></div>
+        <div class="progress-label" id="progressPlanLabel">처리 중...</div>
+      </div>
+      <div class="result-area" id="resultPlan"></div>
+    </div>
+
+    <!-- 결과보고서 탭 -->
+    <div class="tab-panel" id="panel-report">
+      <div class="card-body">
+        <div class="filter-bar">
+          <input type="text" placeholder="이름 또는 학번 검색..." id="searchReport" oninput="filterTable('report')">
+          <button class="select-all-btn" onclick="selectAll('report')">전체 선택</button>
+          <button class="deselect-btn" onclick="deselectAll('report')">선택 해제</button>
+          <span class="selected-count" id="reportSelected">0명 선택</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="student-table" id="tableReport">
+            <thead><tr><th style="width:36px"><input type="checkbox" id="chkAllReport" onchange="toggleAllReport(this)"></th><th>이름</th><th>학번</th><th>학과</th><th>학기</th><th>제출일시</th></tr></thead>
+            <tbody id="tbodyReport"><tr><td colspan="6" class="empty">데이터를 불러오는 중...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="run-area">
+        <button class="run-btn" id="runReportBtn" onclick="generatePDF('report')" disabled>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="white" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          PDF 생성
+        </button>
+        <span class="run-note">선택된 학생의 결과보고서를 Google Drive에 PDF로 저장합니다</span>
+      </div>
+      <div class="progress-area" id="progressReport">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressReportFill"></div></div>
+        <div class="progress-label" id="progressReportLabel">처리 중...</div>
+      </div>
+      <div class="result-area" id="resultReport"></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:12px;color:var(--text3);margin-top:1rem">
+    생성된 PDF는 Google Drive의 <strong>KISTAR_일괄PDF</strong> 폴더에 저장됩니다
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const AUTH_KEY   = 'kistar_auth_url2';
+const EXPIRE_MS  = 8 * 60 * 60 * 1000;
+
+let planData   = [];
+let reportData = [];
+let currentTab = 'plan';
+
+// ── 인증 확인 ──
+window.addEventListener('load', async function() {
+  const auth = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+  if (!auth || Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+    showDenied(); return;
+  }
+  // GAS verifyAdmin
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=verifyAdmin&studentId=' + encodeURIComponent(auth.studentId) +
+      '&page=admin_bulk_pdf&userAgent=' + encodeURIComponent(navigator.userAgent));
+    const data = await res.json();
+    if (!data.isAdmin) { showDenied(); return; }
+  } catch(e) { showDenied(); return; }
+
+  document.getElementById('main-content').style.display = 'block';
+  loadAllSubmissions();
+});
+
+function showDenied() {
+  document.getElementById('access-denied').style.display = 'block';
+}
+
+// ── 탭 전환 ──
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='plan')||(i===1&&tab==='report')));
+  document.getElementById('panel-plan').classList.toggle('active', tab==='plan');
+  document.getElementById('panel-report').classList.toggle('active', tab==='report');
+}
+
+// ── 제출 목록 불러오기 ──
+async function loadAllSubmissions() {
+  document.getElementById('refreshBtn').textContent = '로딩 중...';
+  try {
+    const res  = await fetch(SCRIPT_URL + '?action=getAllSubmissions&formType=both');
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error(data.message);
+    planData   = data.plan   || [];
+    reportData = data.report || [];
+    renderTable('plan',   planData);
+    renderTable('report', reportData);
+    document.getElementById('planCount').textContent   = '(' + planData.length   + ')';
+    document.getElementById('reportCount').textContent = '(' + reportData.length + ')';
+  } catch(e) {
+    alert('목록 불러오기 실패: ' + e.message);
+  } finally {
+    document.getElementById('refreshBtn').textContent = '새로고침';
+  }
+}
+
+// ── 테이블 렌더링 ──
+function renderTable(type, data) {
+  const tbody = document.getElementById('tbody' + (type==='plan'?'Plan':'Report'));
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">제출 내역이 없습니다</td></tr>';
+    updateSelectedCount(type);
+    return;
+  }
+  tbody.innerHTML = data.map((s,i) => `
+    <tr>
+      <td><input type="checkbox" class="chk-${type}" value="${s.studentId}" onchange="updateSelectedCount('${type}')"></td>
+      <td><strong>${esc(s.name)}</strong></td>
+      <td style="font-family:monospace;font-size:12px">${esc(s.studentId)}</td>
+      <td><span class="badge-dept">${esc(s.dept)}</span></td>
+      <td>${esc(s.semester)}</td>
+      <td class="badge-date">${esc(s.submittedAt.slice(0,16))}</td>
+    </tr>`).join('');
+  updateSelectedCount(type);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── 검색 필터 ──
+function filterTable(type) {
+  const q     = document.getElementById('search'+(type==='plan'?'Plan':'Report')).value.toLowerCase();
+  const rows  = document.querySelectorAll('#tbody'+(type==='plan'?'Plan':'Report')+' tr');
+  rows.forEach(r => {
+    const txt = r.textContent.toLowerCase();
+    r.style.display = txt.includes(q) ? '' : 'none';
+  });
+}
+
+// ── 전체 선택 ──
+function selectAll(type) {
+  document.querySelectorAll('.chk-'+type).forEach(c => { if(c.closest('tr').style.display!=='none') c.checked=true; });
+  updateSelectedCount(type);
+}
+function deselectAll(type) {
+  document.querySelectorAll('.chk-'+type).forEach(c => c.checked=false);
+  updateSelectedCount(type);
+}
+function toggleAllPlan(el)   { document.querySelectorAll('.chk-plan').forEach(c=>c.checked=el.checked);   updateSelectedCount('plan'); }
+function toggleAllReport(el) { document.querySelectorAll('.chk-report').forEach(c=>c.checked=el.checked); updateSelectedCount('report'); }
+
+function updateSelectedCount(type) {
+  const checked = document.querySelectorAll('.chk-'+type+':checked').length;
+  document.getElementById(type+'Selected').textContent = checked + '명 선택';
+  document.getElementById('run'+(type==='plan'?'Plan':'Report')+'Btn').disabled = (checked === 0);
+}
+
+// ── PDF 생성 ──
+async function generatePDF(type) {
+  const checkedEls = document.querySelectorAll('.chk-'+type+':checked');
+  if (!checkedEls.length) { alert('학생을 선택해주세요.'); return; }
+
+  const studentIds = Array.from(checkedEls).map(c => c.value).join(',');
+  const total = checkedEls.length;
+  const label = type === 'plan' ? '활동계획서' : '결과보고서';
+
+  // UI 상태 전환
+  const progressArea = document.getElementById('progress'+ucFirst(type));
+  const resultArea   = document.getElementById('result'+ucFirst(type));
+  const runBtn       = document.getElementById('run'+ucFirst(type)+'Btn');
+  progressArea.style.display = 'block';
+  resultArea.style.display   = 'none';
+  runBtn.disabled = true;
+  runBtn.textContent = '생성 중...';
+
+  const fillEl  = document.getElementById('progress'+ucFirst(type)+'Fill');
+  const labelEl = document.getElementById('progress'+ucFirst(type)+'Label');
+  fillEl.style.width  = '10%';
+  labelEl.textContent = total + '명의 ' + label + ' PDF 생성 중... (GAS 처리 중, 잠시 기다려주세요)';
+
+  // 진행 바 애니메이션 (실제 진행은 GAS 단일 요청)
+  let fakeProgress = 10;
+  const ticker = setInterval(() => {
+    if (fakeProgress < 85) { fakeProgress += 2; fillEl.style.width = fakeProgress + '%'; }
+  }, 1500);
+
+  try {
+    const params = new URLSearchParams({
+      action: 'generateBulkPDF',
+      studentIds,
+      formType: type,
+      semester: '2026-1학기'
+    });
+    const res  = await fetch(SCRIPT_URL + '?' + params.toString());
+    const data = await res.json();
+
+    clearInterval(ticker);
+    fillEl.style.width  = '100%';
+
+    if (data.status !== 'ok') throw new Error(data.message || '알 수 없는 오류');
+
+    labelEl.textContent = '✓ 완료! ' + data.files.length + '개 PDF 생성됨';
+
+    // 결과 표시
+    resultArea.style.display = 'block';
+    let html = '';
+    if (data.folderUrl) {
+      html += `<div class="result-folder">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 3h5l1.5 2H13a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" stroke="var(--green)" stroke-width="1.3"/></svg>
+        <a href="${data.folderUrl}" target="_blank">📁 Drive 폴더 열기 — ${data.folderName || ''}</a>
+      </div>`;
+    }
+    if (data.files.length) {
+      html += `<div style="font-size:12px;font-weight:600;margin-bottom:4px;color:var(--text2)">생성된 파일 (${data.files.length}개)</div>
+        <ul class="result-list">${data.files.map(f=>`<li>✓ ${esc(f.name)} <a href="${f.url}" target="_blank" style="color:var(--navy);font-size:11px">열기</a></li>`).join('')}</ul>`;
+    }
+    if (data.errors && data.errors.length) {
+      html += `<div class="error-list"><div style="font-size:12px;font-weight:600;color:var(--accent);margin-top:8px">실패 (${data.errors.length}건)</div>
+        ${data.errors.map(e=>`<div class="error-item">✗ ${esc(e.studentId)}: ${esc(e.message)}</div>`).join('')}</div>`;
+    }
+    resultArea.innerHTML = html;
+
+  } catch(e) {
+    clearInterval(ticker);
+    fillEl.style.width = '0%';
+    labelEl.textContent = '오류: ' + e.message;
+    alert('PDF 생성 중 오류가 발생했습니다:\n' + e.message);
+  } finally {
+    runBtn.disabled = false;
+    runBtn.textContent = 'PDF 생성';
+    updateSelectedCount(type);
+  }
+}
+
+function ucFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+</script>
+</body>
+</html>
