@@ -812,28 +812,30 @@ function setFormReadonly(readonly) {
 
 function fillFormWithData(data) {
   const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
-  // 시트 헤더명 그대로 키로 들어옴
+
+  // 기본정보
   setVal('f-id',   data['학번'] || data.studentId || '');
   setVal('f-name', data['이름'] || data.name || '');
   setVal('f-phone', data['연락처'] || '');
   setVal('f-email', data['이메일'] || '');
-  // 학년 (select)
   const gradeEl = document.getElementById('f-grade');
   if (gradeEl && data['학년']) gradeEl.value = data['학년'];
-  // 학기 (select)
   const semEl = document.getElementById('f-semester-input');
   if (semEl && data['학기']) semEl.value = data['학기'];
-  // 졸업예정년도/월
   const gradYearEl = document.getElementById('f-grad-year');
   const gradMonthEl = document.getElementById('f-grad-month');
   if (gradYearEl && data['졸업예정년도']) gradYearEl.value = data['졸업예정년도'];
   if (gradMonthEl && data['졸업예정월']) gradMonthEl.value = data['졸업예정월'];
-  // 학과
+
+  // 학과 — onDeptChange 호출 금지 (테이블 리셋 방지), currentDept만 세팅
   const dept = data['학과'] || data.dept || '';
   if (dept) {
     const deptSel = document.getElementById('f-dept');
-    if (deptSel) { deptSel.value = dept; onDeptChange(dept); }
+    if (deptSel) deptSel.value = dept;
+    currentDept = dept; // onDeptChange 호출 없이 직접 세팅
   }
+
+  // 텍스트 필드
   setVal('prev-achievement', data['이전학기성과'] || '');
   setVal('goal1', data['목표1'] || '');
   setVal('goal2', data['목표2'] || '');
@@ -842,19 +844,69 @@ function fillFormWithData(data) {
   setVal('industry-plan',   data['산업계획'] || '');
   setVal('project-plan',    data['프로젝트계획'] || '');
   setVal('support-request', data['지원요청'] || '');
-  setVal('f-semester-input', data['학기'] || '');
-  // 기술분야 체크박스
+
+  // [FIX 1] 기술분야 체크박스 — name="tech" 가 맞음 (techArea → tech)
   if (data['기술분야']) {
-    try {
-      const areas = typeof data['기술분야'] === 'string' ? JSON.parse(data['기술분야']) : data['기술분야'];
-      document.querySelectorAll('input[name="techArea"]').forEach(cb => { cb.checked = areas.includes(cb.value); });
-    } catch(e) {
-      // JSON이 아닌 경우 쉼표 구분 문자열로 처리
-      const areas = String(data['기술분야']).split(',').map(s=>s.trim());
-      document.querySelectorAll('input[name="techArea"]').forEach(cb => { cb.checked = areas.includes(cb.value); });
-    }
+    let areas = [];
+    try { areas = typeof data['기술분야'] === 'string' ? JSON.parse(data['기술분야']) : data['기술분야']; }
+    catch(e) { areas = String(data['기술분야']).split(',').map(s=>s.trim()); }
+    document.querySelectorAll('input[name="tech"]').forEach(cb => {
+      if (cb.value === '기타') {
+        // "기타: 직접입력값" 형태 처리
+        const otherVal = areas.find(a => a.startsWith('기타:') || a === '기타');
+        cb.checked = !!otherVal;
+        if (otherVal && otherVal.includes(':')) {
+          const txt = document.getElementById('techOtherText');
+          if (txt) txt.value = otherVal.split(':')[1].trim();
+        }
+      } else {
+        cb.checked = areas.includes(cb.value);
+      }
+    });
   }
-  // 교과 계획 (이수과목계획 컬럼 — JSON 배열이면 테이블로, 아니면 텍스트로)
+
+  // 인턴/프로젝트/지원 체크박스
+  if (data['인턴유형']) {
+    const vals = String(data['인턴유형']).split(',').map(s=>s.trim());
+    document.querySelectorAll('input[name="intern"]').forEach(cb => { cb.checked = vals.includes(cb.value); });
+  }
+  if (data['프로젝트유형']) {
+    const vals = String(data['프로젝트유형']).split(',').map(s=>s.trim());
+    document.querySelectorAll('input[name="project"]').forEach(cb => { cb.checked = vals.includes(cb.value); });
+  }
+  if (data['지원유형']) {
+    const vals = String(data['지원유형']).split(',').map(s=>s.trim());
+    document.querySelectorAll('input[name="support"]').forEach(cb => { cb.checked = vals.includes(cb.value); });
+  }
+
+  // [FIX 2] 진로 순위 복원
+  const careerRaw = data['진로목표'] || '';
+  if (careerRaw) {
+    // "1순위값 / 2순위:xx / 3순위:xx" 형태 파싱
+    const parts = careerRaw.split('/').map(s=>s.trim());
+    const getCareerPart = (part, prefix) => {
+      if (!part) return '';
+      if (prefix && part.startsWith(prefix)) return part.slice(prefix.length).trim();
+      return part.trim();
+    };
+    const c1 = getCareerPart(parts[0], '');
+    const c2 = getCareerPart(parts[1], '2순위:');
+    const c3 = getCareerPart(parts[2], '3순위:');
+    const setCareer = (selId, otherId, val) => {
+      const sel = document.getElementById(selId);
+      if (!sel || !val) return;
+      // 드롭다운에 있는 값인지 확인
+      const opts = Array.from(sel.options).map(o=>o.value);
+      if (opts.includes(val)) { sel.value = val; }
+      else { sel.value = '기타'; const oth = document.getElementById(otherId); if(oth){oth.style.display='inline-block';oth.value=val;} }
+    };
+    setCareer('career1','career1Other', c1);
+    setCareer('career2','career2Other', c2);
+    setCareer('career3','career3Other', c3);
+    if (typeof syncCareerSelects === 'function') syncCareerSelects();
+  }
+
+  // [FIX 3] 교과 계획 테이블 — onDeptChange 없이 직접 복원
   if (data['이수과목계획']) {
     try {
       const rows = JSON.parse(data['이수과목계획']);
@@ -863,13 +915,23 @@ function fillFormWithData(data) {
         tbody.innerHTML = '';
         rows.forEach(r => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td><select disabled>${buildCourseOptions(dept)}</select></td><td><input type="text" value="${r.goal||''}" disabled></td><td><input type="text" value="${r.method||''}" disabled></td>`;
-          const sel = tr.querySelector('select'); if (sel && r.course) sel.value = r.course;
+          const opts = buildCourseOptions(dept);
+          // addCourseRow와 동일한 구조 (credit 컬럼 포함)
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+r.directName+'"':''}></td><td><input type="text" value="${r.credit||''}" placeholder="학점" style="width:50px" disabled></td><td><input type="text" value="${r.goal||''}" placeholder="학습목표 및 기대효과" disabled></td>`;
+          const sel = tr.querySelector('select');
+          if (sel && r.course) {
+            sel.value = r.course;
+            if (r.course === '직접입력') {
+              const directInput = sel.nextElementSibling;
+              if (directInput) directInput.style.display = 'block';
+            }
+          }
           tbody.appendChild(tr);
         });
       }
-    } catch(e) { /* JSON 아니면 무시 */ }
+    } catch(e) { console.warn('교과계획 복원 실패:', e); }
   }
+
   // 서명 이름
   const signEl = document.getElementById('signName');
   if (signEl) signEl.textContent = data['이름'] || data.name || '';
