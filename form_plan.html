@@ -40,7 +40,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .field:last-child{margin-bottom:0}
 .field-label{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;border-left:3px solid var(--navy);padding-left:8px}
 .field-hint{font-size:11px;color:var(--text3);font-weight:400;display:block;margin-top:3px}
-.field-textarea{width:100%;min-height:100px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;resize:vertical;background:var(--surface2);outline:none;transition:border-color .15s;line-height:1.7}
+.field-textarea{width:100%;min-height:100px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;resize:none;background:var(--surface2);outline:none;transition:border-color .15s;line-height:1.7;overflow:hidden}
 .field-textarea:focus{border-color:var(--navy);background:var(--surface)}
 .field-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;background:var(--surface2);outline:none}
 .field-input:focus{border-color:var(--navy);background:var(--surface)}
@@ -53,7 +53,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .check-item-other{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);white-space:nowrap;min-width:160px}
 .check-item-other input[type=checkbox],.check-item-other input[type=radio]{width:14px;height:14px;accent-color:var(--navy);flex-shrink:0}
 .check-item-other .other-label{white-space:nowrap;flex-shrink:0}
-.check-item-other .other-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;min-width:80px;flex:1}
+.check-item-other .other-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;min-width:120px;max-width:220px;flex:1}
 .course-plan-wrap{overflow-x:auto}
 .course-plan-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px}
 .course-plan-table th{background:var(--navy);color:#fff;padding:8px 10px;text-align:center;font-weight:600}
@@ -184,9 +184,9 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .sign-row{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
 .sign-stamp-wrap{display:inline-flex;align-items:center;gap:2px}
 .sign-name-text{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;line-height:1.4}
-.sign-in-wrap{position:relative;width:90px;height:90px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.sign-in-wrap{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .sign-in{font-size:15px;color:var(--text3);font-weight:400;line-height:1.4;user-select:none}
-.sign-img-preview{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90px;height:90px;object-fit:contain;mix-blend-mode:multiply;display:none;pointer-events:none}
+.sign-img-preview{width:120px;height:auto;max-height:120px;object-fit:contain;mix-blend-mode:multiply;display:none;pointer-events:none}
 .sign-upload-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:1.5px dashed var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap;height:36px}
 .sign-upload-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
 .sign-upload-btn.has-file{border-color:var(--green);color:var(--green);background:var(--green-light);border-style:solid}
@@ -282,7 +282,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   /* ── 서명란 */
   .sign-section{border:1px solid #ccc!important;margin-bottom:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
   .sign-body{padding:8px 0!important}
-  .sign-img-preview{display:block!important;width:90px!important;height:90px!important;object-fit:contain!important}
+  .sign-img-preview{display:block!important;width:120px!important;height:auto!important;max-height:120px!important;object-fit:contain!important}
   .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
   .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important}
   .sign-table .name-cell{justify-content:center!important;gap:10px!important}
@@ -834,7 +834,10 @@ function fillFormWithData(data) {
   if (dept) {
     const deptSel = document.getElementById('f-dept');
     if (deptSel) deptSel.value = dept;
-    currentDept = dept; // onDeptChange 호출 없이 직접 세팅
+    currentDept = dept;
+    // 단과대학 자동 세팅
+    const univEl = document.getElementById('f-univ');
+    if (univEl && typeof COLLEGE_MAP !== 'undefined') univEl.value = COLLEGE_MAP[dept] || '';
   }
 
   // 텍스트 필드
@@ -995,6 +998,9 @@ function fillFormWithData(data) {
   // 서명 이름
   const signEl = document.getElementById('signName');
   if (signEl) signEl.textContent = data['이름'] || data.name || '';
+
+  // textarea 높이 자동 조정
+  setTimeout(autoResizeAll, 50);
 }
 
 // HTML 속성 이스케이프 헬퍼
@@ -1214,7 +1220,17 @@ function processSignFile(file, displayName) {
 function syncSignName(){const n=document.getElementById('f-name');const s=document.getElementById('sign-name-display');if(n&&s)s.textContent=n.value.trim()||'학생명';}
 function validatePhone(input){const val=input.value.trim();const err=document.getElementById('phone-err');if(!val){err.style.display='none';input.style.color='';return;}const ok=/^01[0-9]-\d{3,4}-\d{4}$/.test(val);err.style.display=ok?'none':'block';input.style.color=ok?'':'#c8392b';}
 function validateEmail(input){const val=input.value.trim();const err=document.getElementById('email-err');if(!val){err.style.display='none';input.style.color='';return;}const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);err.style.display=ok?'none':'block';input.style.color=ok?'':'#c8392b';}
-function updateCounter(textarea,counterId,minLen){const len=textarea.value.length;const el=document.getElementById(counterId);if(!el)return;el.textContent=len+'자 / 권장 '+minLen+'자 이상';el.className='char-counter'+(len===0?'':len>=minLen?' ok':' warn');scheduleDraftSave();}
+function autoResizeTextarea(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+}
+function autoResizeAll() {
+  document.querySelectorAll('textarea.field-textarea').forEach(autoResizeTextarea);
+}
+function updateCounter(textarea,counterId,minLen){
+  autoResizeTextarea(textarea);
+  const len=textarea.value.length;const el=document.getElementById(counterId);if(!el)return;el.textContent=len+'자 / 권장 '+minLen+'자 이상';el.className='char-counter'+(len===0?'':len>=minLen?' ok':' warn');scheduleDraftSave();
+}
 
 let draftKey='',draftTimer=null,draftData=null;
 function initDraft(studentId){
@@ -1282,6 +1298,7 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     }catch(e){}}
     const savedTs=new Date(d.savedAt);document.getElementById('draftStatus').textContent=String(savedTs.getHours()).padStart(2,'0')+':'+String(savedTs.getMinutes()).padStart(2,'0')+' 불러옴';
   }catch(e){}
+  setTimeout(autoResizeAll, 50);
 }
 function discardDraft(){document.getElementById('draftModal').style.display='none';draftData=null;}
 function confirmDiscard(){if(confirm('⚠️ 이전에 입력한 내용이 모두 삭제됩니다.\n정말 새로 작성하시겠습니까?'))discardDraft();}
