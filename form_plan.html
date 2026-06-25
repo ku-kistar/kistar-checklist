@@ -240,7 +240,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
   /* ── 섹션 — 자연 분리 허용 */
   .form-section,.doc-header,.status-card{
-    border:1px solid #bbb!important;margin-bottom:8pt!important;
+    border:1px solid #bbb!important;margin-bottom:10pt!important;
     break-inside:auto!important;page-break-inside:auto!important;overflow:visible!important
   }
   .section-title{
@@ -249,11 +249,11 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     break-after:avoid!important;page-break-after:avoid!important
   }
   .section-num{background:rgba(255,255,255,0.2)!important;color:#fff!important}
-  .section-body{padding:8pt 12pt!important;break-inside:auto!important}
+  .section-body{padding:10pt 14pt!important;break-inside:auto!important}
 
   /* ── 필드 — 모두 auto (공백 방지) */
-  .field{margin-bottom:5pt!important;break-inside:auto!important;page-break-inside:auto!important}
-  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:2pt!important;break-after:avoid!important}
+  .field{margin-bottom:8pt!important;break-inside:auto!important;page-break-inside:auto!important}
+  .field-label{font-size:8.5pt!important;font-weight:700!important;margin-bottom:3pt!important;break-after:avoid!important}
   .field-input,.course-plan-table td select,.course-plan-table td input{
     background:#fff!important;border:1px solid #ccc!important;
     height:auto!important;overflow:visible!important;font-size:9pt!important;padding:4pt 6pt!important
@@ -281,9 +281,9 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
   /* ── 서명란 */
   .sign-section{border:1px solid #ccc!important;margin-bottom:0!important;break-inside:avoid!important;page-break-inside:avoid!important}
-  .sign-body{padding:8px 0!important}
+  .sign-body{padding:4px 0!important}
   .sign-img-preview{display:block!important;width:70px!important;height:70px!important;object-fit:contain!important}
-  .sign-table td{padding:10pt 14pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
+  .sign-table td{padding:6pt 10pt!important;font-size:10pt!important;text-align:center;vertical-align:middle}
   .sign-table .lbl{font-size:10pt!important;letter-spacing:0.05em!important}
   .sign-table .name-cell{justify-content:center!important;gap:10px!important}
 
@@ -757,6 +757,9 @@ function lookupStudent() {
       resultEl.className = 'admin-lookup-result';
       // 폼 채우기
       fillFormWithData(data);
+      // 작성자 표시를 학생 이름으로 업데이트
+      const dw = document.getElementById('docWriter');
+      if (dw) dw.textContent = data['이름'] || data.name || '';
       lookupStudentId = sid;
       adminViewMode = true;
       document.getElementById('lookupResetBtn').style.display = 'inline-block';
@@ -786,6 +789,8 @@ function resetLookup() {
   if (auth) {
     document.getElementById('f-name').value = auth.name || '';
     document.getElementById('f-id').value = auth.studentId || '';
+    const dw = document.getElementById('docWriter');
+    if (dw) dw.textContent = auth.name || '';
     document.getElementById('f-dept').value = '';
     document.getElementById('f-univ').value = '';
     // 나머지 필드 초기화
