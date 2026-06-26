@@ -348,6 +348,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <input class="admin-lookup-input" type="text" id="lookupId" placeholder="학번 입력" maxlength="20" onkeydown="if(event.key==='Enter')lookupStudent()">
     <button class="admin-lookup-btn" onclick="lookupStudent()">조회</button>
     <button class="admin-lookup-reset" id="lookupResetBtn" style="display:none" onclick="resetLookup()">내 폼으로</button>
+    <button class="admin-lookup-btn" id="resubmitBtn" style="display:none;background:#a0620a;margin-left:4px" onclick="allowResubmit()">재제출 허용</button>
   </div>
   <div class="admin-lookup-result" id="lookupResult" style="display:none">
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><circle cx="7" cy="7" r="6.5" fill="#2d7a4f"/><path d="M4 7l2 2 4-3.5" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
@@ -688,7 +689,19 @@ window.addEventListener('DOMContentLoaded',function(){
     const today=new Date();
     document.getElementById('docDate').textContent=today.getFullYear()+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+String(today.getDate()).padStart(2,'0');
     document.getElementById('docWriter').textContent=auth.name||'';
-    initDraft(auth.studentId||'guest');
+    const studentId=auth.studentId||'guest';
+    const RESUBMIT_CHECK_KEY='kistar_report_'+studentId+'_submitted';
+    if(localStorage.getItem(RESUBMIT_CHECK_KEY)){
+      fetch(EXEC_URL+'?action=checkResubmit&formType=report&studentId='+encodeURIComponent(studentId))
+        .then(r=>r.json())
+        .then(data=>{
+          if(data.status==='ok'&&data.allowed)localStorage.removeItem(RESUBMIT_CHECK_KEY);
+          initDraft(studentId);
+        })
+        .catch(()=>initDraft(studentId));
+    } else {
+      initDraft(studentId);
+    }
     currentDept=auth.dept||'';updateCourseSelectOptions();initStarRatings();
   }catch(e){showAccessDenied('🔒','오류','페이지 로딩 중 오류가 발생했습니다.');}
 });
@@ -789,9 +802,35 @@ let draftKey='',draftTimer=null,draftData=null;
 function initDraft(studentId){
   draftKey='kistar_draft_report_'+studentId;
   const saved=localStorage.getItem(draftKey);
-  if(saved){try{draftData=JSON.parse(saved);const d=new Date(draftData.savedAt);const ts=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');document.getElementById('draftModalDesc').textContent=ts+'에 저장된 내용이 있습니다. 불러오시겠습니까?';document.getElementById('draftModal').style.display='flex';}catch(e){draftData=null;}}
+  const SUBMIT_KEY='kistar_report_'+studentId+'_submitted';
+  const alreadySubmitted=localStorage.getItem(SUBMIT_KEY);
+  if(saved){try{draftData=JSON.parse(saved);
+    if(alreadySubmitted){
+      setTimeout(()=>{
+        loadDraft();
+        setFormReadonly(true);
+        showSubmittedNotice();
+      },300);
+    } else {
+      const d=new Date(draftData.savedAt);const ts=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+      document.getElementById('draftModalDesc').textContent=ts+'에 저장된 내용이 있습니다. 불러오시겠습니까?';
+      document.getElementById('draftModal').style.display='flex';
+    }
+  }catch(e){draftData=null;}}
   document.querySelectorAll('textarea, input[type=text]').forEach(el=>el.addEventListener('input',scheduleDraftSave));
   document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el=>el.addEventListener('change',scheduleDraftSave));
+}
+function showSubmittedNotice(){
+  const el=document.getElementById('submitResult');
+  if(!el)return;
+  try{
+    const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');
+    const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_submitted';
+    const sub=JSON.parse(localStorage.getItem(SUBMIT_KEY)||'{}');
+    const ts=sub.submittedAt?new Date(sub.submittedAt).toLocaleString('ko-KR'):'';
+    el.className='submit-result show success';
+    el.innerHTML='✅ 결과보고서가 제출되었습니다.<br><span style="font-size:11px;opacity:.75">'+ts+'</span><br><span style="font-size:11px;color:#555;margin-top:4px;display:block">수정이 필요한 경우 사업단(☎ 02-3290-4988)에 문의하세요.</span>';
+  }catch(e){}
 }
 function scheduleDraftSave(){if(!draftKey||adminViewMode)return;clearTimeout(draftTimer);draftTimer=setTimeout(saveDraft,2000);}
 function isLocalStorageAvailable(){try{const t='__ls_test__';localStorage.setItem(t,t);localStorage.removeItem(t);return true;}catch(e){return false;}}
@@ -836,7 +875,7 @@ function submitForm(){
   const params=new URLSearchParams({action:'submitReport',studentId:sid,studentName:sname,dept:document.getElementById('f-dept').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester')?.value||'2026-1',phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,gradYear:document.getElementById('f-grad-year')?.value||'',gradMonth:document.getElementById('f-grad-month')?.value||'',ratingMajor:getRadio('r-major'),ratingSkill:getRadio('r-skill'),ratingCareer:getRadio('r-career'),majorUnderstanding:document.getElementById('major-understanding').value,practicalSkill:document.getElementById('practical-skill').value,careerAwareness:document.getElementById('career-awareness').value,futureStudy:document.getElementById('future-study').value,futureCareer:document.getElementById('future-career').value,courseActivities:collectCourseData(),extraActivities:collectExtraData(),internActivities:collectInternData(),internTypes:(()=>{const t=getChecked('internDone');const o=document.getElementById('internOtherText')?.value?.trim();if(t.includes('기타')&&o)return t.split(', ').map(v=>v==='기타'?o:v).join(', ');return t;})(),employmentStatus:getRadio('employmentStatus'),employmentStatusOther:document.getElementById('employmentStatusOther')?.value||'',empCompany:document.getElementById('empCompany')?.value||'',empDept:document.getElementById('empDept')?.value||'',empType:getRadio('empType'),empTypeOther:document.getElementById('empTypeOther')?.value||'',empStartDate:document.getElementById('empStartDate')?.value||'',internPeriodStart:document.getElementById('internStart')?.value||'',internPeriodEnd:document.getElementById('internEnd')?.value||'',internConvertTime:document.getElementById('internConvertDate')?.value||'',internConvertCond:getRadio('internConvert'),signatureImage:signFileBase64});
   showResult('success','제출 중...');
   fetch(SCRIPT_URL_HUB,{method:'POST',body:params}).then(r=>r.json()).then(result=>{
-    if(result.status==='ok'){if(draftKey)localStorage.removeItem(draftKey);showResult('success','✅ 결과보고서가 제출되었습니다! ('+sname+')');}
+    if(result.status==='ok'){showResult('success','✅ 결과보고서가 제출되었습니다! ('+sname+')');}
     else showResult('error','제출 실패: '+JSON.stringify(result));
   }).catch(()=>showResult('error','네트워크 오류. 다시 시도해주세요.'));
 }
@@ -948,17 +987,37 @@ function lookupStudent(){
       lookupStudentId=sid;adminViewMode=true;
       const pdfBtnLookup=document.getElementById('btn-pdf');if(pdfBtnLookup)pdfBtnLookup.style.display='flex';
       document.getElementById('lookupResetBtn').style.display='inline-block';
+      document.getElementById('resubmitBtn').style.display='inline-block';
       document.getElementById('adminReadonlyNotice').style.display='flex';
       setFormReadonly(true);
     })
     .catch(()=>{resultEl.className='admin-lookup-result error';nameEl.textContent='⚠️ 조회 중 오류가 발생했습니다.';});
 }
 
+function allowResubmit(){
+  if(!lookupStudentId)return;
+  if(!confirm('학번 '+lookupStudentId+' 학생의 결과보고서 재제출을 허용하시겠습니까?\n학생이 다시 수정 후 제출할 수 있게 됩니다.'))return;
+  const btn=document.getElementById('resubmitBtn');
+  btn.textContent='처리 중...';btn.disabled=true;
+  fetch(EXEC_URL+'?action=allowResubmit&formType=report&studentId='+encodeURIComponent(lookupStudentId))
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.status==='ok'){
+        alert('✅ 재제출이 허용되었습니다.\n학생이 다음 접속 시 수정하여 재제출할 수 있습니다.');
+        btn.textContent='재제출 허용됨';btn.style.background='#2d7a4f';
+      } else {
+        alert('❌ 처리 실패: '+(data.message||'오류'));
+        btn.textContent='재제출 허용';btn.disabled=false;
+      }
+    })
+    .catch(()=>{alert('❌ 네트워크 오류');btn.textContent='재제출 허용';btn.disabled=false;});
+}
 function resetLookup(){
   adminViewMode=false;lookupStudentId='';
   document.getElementById('lookupId').value='';
   document.getElementById('lookupResult').style.display='none';
   document.getElementById('lookupResetBtn').style.display='none';
+  document.getElementById('resubmitBtn').style.display='none';
   document.getElementById('adminReadonlyNotice').style.display='none';
   const pdfBtnReset=document.getElementById('btn-pdf');if(pdfBtnReset)pdfBtnReset.style.display='none';
   setFormReadonly(false);
