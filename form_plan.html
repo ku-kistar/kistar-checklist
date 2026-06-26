@@ -50,14 +50,14 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .check-item{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;white-space:nowrap;background:var(--surface);transition:all .15s}
 .check-item:hover{border-color:var(--navy);background:var(--surface2)}
 .check-item input[type=checkbox],.check-item input[type=radio]{width:14px;height:14px;accent-color:var(--navy);flex-shrink:0}
-.check-item-other{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);max-width:340px}
+.check-item-other{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);max-width:none;white-space:nowrap}
 .check-item-other input[type=checkbox],.check-item-other input[type=radio]{width:14px;height:14px;accent-color:var(--navy);flex-shrink:0}
 .check-item-other .other-label{white-space:nowrap;flex-shrink:0}
 .check-item-other .other-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;min-width:100px;width:200px;flex:1}
 .course-plan-wrap{overflow-x:auto}
 .course-plan-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px;margin-top:8px}
 .course-plan-table th{background:var(--navy);color:#fff;padding:8px 10px;text-align:center;font-weight:600}
-.course-plan-table td{border:1px solid var(--border);padding:6px 8px}
+.course-plan-table td{border:1px solid var(--border);padding:6px 8px;overflow:visible;white-space:normal;word-break:break-word}
 .course-plan-table td select,.course-plan-table td input{width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit}
 .course-plan-table td select{cursor:pointer}
 .add-row-btn{display:flex;align-items:center;gap:5px;margin-top:8px;padding:6px 12px;border:1px dashed var(--border);border-radius:6px;background:transparent;color:var(--text3);font-size:12px;cursor:pointer;transition:all .15s}
