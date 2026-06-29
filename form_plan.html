@@ -289,15 +289,18 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   }
   .info-table td{padding:5pt 10pt!important}
   /* ── 기타 직접입력 잘림 방지 */
-  .check-item-other{max-width:none!important;white-space:nowrap!important;height:auto!important;overflow:visible!important}
-  /* .check-item-other .other-input — readonly 상태에서도 표시 유지 */
-
-  /* ── 기타 직접입력 잘림 방지 */
   .check-item-other{
     max-width:none!important;width:auto!important;
-    white-space:nowrap!important;height:auto!important;overflow:visible!important
+    white-space:normal!important;height:auto!important;
+    overflow:visible!important;flex-wrap:wrap!important
   }
-  /* .check-item-other .other-input — readonly 상태에서도 표시 유지 */
+  .check-item-other .other-input{
+    display:inline-block!important;
+    width:auto!important;min-width:0!important;max-width:none!important;
+    white-space:normal!important;word-break:break-word!important;
+    overflow:visible!important;border:none!important;
+    background:transparent!important;font-size:9pt!important
+  }
   .check-item-other .other-label{white-space:nowrap!important}
 
   /* ── goal-row / check-group */
