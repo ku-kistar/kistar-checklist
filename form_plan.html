@@ -518,7 +518,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item-other">
           <input type="checkbox" name="tech" value="기타" id="techOtherChk">
           <span class="other-label">기타:</span>
-          <input type="text" class="other-input" id="techOtherText" placeholder="직접 입력">
+          <textarea class="other-input" id="techOtherText" placeholder="직접 입력" rows="1" style="resize:none;overflow:hidden;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;font-family:inherit;line-height:1.5;padding:2px 0;width:200px;min-width:60px;max-width:100%;vertical-align:middle"></textarea>
         </label>
       </div>
     </div>
@@ -555,7 +555,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item-other" style="white-space:nowrap">
           <input type="checkbox" name="intern" value="기타" id="internOtherChk">
           <span class="other-label">기타:</span>
-          <input type="text" class="other-input" id="internOtherInputText" placeholder="직접 입력">
+          <textarea class="other-input" id="internOtherInputText" placeholder="직접 입력" rows="1" style="resize:none;overflow:hidden;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;font-family:inherit;line-height:1.5;padding:2px 0;width:200px;min-width:60px;max-width:100%;vertical-align:middle"></textarea>
         </label>
       </div>
       <div class="field-wrap">
@@ -1090,7 +1090,6 @@ function fillFormWithData(data) {
 
   // textarea 높이 자동 조정
   setTimeout(autoResizeAll, 50);
-  setTimeout(autoResizeAllOtherInputs, 100);
 }
 
 // HTML 속성 이스케이프 헬퍼
@@ -1367,7 +1366,6 @@ function initDraft(studentId){
     }
   }catch(e){draftData=null;}}
   document.querySelectorAll('textarea, input[type=text]').forEach(el=>el.addEventListener('input',scheduleDraftSave));
-  document.querySelectorAll('.other-input').forEach(el=>el.addEventListener('input',()=>autoResizeOtherInput(el)));
   document.querySelectorAll('input[type=checkbox], input[type=radio], select').forEach(el=>el.addEventListener('change',scheduleDraftSave));
 }
 function showSubmittedNotice(){
@@ -1447,7 +1445,6 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     const savedTs=new Date(d.savedAt);document.getElementById('draftStatus').textContent=String(savedTs.getHours()).padStart(2,'0')+':'+String(savedTs.getMinutes()).padStart(2,'0')+' 불러옴';
   }catch(e){}
   setTimeout(autoResizeAll, 50);
-  setTimeout(autoResizeAllOtherInputs, 100);
 }
 function discardDraft(){document.getElementById('draftModal').style.display='none';draftData=null;}
 function confirmDiscard(){if(confirm('⚠️ 이전에 입력한 내용이 모두 삭제됩니다.\n정말 새로 작성하시겠습니까?'))discardDraft();}
@@ -1552,22 +1549,6 @@ function printWithDeadline(){
     document.getElementById('signDateDisplay').textContent=formatted;
     setTimeout(()=>window.print(),100);
   }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
-}
-
-// ── other-input 너비 자동 조절 ──
-function autoResizeOtherInput(el) {
-  if (!el) return;
-  // 임시 span으로 텍스트 너비 측정
-  const tmp = document.createElement('span');
-  tmp.style.cssText = 'visibility:hidden;position:absolute;font-size:12px;white-space:pre;padding:0';
-  tmp.textContent = el.value || el.placeholder || '';
-  document.body.appendChild(tmp);
-  const w = Math.max(tmp.offsetWidth + 20, 60);
-  document.body.removeChild(tmp);
-  el.style.setProperty('width', w + 'px', 'important');
-}
-function autoResizeAllOtherInputs() {
-  document.querySelectorAll('.other-input').forEach(autoResizeOtherInput);
 }
 
 // ── beforeprint: textarea → div 교체 (스크롤바/잘림 완전 해결) ──
