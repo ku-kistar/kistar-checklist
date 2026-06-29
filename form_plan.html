@@ -518,7 +518,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item-other">
           <input type="checkbox" name="tech" value="기타" id="techOtherChk">
           <span class="other-label">기타:</span>
-          <input type="text" class="other-input" id="techOtherText" placeholder="직접 입력">
+          <span class="other-input" id="techOtherText" contenteditable="true" data-placeholder="직접 입력" style="min-width:60px;display:inline-block;outline:none;border-bottom:1px solid var(--border);white-space:pre-wrap;word-break:break-word;font-size:12px;background:transparent;"></span>
         </label>
       </div>
     </div>
@@ -555,7 +555,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item-other" style="white-space:nowrap">
           <input type="checkbox" name="intern" value="기타" id="internOtherChk">
           <span class="other-label">기타:</span>
-          <input type="text" class="other-input" id="internOtherInputText" placeholder="직접 입력">
+          <span class="other-input" id="internOtherInputText" contenteditable="true" data-placeholder="직접 입력" style="min-width:60px;display:inline-block;outline:none;border-bottom:1px solid var(--border);white-space:pre-wrap;word-break:break-word;font-size:12px;background:transparent;"></span>
         </label>
       </div>
       <div class="field-wrap">
@@ -1402,10 +1402,10 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     if(d.supportRequest){const el=document.getElementById('support-request');el.value=d.supportRequest;updateCounter(el,'cnt-support',30);}
     if(d.tech){restoreChecks('tech',d.tech);
       // 기타 직접입력 값 복원
-      if(d.tech.includes('기타')&&d.techOtherText){const el=document.getElementById('techOtherText');if(el){el.style.display='inline-block';el.value=d.techOtherText;}}
+      if(d.tech.includes('기타')&&d.techOtherText){const el=document.getElementById('techOtherText');if(el){el.style.display='inline-block';if(el.value!==undefined)el.value=d.techOtherText;else el.textContent=d.techOtherText;}}
     }
     if(d.intern){restoreChecks('intern',d.intern);
-      if(d.intern.includes('기타')&&d.internOtherText){const el=document.getElementById('internOtherInputText');if(el){el.style.display='inline-block';el.value=d.internOtherText;}}
+      if(d.intern.includes('기타')&&d.internOtherText){const el=document.getElementById('internOtherInputText');if(el){el.style.display='inline-block';if(el.value!==undefined)el.value=d.internOtherText;else el.textContent=d.internOtherText;}}
     }
     if(d.project)restoreChecks('project',d.project);
     if(d.support)restoreChecks('support',d.support);
@@ -1489,7 +1489,7 @@ function getCareerGoal(){
   return [r1, r2 ? '2순위:'+r2 : '', r3 ? '3순위:'+r3 : ''].filter(Boolean).join(' / ');
 }
 
-function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),techOtherText:document.getElementById('techOtherText')?document.getElementById('techOtherText').value:'',internOtherText:document.getElementById('internOtherInputText')?document.getElementById('internOtherInputText').value:'',career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value,coursePlanRaw:getCoursePlanRaw(),dept:document.getElementById('f-dept')?document.getElementById('f-dept').value:''};}
+function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),techOtherText:document.getElementById('techOtherText')?(document.getElementById('techOtherText').value||document.getElementById('techOtherText').textContent).trim():'',internOtherText:document.getElementById('internOtherInputText')?(document.getElementById('internOtherInputText').value||document.getElementById('internOtherInputText').textContent).trim():'',career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value,coursePlanRaw:getCoursePlanRaw(),dept:document.getElementById('f-dept')?document.getElementById('f-dept').value:''};}
 function restoreChecks(name,csv){
   if(!csv)return;
   const vals=csv.split(', ');
@@ -1498,7 +1498,7 @@ function restoreChecks(name,csv){
     // 기타 체크 시 other-input 표시
     if(el.value==='기타'&&el.checked){
       const label=el.closest('label');
-      if(label){const oi=label.querySelector('.other-input');if(oi)oi.style.display='inline-block';}
+      if(label){const oi=label.querySelector('.other-input');if(oi){oi.style.display='inline-block';}}
     }
   });
 }
@@ -1558,13 +1558,19 @@ window.addEventListener('beforeprint', function(){
     const clone = document.createElement('div');
     clone.className = 'ta-print-clone';
     clone.textContent = ta.value;
+    // 교과목 textarea는 셀 안에 있으므로 td 스타일 맞춤
+    if (ta.closest('.course-plan-table')) {
+      clone.style.cssText = 'font-size:9pt;white-space:pre-wrap;word-break:break-word;line-height:1.5;padding:2px 0;width:100%;overflow:visible';
+    }
+    ta.style.display = 'none';
     ta.parentNode.insertBefore(clone, ta.nextSibling);
     _taCloneMap.set(ta, clone);
   });
 });
 window.addEventListener('afterprint', function(){
-  _taCloneMap.forEach(function(clone){
+  _taCloneMap.forEach(function(clone, ta){
     if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
+    if(ta) ta.style.display = '';
   });
   _taCloneMap.clear();
 });
