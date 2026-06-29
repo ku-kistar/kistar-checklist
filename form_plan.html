@@ -568,7 +568,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
     <div class="field">
       <div class="field-label">진로 비전 및 장기 계획 <span class="field-hint">※ 졸업 후 희망 진로 — 1순위 필수, 2·3순위 선택</span></div>
-      <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;margin-bottom:10px;overflow-x:auto">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
           <span style="font-size:12px;font-weight:700;color:var(--accent)">1순위</span>
           <select id="career1" class="field-input" style="min-width:140px;max-width:200px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
@@ -960,7 +960,7 @@ function fillFormWithData(data) {
         parsed.forEach(r => {
           const tr = document.createElement('tr');
           const opts = buildCourseOptions(dept);
-          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><input type="text" value="${escAttr(r.goal||'')}" placeholder="학습목표 및 기대효과" disabled></td>`;
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" rows="2" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:vertical;line-height:1.5;padding:2px 0" disabled>${escAttr(r.goal||'')}</textarea></td>`;
           const sel = tr.querySelector('select');
           if (sel && r.course) { sel.value = r.course; }
           tbody.appendChild(tr);
@@ -1077,7 +1077,7 @@ function addCourseRow() {
   const tbody = document.getElementById('coursePlanBody');
   const tr = document.createElement('tr');
   const opts = buildCourseOptions(currentDept);
-  tr.innerHTML = `<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><input type="text" placeholder="학습목표 및 기대효과"></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
+  tr.innerHTML = `<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><textarea placeholder="학습목표 및 기대효과" rows="2" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:vertical;line-height:1.5;padding:2px 0"></textarea></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
   tbody.appendChild(tr);
 }
 
@@ -1120,14 +1120,14 @@ function getCoursePlanRaw() {
   rows.forEach(row => {
     const sel = row.querySelector('select');
     const inputs = row.querySelectorAll('input[type=text]');
-    const directInput = inputs[0]; // 직접입력 텍스트
-    const creditInput = inputs[inputs.length - 2];
-    const goalInput = inputs[inputs.length - 1];
+    const directInput = inputs[0];
+    const creditInput = inputs[inputs.length - 1];
+    const goalTextarea = row.querySelector('textarea');
     result.push({
       course: sel ? sel.value : '',
       directName: directInput ? directInput.value : '',
       credit: creditInput ? creditInput.value : '',
-      goal: goalInput ? goalInput.value : ''
+      goal: goalTextarea ? goalTextarea.value : ''
     });
   });
   return JSON.stringify(result);
@@ -1139,10 +1139,11 @@ function getCoursePlan() {
   rows.forEach(row => {
     const sel = row.querySelector('select');
     const inputs = row.querySelectorAll('input[type=text]');
+    const goalTextarea = row.querySelector('textarea');
     let name = sel ? sel.value : '';
     if (name === '직접입력' && inputs[0]) name = inputs[0].value.trim();
-    const credit = inputs[inputs.length - 2] ? inputs[inputs.length - 2].value.trim() : '';
-    const goal = inputs[inputs.length - 1] ? inputs[inputs.length - 1].value.trim() : '';
+    const credit = inputs[inputs.length - 1] ? inputs[inputs.length - 1].value.trim() : '';
+    const goal = goalTextarea ? goalTextarea.value.trim() : '';
     if (name && !name.startsWith('---')) result.push(name + '(' + credit + '학점): ' + goal);
   });
   return result.join(' | ');
@@ -1360,13 +1361,14 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
         rows.forEach(r=>{
           const tr=document.createElement('tr');
           const opts=buildCourseOptions(d.dept||currentDept||'');
-          tr.innerHTML=`<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><input type="text" placeholder="학습목표 및 기대효과"></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
+          tr.innerHTML=`<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><textarea placeholder="학습목표 및 기대효과" rows="2" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:vertical;line-height:1.5;padding:2px 0"></textarea></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
           const sel=tr.querySelector('select');
           const inputs=tr.querySelectorAll('input[type=text]');
+          const goalTa=tr.querySelector('textarea');
           if(sel&&r.course){sel.value=r.course;}
           if(r.course==='직접입력'&&inputs[0]){inputs[0].style.display='block';inputs[0].value=r.directName||'';}
-          if(inputs[inputs.length-2])inputs[inputs.length-2].value=r.credit||'';
-          if(inputs[inputs.length-1])inputs[inputs.length-1].value=r.goal||'';
+          if(inputs[inputs.length-1])inputs[inputs.length-1].value=r.credit||'';
+          if(goalTa)goalTa.value=r.goal||'';
           tbody.appendChild(tr);
         });
       }
