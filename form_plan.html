@@ -1131,7 +1131,9 @@ function addCourseRow() {
     _ta.addEventListener('input', function(){ scheduleDraftSave(); const _pt=_ta.parentNode.querySelector('.print-text');if(_pt)_pt.textContent=_ta.value; });
     autoResizeTextarea(_ta);
   }
-}(sel) {
+}
+
+function handleCourseSelect(sel) {
   const directInput = sel.nextElementSibling;
   if (sel.value === '직접입력') { directInput.style.display = 'block'; directInput.focus(); }
   else directInput.style.display = 'none';
