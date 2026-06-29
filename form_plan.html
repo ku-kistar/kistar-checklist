@@ -290,14 +290,14 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   .info-table td{padding:5pt 10pt!important}
   /* ── 기타 직접입력 잘림 방지 */
   .check-item-other{max-width:none!important;white-space:nowrap!important;height:auto!important;overflow:visible!important}
-  .check-item-other .other-input{display:none!important}
+  /* .check-item-other .other-input — readonly 상태에서도 표시 유지 */
 
   /* ── 기타 직접입력 잘림 방지 */
   .check-item-other{
     max-width:none!important;width:auto!important;
     white-space:nowrap!important;height:auto!important;overflow:visible!important
   }
-  .check-item-other .other-input{display:none!important}
+  /* .check-item-other .other-input — readonly 상태에서도 표시 유지 */
   .check-item-other .other-label{white-space:nowrap!important}
 
   /* ── goal-row / check-group */
@@ -579,52 +579,52 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
     <div class="field">
       <div class="field-label">진로 비전 및 장기 계획 <span class="field-hint">※ 졸업 후 희망 진로 — 1순위 필수, 2·3순위 선택</span></div>
-      <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span style="font-size:12px;font-weight:700;color:var(--accent)">1순위</span>
-          <select id="career1" class="field-input" style="min-width:140px;max-width:200px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
-            <option value="">선택하세요 (필수)</option>
-            <option value="대학원 진학">대학원 진학</option>
-            <option value="국내 기업 취업">국내 기업 취업</option>
-            <option value="해외 기업 취업">해외 기업 취업</option>
-            <option value="연구소">연구소</option>
-            <option value="창업">창업</option>
-            <option value="미정">미정</option>
-            <option value="기타">기타</option>
-          </select>
-          <input type="text" id="career1Other" class="field-input" placeholder="직접 입력" style="display:none;width:120px;padding:7px 10px;font-size:13px">
-        </div>
-        <span style="margin:0 12px;color:#ccc;font-weight:300;flex-shrink:0">|</span>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span style="font-size:12px;font-weight:700;color:var(--text3)">2순위</span>
-          <select id="career2" class="field-input" style="min-width:140px;max-width:200px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
-            <option value="">선택 안 함</option>
-            <option value="대학원 진학">대학원 진학</option>
-            <option value="국내 기업 취업">국내 기업 취업</option>
-            <option value="해외 기업 취업">해외 기업 취업</option>
-            <option value="연구소">연구소</option>
-            <option value="창업">창업</option>
-            <option value="미정">미정</option>
-            <option value="기타">기타</option>
-          </select>
-          <input type="text" id="career2Other" class="field-input" placeholder="직접 입력" style="display:none;width:120px;padding:7px 10px;font-size:13px">
-        </div>
-        <span style="margin:0 12px;color:#ccc;font-weight:300;flex-shrink:0">|</span>
-        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <span style="font-size:12px;font-weight:700;color:var(--text3)">3순위</span>
-          <select id="career3" class="field-input" style="min-width:140px;max-width:200px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
-            <option value="">선택 안 함</option>
-            <option value="대학원 진학">대학원 진학</option>
-            <option value="국내 기업 취업">국내 기업 취업</option>
-            <option value="해외 기업 취업">해외 기업 취업</option>
-            <option value="연구소">연구소</option>
-            <option value="창업">창업</option>
-            <option value="미정">미정</option>
-            <option value="기타">기타</option>
-          </select>
-          <input type="text" id="career3Other" class="field-input" placeholder="직접 입력" style="display:none;width:120px;padding:7px 10px;font-size:13px">
-        </div>
-      </div>
+      <table style="border-collapse:collapse;width:auto;margin-bottom:10px;overflow-x:auto;display:block">
+        <tr>
+          <td style="white-space:nowrap;padding-right:8px;font-size:12px;font-weight:700;color:var(--accent);vertical-align:middle">1순위</td>
+          <td style="padding-right:16px;vertical-align:middle">
+            <select id="career1" class="field-input" style="min-width:140px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
+              <option value="">선택하세요 (필수)</option>
+              <option value="대학원 진학">대학원 진학</option>
+              <option value="국내 기업 취업">국내 기업 취업</option>
+              <option value="해외 기업 취업">해외 기업 취업</option>
+              <option value="연구소">연구소</option>
+              <option value="창업">창업</option>
+              <option value="미정">미정</option>
+              <option value="기타">기타</option>
+            </select>
+            <input type="text" id="career1Other" class="field-input" placeholder="직접 입력" style="display:none;width:120px;padding:7px 10px;font-size:13px;margin-left:6px">
+          </td>
+          <td style="white-space:nowrap;padding-right:8px;font-size:12px;font-weight:700;color:var(--text3);vertical-align:middle">2순위</td>
+          <td style="padding-right:16px;vertical-align:middle">
+            <select id="career2" class="field-input" style="min-width:140px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
+              <option value="">선택 안 함</option>
+              <option value="대학원 진학">대학원 진학</option>
+              <option value="국내 기업 취업">국내 기업 취업</option>
+              <option value="해외 기업 취업">해외 기업 취업</option>
+              <option value="연구소">연구소</option>
+              <option value="창업">창업</option>
+              <option value="미정">미정</option>
+              <option value="기타">기타</option>
+            </select>
+            <input type="text" id="career2Other" class="field-input" placeholder="직접 입력" style="display:none;width:120px;padding:7px 10px;font-size:13px;margin-left:6px">
+          </td>
+          <td style="white-space:nowrap;padding-right:8px;font-size:12px;font-weight:700;color:var(--text3);vertical-align:middle">3순위</td>
+          <td style="vertical-align:middle">
+            <select id="career3" class="field-input" style="min-width:140px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
+              <option value="">선택 안 함</option>
+              <option value="대학원 진학">대학원 진학</option>
+              <option value="국내 기업 취업">국내 기업 취업</option>
+              <option value="해외 기업 취업">해외 기업 취업</option>
+              <option value="연구소">연구소</option>
+              <option value="창업">창업</option>
+              <option value="미정">미정</option>
+              <option value="기타">기타</option>
+            </select>
+            <input type="text" id="career3Other" class="field-input" placeholder="직접 입력" style="display:none;width:120px;padding:7px 10px;font-size:13px;margin-left:6px">
+          </td>
+        </tr>
+      </table>
     </div>
 
     <div class="field">
@@ -1396,8 +1396,13 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     if(d.industryPlan){const el=document.getElementById('industry-plan');el.value=d.industryPlan;updateCounter(el,'cnt-industry',50);}
     if(d.projectPlan){const el=document.getElementById('project-plan');el.value=d.projectPlan;updateCounter(el,'cnt-project',50);}
     if(d.supportRequest){const el=document.getElementById('support-request');el.value=d.supportRequest;updateCounter(el,'cnt-support',30);}
-    if(d.tech)restoreChecks('tech',d.tech);
-    if(d.intern)restoreChecks('intern',d.intern);
+    if(d.tech){restoreChecks('tech',d.tech);
+      // 기타 직접입력 값 복원
+      if(d.tech.includes('기타')&&d.techOtherText){const el=document.getElementById('techOtherText');if(el){el.style.display='inline-block';el.value=d.techOtherText;}}
+    }
+    if(d.intern){restoreChecks('intern',d.intern);
+      if(d.intern.includes('기타')&&d.internOtherText){const el=document.getElementById('internOtherInputText');if(el){el.style.display='inline-block';el.value=d.internOtherText;}}
+    }
     if(d.project)restoreChecks('project',d.project);
     if(d.support)restoreChecks('support',d.support);
     if(d.career1){document.getElementById('career1').value=d.career1;if(d.career1==='기타'&&d.career1Other){document.getElementById('career1Other').style.display='inline-block';document.getElementById('career1Other').value=d.career1Other;}}
@@ -1480,8 +1485,19 @@ function getCareerGoal(){
   return [r1, r2 ? '2순위:'+r2 : '', r3 ? '3순위:'+r3 : ''].filter(Boolean).join(' / ');
 }
 
-function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value,coursePlanRaw:getCoursePlanRaw(),dept:document.getElementById('f-dept')?document.getElementById('f-dept').value:''};}
-function restoreChecks(name,csv){if(!csv)return;const vals=csv.split(', ');document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{el.checked=vals.includes(el.value);});}
+function collectFormData(){return{phone:document.getElementById('f-phone').value,email:document.getElementById('f-email').value,grade:document.getElementById('f-grade').value,semester:document.getElementById('f-semester-input').value,gradYear:document.getElementById('f-grad-year').value,gradMonth:document.getElementById('f-grad-month').value,prevAchievement:document.getElementById('prev-achievement').value,goal1:document.getElementById('goal1').value,goal2:document.getElementById('goal2').value,goal3:document.getElementById('goal3').value,academicPlan:document.getElementById('academic-plan').value,industryPlan:document.getElementById('industry-plan').value,projectPlan:document.getElementById('project-plan').value,supportRequest:document.getElementById('support-request').value,tech:getChecked('tech'),intern:getChecked('intern'),project:getChecked('project'),support:getChecked('support'),techOtherText:document.getElementById('techOtherText')?document.getElementById('techOtherText').value:'',internOtherText:document.getElementById('internOtherInputText')?document.getElementById('internOtherInputText').value:'',career1:document.getElementById('career1').value,career1Other:document.getElementById('career1Other').value,career2:document.getElementById('career2').value,career2Other:document.getElementById('career2Other').value,career3:document.getElementById('career3').value,career3Other:document.getElementById('career3Other').value,coursePlanRaw:getCoursePlanRaw(),dept:document.getElementById('f-dept')?document.getElementById('f-dept').value:''};}
+function restoreChecks(name,csv){
+  if(!csv)return;
+  const vals=csv.split(', ');
+  document.querySelectorAll(`input[name="${name}"]`).forEach(el=>{
+    el.checked=vals.includes(el.value);
+    // 기타 체크 시 other-input 표시
+    if(el.value==='기타'&&el.checked){
+      const label=el.closest('label');
+      if(label){const oi=label.querySelector('.other-input');if(oi)oi.style.display='inline-block';}
+    }
+  });
+}
 
 function submitForm(){
   const sid=document.getElementById('f-id').value.trim();const sname=document.getElementById('f-name').value.trim();
