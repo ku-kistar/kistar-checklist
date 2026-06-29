@@ -276,11 +276,21 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     white-space:normal!important;word-break:break-word!important;
     overflow:visible!important;height:auto!important
   }
+  .course-plan-table td textarea{
+    display:block!important;width:100%!important;
+    white-space:pre-wrap!important;word-break:break-word!important;
+    border:none!important;background:transparent!important;
+    font-size:9pt!important;resize:none!important;
+    overflow:visible!important;height:auto!important;min-height:0!important
+  }
   .course-plan-table td span{
     white-space:normal!important;word-break:break-word!important;
     display:block!important;width:100%!important
   }
   .info-table td{padding:5pt 10pt!important}
+  /* ── 기타 직접입력 잘림 방지 */
+  .check-item-other{max-width:none!important;white-space:nowrap!important;height:auto!important;overflow:visible!important}
+  .check-item-other .other-input{display:none!important}
 
   /* ── 기타 직접입력 잘림 방지 */
   .check-item-other{
@@ -569,7 +579,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
     <div class="field">
       <div class="field-label">진로 비전 및 장기 계획 <span class="field-hint">※ 졸업 후 희망 진로 — 1순위 필수, 2·3순위 선택</span></div>
-      <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;margin-bottom:10px;overflow-x:auto">
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:nowrap;overflow-x:auto;margin-bottom:10px">
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
           <span style="font-size:12px;font-weight:700;color:var(--accent)">1순위</span>
           <select id="career1" class="field-input" style="min-width:140px;max-width:200px;padding:7px 10px;font-size:13px;cursor:pointer" onchange="syncCareerSelects()">
@@ -804,8 +814,7 @@ function allowResubmit() {
     .then(data => {
       if (data.status === 'ok') {
         alert('✅ 재제출이 허용되었습니다.\n학생이 다음 접속 시 수정하여 재제출할 수 있습니다.');
-        btn.textContent = '재제출 허용됨';
-        btn.style.background = '#2d7a4f';
+        btn.textContent = '재제출 허용됨'; btn.style.background = '#2d7a4f';
       } else {
         alert('❌ 처리 실패: ' + (data.message || '오류'));
         btn.textContent = '재제출 허용'; btn.disabled = false;
@@ -813,7 +822,6 @@ function allowResubmit() {
     })
     .catch(() => { alert('❌ 네트워크 오류'); btn.textContent = '재제출 허용'; btn.disabled = false; });
 }
-
 function resetLookup() {
   adminViewMode = false;
   lookupStudentId = '';
@@ -983,7 +991,7 @@ function fillFormWithData(data) {
         parsed.forEach(r => {
           const tr = document.createElement('tr');
           const opts = buildCourseOptions(dept);
-          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" rows="2" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:vertical;line-height:1.5;padding:2px 0" disabled>${escAttr(r.goal||'')}</textarea></td>`;
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><input type="text" value="${escAttr(r.goal||'')}" placeholder="학습목표 및 기대효과" disabled></td>`;
           const sel = tr.querySelector('select');
           if (sel && r.course) { sel.value = r.course; }
           tbody.appendChild(tr);
@@ -1162,11 +1170,11 @@ function getCoursePlan() {
   rows.forEach(row => {
     const sel = row.querySelector('select');
     const inputs = row.querySelectorAll('input[type=text]');
-    const goalTextarea = row.querySelector('textarea');
     let name = sel ? sel.value : '';
     if (name === '직접입력' && inputs[0]) name = inputs[0].value.trim();
     const credit = inputs[inputs.length - 1] ? inputs[inputs.length - 1].value.trim() : '';
-    const goal = goalTextarea ? goalTextarea.value.trim() : '';
+    const goalTa2 = row.querySelector('textarea');
+    const goal = goalTa2 ? goalTa2.value.trim() : '';
     if (name && !name.startsWith('---')) result.push(name + '(' + credit + '학점): ' + goal);
   });
   return result.join(' | ');
@@ -1221,19 +1229,14 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById('docWriter').textContent = auth.name || '';
     if (isAdmin) document.getElementById('btn-pdf').style.display = 'flex';
     addCourseRow(); addCourseRow(); addCourseRow();
-    const studentId = auth.studentId || 'guest';
-    const RESUBMIT_CHECK_KEY = 'kistar_plan_' + studentId + '_submitted';
-    if (localStorage.getItem(RESUBMIT_CHECK_KEY)) {
-      fetch(EXEC_URL + '?action=checkResubmit&formType=plan&studentId=' + encodeURIComponent(studentId))
+    const _sid = auth.studentId || 'guest';
+    const _RKEY = 'kistar_plan_' + _sid + '_submitted';
+    if (localStorage.getItem(_RKEY)) {
+      fetch(EXEC_URL + '?action=checkResubmit&formType=plan&studentId=' + encodeURIComponent(_sid))
         .then(r => r.json())
-        .then(data => {
-          if (data.status === 'ok' && data.allowed) localStorage.removeItem(RESUBMIT_CHECK_KEY);
-          initDraft(studentId);
-        })
-        .catch(() => initDraft(studentId));
-    } else {
-      initDraft(studentId);
-    }
+        .then(data => { if (data.status === 'ok' && data.allowed) localStorage.removeItem(_RKEY); initDraft(_sid); })
+        .catch(() => initDraft(_sid));
+    } else { initDraft(_sid); }
   } catch(e) {
     document.getElementById('access-denied').style.display = 'block';
   }
