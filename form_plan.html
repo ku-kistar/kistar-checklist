@@ -50,10 +50,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .check-item{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;white-space:nowrap;background:var(--surface);transition:all .15s}
 .check-item:hover{border-color:var(--navy);background:var(--surface2)}
 .check-item input[type=checkbox],.check-item input[type=radio]{width:14px;height:14px;accent-color:var(--navy);flex-shrink:0}
-.check-item-other{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);max-width:none;white-space:nowrap}
+.check-item-other{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);max-width:none;white-space:normal;height:auto;flex-wrap:wrap}
 .check-item-other input[type=checkbox],.check-item-other input[type=radio]{width:14px;height:14px;accent-color:var(--navy);flex-shrink:0}
 .check-item-other .other-label{white-space:nowrap;flex-shrink:0}
-.check-item-other .other-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;min-width:100px;width:200px;flex:1}
+.check-item-other .other-input{border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;min-width:80px;width:auto;max-width:none;flex:1;white-space:normal;word-break:break-word}
 .course-plan-wrap{overflow-x:auto}
 .course-plan-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px;margin-top:8px}
 .course-plan-table th{background:var(--navy);color:#fff;padding:8px 10px;text-align:center;font-weight:600}
@@ -994,7 +994,7 @@ function fillFormWithData(data) {
         parsed.forEach(r => {
           const tr = document.createElement('tr');
           const opts = buildCourseOptions(dept);
-          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><input type="text" value="${escAttr(r.goal||'')}" placeholder="학습목표 및 기대효과" disabled></td>`;
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" rows="2" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:vertical;line-height:1.5;padding:2px 0" disabled>${escAttr(r.goal||'')}</textarea></td>`;
           const sel = tr.querySelector('select');
           if (sel && r.course) { sel.value = r.course; }
           tbody.appendChild(tr);
@@ -1016,7 +1016,7 @@ function fillFormWithData(data) {
           }
           const tr = document.createElement('tr');
           const opts = buildCourseOptions(dept);
-          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" value="${escAttr(credit)}" placeholder="학점" style="width:50px" disabled></td><td><input type="text" value="${escAttr(goal)}" placeholder="학습목표 및 기대효과" disabled></td>`;
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" value="${escAttr(credit)}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" rows="2" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:vertical;line-height:1.5;padding:2px 0" disabled>${escAttr(goal)}</textarea></td>`;
           const sel = tr.querySelector('select');
           if (sel && courseName) {
             // 드롭다운 옵션에 있으면 선택, 없으면 직접입력
