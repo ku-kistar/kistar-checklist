@@ -269,6 +269,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     line-height:1.55!important;color:#000!important;
     min-height:0!important;width:100%!important;box-sizing:border-box!important
   }
+  .course-plan-table td .ta-print-clone{
+    border:none!important;border-radius:0!important;
+    background:transparent!important;padding:2px 0!important
+  }
 
   /* ── 교과계획 테이블 */
   .course-plan-table{break-inside:auto!important;page-break-inside:auto!important;margin-top:6pt!important}
@@ -1551,26 +1555,28 @@ function printWithDeadline(){
   }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
 }
 
-// ── beforeprint: textarea → div 교체 (스크롤바/잘림 완전 해결) ──
+// ── beforeprint: textarea → div 교체 ──
 const _taCloneMap = new Map();
 window.addEventListener('beforeprint', function(){
+  // 이미 처리된 경우 중복 실행 방지
+  if (_taCloneMap.size > 0) return;
   document.querySelectorAll('textarea').forEach(function(ta){
     const clone = document.createElement('div');
     clone.className = 'ta-print-clone';
     clone.textContent = ta.value;
-    // 교과목 textarea는 셀 안에 있으므로 td 스타일 맞춤
+    // 교과목 셀 안: border 없이 텍스트만
     if (ta.closest('.course-plan-table')) {
-      clone.style.cssText = 'font-size:9pt;white-space:pre-wrap;word-break:break-word;line-height:1.5;padding:2px 0;width:100%;overflow:visible';
+      clone.style.border = 'none';
+      clone.style.padding = '2px 0';
+      clone.style.background = 'transparent';
     }
-    ta.style.display = 'none';
-    ta.parentNode.insertBefore(clone, ta.nextSibling);
+    ta.parentNode.insertBefore(clone, ta);
     _taCloneMap.set(ta, clone);
   });
 });
 window.addEventListener('afterprint', function(){
   _taCloneMap.forEach(function(clone, ta){
-    if(clone && clone.parentNode) clone.parentNode.removeChild(clone);
-    if(ta) ta.style.display = '';
+    if (clone && clone.parentNode) clone.parentNode.removeChild(clone);
   });
   _taCloneMap.clear();
 });
