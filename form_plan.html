@@ -220,6 +220,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
 /* ── 화면에서 숨김 (print 전용) */
 .ta-print-clone{display:none}
+.print-text{display:none}
 
 @media print{
   /* ── 숨김 요소 */
@@ -259,20 +260,21 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     height:auto!important;overflow:visible!important;font-size:9pt!important;padding:4pt 6pt!important
   }
 
-  /* ── textarea → beforeprint에서 div.ta-print-clone으로 교체됨 */
+  /* ── textarea 숨김, print-text 표시 ──*/
   textarea{display:none!important}
-  .ta-print-clone{
-    display:block!important;
-    background:#fff!important;border:1px solid #ccc!important;border-radius:4px;
-    font-size:9pt!important;padding:4pt 6pt!important;
+  .print-text{display:block!important;font-size:9pt!important;
     white-space:pre-wrap!important;word-break:break-word!important;
-    line-height:1.55!important;color:#000!important;
-    min-height:0!important;width:100%!important;box-sizing:border-box!important
-  }
-  .course-plan-table td .ta-print-clone{
+    line-height:1.55!important;color:#000!important;width:100%!important;
+    box-sizing:border-box!important;background:#fff!important;
+    border:1px solid #ccc!important;border-radius:4px!important;
+    padding:4pt 6pt!important;min-height:0!important}
+  .course-plan-table .print-text{
     border:none!important;border-radius:0!important;
-    background:transparent!important;padding:2px 0!important
-  }
+    background:transparent!important;padding:2px 0!important}
+  .check-item-other .print-text{
+    border:none!important;border-radius:0!important;
+    background:transparent!important;padding:0!important;
+    display:inline!important;font-size:12px!important}
 
   /* ── 교과계획 테이블 */
   .course-plan-table{break-inside:auto!important;page-break-inside:auto!important;margin-top:6pt!important}
@@ -496,6 +498,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       <div class="field-label">2025-2학기 주요 성과 및 배운 점 <span class="field-hint">※ 아쉬웠던 점과 이번 학기 개선 계획 포함</span></div>
       <div class="field-wrap">
         <textarea class="field-textarea" id="prev-achievement" rows="5" placeholder="지난 학기 성과, 배운 점, 아쉬웠던 점, 개선 계획을 작성해주세요." oninput="updateCounter(this,'cnt-prev',200)"></textarea>
+        <div class="print-text" id="prev-achievement-print"></div>
         <div class="char-counter" id="cnt-prev">0자 / 권장 200자 이상</div>
       </div>
     </div>
@@ -522,7 +525,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item-other">
           <input type="checkbox" name="tech" value="기타" id="techOtherChk">
           <span class="other-label">기타:</span>
-          <textarea class="other-input" id="techOtherText" placeholder="직접 입력" rows="1" style="resize:none;overflow:hidden;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;font-family:inherit;line-height:1.5;padding:2px 0;flex:1;min-width:0;width:0"></textarea>
+          <textarea class="other-input" id="techOtherText" placeholder="직접 입력" rows="1" style="resize:none;overflow:hidden;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;font-family:inherit;line-height:1.5;padding:2px 0;flex:1;min-width:0;width:0"></textarea><span class="print-text" id="techOtherText-print" style="white-space:pre-wrap;word-break:break-word"></span>
         </label>
       </div>
     </div>
@@ -542,6 +545,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       <div class="field-label">학업 역량 강화 계획</div>
       <div class="field-wrap">
         <textarea class="field-textarea" id="academic-plan" rows="4" placeholder="어학 준비, 프로그래밍/툴 역량 계획 등을 구체적으로 작성해주세요." oninput="updateCounter(this,'cnt-academic',200)"></textarea>
+        <div class="print-text" id="academic-plan-print"></div>
         <div class="char-counter" id="cnt-academic">0자 / 권장 200자 이상</div>
       </div>
     </div>
@@ -559,11 +563,12 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
         <label class="check-item-other" style="white-space:nowrap">
           <input type="checkbox" name="intern" value="기타" id="internOtherChk">
           <span class="other-label">기타:</span>
-          <textarea class="other-input" id="internOtherInputText" placeholder="직접 입력" rows="1" style="resize:none;overflow:hidden;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;font-family:inherit;line-height:1.5;padding:2px 0;flex:1;min-width:0;width:0"></textarea>
+          <textarea class="other-input" id="internOtherInputText" placeholder="직접 입력" rows="1" style="resize:none;overflow:hidden;border:none;border-bottom:1px solid var(--border);outline:none;font-size:12px;background:transparent;font-family:inherit;line-height:1.5;padding:2px 0;flex:1;min-width:0;width:0"></textarea><span class="print-text" id="internOtherInputText-print" style="white-space:pre-wrap;word-break:break-word"></span>
         </label>
       </div>
       <div class="field-wrap">
         <textarea class="field-textarea" id="industry-plan" rows="3" placeholder="희망 기관/분야, 준비 상황 및 계획을 작성해주세요." oninput="updateCounter(this,'cnt-industry',50)"></textarea>
+        <div class="print-text" id="industry-plan-print"></div>
         <div class="char-counter" id="cnt-industry">0자 / 권장 50자 이상</div>
       </div>
     </div>
@@ -580,6 +585,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       </div>
       <div class="field-wrap">
         <textarea class="field-textarea" id="project-plan" rows="3" placeholder="프로젝트명/주제, 예상 결과물을 작성해주세요." oninput="updateCounter(this,'cnt-project',50)"></textarea>
+        <div class="print-text" id="project-plan-print"></div>
         <div class="char-counter" id="cnt-project">0자 / 권장 50자 이상</div>
       </div>
     </div>
@@ -646,6 +652,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       </div>
       <div class="field-wrap">
         <textarea class="field-textarea" id="support-request" rows="3" placeholder="구체적 요청사항 또는 사업단 활동 제안을 작성해주세요." oninput="updateCounter(this,'cnt-support',30)"></textarea>
+        <div class="print-text" id="support-request-print"></div>
         <div class="char-counter" id="cnt-support">0자 / 권장 30자 이상</div>
       </div>
     </div>
@@ -999,7 +1006,7 @@ function fillFormWithData(data) {
         parsed.forEach(r => {
           const tr = document.createElement('tr');
           const opts = buildCourseOptions(dept);
-          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto" disabled>${escAttr(r.goal||'')}</textarea></td>`;
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력" ${r.directName?'value="'+escAttr(r.directName)+'"':''}></td><td><input type="text" value="${escAttr(r.credit||'')}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto" disabled>${escAttr(r.goal||'')}</textarea><div class="print-text">${escAttr(r.goal||'')}</div></td>`;
           const sel = tr.querySelector('select');
           if (sel && r.course) { sel.value = r.course; }
           tbody.appendChild(tr);
@@ -1021,7 +1028,7 @@ function fillFormWithData(data) {
           }
           const tr = document.createElement('tr');
           const opts = buildCourseOptions(dept);
-          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" value="${escAttr(credit)}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto" disabled>${escAttr(goal)}</textarea></td>`;
+          tr.innerHTML = `<td><select disabled onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" value="${escAttr(credit)}" placeholder="학점" style="width:50px" disabled></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto" disabled>${escAttr(goal)}</textarea><div class="print-text">${escAttr(goal)}</div></td>`;
           const sel = tr.querySelector('select');
           if (sel && courseName) {
             // 드롭다운 옵션에 있으면 선택, 없으면 직접입력
@@ -1094,6 +1101,7 @@ function fillFormWithData(data) {
 
   // textarea 높이 자동 조정
   setTimeout(autoResizeAll, 50);
+  setTimeout(syncAllPrintTexts, 150);
 }
 
 // HTML 속성 이스케이프 헬퍼
@@ -1116,11 +1124,14 @@ function addCourseRow() {
   const tbody = document.getElementById('coursePlanBody');
   const tr = document.createElement('tr');
   const opts = buildCourseOptions(currentDept);
-  tr.innerHTML = `<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto"></textarea></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
+  tr.innerHTML = `<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto"></textarea><div class="print-text"></div></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
   tbody.appendChild(tr);
-}
-
-function handleCourseSelect(sel) {
+  const _ta = tr.querySelector('textarea');
+  if (_ta) {
+    _ta.addEventListener('input', function(){ scheduleDraftSave(); const _pt=_ta.parentNode.querySelector('.print-text');if(_pt)_pt.textContent=_ta.value; });
+    autoResizeTextarea(_ta);
+  }
+}(sel) {
   const directInput = sel.nextElementSibling;
   if (sel.value === '직접입력') { directInput.style.display = 'block'; directInput.focus(); }
   else directInput.style.display = 'none';
@@ -1351,6 +1362,7 @@ function autoResizeAll() {
 }
 function updateCounter(textarea,counterId,minLen){
   autoResizeTextarea(textarea);
+  syncPrintText(textarea);
   const len=textarea.value.length;const el=document.getElementById(counterId);if(!el)return;el.textContent=len+'자 / 권장 '+minLen+'자 이상';el.className='char-counter'+(len===0?'':len>=minLen?' ok':' warn');scheduleDraftSave();
 }
 
@@ -1362,7 +1374,7 @@ function initDraft(studentId){
   const alreadySubmitted=localStorage.getItem(SUBMIT_KEY);
   if(saved){try{draftData=JSON.parse(saved);
     if(alreadySubmitted){
-      setTimeout(()=>{loadDraft();setFormReadonly(true);showSubmittedNotice();},300);
+      setTimeout(()=>{loadDraft();setFormReadonly(true);showSubmittedNotice();setTimeout(syncAllPrintTexts,200);},300);
     } else {
       const d=new Date(draftData.savedAt);const ts=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
       document.getElementById('draftModalDesc').textContent=ts+'에 저장된 내용이 있습니다. 불러오시겠습니까?';
@@ -1434,7 +1446,7 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
         rows.forEach(r=>{
           const tr=document.createElement('tr');
           const opts=buildCourseOptions(d.dept||currentDept||'');
-          tr.innerHTML=`<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto"></textarea></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
+          tr.innerHTML=`<td><select onchange="handleCourseSelect(this)">${opts}</select><input type="text" style="display:none;margin-top:4px" placeholder="교과목명 직접 입력"></td><td><input type="text" placeholder="학점" style="width:50px"></td><td><textarea placeholder="학습목표 및 기대효과" style="width:100%;border:none;outline:none;font-size:12px;background:transparent;font-family:inherit;resize:none;line-height:1.5;padding:2px 0;overflow:hidden;height:auto"></textarea><div class="print-text"></div></td><td><button class="del-row-btn" onclick="delCourseRow(this)">✕</button></td>`;
           const sel=tr.querySelector('select');
           const inputs=tr.querySelectorAll('input[type=text]');
           const goalTa=tr.querySelector('textarea');
@@ -1449,6 +1461,7 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     const savedTs=new Date(d.savedAt);document.getElementById('draftStatus').textContent=String(savedTs.getHours()).padStart(2,'0')+':'+String(savedTs.getMinutes()).padStart(2,'0')+' 불러옴';
   }catch(e){}
   setTimeout(autoResizeAll, 50);
+  setTimeout(syncAllPrintTexts, 150);
 }
 function discardDraft(){document.getElementById('draftModal').style.display='none';draftData=null;}
 function confirmDiscard(){if(confirm('⚠️ 이전에 입력한 내용이 모두 삭제됩니다.\n정말 새로 작성하시겠습니까?'))discardDraft();}
@@ -1555,31 +1568,19 @@ function printWithDeadline(){
   }).catch(()=>{alert('제출기한일시 조회 중 오류가 발생했습니다.');});
 }
 
-// ── beforeprint: textarea → div 교체 ──
-const _taCloneMap = new Map();
-window.addEventListener('beforeprint', function(){
-  // 이미 처리된 경우 중복 실행 방지
-  if (_taCloneMap.size > 0) return;
-  document.querySelectorAll('textarea').forEach(function(ta){
-    const clone = document.createElement('div');
-    clone.className = 'ta-print-clone';
-    clone.textContent = ta.value;
-    // 교과목 셀 안: border 없이 텍스트만
-    if (ta.closest('.course-plan-table')) {
-      clone.style.border = 'none';
-      clone.style.padding = '2px 0';
-      clone.style.background = 'transparent';
-    }
-    ta.parentNode.insertBefore(clone, ta);
-    _taCloneMap.set(ta, clone);
-  });
-});
-window.addEventListener('afterprint', function(){
-  _taCloneMap.forEach(function(clone, ta){
-    if (clone && clone.parentNode) clone.parentNode.removeChild(clone);
-  });
-  _taCloneMap.clear();
-});
+
+// ── textarea → print-text 동기화 ──
+function syncPrintText(ta) {
+  if (!ta) return;
+  const pt = ta.parentNode.querySelector('.print-text');
+  if (pt) pt.textContent = ta.value;
+}
+function syncAllPrintTexts() {
+  document.querySelectorAll('textarea').forEach(syncPrintText);
+}
+
+// ── 인쇄 직전 최종 동기화 ──
+window.addEventListener('beforeprint', syncAllPrintTexts);
 
 window.addEventListener('pageshow',function(e){
   if(e.persisted){const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');const EXPIRE_MS=8*60*60*1000;if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS){document.getElementById('main-content').style.display='none';document.getElementById('access-denied').style.display='block';}}
