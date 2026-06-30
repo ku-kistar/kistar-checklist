@@ -186,7 +186,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   /* ── 숨김 요소 */
   .top-bar,.draft-bar,.submit-area,.add-card-btn,.del-card-btn,.footer,
   .char-counter,#resetBtn,.btn-print,.sign-upload-btn,#access-denied,
-  .admin-lookup-bar,.admin-readonly-notice,#btn-pdf,
+  .admin-lookup-bar,.admin-readonly-notice,#btn-pdf,.status-card,
   .field-hint,.sign-header ul,.print-page-footer{display:none!important}
 
   /* ── 페이지 설정 */
@@ -589,10 +589,6 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   </div>
 </div>
 
-<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">
-  <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF로 저장</button>
-</div>
-
 <!-- 서명 -->
 <div class="sign-section">
   <div class="sign-header">
@@ -622,6 +618,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       </tr>
     </tbody></table>
   </div>
+</div>
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">
+  <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF로 저장</button>
 </div>
 
 <!-- 제출 -->
