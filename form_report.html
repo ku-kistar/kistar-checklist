@@ -292,7 +292,8 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 @media print{
   .print-header{display:flex!important;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #0b1f3a}
   .print-header-logo{font-size:10pt;font-weight:700;color:#0b1f3a;line-height:1.5}
-  .print-header-right{font-size:10pt;font-weight:600;color:#0b1f3a}
+  .print-header-sub{font-size:9pt;color:#555}
+  .print-header-right{font-size:9pt;font-weight:600;color:#0b1f3a;white-space:nowrap}
   .sign-section{border:1px solid #ccc!important;margin-bottom:0!important;break-inside:avoid;page-break-inside:avoid}
   .sign-header{display:none!important}
   .sign-upload-btn{display:none!important}
@@ -320,7 +321,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
-<div class="print-header"><div class="print-header-logo">차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</div><div class="print-header-right">2026학년도 결과보고서 제출</div></div>
+<div class="print-header"><div><div class="print-header-logo">차세대AI반도체특성화대학사업단</div><div class="print-header-sub">차세대반도체 융합전공</div></div><div class="print-header-right">2026-1학기 결과보고서 제출</div></div>
 <!-- 인쇄 전용 하단 푸터 (position:fixed로 매 페이지 표시) -->
 <div class="print-page-footer" id="printPageFooter" style="display:none">
   <span class="print-page-footer-left">© 고려대학교 차세대AI반도체특성화대학사업단</span>
@@ -339,9 +340,6 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
 <div id="main-content" style="display:none">
 <!-- 관리자 학번 조회 바 -->
-<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">
-  <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF로 저장</button>
-</div>
 <div class="admin-lookup-bar" id="adminLookupBar">
   <div class="admin-lookup-top">
     <span class="admin-lookup-label">관리자 조회 모드</span>
@@ -589,6 +587,10 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
       </div>
     </div>
   </div>
+</div>
+
+<div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem">
+  <button class="btn-print" id="btn-pdf" style="display:none" onclick="printWithDeadline()"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5V2h8v3M3 10H1V6h12v4h-2M3 8h8v4H3V8z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>PDF로 저장</button>
 </div>
 
 <!-- 서명 -->
