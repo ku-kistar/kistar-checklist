@@ -282,13 +282,6 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     white-space:normal!important;word-break:break-word!important;
     overflow:visible!important;height:auto!important
   }
-  .course-plan-table td textarea{
-    display:block!important;width:100%!important;
-    white-space:pre-wrap!important;word-break:break-word!important;
-    border:none!important;background:transparent!important;
-    font-size:9pt!important;resize:none!important;
-    overflow:visible!important;height:auto!important;min-height:0!important
-  }
   .course-plan-table td span{
     white-space:normal!important;word-break:break-word!important;
     display:block!important;width:100%!important
@@ -299,13 +292,6 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     max-width:none!important;width:auto!important;
     white-space:normal!important;height:auto!important;
     overflow:visible!important;flex-wrap:wrap!important
-  }
-  .check-item-other .other-input{
-    display:inline-block!important;
-    width:auto!important;min-width:0!important;max-width:none!important;
-    white-space:normal!important;word-break:break-word!important;
-    overflow:visible!important;border:none!important;
-    background:transparent!important;font-size:9pt!important
   }
   .check-item-other .other-label{white-space:nowrap!important}
 
@@ -1420,10 +1406,10 @@ function saveDraft(){if(!draftKey)return;clearTimeout(draftTimer);if(!isLocalSto
     if(d.supportRequest){const el=document.getElementById('support-request');el.value=d.supportRequest;updateCounter(el,'cnt-support',30);}
     if(d.tech){restoreChecks('tech',d.tech);
       // 기타 직접입력 값 복원
-      if(d.tech.includes('기타')&&d.techOtherText){const el=document.getElementById('techOtherText');if(el){el.style.display='inline-block';el.value=d.techOtherText;}}
+      if(d.tech.includes('기타')&&d.techOtherText){const el=document.getElementById('techOtherText');if(el){el.style.display='inline-block';el.value=d.techOtherText;const pt=document.getElementById('techOtherText-print');if(pt)pt.textContent=d.techOtherText;}}
     }
     if(d.intern){restoreChecks('intern',d.intern);
-      if(d.intern.includes('기타')&&d.internOtherText){const el=document.getElementById('internOtherInputText');if(el){el.style.display='inline-block';el.value=d.internOtherText;}}
+      if(d.intern.includes('기타')&&d.internOtherText){const el=document.getElementById('internOtherInputText');if(el){el.style.display='inline-block';el.value=d.internOtherText;const pt=document.getElementById('internOtherInputText-print');if(pt)pt.textContent=d.internOtherText;}}
     }
     if(d.project)restoreChecks('project',d.project);
     if(d.support)restoreChecks('support',d.support);
@@ -1574,12 +1560,20 @@ function printWithDeadline(){
 // ── textarea → print-text 동기화 ──
 function syncPrintText(ta) {
   if (!ta) return;
-  const pt = ta.parentNode.querySelector('.print-text');
+  // ID 기반 print-text 먼저 시도 (techOtherText-print, internOtherInputText-print 등)
+  const ptById = ta.id ? document.getElementById(ta.id + '-print') : null;
+  const pt = ptById || ta.parentNode.querySelector('.print-text');
   if (pt) pt.textContent = ta.value;
 }
 function syncAllPrintTexts() {
   document.querySelectorAll('textarea').forEach(syncPrintText);
 }
+
+// ── other-input textarea 실시간 동기화 ──
+['techOtherText','internOtherInputText'].forEach(function(id){
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', function(){ syncPrintText(this); });
+});
 
 // ── 인쇄 직전 최종 동기화 ──
 window.addEventListener('beforeprint', syncAllPrintTexts);
