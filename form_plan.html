@@ -1244,7 +1244,14 @@ window.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem(_RKEY)) {
       fetch(EXEC_URL + '?action=checkResubmit&formType=plan&studentId=' + encodeURIComponent(_sid))
         .then(r => r.json())
-        .then(data => { if (data.status === 'ok' && data.allowed) localStorage.removeItem(_RKEY); initDraft(_sid); })
+        .then(data => {
+          if (data.status === 'ok' && data.allowed) {
+            localStorage.removeItem(_RKEY);
+            const sr = document.getElementById('submitResult');
+            if (sr) { sr.className = 'submit-result show success'; sr.innerHTML = '✅ 재제출이 허용되었습니다. 내용을 수정 후 다시 제출해주세요.'; }
+          }
+          initDraft(_sid);
+        })
         .catch(() => initDraft(_sid));
     } else { initDraft(_sid); }
   } catch(e) {
