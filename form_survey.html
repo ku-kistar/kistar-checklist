@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수강후기 설문 | KI-STAR</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1f3a;--blue:#0ea5e9;--green:#2d7a4f;--green-light:#edf7f1;
+  --amber:#a0620a;--amber-light:#fdf5e6;--red:#c8392b;--red-light:#fdf0ee;
+  --border:#dddbd3;--surface:#fff;--surface2:#f0efe9;--text:#1a1916;--text2:#6b6960;--text3:#9a9890;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%);min-height:100vh;color:#fff;padding:0 0 5rem}
+
+/* 상단 바 */
+.top-bar{background:rgba(11,31,58,.95);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.top-left{display:flex;align-items:center;gap:10px}
+.top-badge{font-size:10px;font-weight:700;background:#c8392b;color:#fff;padding:3px 8px;border-radius:4px}
+.top-title{font-size:13px;font-weight:600;color:#fff}
+.top-back{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.5);text-decoration:none;font-size:12px;transition:color .15s}
+.top-back:hover{color:#fff}
+
+/* 컨테이너 */
+.container{max-width:700px;margin:0 auto;padding:1.5rem 1.2rem}
+
+/* 문서 헤더 */
+.doc-header{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.doc-header-top{background:rgba(11,31,58,.7);padding:1.2rem 1.5rem}
+.doc-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.35}
+.doc-meta{display:flex;gap:16px;padding:10px 16px;font-size:11px;color:rgba(255,255,255,.4)}
+
+/* 섹션 */
+.form-section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;margin-bottom:1rem}
+.section-title{background:rgba(11,31,58,.6);padding:11px 16px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;color:#fff}
+.section-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.section-body{padding:14px 16px}
+.section-note{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:12px;line-height:1.6}
+
+/* 필드 */
+.field{margin-bottom:1.2rem}
+.field:last-child{margin-bottom:0}
+.field-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.field-label.req::after{content:'*';color:#f08070;margin-left:2px}
+
+/* 라디오 척도 */
+.scale-wrap{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:10px 12px}
+.scale-labels{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:8px;padding:0 2px}
+.scale-row{display:flex;gap:6px;justify-content:space-between}
+.scale-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.scale-btn input[type=radio]{display:none}
+.scale-circle{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);transition:all .15s;cursor:pointer}
+.scale-btn input:checked + .scale-circle{background:#0ea5e9;border-color:#0ea5e9;color:#fff;transform:scale(1.1)}
+.scale-btn:hover .scale-circle{border-color:rgba(14,165,233,.6);color:#7dd3fc}
+
+/* 선택형 */
+.choice-group{display:flex;flex-wrap:wrap;gap:7px}
+.choice-item{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:12px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;background:rgba(255,255,255,.04)}
+.choice-item:hover{border-color:rgba(14,165,233,.5);color:#7dd3fc}
+.choice-item input{display:none}
+.choice-item.selected{background:rgba(14,165,233,.15);border-color:#0ea5e9;color:#fff}
+
+/* 텍스트에어리어 */
+.field-textarea{width:100%;min-height:90px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:#fff;outline:none;resize:vertical;transition:border-color .15s;line-height:1.65}
+.field-textarea:focus{border-color:rgba(14,165,233,.5);background:rgba(255,255,255,.08)}
+.field-textarea::placeholder{color:rgba(255,255,255,.25)}
+.char-counter{font-size:10px;color:rgba(255,255,255,.3);text-align:right;margin-top:3px}
+
+/* 추천 의향 별점 */
+.recommend-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.star-btn{font-size:26px;cursor:pointer;color:rgba(255,255,255,.15);transition:color .15s;line-height:1;background:none;border:none;padding:2px}
+.star-btn.active{color:#f5a623}
+.star-btn:hover{color:#f5c842}
+.star-desc{font-size:11px;color:rgba(255,255,255,.4);margin-left:4px}
+
+/* 제출 영역 */
+.submit-area{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px;margin-top:1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.submit-note{font-size:11px;color:rgba(255,255,255,.35);line-height:1.65;flex:1}
+.btn-submit{display:flex;align-items:center;gap:6px;padding:11px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.btn-submit:hover{opacity:.88}
+.btn-submit:disabled{opacity:.45;cursor:default}
+.submit-result{margin-top:12px;font-size:12px;padding:10px 14px;border-radius:8px;display:none;width:100%}
+.submit-result.show{display:block}
+.submit-result.success{background:rgba(45,122,79,.2);color:#6ee7a0;border:1px solid rgba(45,122,79,.35)}
+.submit-result.error{background:rgba(200,57,43,.15);color:#f08070;border:1px solid rgba(200,57,43,.3)}
+
+/* 완료 화면 */
+.done-screen{display:none;text-align:center;padding:3rem 1rem}
+.done-screen.show{display:block}
+.done-icon{font-size:52px;margin-bottom:1rem}
+.done-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:.5rem}
+.done-sub{font-size:13px;color:rgba(255,255,255,.5);line-height:1.7;margin-bottom:1.5rem}
+.done-back{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:8px;background:rgba(14,165,233,.15);border:1px solid rgba(14,165,233,.3);color:#0ea5e9;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s}
+.done-back:hover{background:rgba(14,165,233,.25)}
+
+/* 접근 불가 */
+#access-denied{display:none;text-align:center;padding:4rem 1rem}
+#access-denied h2{font-size:18px;color:rgba(255,255,255,.7);margin-bottom:.5rem}
+#access-denied p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.7}
+
+/* 반응형 */
+@media(max-width:600px){
+  .scale-circle{width:30px;height:30px;font-size:11px}
+  .submit-area{flex-direction:column}
+  .btn-submit{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-left">
+    <span class="top-badge">KI-STAR</span>
+    <span class="top-title">수강후기 설문</span>
+  </div>
+  <a href="portal_survey.html" class="top-back">← 홈으로</a>
+</div>
+
+<div id="access-denied">
+  <h2>🔒 로그인이 필요합니다</h2>
+  <p>데이터 허브에 로그인 후 이용해주세요.<br><a href="portal_survey.html" style="color:#0ea5e9">→ 로그인 페이지로</a></p>
+</div>
+
+<div class="container" id="main-content" style="display:none">
+
+  <!-- 완료 화면 -->
+  <div class="done-screen" id="doneScreen">
+    <div class="done-icon">✅</div>
+    <div class="done-title">설문이 제출되었습니다</div>
+    <div class="done-sub" id="doneMsg">소중한 의견 감사합니다.<br>설문 결과는 교육 개선에 활용됩니다.</div>
+    <a href="portal_survey.html" class="done-back">← 홈으로 돌아가기</a>
+  </div>
+
+  <!-- 설문 폼 -->
+  <div id="surveyForm">
+
+    <div class="doc-header">
+      <div class="doc-header-top">
+        <div class="doc-title" id="formTitle">수강후기 설문</div>
+      </div>
+      <div class="doc-meta">
+        <span id="metaSemester"></span>
+        <span id="metaUser"></span>
+      </div>
+    </div>
+
+    <!-- A. 기본정보 -->
+    <div class="form-section">
+      <div class="section-title"><div class="section-num">A</div>기본정보</div>
+      <div class="section-body">
+        <div class="field">
+          <div class="field-label req">A1. 소속 학과</div>
+          <div class="choice-group" id="grp-a1">
+            <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="신소재공학부">신소재공학부</label>
+            <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="전기전자공학부">전기전자공학부</label>
+            <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="화공생명공학과">화공생명공학과</label>
+            <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="기계공학부">기계공학부</label>
+            <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="물리학과">물리학과</label>
+            <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="기타">기타</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label req">A2. 학년</div>
+          <div class="choice-group" id="grp-a2">
+            <label class="choice-item" onclick="selectChoice(this,'a2')"><input type="radio" name="a2" value="2학년">2학년</label>
+            <label class="choice-item" onclick="selectChoice(this,'a2')"><input type="radio" name="a2" value="3학년">3학년</label>
+            <label class="choice-item" onclick="selectChoice(this,'a2')"><input type="radio" name="a2" value="4학년">4학년</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label req">A3. 차세대반도체 융합전공 참여 여부</div>
+          <div class="choice-group" id="grp-a3">
+            <label class="choice-item" onclick="selectChoice(this,'a3')"><input type="radio" name="a3" value="융합전공 이수 중">융합전공 이수 중</label>
+            <label class="choice-item" onclick="selectChoice(this,'a3')"><input type="radio" name="a3" value="해당 없음">해당 없음</label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label req">A4. 이 과목을 수강한 주된 이유</div>
+          <div class="choice-group" id="grp-a4">
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="융합전공 필수·선택 이수">융합전공 필수·선택 이수</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="관심 분야여서">관심 분야여서</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="진로 준비">진로 준비</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="교수님 추천">교수님 추천</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="선배·친구 추천">선배·친구 추천</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="기타">기타</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B. 운영 만족도 -->
+    <div class="form-section">
+      <div class="section-title"><div class="section-num">B</div>운영 만족도 <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(매우 불만족) ~ 5(매우 만족)</span></div>
+      <div class="section-body">
+        <div id="secB">
+          <!-- JS로 렌더링 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- C. 학습성과 -->
+    <div class="form-section">
+      <div class="section-title"><div class="section-num">C</div>학습성과 <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(전혀 그렇지 않다) ~ 5(매우 그렇다)</span></div>
+      <div class="section-body">
+        <div id="secC">
+          <!-- JS로 렌더링 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- D. 실습 / PBL (과목 유형에 따라 표시) -->
+    <div class="form-section" id="secD-wrap" style="display:none">
+      <div class="section-title"><div class="section-num">D</div><span id="secD-title">실습 관련</span> <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(매우 불만족) ~ 5(매우 만족)</span></div>
+      <div class="section-body">
+        <div id="secD"></div>
+      </div>
+    </div>
+
+    <!-- E. 산학연계 (패키징, PBL에 표시) -->
+    <div class="form-section" id="secE-wrap" style="display:none">
+      <div class="section-title"><div class="section-num">E</div>산학연계 <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(전혀 그렇지 않다) ~ 5(매우 그렇다)</span></div>
+      <div class="section-body">
+        <div id="secE"></div>
+      </div>
+    </div>
+
+    <!-- F. 추천 의향 + 서술형 -->
+    <div class="form-section">
+      <div class="section-title"><div class="section-num">F</div>추천 의향 및 서술형</div>
+      <div class="section-body">
+
+        <div class="field">
+          <div class="field-label req">F. 이 과목을 다른 학생에게 추천하시겠습니까?</div>
+          <div class="recommend-row">
+            <button class="star-btn" data-val="1" onclick="setRecommend(1)">★</button>
+            <button class="star-btn" data-val="2" onclick="setRecommend(2)">★</button>
+            <button class="star-btn" data-val="3" onclick="setRecommend(3)">★</button>
+            <button class="star-btn" data-val="4" onclick="setRecommend(4)">★</button>
+            <button class="star-btn" data-val="5" onclick="setRecommend(5)">★</button>
+            <span class="star-desc" id="recommendDesc">선택하세요</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-label">S1. 이 과목에서 가장 도움이 된 내용이나 활동은 무엇인가요?</div>
+          <textarea class="field-textarea" id="s1" placeholder="자유롭게 작성해주세요" oninput="countChars(this,'c1')"></textarea>
+          <div class="char-counter" id="c1">0자</div>
+        </div>
+        <div class="field">
+          <div class="field-label">S2. 개선이 필요하다고 생각되는 부분이 있다면 알려주세요.</div>
+          <textarea class="field-textarea" id="s2" placeholder="수업 구성, 진행 방식, 환경 등 어떤 내용이든 좋습니다" oninput="countChars(this,'c2')"></textarea>
+          <div class="char-counter" id="c2">0자</div>
+        </div>
+        <div class="field">
+          <div class="field-label">S3. 추가로 다루었으면 하는 주제나 활동이 있나요?</div>
+          <textarea class="field-textarea" id="s3" placeholder="예: 특정 장비 실습, 기업 견학, 케이스 스터디 등" oninput="countChars(this,'c3')"></textarea>
+          <div class="char-counter" id="c3">0자</div>
+        </div>
+        <div class="field">
+          <div class="field-label">S4. 기타 자유롭게 의견을 남겨주세요.</div>
+          <textarea class="field-textarea" id="s4" placeholder="담당 교수님, 운영 방식, 사업단에 전달하고 싶은 말 등" oninput="countChars(this,'c4')"></textarea>
+          <div class="char-counter" id="c4">0자</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 제출 -->
+    <div class="submit-area">
+      <div class="submit-note">
+        제출 후 수정이 필요하면 다시 설문에 접속해 재제출하시면 됩니다.<br>
+        ※ 응답은 교육 품질 개선 목적으로만 활용됩니다.
+      </div>
+      <button class="btn-submit" id="btnSubmit" onclick="submitSurvey()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7.5 3l4.5 4-4.5 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        설문 제출
+      </button>
+    </div>
+    <div class="submit-result" id="submitResult"></div>
+
+  </div><!-- /surveyForm -->
+</div><!-- /container -->
+
+<script>
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const AUTH_KEY = 'kistar_auth_url2';
+const EXPIRE_MS = 8 * 60 * 60 * 1000;
+
+// ── URL 파라미터 ──
+const urlParams  = new URLSearchParams(location.search);
+const courseCode = urlParams.get('course') || '';
+const semester   = urlParams.get('semester') || '2026-1';
+const courseName = urlParams.get('name') || '';
+const courseType = urlParams.get('type') || 'lecture'; // lab / pbl / lecture / lecture_산학
+
+// ── 척도 문항 정의 ──
+const B_ITEMS = [
+  { id:'b1', label:'B1. 교육 목표가 명확하게 제시되었다' },
+  { id:'b2', label:'B2. 수업 내용이 체계적으로 구성되었다' },
+  { id:'b3', label:'B3. 수업 난이도가 적절했다' },
+  { id:'b4', label:'B4. 강의 자료(교재, 자료 등)가 학습에 도움이 되었다' },
+  { id:'b5', label:'B5. 수업이 계획대로 원활하게 진행되었다' },
+  { id:'b6', label:'B6. 담당 교수(강사)의 전달력이 우수했다' },
+  { id:'b7', label:'B7. 질문이나 의견을 제시할 기회가 충분히 제공되었다' },
+  { id:'b8', label:'B8. 평가 방식이 수업 내용과 잘 연계되었다' },
+  { id:'b9', label:'B9. 이 과목에 대한 전반적인 만족도' },
+];
+// B7 콜로키움 대체
+const B7_COLLOQ = { id:'b7', label:'B7. 다양한 주제와 연사 구성이 균형 있게 이루어졌다' };
+
+const C_ITEMS = [
+  { id:'c1', label:'C1. 이 과목을 통해 관련 분야에 대한 이해도가 향상되었다' },
+  { id:'c2', label:'C2. 이론적 지식과 실무를 연계하여 생각할 수 있게 되었다' },
+  { id:'c3', label:'C3. 반도체 분야에 대한 관심과 흥미가 높아졌다' },
+  { id:'c4', label:'C4. 이 과목의 내용이 다른 과목 학습에도 도움이 될 것 같다' },
+  { id:'c5', label:'C5. 진로와 직무를 탐색하는 데 도움이 되었다' },
+  { id:'c6', label:'C6. 문제해결·비판적 사고 등 핵심역량이 향상되었다' },
+  { id:'c7', label:'C7. 다양한 학문 분야를 융합적으로 사고하는 역량이 향상되었다' },
+  { id:'c8', label:'C8. 배운 내용을 실제 상황에 활용할 수 있을 것 같다' },
+];
+
+const D_LAB_ITEMS = [
+  { id:'d1', label:'D1. 실습 목적과 방법이 충분히 안내되었다' },
+  { id:'d2', label:'D2. 실습 시간이 충분히 배정되었다' },
+  { id:'d3', label:'D3. 실습 장비와 시설이 양호한 상태였다' },
+  { id:'d4', label:'D4. 안전 수칙이 충분히 안내·준수되었다' },
+  { id:'d5', label:'D5. 실습 활동이 이론 학습 이해에 도움이 되었다' },
+  { id:'d6', label:'D6. 조교(TA)의 지원이 충분했다' },
+  { id:'d7', label:'D7. 실습 결과에 대한 피드백이 적절히 제공되었다' },
+];
+const D_PBL_ITEMS = [
+  { id:'d1', label:'D1. 프로젝트 목적과 방향이 충분히 안내되었다' },
+  { id:'d2', label:'D2. 프로젝트 수행 시간이 충분히 배정되었다' },
+  { id:'d3', label:'D3. 팀 구성 및 역할 분담이 원활했다' },
+  { id:'d4', label:'D4. 프로젝트 수행에 필요한 자료·도구·환경이 잘 제공되었다' },
+  { id:'d5', label:'D5. 프로젝트 활동이 이론 학습 이해에 도움이 되었다' },
+  { id:'d6', label:'D6. 지도 교수(조교)의 지원이 충분했다' },
+  { id:'d7', label:'D7. 중간·최종 발표에 대한 피드백이 적절히 제공되었다' },
+];
+const E_ITEMS = [
+  { id:'e1', label:'E1. 이 과목을 통해 산업 현장에 대한 이해도가 높아졌다' },
+  { id:'e2', label:'E2. 기업 전문가의 강의(또는 멘토링)가 유익했다' },
+  { id:'e3', label:'E3. 실제 기업·직무에서 요구하는 역량을 파악하는 데 도움이 되었다' },
+  { id:'e4', label:'E4. 관련 기업 및 직무에 대한 관심이 높아졌다' },
+  { id:'e5', label:'E5. 이 과목을 다시 수강하거나 관련 과목을 추가로 이수하고 싶다' },
+];
+
+const RECOMMEND_LABELS = ['','전혀 아니다','아니다','보통','그렇다','매우 그렇다'];
+
+let recommendVal = 0;
+const answers = {}; // id → value
+
+// ── 초기화 ──
+(function init() {
+  const raw = localStorage.getItem(AUTH_KEY);
+  if (!raw) { showAccessDenied(); return; }
+  try {
+    const auth = JSON.parse(raw);
+    if (Date.now() - auth.loginTime > EXPIRE_MS) { showAccessDenied(); return; }
+    window._auth = auth;
+  } catch(e) { showAccessDenied(); return; }
+
+  if (!courseCode) { showAccessDenied('과목 정보가 없습니다. 홈에서 다시 접근해주세요.'); return; }
+
+  document.getElementById('main-content').style.display = 'block';
+  document.getElementById('formTitle').textContent = courseName + ' 수강후기 설문';
+  document.getElementById('metaSemester').textContent = semester;
+  document.getElementById('metaUser').textContent = (_auth.name || '') + ' · ' + (_auth.dept || '');
+
+  // 소속 학과 자동 선택
+  const deptEl = document.querySelector('#grp-a1 .choice-item input[value="' + _auth.dept + '"]');
+  if (deptEl) { deptEl.closest('.choice-item').click(); }
+
+  // B섹션 렌더링 (콜로키움이면 B7 교체)
+  const bItems = B_ITEMS.map(item => item.id === 'b7' && courseType === 'lecture' ? B7_COLLOQ : item);
+  renderScale('secB', bItems);
+  renderScale('secC', C_ITEMS);
+
+  // D섹션
+  if (courseType === 'lab') {
+    document.getElementById('secD-wrap').style.display = 'block';
+    document.getElementById('secD-title').textContent = '실습 관련';
+    renderScale('secD', D_LAB_ITEMS);
+  } else if (courseType === 'pbl') {
+    document.getElementById('secD-wrap').style.display = 'block';
+    document.getElementById('secD-title').textContent = '프로젝트 관련';
+    renderScale('secD', D_PBL_ITEMS);
+  }
+
+  // E섹션 (패키징=lecture_산학, PBL)
+  if (courseType === 'pbl' || courseType === 'lecture_산학') {
+    document.getElementById('secE-wrap').style.display = 'block';
+    renderScale('secE', E_ITEMS);
+  }
+})();
+
+function showAccessDenied(msg) {
+  document.getElementById('access-denied').style.display = 'block';
+  if (msg) document.getElementById('access-denied').innerHTML =
+    '<h2>⚠️ 접근 오류</h2><p>' + msg + '<br><a href="portal_survey.html" style="color:#0ea5e9">← 홈으로</a></p>';
+}
+
+// ── 척도 렌더링 ──
+function renderScale(containerId, items) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = items.map(item => `
+    <div class="field">
+      <div class="field-label req">${item.label}</div>
+      <div class="scale-wrap">
+        <div class="scale-labels"><span>매우 불만족/아니다</span><span>보통</span><span>매우 만족/그렇다</span></div>
+        <div class="scale-row">
+          ${[1,2,3,4,5].map(v => `
+            <label class="scale-btn">
+              <input type="radio" name="${item.id}" value="${v}" onchange="answers['${item.id}']='${v}'">
+              <div class="scale-circle" onclick="">${v}</div>
+            </label>`).join('')}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── 선택형 ──
+function selectChoice(el, name) {
+  document.querySelectorAll('#grp-' + name + ' .choice-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[name] = el.querySelector('input').value;
+}
+
+// ── 추천 별점 ──
+function setRecommend(val) {
+  recommendVal = val;
+  document.querySelectorAll('.star-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.val) <= val);
+  });
+  document.getElementById('recommendDesc').textContent = RECOMMEND_LABELS[val] || '';
+  answers['f_recommend'] = String(val);
+}
+
+// ── 글자 수 카운터 ──
+function countChars(ta, counterId) {
+  document.getElementById(counterId).textContent = ta.value.length + '자';
+}
+
+// ── 제출 ──
+function submitSurvey() {
+  // 필수 항목 검증
+  const required = ['a1','a2','a3','a4','b1','b2','b3','b4','b5','b6','b7','b8','b9',
+    'c1','c2','c3','c4','c5','c6','c7','c8'];
+  if (courseType === 'lab' || courseType === 'pbl') {
+    required.push('d1','d2','d3','d4','d5','d6','d7');
+  }
+  if (courseType === 'pbl' || courseType === 'lecture_산학') {
+    required.push('e1','e2','e3','e4','e5');
+  }
+  required.push('f_recommend');
+
+  const missing = required.filter(k => !answers[k]);
+  if (missing.length > 0) {
+    showResult('error', '⚠️ 필수 항목(' + missing.length + '개)을 모두 응답해주세요.');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '제출 중...';
+
+  const params = new URLSearchParams({
+    action:      'submitSurvey',
+    studentId:   _auth.studentId || '',
+    studentName: _auth.name     || '',
+    dept:        _auth.dept     || '',
+    semester:    semester,
+    courseCode:  courseCode,
+    courseName:  courseName,
+    // A섹션
+    a1: answers.a1||'', a2: answers.a2||'', a3: answers.a3||'', a4: answers.a4||'',
+    // B섹션
+    b1: answers.b1||'', b2: answers.b2||'', b3: answers.b3||'', b4: answers.b4||'',
+    b5: answers.b5||'', b6: answers.b6||'', b7: answers.b7||'', b8: answers.b8||'', b9: answers.b9||'',
+    // C섹션
+    c1: answers.c1||'', c2: answers.c2||'', c3: answers.c3||'', c4: answers.c4||'',
+    c5: answers.c5||'', c6: answers.c6||'', c7: answers.c7||'', c8: answers.c8||'',
+    // D섹션
+    d1: answers.d1||'', d2: answers.d2||'', d3: answers.d3||'', d4: answers.d4||'',
+    d5: answers.d5||'', d6: answers.d6||'', d7: answers.d7||'',
+    // E섹션
+    e1: answers.e1||'', e2: answers.e2||'', e3: answers.e3||'', e4: answers.e4||'', e5: answers.e5||'',
+    // F섹션
+    f_recommend: answers.f_recommend||'',
+    s1: document.getElementById('s1').value,
+    s2: document.getElementById('s2').value,
+    s3: document.getElementById('s3').value,
+    s4: document.getElementById('s4').value,
+  });
+
+  fetch(EXEC_URL + '?' + params.toString())
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        document.getElementById('surveyForm').style.display = 'none';
+        const done = document.getElementById('doneScreen');
+        done.classList.add('show');
+        document.getElementById('doneMsg').textContent =
+          courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
+      } else {
+        showResult('error', '제출 중 오류가 발생했습니다: ' + (data.message || ''));
+        btn.disabled = false;
+        btn.textContent = '설문 제출';
+      }
+    })
+    .catch(() => {
+      showResult('error', '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      btn.disabled = false;
+      btn.textContent = '설문 제출';
+    });
+}
+
+function showResult(type, msg) {
+  const el = document.getElementById('submitResult');
+  el.className = 'submit-result show ' + type;
+  el.textContent = msg;
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+</script>
+</body>
+</html>
