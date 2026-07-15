@@ -1179,12 +1179,14 @@ function reloadForms() {
 const SURVEY_TYPE_LABEL = { lab:'실습형', pbl:'PBL·산학연계형', lecture:'강의형', 'lecture_산학':'강의·산학연계형' };
 
 function loadSurveys(studentId) {
-  // ★ 테스트 모드 (2026-07-15): 작업 완료 전까지 관리자 + 테스트 계정만 허용
-  // 전체 오픈 시 아래 4줄 제거
-  const SURVEY_TEST_ACCOUNTS = ['2025111111', 'TEST', 'admin'];
-  if (!SURVEY_TEST_ACCOUNTS.includes(String(studentId).trim())) return;
-  // ── 테스트 모드 끝 ──
+  const section = document.getElementById('surveySection');
+  if (!section) return;
 
+  // ★ 테스트 모드 (2026-07-15): 작업 완료 전까지 관리자 + 테스트 계정만 허용
+  // 전체 오픈 시 아래 3줄 제거
+  const SURVEY_TEST_ACCOUNTS = ['2025111111', 'TEST', 'admin'];
+  if (!SURVEY_TEST_ACCOUNTS.includes(String(studentId).trim())) { section.style.display = 'none'; return; }
+  // ── 테스트 모드 끝 ──
 
   const cbName = 'cb_surveys_' + Date.now();
   const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
