@@ -521,6 +521,7 @@ function submitSurvey() {
     courseName:  courseName,
     // A섹션
     a1: answers.a1||'', a2: answers.a2||'', a3: answers.a3||'', a4: answers.a4||'',
+    a5: answers.a5||'', a1_other: answers.a1_other||'', a4_other: answers.a4_other||'',
     // B섹션
     b1: answers.b1||'', b2: answers.b2||'', b3: answers.b3||'', b4: answers.b4||'',
     b5: answers.b5||'', b6: answers.b6||'', b7: answers.b7||'', b8: answers.b8||'', b9: answers.b9||'',
@@ -538,12 +539,20 @@ function submitSurvey() {
     s2: document.getElementById('s2').value,
     s3: document.getElementById('s3').value,
     s4: document.getElementById('s4').value,
+    s5: document.getElementById('s5').value,
+    s6: document.getElementById('s6').value,
+    s7: document.getElementById('s7').value,
   });
 
-  fetch(EXEC_URL + '?' + params.toString())
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'ok') {
+  // JSONP 방식으로 제출 (GAS와 동일한 호출 방식)
+  const cbName = 'cb_submit_' + Date.now();
+  const scriptEl = document.createElement('script');
+  params.append('callback', cbName);
+
+  window[cbName] = function(data) {
+    delete window[cbName];
+    if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+    if (data.status === 'ok') {
         document.getElementById('surveyForm').style.display = 'none';
         const done = document.getElementById('doneScreen');
         done.classList.add('show');
