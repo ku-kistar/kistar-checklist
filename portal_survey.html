@@ -1179,8 +1179,11 @@ function reloadForms() {
 const SURVEY_TYPE_LABEL = { lab:'실습형', pbl:'PBL·산학연계형', lecture:'강의형', 'lecture_산학':'강의·산학연계형' };
 
 function loadSurveys(studentId) {
+  // ★ 임시 비활성화 (2026-07-15): 수강생 필터링 작업 완료 전까지 섹션 숨김
   const section = document.getElementById('surveySection');
-  if (!section) return;
+  if (section) section.style.display = 'none';
+  return;
+  // ── 아래는 필터링 완료 후 return 제거하여 활성화 ──
 
   fetch(EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&semester=2026-1')
     .then(r => r.json())
