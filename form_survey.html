@@ -192,16 +192,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c
         </div>
         <div class="field">
           <div class="field-label req">A5. 수강 전 본 분야에 대한 관심도는 어느 정도였나요?</div>
+          <div class="scale-labels"><span>매우 낮음</span><span>매우 높음</span></div>
           <div class="scale-row" id="grp-a5">
-            <span class="scale-label-text">매우 낮음</span>
-            <div class="scale-btns">
-              <button type="button" class="scale-btn" onclick="selectA5(this,1)">1</button>
-              <button type="button" class="scale-btn" onclick="selectA5(this,2)">2</button>
-              <button type="button" class="scale-btn" onclick="selectA5(this,3)">3</button>
-              <button type="button" class="scale-btn" onclick="selectA5(this,4)">4</button>
-              <button type="button" class="scale-btn" onclick="selectA5(this,5)">5</button>
-            </div>
-            <span class="scale-label-text">매우 높음</span>
+            <label class="scale-btn" onclick="selectA5Scale(this,1)"><input type="radio" name="a5" value="1"><div class="scale-circle">1</div></label>
+            <label class="scale-btn" onclick="selectA5Scale(this,2)"><input type="radio" name="a5" value="2"><div class="scale-circle">2</div></label>
+            <label class="scale-btn" onclick="selectA5Scale(this,3)"><input type="radio" name="a5" value="3"><div class="scale-circle">3</div></label>
+            <label class="scale-btn" onclick="selectA5Scale(this,4)"><input type="radio" name="a5" value="4"><div class="scale-circle">4</div></label>
+            <label class="scale-btn" onclick="selectA5Scale(this,5)"><input type="radio" name="a5" value="5"><div class="scale-circle">5</div></label>
           </div>
         </div>
       </div>
@@ -472,9 +469,7 @@ function selectChoice(el, name) {
   }
 }
 
-function selectA5(btn, val) {
-  document.querySelectorAll('#grp-a5 .scale-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function selectA5Scale(el, val) {
   answers['a5'] = val;
 }
 
