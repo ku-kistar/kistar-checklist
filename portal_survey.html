@@ -1179,46 +1179,57 @@ function reloadForms() {
 const SURVEY_TYPE_LABEL = { lab:'실습형', pbl:'PBL·산학연계형', lecture:'강의형', 'lecture_산학':'강의·산학연계형' };
 
 function loadSurveys(studentId) {
-  fetch(EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId))
-    .then(r => r.json())
-    .then(data => {
-      if (data.status !== 'ok' || !data.courses || data.courses.length === 0) {
-        // 수강 과목 없으면 섹션 자체 숨김
-        section.style.display = 'none';
-        return;
-      }
-      section.style.display = 'block';
-      const submitted = data.submitted || [];
-      const grid = document.getElementById('surveyGrid');
-      grid.innerHTML = '';
+  const section = document.getElementById('surveySection');
+  if (!section) return;
 
-      data.courses.forEach(function(c) {
-        const isDone = submitted.includes(c.code);
-        const typeLabel = SURVEY_TYPE_LABEL[c.type] || c.type;
-        const card = document.createElement('div');
-        card.className = 'survey-card' + (isDone ? ' done' : '');
-        card.innerHTML =
-          (isDone ? '<div class="survey-done-badge">✓ 완료</div>' : '') +
-          '<div class="survey-card-sem">' + c.semester + '</div>' +
-          '<div class="survey-card-name">' + escHtml(c.name) + '</div>' +
-          '<div class="survey-card-type">' + typeLabel + ' · ' + escHtml(c.code) + '</div>' +
-          '<div class="survey-card-cta">' + (isDone ? '다시 참여 →' : '설문 참여 →') + '</div>';
-        card.onclick = function() {
-          location.href = 'form_survey.html?course=' + encodeURIComponent(c.code) +
-            '&semester=' + encodeURIComponent(c.semester) +
-            '&name=' + encodeURIComponent(c.name) +
-            '&type=' + encodeURIComponent(c.type);
-        };
-        grid.appendChild(card);
-      });
+  // 기존 fetch → JSONP 방식으로 변경 (GAS와 동일한 호출 방식)
+  const cbName = 'cb_surveys_' + Date.now();
+  const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
 
-      const anno = document.getElementById('surveyAnno');
-      anno.textContent = '수강 과목이 표시되지 않으면 마일리지 내역 등록 후 자동으로 나타납니다.';
-    })
-    .catch(function() {
-      // 조회 실패 시 섹션 숨김 (오류 메시지 불필요)
+  window[cbName] = function(data) {
+    delete window[cbName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+
+    if (!data || data.status !== 'ok' || !data.courses || data.courses.length === 0) {
       section.style.display = 'none';
+      return;
+    }
+    section.style.display = 'block';
+    const submitted = data.submitted || [];
+    const grid = document.getElementById('surveyGrid');
+    grid.innerHTML = '';
+
+    data.courses.forEach(function(c) {
+      const isDone = submitted.includes(c.code);
+      const typeLabel = SURVEY_TYPE_LABEL[c.type] || c.type;
+      const card = document.createElement('div');
+      card.className = 'survey-card' + (isDone ? ' done' : '');
+      card.innerHTML =
+        (isDone ? '<div class="survey-done-badge">✓ 완료</div>' : '') +
+        '<div class="survey-card-sem">' + c.semester + '</div>' +
+        '<div class="survey-card-name">' + escHtml(c.name) + '</div>' +
+        '<div class="survey-card-type">' + typeLabel + ' · ' + escHtml(c.code) + '</div>' +
+        '<div class="survey-card-cta">' + (isDone ? '다시 참여 →' : '설문 참여 →') + '</div>';
+      card.onclick = function() {
+        location.href = 'form_survey.html?course=' + encodeURIComponent(c.code) +
+          '&semester=' + encodeURIComponent(c.semester) +
+          '&name=' + encodeURIComponent(c.name) +
+          '&type=' + encodeURIComponent(c.type);
+      };
+      grid.appendChild(card);
     });
+
+    const anno = document.getElementById('surveyAnno');
+    if (anno) anno.textContent = '수강 과목이 표시되지 않으면 담당자에게 문의해 주세요.';
+  };
+
+  const script = document.createElement('script');
+  script.src = url;
+  script.onerror = function() {
+    delete window[cbName];
+    section.style.display = 'none';
+  };
+  document.head.appendChild(script);
 }
 
 function escHtml(str) {
