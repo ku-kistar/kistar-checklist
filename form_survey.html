@@ -159,6 +159,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c
             <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="물리학과">물리학과</label>
             <label class="choice-item" onclick="selectChoice(this,'a1')"><input type="radio" name="a1" value="기타">기타</label>
           </div>
+          <div id="a1-other-wrap" style="display:none;margin-top:8px">
+            <input type="text" id="a1-other" class="text-input" placeholder="소속 학교/학과를 입력해주세요" oninput="answers['a1_other']=this.value">
+          </div>
         </div>
         <div class="field">
           <div class="field-label req">A2. 학년</div>
@@ -176,14 +179,29 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c
           </div>
         </div>
         <div class="field">
-          <div class="field-label req">A4. 이 과목을 수강한 주된 이유</div>
+          <div class="field-label req">A4. 교과목 유형 (이수구분)</div>
           <div class="choice-group" id="grp-a4">
-            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="융합전공 필수·선택 이수">융합전공 필수·선택 이수</label>
-            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="관심 분야여서">관심 분야여서</label>
-            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="진로 준비">진로 준비</label>
-            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="교수님 추천">교수님 추천</label>
-            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="선배·친구 추천">선배·친구 추천</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="전공필수">전공필수</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="전공선택">전공선택</label>
+            <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="교양">교양</label>
             <label class="choice-item" onclick="selectChoice(this,'a4')"><input type="radio" name="a4" value="기타">기타</label>
+          </div>
+          <div id="a4-other-wrap" style="display:none;margin-top:8px">
+            <input type="text" id="a4-other" class="text-input" placeholder="이수구분을 직접 입력해주세요" oninput="answers['a4_other']=this.value">
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label req">A5. 수강 전 본 분야에 대한 관심도는 어느 정도였나요?</div>
+          <div class="scale-row" id="grp-a5">
+            <span class="scale-label-text">매우 낮음</span>
+            <div class="scale-btns">
+              <button type="button" class="scale-btn" onclick="selectA5(this,1)">1</button>
+              <button type="button" class="scale-btn" onclick="selectA5(this,2)">2</button>
+              <button type="button" class="scale-btn" onclick="selectA5(this,3)">3</button>
+              <button type="button" class="scale-btn" onclick="selectA5(this,4)">4</button>
+              <button type="button" class="scale-btn" onclick="selectA5(this,5)">5</button>
+            </div>
+            <span class="scale-label-text">매우 높음</span>
           </div>
         </div>
       </div>
@@ -243,24 +261,39 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c
         </div>
 
         <div class="field">
-          <div class="field-label">S1. 이 과목에서 가장 도움이 된 내용이나 활동은 무엇인가요?</div>
-          <textarea class="field-textarea" id="s1" placeholder="자유롭게 작성해주세요" oninput="countChars(this,'c1')"></textarea>
+          <div class="field-label">S1. 본 교과목에서 가장 도움이 되었던 내용은 무엇입니까?</div>
+          <textarea class="field-textarea" id="s1" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c1')"></textarea>
           <div class="char-counter" id="c1">0자</div>
         </div>
         <div class="field">
-          <div class="field-label">S2. 개선이 필요하다고 생각되는 부분이 있다면 알려주세요.</div>
-          <textarea class="field-textarea" id="s2" placeholder="수업 구성, 진행 방식, 환경 등 어떤 내용이든 좋습니다" oninput="countChars(this,'c2')"></textarea>
+          <div class="field-label">S2. 가장 흥미롭거나 인상 깊었던 수업·실습·활동은 무엇입니까?</div>
+          <textarea class="field-textarea" id="s2" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c2')"></textarea>
           <div class="char-counter" id="c2">0자</div>
         </div>
         <div class="field">
-          <div class="field-label">S3. 추가로 다루었으면 하는 주제나 활동이 있나요?</div>
-          <textarea class="field-textarea" id="s3" placeholder="예: 특정 장비 실습, 기업 견학, 케이스 스터디 등" oninput="countChars(this,'c3')"></textarea>
+          <div class="field-label">S3. 수강 전과 비교하여 새롭게 알게 된 내용이나 향상된 역량은 무엇입니까?</div>
+          <textarea class="field-textarea" id="s3" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c3')"></textarea>
           <div class="char-counter" id="c3">0자</div>
         </div>
         <div class="field">
-          <div class="field-label">S4. 기타 자유롭게 의견을 남겨주세요.</div>
-          <textarea class="field-textarea" id="s4" placeholder="담당 교수님, 운영 방식, 사업단에 전달하고 싶은 말 등" oninput="countChars(this,'c4')"></textarea>
+          <div class="field-label">S4. 수업내용 중 이해하기 어렵거나 추가 설명이 필요했던 부분은 무엇입니까?</div>
+          <textarea class="field-textarea" id="s4" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c4')"></textarea>
           <div class="char-counter" id="c4">0자</div>
+        </div>
+        <div class="field">
+          <div class="field-label">S5. 수업 운영에서 개선이 필요하다고 생각하는 부분은 무엇입니까?</div>
+          <textarea class="field-textarea" id="s5" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c5')"></textarea>
+          <div class="char-counter" id="c5">0자</div>
+        </div>
+        <div class="field">
+          <div class="field-label">S6. 향후 추가되었으면 하는 주제나 활동이 있다면 작성해 주십시오.</div>
+          <textarea class="field-textarea" id="s6" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c6')"></textarea>
+          <div class="char-counter" id="c6">0자</div>
+        </div>
+        <div class="field">
+          <div class="field-label">S7. 담당 교수자와 사업단에 전달하고 싶은 의견을 자유롭게 작성해 주십시오.</div>
+          <textarea class="field-textarea" id="s7" placeholder="자유롭게 작성해 주세요" oninput="countChars(this,'c7')"></textarea>
+          <div class="char-counter" id="c7">0자</div>
         </div>
 
       </div>
@@ -296,54 +329,54 @@ const courseType = urlParams.get('type') || 'lecture'; // lab / pbl / lecture / 
 
 // ── 척도 문항 정의 ──
 const B_ITEMS = [
-  { id:'b1', label:'B1. 교육 목표가 명확하게 제시되었다' },
-  { id:'b2', label:'B2. 수업 내용이 체계적으로 구성되었다' },
-  { id:'b3', label:'B3. 수업 난이도가 적절했다' },
-  { id:'b4', label:'B4. 강의 자료(교재, 자료 등)가 학습에 도움이 되었다' },
-  { id:'b5', label:'B5. 수업이 계획대로 원활하게 진행되었다' },
-  { id:'b6', label:'B6. 담당 교수(강사)의 전달력이 우수했다' },
-  { id:'b7', label:'B7. 질문이나 의견을 제시할 기회가 충분히 제공되었다' },
-  { id:'b8', label:'B8. 평가 방식이 수업 내용과 잘 연계되었다' },
-  { id:'b9', label:'B9. 이 과목에 대한 전반적인 만족도' },
+  { id:'b1', label:'Q1. 교과목의 교육목표가 명확하게 제시되었다.' },
+  { id:'b2', label:'Q2. 수업내용이 교과목의 교육목표에 적합하게 구성되었다.' },
+  { id:'b3', label:'Q3. 수업의 난이도는 나의 전공 및 학년 수준에 적절하였다.' },
+  { id:'b4', label:'Q4. 강의자료와 수업자료가 학습에 도움이 되었다.' },
+  { id:'b5', label:'Q5. 수업 진행 방식과 일정이 적절하였다.' },
+  { id:'b6', label:'Q6. 교수자의 설명과 수업 전달이 이해하기 쉬웠다.' },
+  { id:'b7', label:'Q7. 질문이나 의견을 제시할 기회가 충분히 제공되었다.' },
+  { id:'b8', label:'Q8. 과제·시험·발표 등 평가방식이 수업내용과 적절하게 연계되었다.' },
+  { id:'b9', label:'Q9. 전체적으로 본 교과목 운영에 만족한다.' },
 ];
 // B7 콜로키움 대체
-const B7_COLLOQ = { id:'b7', label:'B7. 다양한 주제와 연사 구성이 균형 있게 이루어졌다' };
+const B7_COLLOQ = { id:'b7', label:'Q7. 다양한 주제와 연사 구성이 균형 있게 이루어졌다.' };
 
 const C_ITEMS = [
-  { id:'c1', label:'C1. 이 과목을 통해 관련 분야에 대한 이해도가 향상되었다' },
-  { id:'c2', label:'C2. 이론적 지식과 실무를 연계하여 생각할 수 있게 되었다' },
-  { id:'c3', label:'C3. 반도체 분야에 대한 관심과 흥미가 높아졌다' },
-  { id:'c4', label:'C4. 이 과목의 내용이 다른 과목 학습에도 도움이 될 것 같다' },
-  { id:'c5', label:'C5. 진로와 직무를 탐색하는 데 도움이 되었다' },
-  { id:'c6', label:'C6. 문제해결·비판적 사고 등 핵심역량이 향상되었다' },
-  { id:'c7', label:'C7. 다양한 학문 분야를 융합적으로 사고하는 역량이 향상되었다' },
-  { id:'c8', label:'C8. 배운 내용을 실제 상황에 활용할 수 있을 것 같다' },
+  { id:'c1', label:'Q10. 수강 후 반도체·AI 분야에 대한 이해도가 향상되었다.' },
+  { id:'c2', label:'Q11. 수업을 통해 전공 이론을 실제 사례와 연계하여 이해할 수 있었다.' },
+  { id:'c3', label:'Q12. 수강 전보다 반도체 분야에 대한 관심이 높아졌다.' },
+  { id:'c4', label:'Q13. 향후 관련 심화 교과목을 수강하는 데 도움이 될 것 같다.' },
+  { id:'c5', label:'Q14. 진로 또는 취업 분야를 탐색하는 데 도움이 되었다.' },
+  { id:'c6', label:'Q15. 문제해결력과 논리적 사고력을 향상하는 데 도움이 되었다.' },
+  { id:'c7', label:'Q16. 다른 전공 분야의 지식과 융합하여 사고하는 데 도움이 되었다.' },
+  { id:'c8', label:'Q17. 배운 내용을 향후 연구·프로젝트·취업 준비에 활용할 수 있을 것 같다.' },
 ];
 
 const D_LAB_ITEMS = [
-  { id:'d1', label:'D1. 실습 목적과 방법이 충분히 안내되었다' },
-  { id:'d2', label:'D2. 실습 시간이 충분히 배정되었다' },
-  { id:'d3', label:'D3. 실습 장비와 시설이 양호한 상태였다' },
-  { id:'d4', label:'D4. 안전 수칙이 충분히 안내·준수되었다' },
-  { id:'d5', label:'D5. 실습 활동이 이론 학습 이해에 도움이 되었다' },
-  { id:'d6', label:'D6. 조교(TA)의 지원이 충분했다' },
-  { id:'d7', label:'D7. 실습 결과에 대한 피드백이 적절히 제공되었다' },
+  { id:'d1', label:'Q18. 실습의 목적과 수행방법이 명확하게 안내되었다.' },
+  { id:'d2', label:'Q19. 실습 시간은 학습목표를 달성하기에 충분하였다.' },
+  { id:'d3', label:'Q20. 실험·실습 장비와 시설이 적절하게 제공되었다.' },
+  { id:'d4', label:'Q21. 장비 사용법과 안전수칙에 대한 설명이 충분하였다.' },
+  { id:'d5', label:'Q22. 직접 실습을 수행하는 과정이 이론을 이해하는 데 도움이 되었다.' },
+  { id:'d6', label:'Q23. 실습조교 또는 담당자의 지원이 원활하게 제공되었다.' },
+  { id:'d7', label:'Q24. 실습 결과에 대한 피드백이 충분하였다.' },
 ];
 const D_PBL_ITEMS = [
-  { id:'d1', label:'D1. 프로젝트 목적과 방향이 충분히 안내되었다' },
-  { id:'d2', label:'D2. 프로젝트 수행 시간이 충분히 배정되었다' },
-  { id:'d3', label:'D3. 팀 구성 및 역할 분담이 원활했다' },
-  { id:'d4', label:'D4. 프로젝트 수행에 필요한 자료·도구·환경이 잘 제공되었다' },
-  { id:'d5', label:'D5. 프로젝트 활동이 이론 학습 이해에 도움이 되었다' },
-  { id:'d6', label:'D6. 지도 교수(조교)의 지원이 충분했다' },
-  { id:'d7', label:'D7. 중간·최종 발표에 대한 피드백이 적절히 제공되었다' },
+  { id:'d1', label:'Q18. 프로젝트의 목적과 수행방법이 명확하게 안내되었다.' },
+  { id:'d2', label:'Q19. 프로젝트 수행 시간은 학습목표를 달성하기에 충분하였다.' },
+  { id:'d3', label:'Q20. 팀 구성 및 역할 분담이 원활하게 이루어졌다.' },
+  { id:'d4', label:'Q21. 프로젝트 수행에 필요한 자료·도구·환경이 적절하게 제공되었다.' },
+  { id:'d5', label:'Q22. 직접 프로젝트를 수행하는 과정이 이론을 이해하는 데 도움이 되었다.' },
+  { id:'d6', label:'Q23. 지도교수 또는 멘토의 피드백이 원활하게 제공되었다.' },
+  { id:'d7', label:'Q24. 프로젝트 결과에 대한 최종 피드백이 충분하였다.' },
 ];
 const E_ITEMS = [
-  { id:'e1', label:'E1. 이 과목을 통해 산업 현장에 대한 이해도가 높아졌다' },
-  { id:'e2', label:'E2. 기업 전문가의 강의(또는 멘토링)가 유익했다' },
-  { id:'e3', label:'E3. 실제 기업·직무에서 요구하는 역량을 파악하는 데 도움이 되었다' },
-  { id:'e4', label:'E4. 관련 기업 및 직무에 대한 관심이 높아졌다' },
-  { id:'e5', label:'E5. 이 과목을 다시 수강하거나 관련 과목을 추가로 이수하고 싶다' },
+  { id:'e1', label:'Q25. 기업의 실제 기술 또는 산업 현황을 이해하는 데 도움이 되었다.' },
+  { id:'e2', label:'Q26. 기업 전문가의 강의 또는 멘토링 내용이 유익하였다.' },
+  { id:'e3', label:'Q27. 산업현장에서 요구하는 역량을 파악하는 데 도움이 되었다.' },
+  { id:'e4', label:'Q28. 수업을 통해 반도체 관련 기업과 직무에 대한 관심이 높아졌다.' },
+  { id:'e5', label:'Q29. 향후 기업 참여형 수업을 다시 수강할 의향이 있다.' },
 ];
 
 const RECOMMEND_LABELS = ['','전혀 아니다','아니다','보통','그렇다','매우 그렇다'];
@@ -424,7 +457,25 @@ function renderScale(containerId, items) {
 function selectChoice(el, name) {
   document.querySelectorAll('#grp-' + name + ' .choice-item').forEach(i => i.classList.remove('selected'));
   el.classList.add('selected');
-  answers[name] = el.querySelector('input').value;
+  const val = el.querySelector('input').value;
+  answers[name] = val;
+  // 기타 직접입력 토글
+  if (name === 'a1') {
+    const wrap = document.getElementById('a1-other-wrap');
+    if (wrap) wrap.style.display = val === '기타' ? 'block' : 'none';
+    if (val !== '기타') delete answers['a1_other'];
+  }
+  if (name === 'a4') {
+    const wrap = document.getElementById('a4-other-wrap');
+    if (wrap) wrap.style.display = val === '기타' ? 'block' : 'none';
+    if (val !== '기타') delete answers['a4_other'];
+  }
+}
+
+function selectA5(btn, val) {
+  document.querySelectorAll('#grp-a5 .scale-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  answers['a5'] = val;
 }
 
 // ── 추천 별점 ──
