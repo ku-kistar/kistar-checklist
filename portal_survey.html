@@ -1190,6 +1190,7 @@ function loadSurveys(studentId) {
 
   const cbName = 'cb_surveys_' + Date.now();
   const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
+  const script = document.createElement('script');
 
   window[cbName] = function(data) {
     delete window[cbName];
@@ -1228,7 +1229,6 @@ function loadSurveys(studentId) {
     if (anno) anno.textContent = '수강 과목이 표시되지 않으면 담당자에게 문의해 주세요.';
   };
 
-  const script = document.createElement('script');
   script.src = url;
   script.onerror = function() {
     delete window[cbName];
