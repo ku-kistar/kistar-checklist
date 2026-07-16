@@ -234,7 +234,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c
 
     <!-- E. 산학연계 (패키징, PBL에 표시) -->
     <div class="form-section" id="secE-wrap" style="display:none">
-      <div class="section-title"><div class="section-num">E</div>산학연계 <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(전혀 그렇지 않다) ~ 5(매우 그렇다)</span></div>
+      <div class="section-title"><div class="section-num">E</div><span id="secE-title">산학연계</span>산학연계 <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(전혀 그렇지 않다) ~ 5(매우 그렇다)</span></div>
       <div class="section-body">
         <div id="secE"></div>
       </div>
@@ -325,55 +325,72 @@ const courseName = urlParams.get('name') || '';
 const courseType = urlParams.get('type') || 'lecture'; // lab / pbl / lecture / lecture_산학
 
 // ── 척도 문항 정의 ──
-const B_ITEMS = [
-  { id:'b1', label:'Q1. 교과목의 교육목표가 명확하게 제시되었다.' },
-  { id:'b2', label:'Q2. 수업내용이 교과목의 교육목표에 적합하게 구성되었다.' },
-  { id:'b3', label:'Q3. 수업의 난이도는 나의 전공 및 학년 수준에 적절하였다.' },
-  { id:'b4', label:'Q4. 강의자료와 수업자료가 학습에 도움이 되었다.' },
-  { id:'b5', label:'Q5. 수업 진행 방식과 일정이 적절하였다.' },
-  { id:'b6', label:'Q6. 교수자의 설명과 수업 전달이 이해하기 쉬웠다.' },
-  { id:'b7', label:'Q7. 질문이나 의견을 제시할 기회가 충분히 제공되었다.' },
-  { id:'b8', label:'Q8. 과제·시험·발표 등 평가방식이 수업내용과 적절하게 연계되었다.' },
-  { id:'b9', label:'Q9. 전체적으로 본 교과목 운영에 만족한다.' },
+// ── B섹션: B1~B7 공통, B8 유형별 상이, B9 공통 ──
+const B_COMMON = [
+  { id:'b1', label:'B1. 교과목의 교육목표가 명확하게 제시되었다.' },
+  { id:'b2', label:'B2. 수업내용이 교과목의 교육목표에 적합하게 구성되었다.' },
+  { id:'b3', label:'B3. 수업의 난이도는 나의 전공 및 학년 수준에 적절하였다.' },
+  { id:'b4', label:'B4. 수업 진행 방식과 일정이 적절하였다.' },
+  { id:'b5', label:'B5. 교수자(조교 포함)의 지도와 전달이 이해하기 쉬웠다.' },
+  { id:'b6', label:'B6. 질문이나 의견을 제시할 기회가 충분히 제공되었다.' },
+  { id:'b7', label:'B7. 과제·평가·발표 방식이 수업내용과 적절하게 연계되었다.' },
 ];
-// B7 콜로키움 대체
-const B7_COLLOQ = { id:'b7', label:'Q7. 다양한 주제와 연사 구성이 균형 있게 이루어졌다.' };
+// B6 강의·산학형(콜로키움) 대체
+const B6_LECTURE = { id:'b6', label:'B6. 다양한 주제와 연사 구성이 균형 있게 이루어졌다.' };
+// B8 유형별 상이
+const B8_BY_TYPE = {
+  lecture: { id:'b8', label:'B8. 강의자료와 수업자료가 학습에 도움이 되었다.' },
+  lab:     { id:'b8', label:'B8. 실습 전 준비 안내 및 안전수칙 설명이 충분하였다.' },
+  pbl:     { id:'b8', label:'B8. 팀 구성 및 역할 분담이 원활하게 이루어졌다.' },
+};
+const B9 = { id:'b9', label:'B9. 전체적으로 본 교과목 운영에 만족한다.' };
 
 const C_ITEMS = [
-  { id:'c1', label:'Q10. 수강 후 반도체·AI 분야에 대한 이해도가 향상되었다.' },
-  { id:'c2', label:'Q11. 수업을 통해 전공 이론을 실제 사례와 연계하여 이해할 수 있었다.' },
-  { id:'c3', label:'Q12. 수강 전보다 반도체 분야에 대한 관심이 높아졌다.' },
-  { id:'c4', label:'Q13. 향후 관련 심화 교과목을 수강하는 데 도움이 될 것 같다.' },
-  { id:'c5', label:'Q14. 진로 또는 취업 분야를 탐색하는 데 도움이 되었다.' },
-  { id:'c6', label:'Q15. 문제해결력과 논리적 사고력을 향상하는 데 도움이 되었다.' },
-  { id:'c7', label:'Q16. 다른 전공 분야의 지식과 융합하여 사고하는 데 도움이 되었다.' },
-  { id:'c8', label:'Q17. 배운 내용을 향후 연구·프로젝트·취업 준비에 활용할 수 있을 것 같다.' },
+  { id:'c1', label:'C1. 수강 후 반도체·AI 분야에 대한 이해도가 향상되었다.' },
+  { id:'c2', label:'C2. 전공 이론을 실제 사례와 연계하여 이해할 수 있었다.' },
+  { id:'c3', label:'C3. 수강 전보다 반도체 분야에 대한 관심이 높아졌다.' },
+  { id:'c4', label:'C4. 향후 관련 심화 교과목 수강에 도움이 될 것 같다.' },
+  { id:'c5', label:'C5. 진로 또는 취업 분야를 탐색하는 데 도움이 되었다.' },
+  { id:'c6', label:'C6. 문제해결력과 논리적 사고력 향상에 도움이 되었다.' },
+  { id:'c7', label:'C7. 다른 전공 분야 지식과 융합하여 사고하는 데 도움이 되었다.' },
+  { id:'c8', label:'C8. 배운 내용을 향후 연구·프로젝트·취업에 활용할 수 있을 것 같다.' },
 ];
 
+// ── D섹션: 강의·산학형 (산학연계) ──
+const D_LECTURE_ITEMS = [
+  { id:'d1', label:'D1. 기업의 실제 기술 또는 산업 현황 이해에 도움이 되었다.' },
+  { id:'d2', label:'D2. 기업 전문가의 강의 또는 멘토링 내용이 유익하였다.' },
+  { id:'d3', label:'D3. 산업현장에서 요구하는 역량 파악에 도움이 되었다.' },
+  { id:'d4', label:'D4. 반도체 관련 기업과 직무에 대한 관심이 높아졌다.' },
+  { id:'d5', label:'D5. 향후 기업 참여형 수업을 다시 수강할 의향이 있다.' },
+];
+// ── D섹션: 실습형 (실습 관련) ──
 const D_LAB_ITEMS = [
-  { id:'d1', label:'Q18. 실습의 목적과 수행방법이 명확하게 안내되었다.' },
-  { id:'d2', label:'Q19. 실습 시간은 학습목표를 달성하기에 충분하였다.' },
-  { id:'d3', label:'Q20. 실험·실습 장비와 시설이 적절하게 제공되었다.' },
-  { id:'d4', label:'Q21. 장비 사용법과 안전수칙에 대한 설명이 충분하였다.' },
-  { id:'d5', label:'Q22. 직접 실습을 수행하는 과정이 이론을 이해하는 데 도움이 되었다.' },
-  { id:'d6', label:'Q23. 실습조교 또는 담당자의 지원이 원활하게 제공되었다.' },
-  { id:'d7', label:'Q24. 실습 결과에 대한 피드백이 충분하였다.' },
+  { id:'d1', label:'D1. 실습의 목적과 수행방법이 명확하게 안내되었다.' },
+  { id:'d2', label:'D2. 실습 시간은 학습목표를 달성하기에 충분하였다.' },
+  { id:'d3', label:'D3. 실험·실습 장비와 시설이 적절하게 제공되었다.' },
+  { id:'d4', label:'D4. 장비 사용법과 안전수칙에 대한 설명이 충분하였다.' },
+  { id:'d5', label:'D5. 직접 실습을 수행하는 과정이 이론 이해에 도움이 되었다.' },
+  { id:'d6', label:'D6. 실습조교 또는 담당자의 지원이 원활하게 제공되었다.' },
+  { id:'d7', label:'D7. 실습 결과에 대한 피드백이 충분하였다.' },
 ];
+// ── D섹션: PBL형 (프로젝트 관련) ──
 const D_PBL_ITEMS = [
-  { id:'d1', label:'Q18. 프로젝트의 목적과 수행방법이 명확하게 안내되었다.' },
-  { id:'d2', label:'Q19. 프로젝트 수행 시간은 학습목표를 달성하기에 충분하였다.' },
-  { id:'d3', label:'Q20. 팀 구성 및 역할 분담이 원활하게 이루어졌다.' },
-  { id:'d4', label:'Q21. 프로젝트 수행에 필요한 자료·도구·환경이 적절하게 제공되었다.' },
-  { id:'d5', label:'Q22. 직접 프로젝트를 수행하는 과정이 이론을 이해하는 데 도움이 되었다.' },
-  { id:'d6', label:'Q23. 지도교수 또는 멘토의 피드백이 원활하게 제공되었다.' },
-  { id:'d7', label:'Q24. 프로젝트 결과에 대한 최종 피드백이 충분하였다.' },
+  { id:'d1', label:'D1. 프로젝트의 목적과 수행방법이 명확하게 안내되었다.' },
+  { id:'d2', label:'D2. 프로젝트 수행 시간은 학습목표 달성에 충분하였다.' },
+  { id:'d3', label:'D3. 프로젝트 수행에 필요한 자료·도구·환경이 적절하게 제공되었다.' },
+  { id:'d4', label:'D4. 지도교수 또는 멘토의 피드백이 원활하게 제공되었다.' },
+  { id:'d5', label:'D5. 직접 프로젝트를 수행하는 과정이 이론 이해에 도움이 되었다.' },
+  { id:'d6', label:'D6. 프로젝트 결과에 대한 최종 피드백이 충분하였다.' },
+  { id:'d7', label:'D7. 프로젝트를 통해 실무 역량이 향상되었다고 느낀다.' },
 ];
+// ── E섹션: PBL형만 (산학연계) ──
 const E_ITEMS = [
-  { id:'e1', label:'Q25. 기업의 실제 기술 또는 산업 현황을 이해하는 데 도움이 되었다.' },
-  { id:'e2', label:'Q26. 기업 전문가의 강의 또는 멘토링 내용이 유익하였다.' },
-  { id:'e3', label:'Q27. 산업현장에서 요구하는 역량을 파악하는 데 도움이 되었다.' },
-  { id:'e4', label:'Q28. 수업을 통해 반도체 관련 기업과 직무에 대한 관심이 높아졌다.' },
-  { id:'e5', label:'Q29. 향후 기업 참여형 수업을 다시 수강할 의향이 있다.' },
+  { id:'e1', label:'E1. 기업의 실제 기술 또는 산업 현황 이해에 도움이 되었다.' },
+  { id:'e2', label:'E2. 기업 전문가의 강의 또는 멘토링 내용이 유익하였다.' },
+  { id:'e3', label:'E3. 산업현장에서 요구하는 역량 파악에 도움이 되었다.' },
+  { id:'e4', label:'E4. 반도체 관련 기업과 직무에 대한 관심이 높아졌다.' },
+  { id:'e5', label:'E5. 향후 기업 참여형 수업을 다시 수강할 의향이 있다.' },
 ];
 
 const RECOMMEND_LABELS = ['','전혀 아니다','아니다','보통','그렇다','매우 그렇다'];
@@ -402,13 +419,25 @@ const answers = {}; // id → value
   const deptEl = document.querySelector('#grp-a1 .choice-item input[value="' + _auth.dept + '"]');
   if (deptEl) { deptEl.closest('.choice-item').click(); }
 
-  // B섹션 렌더링 (콜로키움이면 B7 교체)
-  const bItems = B_ITEMS.map(item => item.id === 'b7' && courseType === 'lecture' ? B7_COLLOQ : item);
+  // B섹션 렌더링: B1~B7 공통 + B8 유형별 + B9 공통
+  const bItems = [
+    ...B_COMMON.map(item => {
+      // B6: 강의·산학형(콜로키움)은 연사 문항으로 교체
+      if (item.id === 'b6' && courseType === 'lecture') return B6_LECTURE;
+      return item;
+    }),
+    B8_BY_TYPE[courseType] || B8_BY_TYPE['lecture'],
+    B9,
+  ];
   renderScale('secB', bItems);
   renderScale('secC', C_ITEMS);
 
-  // D섹션
-  if (courseType === 'lab') {
+  // D섹션: 유형별 분기
+  if (courseType === 'lecture') {
+    document.getElementById('secD-wrap').style.display = 'block';
+    document.getElementById('secD-title').textContent = '산학연계';
+    renderScale('secD', D_LECTURE_ITEMS);
+  } else if (courseType === 'lab') {
     document.getElementById('secD-wrap').style.display = 'block';
     document.getElementById('secD-title').textContent = '실습 관련';
     renderScale('secD', D_LAB_ITEMS);
@@ -418,9 +447,10 @@ const answers = {}; // id → value
     renderScale('secD', D_PBL_ITEMS);
   }
 
-  // E섹션 (패키징=lecture_산학, PBL)
-  if (courseType === 'pbl' || courseType === 'lecture_산학') {
+  // E섹션: PBL형만
+  if (courseType === 'pbl') {
     document.getElementById('secE-wrap').style.display = 'block';
+    document.getElementById('secE-title').textContent = '산학연계';
     renderScale('secE', E_ITEMS);
   }
 })();
@@ -507,12 +537,18 @@ function countChars(ta, counterId) {
 // ── 제출 ──
 function submitSurvey() {
   // 필수 항목 검증
-  const required = ['a1','a2','a3','a4','b1','b2','b3','b4','b5','b6','b7','b8','b9',
+  // 필수항목: A섹션 + B섹션 + C섹션 공통
+  const required = ['a1','a2','a3','a4',
+    'b1','b2','b3','b4','b5','b6','b7','b8','b9',
     'c1','c2','c3','c4','c5','c6','c7','c8'];
-  if (courseType === 'lab' || courseType === 'pbl') {
+  // D섹션: 모든 유형 필수 (lecture=5문항, lab/pbl=7문항)
+  if (courseType === 'lecture') {
+    required.push('d1','d2','d3','d4','d5');
+  } else if (courseType === 'lab' || courseType === 'pbl') {
     required.push('d1','d2','d3','d4','d5','d6','d7');
   }
-  if (courseType === 'pbl' || courseType === 'lecture_산학') {
+  // E섹션: PBL만
+  if (courseType === 'pbl') {
     required.push('e1','e2','e3','e4','e5');
   }
   required.push('f_recommend');
@@ -538,17 +574,17 @@ function submitSurvey() {
     // A섹션
     a1: answers.a1||'', a1_other: answers.a1_other||'', a2: answers.a2||'', a3: answers.a3||'',
     a4: answers.a4||'', a4_other: answers.a4_other||'', a5: answers.a5||'',
-    // B섹션 → Q1~Q9 매핑
-    q1: answers.b1||'', q2: answers.b2||'', q3: answers.b3||'', q4: answers.b4||'',
-    q5: answers.b5||'', q6: answers.b6||'', q7: answers.b7||'', q8: answers.b8||'', q9: answers.b9||'',
-    // C섹션 → Q10~Q17 매핑
-    q10: answers.c1||'', q11: answers.c2||'', q12: answers.c3||'', q13: answers.c4||'',
-    q14: answers.c5||'', q15: answers.c6||'', q16: answers.c7||'', q17: answers.c8||'',
-    // D섹션 → Q18~Q24 매핑
-    q18: answers.d1||'', q19: answers.d2||'', q20: answers.d3||'', q21: answers.d4||'',
-    q22: answers.d5||'', q23: answers.d6||'', q24: answers.d7||'',
-    // E섹션 → Q25~Q30 매핑
-    q25: answers.e1||'', q26: answers.e2||'', q27: answers.e3||'', q28: answers.e4||'', q29: answers.e5||'',
+    // B섹션 (b1~b9 그대로 전송 — GAS에서 섹션별 헤더로 저장)
+    b1: answers.b1||'', b2: answers.b2||'', b3: answers.b3||'', b4: answers.b4||'',
+    b5: answers.b5||'', b6: answers.b6||'', b7: answers.b7||'', b8: answers.b8||'', b9: answers.b9||'',
+    // C섹션
+    c1: answers.c1||'', c2: answers.c2||'', c3: answers.c3||'', c4: answers.c4||'',
+    c5: answers.c5||'', c6: answers.c6||'', c7: answers.c7||'', c8: answers.c8||'',
+    // D섹션 (유형별 문항수 다름: lecture=5, lab/pbl=7)
+    d1: answers.d1||'', d2: answers.d2||'', d3: answers.d3||'', d4: answers.d4||'',
+    d5: answers.d5||'', d6: answers.d6||'', d7: answers.d7||'',
+    // E섹션 (PBL만)
+    e1: answers.e1||'', e2: answers.e2||'', e3: answers.e3||'', e4: answers.e4||'', e5: answers.e5||'',
     // F섹션
     f_recommend: answers.f_recommend||'',
     s1: document.getElementById('s1').value,
