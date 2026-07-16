@@ -607,12 +607,24 @@ function submitSurvey() {
     s7: document.getElementById('s7').value,
   });
 
-  // JSONP 방식으로 제출 (GAS와 동일한 호출 방식)
+  // JSONP 방식으로 제출
   const cbName = 'cb_submit_' + Date.now();
   const scriptEl = document.createElement('script');
   params.append('callback', cbName);
 
+  // 20초 타임아웃 처리
+  const timeoutId = setTimeout(function() {
+    if (window[cbName]) {
+      delete window[cbName];
+      if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+      showResult('error', '제출 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
+      btn.disabled = false;
+      btn.textContent = '설문 제출';
+    }
+  }, 20000);
+
   window[cbName] = function(data) {
+    clearTimeout(timeoutId);
     delete window[cbName];
     if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
     if (data.status === 'ok') {
