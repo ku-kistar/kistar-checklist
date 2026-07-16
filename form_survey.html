@@ -234,7 +234,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:linear-gradient(170deg,#0c
 
     <!-- E. 산학연계 (패키징, PBL에 표시) -->
     <div class="form-section" id="secE-wrap" style="display:none">
-      <div class="section-title"><div class="section-num">E</div><span id="secE-title">산학연계</span>산학연계 <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(전혀 그렇지 않다) ~ 5(매우 그렇다)</span></div>
+      <div class="section-title"><div class="section-num">E</div><span id="secE-title">산학연계</span> <span style="font-size:11px;font-weight:400;opacity:.6;margin-left:6px">1(전혀 그렇지 않다) ~ 5(매우 그렇다)</span></div>
       <div class="section-body">
         <div id="secE"></div>
       </div>
@@ -320,7 +320,18 @@ const EXPIRE_MS = 8 * 60 * 60 * 1000;
 // ── URL 파라미터 ──
 const urlParams  = new URLSearchParams(location.search);
 const courseCode = urlParams.get('course') || '';
-const semester   = urlParams.get('semester') || '2026-1';
+// 과목별 학기 매핑 (GAS SURVEY_COURSE_MAP과 동기화)
+const SURVEY_COURSE_MAP_JS = {
+  'KISE301':   { semester: '2026-1',   type: 'lab'     },
+  'KISE406':   { semester: '2026-1',   type: 'lecture' },
+  'KISE407':   { semester: '2026-1',   type: 'pbl'     },
+  'KISE409':   { semester: '2026-1',   type: 'lecture' },
+  '313KISE':   { semester: '2026-여름', type: 'lab'     },
+  'KISE301_S': { semester: '2026-여름', type: 'lab'     },
+};
+// semester: URL 파라미터 우선, 없으면 SURVEY_COURSE_MAP에서 가져옴
+const _semFromUrl = urlParams.get('semester') || '';
+const semester    = _semFromUrl || (SURVEY_COURSE_MAP_JS[courseCode] ? SURVEY_COURSE_MAP_JS[courseCode].semester : '2026-1');
 const courseName = urlParams.get('name') || '';
 const courseType = urlParams.get('type') || 'lecture'; // lab / pbl / lecture / lecture_산학
 
