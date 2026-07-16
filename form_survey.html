@@ -439,15 +439,31 @@ function renderScale(containerId, items) {
       <div class="field-label req">${item.label}</div>
       <div class="scale-wrap">
         <div class="scale-labels"><span>매우 불만족/아니다</span><span>보통</span><span>매우 만족/그렇다</span></div>
-        <div class="scale-row">
+        <div class="scale-row" id="scale-${item.id}">
           ${[1,2,3,4,5].map(v => `
-            <label class="scale-btn" onclick="answers['${item.id}']='${v}'">
+            <label class="scale-btn" data-id="${item.id}" data-val="${v}">
               <input type="radio" name="${item.id}" value="${v}">
               <div class="scale-circle">${v}</div>
             </label>`).join('')}
         </div>
       </div>
     </div>`).join('');
+
+  // 이벤트 위임: 클릭 시 answers 저장 + radio checked 처리
+  items.forEach(item => {
+    const row = document.getElementById('scale-' + item.id);
+    if (!row) return;
+    row.addEventListener('click', function(e) {
+      const label = e.target.closest('label[data-id]');
+      if (!label) return;
+      const id  = label.dataset.id;
+      const val = label.dataset.val;
+      answers[id] = val;
+      // radio checked 수동 처리
+      const radio = label.querySelector('input[type=radio]');
+      if (radio) radio.checked = true;
+    });
+  });
 }
 
 // ── 선택형 ──
