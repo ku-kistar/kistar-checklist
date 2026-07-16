@@ -441,9 +441,9 @@ function renderScale(containerId, items) {
         <div class="scale-labels"><span>매우 불만족/아니다</span><span>보통</span><span>매우 만족/그렇다</span></div>
         <div class="scale-row">
           ${[1,2,3,4,5].map(v => `
-            <label class="scale-btn">
-              <input type="radio" name="${item.id}" value="${v}" onchange="answers['${item.id}']='${v}'">
-              <div class="scale-circle" onclick="">${v}</div>
+            <label class="scale-btn" onclick="answers['${item.id}']='${v}'">
+              <input type="radio" name="${item.id}" value="${v}">
+              <div class="scale-circle">${v}</div>
             </label>`).join('')}
         </div>
       </div>
