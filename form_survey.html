@@ -520,19 +520,19 @@ function submitSurvey() {
     courseCode:  courseCode,
     courseName:  courseName,
     // A섹션
-    a1: answers.a1||'', a2: answers.a2||'', a3: answers.a3||'', a4: answers.a4||'',
-    a5: answers.a5||'', a1_other: answers.a1_other||'', a4_other: answers.a4_other||'',
-    // B섹션
-    b1: answers.b1||'', b2: answers.b2||'', b3: answers.b3||'', b4: answers.b4||'',
-    b5: answers.b5||'', b6: answers.b6||'', b7: answers.b7||'', b8: answers.b8||'', b9: answers.b9||'',
-    // C섹션
-    c1: answers.c1||'', c2: answers.c2||'', c3: answers.c3||'', c4: answers.c4||'',
-    c5: answers.c5||'', c6: answers.c6||'', c7: answers.c7||'', c8: answers.c8||'',
-    // D섹션
-    d1: answers.d1||'', d2: answers.d2||'', d3: answers.d3||'', d4: answers.d4||'',
-    d5: answers.d5||'', d6: answers.d6||'', d7: answers.d7||'',
-    // E섹션
-    e1: answers.e1||'', e2: answers.e2||'', e3: answers.e3||'', e4: answers.e4||'', e5: answers.e5||'',
+    a1: answers.a1||'', a1_other: answers.a1_other||'', a2: answers.a2||'', a3: answers.a3||'',
+    a4: answers.a4||'', a4_other: answers.a4_other||'', a5: answers.a5||'',
+    // B섹션 → Q1~Q9 매핑
+    q1: answers.b1||'', q2: answers.b2||'', q3: answers.b3||'', q4: answers.b4||'',
+    q5: answers.b5||'', q6: answers.b6||'', q7: answers.b7||'', q8: answers.b8||'', q9: answers.b9||'',
+    // C섹션 → Q10~Q17 매핑
+    q10: answers.c1||'', q11: answers.c2||'', q12: answers.c3||'', q13: answers.c4||'',
+    q14: answers.c5||'', q15: answers.c6||'', q16: answers.c7||'', q17: answers.c8||'',
+    // D섹션 → Q18~Q24 매핑
+    q18: answers.d1||'', q19: answers.d2||'', q20: answers.d3||'', q21: answers.d4||'',
+    q22: answers.d5||'', q23: answers.d6||'', q24: answers.d7||'',
+    // E섹션 → Q25~Q30 매핑
+    q25: answers.e1||'', q26: answers.e2||'', q27: answers.e3||'', q28: answers.e4||'', q29: answers.e5||'',
     // F섹션
     f_recommend: answers.f_recommend||'',
     s1: document.getElementById('s1').value,
