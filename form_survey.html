@@ -553,22 +553,20 @@ function submitSurvey() {
     delete window[cbName];
     if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
     if (data.status === 'ok') {
-        document.getElementById('surveyForm').style.display = 'none';
-        const done = document.getElementById('doneScreen');
-        done.classList.add('show');
-        document.getElementById('doneMsg').textContent =
-          courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
-      } else {
-        showResult('error', '제출 중 오류가 발생했습니다: ' + (data.message || ''));
-        btn.disabled = false;
-        btn.textContent = '설문 제출';
-      }
-    })
-    .catch(() => {
-      showResult('error', '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      document.getElementById('surveyForm').style.display = 'none';
+      const done = document.getElementById('doneScreen');
+      done.classList.add('show');
+      document.getElementById('doneMsg').textContent =
+        courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
+    } else {
+      showResult('error', '제출 중 오류가 발생했습니다: ' + (data.message || ''));
       btn.disabled = false;
       btn.textContent = '설문 제출';
-    });
+    }
+  };
+
+  scriptEl.src = EXEC_URL + '?' + params.toString();
+  document.head.appendChild(scriptEl);
 }
 
 function showResult(type, msg) {
