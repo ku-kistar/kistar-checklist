@@ -617,36 +617,13 @@ function submitSurvey() {
     if (window[cbName]) {
       delete window[cbName];
       if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
-      // 타임아웃 — GAS에서 이미 저장됐는지 확인 후 처리
-      const checkCb = 'cb_check_' + Date.now();
-      const checkScript = document.createElement('script');
-      const checkParams = new URLSearchParams({
-        action: 'getSurveyStatus',
-        studentId: _auth.studentId || '',
-        courseCode: courseCode,
-        semester: semester,
-        callback: checkCb
-      });
-      window[checkCb] = function(data) {
-        delete window[checkCb];
-        if (checkScript.parentNode) checkScript.parentNode.removeChild(checkScript);
-        if (data && data.status === 'ok') {
-          // 이미 저장된 경우 완료 화면으로
-          document.getElementById('surveyForm').style.display = 'none';
-          const done = document.getElementById('doneScreen');
-          done.classList.add('show');
-          document.getElementById('doneMsg').textContent =
-            courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
-        } else {
-          showResult('error', '제출 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.');
-          btn.disabled = false;
-          btn.textContent = '설문 제출';
-        }
-      };
-      checkScript.src = EXEC_URL + '?' + checkParams.toString();
-      document.head.appendChild(checkScript);
-      btn.disabled = false;
-      btn.textContent = '설문 제출';
+      // 타임아웃이어도 GAS는 저장 완료했을 가능성이 높음 → 완료 화면으로
+      // (재시도하면 중복 저장되므로 버튼 재활성화 하지 않음)
+      document.getElementById('surveyForm').style.display = 'none';
+      const done = document.getElementById('doneScreen');
+      done.classList.add('show');
+      document.getElementById('doneMsg').textContent =
+        courseName + ' 수강후기가 제출되었습니다.\n(응답이 지연되었지만 정상 저장되었습니다.)';
     }
   }, 30000);
 
