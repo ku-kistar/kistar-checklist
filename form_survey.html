@@ -574,7 +574,8 @@ function submitSurvey() {
   btn.disabled = true;
   btn.textContent = '제출 중...';
 
-  const params = new URLSearchParams({
+  // ── 1차 전송: 정량 데이터 (A~F섹션) ──
+  const params1 = new URLSearchParams({
     action:      'submitSurvey',
     studentId:   _auth.studentId || '',
     studentName: _auth.name     || '',
@@ -582,22 +583,24 @@ function submitSurvey() {
     semester:    semester,
     courseCode:  courseCode,
     courseName:  courseName,
-    // A섹션
     a1: answers.a1||'', a1_other: answers.a1_other||'', a2: answers.a2||'', a3: answers.a3||'',
     a4: answers.a4||'', a4_other: answers.a4_other||'', a5: answers.a5||'',
-    // B섹션 (b1~b9 그대로 전송 — GAS에서 섹션별 헤더로 저장)
     b1: answers.b1||'', b2: answers.b2||'', b3: answers.b3||'', b4: answers.b4||'',
     b5: answers.b5||'', b6: answers.b6||'', b7: answers.b7||'', b8: answers.b8||'', b9: answers.b9||'',
-    // C섹션
     c1: answers.c1||'', c2: answers.c2||'', c3: answers.c3||'', c4: answers.c4||'',
     c5: answers.c5||'', c6: answers.c6||'', c7: answers.c7||'', c8: answers.c8||'',
-    // D섹션 (유형별 문항수 다름: lecture=5, lab/pbl=7)
     d1: answers.d1||'', d2: answers.d2||'', d3: answers.d3||'', d4: answers.d4||'',
     d5: answers.d5||'', d6: answers.d6||'', d7: answers.d7||'',
-    // E섹션 (PBL만)
     e1: answers.e1||'', e2: answers.e2||'', e3: answers.e3||'', e4: answers.e4||'', e5: answers.e5||'',
-    // F섹션
     f_recommend: answers.f_recommend||'',
+  });
+
+  // ── 2차 전송: 서술형 데이터 (S1~S7) ──
+  const params2 = new URLSearchParams({
+    action:     'updateSurveyNarrative',
+    studentId:  _auth.studentId || '',
+    semester:   semester,
+    courseCode: courseCode,
     s1: document.getElementById('s1').value,
     s2: document.getElementById('s2').value,
     s3: document.getElementById('s3').value,
@@ -607,45 +610,60 @@ function submitSurvey() {
     s7: document.getElementById('s7').value,
   });
 
-  // JSONP 방식으로 제출
-  const cbName = 'cb_submit_' + Date.now();
-  const scriptEl = document.createElement('script');
-  params.append('callback', cbName);
-
-  // 20초 타임아웃 처리
-  const timeoutId = setTimeout(function() {
-    if (window[cbName]) {
+  // JSONP 헬퍼
+  function jsonpCall(params, cbName, onSuccess, onError) {
+    const scriptEl = document.createElement('script');
+    params.append('callback', cbName);
+    const tid = setTimeout(function() {
+      if (window[cbName]) {
+        delete window[cbName];
+        if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+        onSuccess({ status: 'timeout' }); // 타임아웃도 성공으로 처리
+      }
+    }, 25000);
+    window[cbName] = function(data) {
+      clearTimeout(tid);
       delete window[cbName];
       if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
-      // 타임아웃이어도 GAS는 저장 완료했을 가능성이 높음 → 완료 화면으로
-      // (재시도하면 중복 저장되므로 버튼 재활성화 하지 않음)
-      document.getElementById('surveyForm').style.display = 'none';
-      const done = document.getElementById('doneScreen');
-      done.classList.add('show');
-      document.getElementById('doneMsg').textContent =
-        courseName + ' 수강후기가 제출되었습니다.\n(응답이 지연되었지만 정상 저장되었습니다.)';
-    }
-  }, 30000);
+      if (data.status === 'ok' || data.status === 'timeout') onSuccess(data);
+      else onError(data.message || '오류 발생');
+    };
+    scriptEl.src = EXEC_URL + '?' + params.toString();
+    document.head.appendChild(scriptEl);
+  }
 
-  window[cbName] = function(data) {
-    clearTimeout(timeoutId);
-    delete window[cbName];
-    if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
-    if (data.status === 'ok') {
-      document.getElementById('surveyForm').style.display = 'none';
-      const done = document.getElementById('doneScreen');
-      done.classList.add('show');
-      document.getElementById('doneMsg').textContent =
-        courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
-    } else {
-      showResult('error', '제출 중 오류가 발생했습니다: ' + (data.message || ''));
+  // 1차 전송 → 완료 시 2차 전송
+  btn.textContent = '제출 중... (1/2)';
+  jsonpCall(params1, 'cb_submit1_' + Date.now(),
+    function(data1) {
+      // 1차 완료 → 2차 서술형 전송
+      btn.textContent = '제출 중... (2/2)';
+      jsonpCall(params2, 'cb_submit2_' + Date.now(),
+        function(data2) {
+          // 2차 완료 → 완료 화면
+          document.getElementById('surveyForm').style.display = 'none';
+          const done = document.getElementById('doneScreen');
+          done.classList.add('show');
+          document.getElementById('doneMsg').textContent =
+            courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
+        },
+        function(errMsg) {
+          // 2차 오류여도 1차는 저장됨 → 완료 처리
+          document.getElementById('surveyForm').style.display = 'none';
+          const done = document.getElementById('doneScreen');
+          done.classList.add('show');
+          document.getElementById('doneMsg').textContent =
+            courseName + ' 수강후기를 제출해주셔서 감사합니다.\n소중한 의견은 교육 품질 개선에 활용됩니다.';
+        }
+      );
+    },
+    function(errMsg) {
+      // 1차 오류 → 재시도 가능하게
+      showResult('error', '제출 중 오류가 발생했습니다. 다시 시도해주세요.');
       btn.disabled = false;
       btn.textContent = '설문 제출';
     }
-  };
-
-  scriptEl.src = EXEC_URL + '?' + params.toString();
-  document.head.appendChild(scriptEl);
+  );
 }
 
 function showResult(type, msg) {
