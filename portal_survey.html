@@ -1153,7 +1153,6 @@ function loadForms() {
     clearTimeout(loadTO); delete window[cbName];
     const s=document.getElementById('__jsonp'); if(s) s.remove();
     document.getElementById('skeletonGrid').style.display='none';
-  
     renderForms(data.forms||[]);
   };
   loadTO=setTimeout(()=>{
@@ -1182,11 +1181,7 @@ function loadSurveys(studentId) {
   const section = document.getElementById('surveySection');
   if (!section) return;
 
-  // ★ 테스트 모드 (2026-07-15): 작업 완료 전까지 관리자 + 테스트 계정만 허용
   // 전체 오픈 시 아래 3줄 제거
-  const SURVEY_TEST_ACCOUNTS = ['2025111111', 'TEST', 'admin'];
-  if (!SURVEY_TEST_ACCOUNTS.includes(String(studentId).trim())) { section.style.display = 'none'; return; }
-  // ── 테스트 모드 끝 ──
 
   const cbName = 'cb_surveys_' + Date.now();
   const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
