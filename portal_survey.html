@@ -648,6 +648,11 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="survey-divider"></div>
       <div class="survey-sec-label">📝 수강후기 설문</div>
       <div class="survey-intro-box">이번 학기 수강한 과목에 대한 후기를 작성해주세요. 수강 과목에 따라 설문이 표시됩니다.</div>
+      <!-- 로딩 상태 -->
+      <div id="surveyLoading" style="display:flex;align-items:center;gap:10px;padding:16px 4px;color:rgba(255,255,255,.45);font-size:13px">
+        <div style="width:16px;height:16px;border:2px solid rgba(74,222,128,.3);border-top-color:#4ade80;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0"></div>
+        수강후기 설문을 불러오는 중...
+      </div>
       <div class="survey-grid" id="surveyGrid"></div>
       <div class="survey-anno" id="surveyAnno"></div>
     </div>
@@ -1181,7 +1186,12 @@ function loadSurveys(studentId) {
   const section = document.getElementById('surveySection');
   if (!section) return;
 
-  // 전체 오픈 시 아래 3줄 제거
+  // 로딩 표시
+  section.style.display = 'block';
+  const loadingEl = document.getElementById('surveyLoading');
+  const gridEl    = document.getElementById('surveyGrid');
+  if (loadingEl) loadingEl.style.display = 'flex';
+  if (gridEl)    gridEl.innerHTML = '';
 
   const cbName = 'cb_surveys_' + Date.now();
   const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
@@ -1191,6 +1201,7 @@ function loadSurveys(studentId) {
     delete window[cbName];
     if (script.parentNode) script.parentNode.removeChild(script);
 
+    if (loadingEl) loadingEl.style.display = 'none';
     if (!data || data.status !== 'ok' || !data.courses || data.courses.length === 0) {
       section.style.display = 'none';
       return;
@@ -1227,6 +1238,7 @@ function loadSurveys(studentId) {
   script.src = url;
   script.onerror = function() {
     delete window[cbName];
+    if (loadingEl) loadingEl.style.display = 'none';
     section.style.display = 'none';
   };
   document.head.appendChild(script);
