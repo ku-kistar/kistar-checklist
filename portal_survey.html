@@ -1107,7 +1107,7 @@ function createCard(form) {
 function renderForms(forms) {
   const grid = document.getElementById('formsGrid');
   const empty = document.getElementById('emptyState');
-  const cardForms = forms.filter(f => f.id !== 'schedule_scholarship');
+  const cardForms = forms.filter(f => f.id !== 'schedule_scholarship' && !f.id.startsWith('survey_'));
   grid.innerHTML = '';
   if (!cardForms||!cardForms.length) { grid.classList.remove('show'); empty.classList.add('show'); }
   else { empty.classList.remove('show'); cardForms.forEach(f=>grid.appendChild(createCard(f))); grid.classList.add('show'); }
