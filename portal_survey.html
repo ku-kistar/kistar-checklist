@@ -539,7 +539,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
           · 우수학생 마일리지 인정기간: ~2026.08.14(금)<br>
           · 우수학생 접수 마감: 2026.08.16(일) 23:00
         </div>
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfHwybNDSTGaYxCctCnoTDxXWas0gEPtziaC8v9lmvN-g106w/viewform" target="_blank" class="notice-proof-btn">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfHwybNDSTGaYxCctCnoTDxXWas0gEPtziaC8v9lmvN-g106w/viewform" target="_blank" class="notice-proof-btn" onclick="if(isExchange()){event.preventDefault();showExchangeToast();return false;}">
           <div>
             <div class="notice-proof-title">📎 외부활동 증빙 제출 (구글폼)</div>
             <div class="notice-proof-dates">
@@ -585,7 +585,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="notice-accordion-body" id="noti-3-body" style="display:none">
         전체 학생의 마일리지 현황을 확인할 수 있습니다.<br>
         학번은 일부 마스킹 처리되어 있습니다.
-        <a href="https://docs.google.com/spreadsheets/d/1RV74nASvf5dSyPx7Cx8qYTAXpyD6WLceJUiKcajOK_U/edit" target="_blank" class="notice-sheet-btn">
+        <a href="https://docs.google.com/spreadsheets/d/1RV74nASvf5dSyPx7Cx8qYTAXpyD6WLceJUiKcajOK_U/edit" target="_blank" class="notice-sheet-btn" onclick="if(isExchange()){event.preventDefault();showExchangeToast();return false;}">
           <div>
             <div class="notice-sheet-title">📊 2026-1학기 차세대반도체 융합전공<br>마일리지 현황</div>
             <div class="notice-sheet-sub">누르면 구글시트로 이동합니다</div>
@@ -809,7 +809,30 @@ const EXPIRE_MS  = 8 * 60 * 60 * 1000;
 const NOTICE_DISMISS_KEY = 'kistar_notice_2026_1_v1';
 
 // ── 공지사항 아코디언 ──
+// ── 학점교류생 접근 제한 토스트 ──
+function showExchangeToast() {
+  let toast = document.getElementById('exchange-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'exchange-toast';
+    toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:rgba(30,30,40,0.97);color:#fff;padding:11px 22px;border-radius:99px;font-size:13px;font-weight:500;box-shadow:0 4px 18px rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.12);z-index:9999;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;';
+    toast.textContent = '🔒 수강후기 설문 외 메뉴에 대한 접근 권한이 없습니다.';
+    document.body.appendChild(toast);
+  }
+  clearTimeout(toast._hideTimer);
+  toast.style.opacity = '1';
+  toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+}
+
+function isExchange() {
+  try {
+    const auth = checkAuth();
+    return auth && auth.affiliation === 'exchange';
+  } catch(e) { return false; }
+}
+
 function toggleNotice(id) {
+  if (isExchange()) { showExchangeToast(); return; }
   const item = document.getElementById(id);
   const body = document.getElementById(id + '-body');
   const btn  = document.getElementById(id + '-btn');
@@ -1051,8 +1074,13 @@ function showUserBar() {
   document.getElementById('user-bar').style.display = 'flex';
   const clBtn = document.getElementById('checklist-link');
   if (clBtn && auth.studentId) {
-    const token = btoa(encodeURIComponent(auth.studentId + ':' + (auth.dept || '')));
-    clBtn.href = 'https://ku-kistar.github.io/kistar-checklist/?sid=' + encodeURIComponent(auth.studentId) + '&t=' + token;
+    if (auth.affiliation === 'exchange') {
+      clBtn.href = '#';
+      clBtn.onclick = function(e) { e.preventDefault(); showExchangeToast(); return false; };
+    } else {
+      const token = btoa(encodeURIComponent(auth.studentId + ':' + (auth.dept || '')));
+      clBtn.href = 'https://ku-kistar.github.io/kistar-checklist/?sid=' + encodeURIComponent(auth.studentId) + '&t=' + token;
+    }
     clBtn.style.display = 'flex';
   }
   document.querySelector('.page').style.paddingTop = '44px';
@@ -1085,6 +1113,7 @@ function showUserBar() {
     if (firstSection) firstSection.before(banner);
     else if (page) page.prepend(banner);
   }
+
 
   if (auth.studentId) {
     loadMileage(auth.studentId);
