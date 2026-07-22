@@ -1219,7 +1219,9 @@ function loadSurveys(studentId) {
   if (gridEl)    gridEl.innerHTML = '';
 
   const cbName = 'cb_surveys_' + Date.now();
-  const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&callback=' + cbName;
+  const _surveyAuth = checkAuth();
+  const _affiliation = (_surveyAuth && _surveyAuth.affiliation) ? _surveyAuth.affiliation : 'korea';
+  const url = EXEC_URL + '?action=getEnrolledCourses&studentId=' + encodeURIComponent(studentId) + '&affiliation=' + encodeURIComponent(_affiliation) + '&callback=' + cbName;
   const script = document.createElement('script');
 
   window[cbName] = function(data) {
