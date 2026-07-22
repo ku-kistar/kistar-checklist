@@ -1165,6 +1165,9 @@ function createCard(form) {
     '<span class="card-cta" style="background:'+th.cta+';color:'+th.ic+'">참여하기 <span class="arrow">→</span></span>';
   a.addEventListener('mouseenter',()=>a.style.borderColor=th.border);
   a.addEventListener('mouseleave',()=>a.style.borderColor='');
+  if (isExchange()) {
+    a.addEventListener('click', function(e) { e.preventDefault(); showExchangeToast(); });
+  }
   return a;
 }
 
