@@ -998,7 +998,8 @@ function doAuth() {
         localStorage.setItem(AUTH_KEY, JSON.stringify({
           name: result.name, dept: result.dept, studentId: sid,
           role: result.role || '', isAdmin: result.isAdmin || false,
-          isStaff: result.isStaff || false, loginTime: Date.now()
+          isStaff: result.isStaff || false, loginTime: Date.now(),
+          affiliation: result.affiliation || 'korea'
         }));
         setTimeout(() => {
           document.getElementById('auth-overlay').classList.add('hidden');
@@ -1056,6 +1057,30 @@ function showUserBar() {
     document.getElementById('adminMileageToggle').style.display = 'flex';
     document.getElementById('admin-dash-btn').style.display = 'flex';
   }
+  // 학점교류생 배너
+  const existingBanner = document.getElementById('exchange-banner');
+  if (existingBanner) existingBanner.remove();
+  if (auth.affiliation === 'exchange') {
+    const banner = document.createElement('div');
+    banner.id = 'exchange-banner';
+    banner.innerHTML = `
+      <span style="font-size:1.1em;">🔗</span>
+      <div>
+        <strong>학점교류생 · 인제대학교</strong>
+        <div style="font-size:0.85em;margin-top:2px;opacity:0.9;">고려대학교 차세대AI반도체특성화대학사업단 공동운영 교과목 수강후기 설문입니다.</div>
+      </div>`;
+    banner.style.cssText = `
+      display:flex; align-items:center; gap:12px;
+      background:linear-gradient(135deg,#1a6b3c,#2d9e5f);
+      color:#fff; padding:14px 20px; border-radius:12px;
+      margin:16px 0 4px; font-size:0.95em; font-weight:500;
+      box-shadow:0 2px 8px rgba(26,107,60,0.3);`;
+    const page = document.querySelector('.page');
+    const firstSection = page ? page.querySelector('.section, #survey-section, #forms-section') : null;
+    if (firstSection) firstSection.before(banner);
+    else if (page) page.prepend(banner);
+  }
+
   if (auth.studentId) {
     loadMileage(auth.studentId);
   }
@@ -1267,7 +1292,8 @@ function escHtml(str) {
                 localStorage.setItem(AUTH_KEY, JSON.stringify({
                   name: result.name, dept: result.dept, studentId: sid,
                   role: result.role || '', isAdmin: result.isAdmin || false,
-                  isStaff: result.isStaff || false, loginTime: Date.now()
+                  isStaff: result.isStaff || false, loginTime: Date.now(),
+                  affiliation: result.affiliation || 'korea'
                 }));
                 document.getElementById('auth-overlay').classList.add('hidden');
                 showUserBar(); loadForms(); loadMileage(sid); loadSurveys(sid);
