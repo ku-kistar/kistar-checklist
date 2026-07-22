@@ -986,38 +986,43 @@ function doAuth() {
   if (birth.length !== 8 || !/^\d{8}$/.test(birth)) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
   btn.disabled = true;
   showMsg('loading','확인 중...');
-  const ctrl = new AbortController();
-  const loginTO = setTimeout(() => ctrl.abort(), 15000);
-  const url = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth);
-  fetch(url, { signal: ctrl.signal })
-    .then(r => r.json())
-    .then(result => {
-      clearTimeout(loginTO);
-      if (result.status === 'ok') {
-        showMsg('success', result.name + '님, 환영합니다!');
-        localStorage.setItem(AUTH_KEY, JSON.stringify({
-          name: result.name, dept: result.dept, studentId: sid,
-          role: result.role || '', isAdmin: result.isAdmin || false,
-          isStaff: result.isStaff || false, loginTime: Date.now(),
-          affiliation: result.affiliation || 'korea'
-        }));
-        setTimeout(() => {
-          document.getElementById('auth-overlay').classList.add('hidden');
-          showUserBar();
-          loadForms();
-          loadSurveys(sid);
-          checkNoticePopup();
-        }, 700);
-      } else {
-        showMsg('error','학번 또는 생년월일이 일치하지 않습니다.');
-        btn.disabled = false;
-      }
-    })
-    .catch(err => {
-      clearTimeout(loginTO);
-      const msg = err.name === 'AbortError' ? '서버 응답 시간이 초과되었습니다. 다시 시도해주세요.' : '오류가 발생했습니다. 다시 시도해주세요.';
-      showMsg('error', msg); btn.disabled = false;
-    });
+  const cbName = 'authCb_' + Date.now();
+  const loginTO = setTimeout(() => {
+    delete window[cbName];
+    const s = document.getElementById(cbName + '_script');
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+    showMsg('error','서버 응답 시간이 초과되었습니다. 다시 시도해주세요.');
+    btn.disabled = false;
+  }, 15000);
+  window[cbName] = function(result) {
+    clearTimeout(loginTO);
+    delete window[cbName];
+    const s = document.getElementById(cbName + '_script');
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+    if (result.status === 'ok') {
+      showMsg('success', result.name + '님, 환영합니다!');
+      localStorage.setItem(AUTH_KEY, JSON.stringify({
+        name: result.name, dept: result.dept, studentId: sid,
+        role: result.role || '', isAdmin: result.isAdmin || false,
+        isStaff: result.isStaff || false, loginTime: Date.now(),
+        affiliation: result.affiliation || 'korea'
+      }));
+      setTimeout(() => {
+        document.getElementById('auth-overlay').classList.add('hidden');
+        showUserBar();
+        loadForms();
+        loadSurveys(sid);
+        checkNoticePopup();
+      }, 700);
+    } else {
+      showMsg('error','학번 또는 생년월일이 일치하지 않습니다.');
+      btn.disabled = false;
+    }
+  };
+  const script = document.createElement('script');
+  script.id = cbName + '_script';
+  script.src = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth) + '&callback=' + cbName;
+  document.head.appendChild(script);
 }
 
 function showMsg(type, text) {
