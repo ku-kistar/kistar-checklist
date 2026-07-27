@@ -253,20 +253,15 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .mileage-section{width:100%;max-width:680px;padding:.4rem 0 0}
 .mileage-section.show{display:block}
 .mileage-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-/* ★ 40점 달성 배지 */
-.mileage-achieve-badge{background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(5,150,105,.15));border:1px solid rgba(16,185,129,.5);border-radius:10px;padding:10px 14px;display:none;align-items:center;gap:10px;margin-bottom:10px}
-.mileage-achieve-badge.show{display:flex}
-.mileage-achieve-icon{font-size:22px;flex-shrink:0}
-.mileage-achieve-text{font-size:12px;color:#5ec8a0;line-height:1.5}
-.mileage-achieve-text strong{font-size:14px;color:#10b981;display:block;margin-bottom:2px}
-/* ★ 미달성 진행바 */
-.mileage-progress-wrap{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;display:none;margin-bottom:10px}
-.mileage-progress-wrap.show{display:block}
-.mileage-progress-label{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px}
 .mileage-progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
 .mileage-progress-fill{height:100%;background:linear-gradient(90deg,#0ea5e9,#06c8d4);border-radius:99px;transition:width .5s ease}
-.mileage-progress-remain{font-size:11px;color:rgba(255,255,255,.4);margin-top:5px;text-align:right}
-.mileage-total-card{background:linear-gradient(135deg,#0b1f3a,#1a3a6e);border-radius:14px;padding:1.2rem 1.5rem;color:#fff;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+.mileage-total-card{background:linear-gradient(135deg,#0b1f3a,#1a3a6e);border-radius:14px;padding:1rem 1.3rem;color:#fff;margin-bottom:10px;display:block}
+.mtc-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.mtc-count{font-size:13px;color:rgba(255,255,255,.5);margin-left:6px}
+.mtc-badge{font-size:11px;font-weight:700;padding:4px 11px;border-radius:99px;white-space:nowrap;flex-shrink:0;background:rgba(16,185,129,.2);color:#34d399;border:1px solid rgba(16,185,129,.4)}
+.mtc-badge.pending{background:rgba(255,255,255,.08);color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.15)}
+.mtc-note{font-size:11px;color:rgba(255,255,255,.45);margin-top:7px}
+.mileage-total-card .mileage-progress-bar{margin-top:12px}
 .mileage-total-label{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px}
 .mileage-total-num{font-size:32px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#0ea5e9}
 .mileage-total-unit{font-size:13px;color:rgba(255,255,255,.5);margin-left:4px}
@@ -279,15 +274,30 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .mileage-filter{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
 .mileage-filter-btn{padding:4px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit;transition:all .15s}
 .mileage-filter-btn.active{background:rgba(14,165,233,.2);border-color:#0ea5e9;color:#0ea5e9}
-.mileage-list{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto}
-.mileage-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mileage-item-left{display:flex;flex-direction:column;gap:2px}
-.mileage-item-name{font-size:13px;color:#fff;font-weight:500}
-.mileage-item-meta{font-size:11px;color:rgba(255,255,255,.4)}
-.mileage-item-badge{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600}
-.badge-edu{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-.badge-extra{background:rgba(255,255,255,.08);color:rgba(255,255,255,.5)}
-.mileage-item-pts{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#0ea5e9;white-space:nowrap}
+.m-section-label{font-size:12px;color:rgba(255,255,255,.55);margin:0 0 8px}
+.m-section-label span{color:rgba(255,255,255,.35)}
+.mileage-list{display:block}
+.m-table{border:1px solid rgba(255,255,255,.09);border-radius:10px;overflow:hidden}
+.m-head,.m-row{display:grid;grid-template-columns:72px minmax(0,1fr) 62px 52px;gap:10px;padding:9px 12px;align-items:start}
+.m-head{background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.1)}
+.m-head span{font-size:11px;color:rgba(255,255,255,.38)}
+.m-head .m-right{text-align:right}
+.m-row{border-bottom:1px solid rgba(255,255,255,.07)}
+.m-row:last-child{border-bottom:none}
+.m-cat{font-size:10px;font-weight:600;padding:2px 0;border-radius:99px;text-align:center}
+.cat-edu{background:rgba(14,165,233,.18);color:#5ec8f0}
+.cat-extra{background:rgba(139,92,246,.2);color:#bda6f8}
+.cat-ext{background:rgba(16,185,129,.18);color:#5ec8a0}
+.cat-pen{background:rgba(200,57,43,.25);color:#ff8a80}
+.m-name-text{display:block;font-size:13px;color:#fff;font-weight:500;line-height:1.55;word-break:keep-all;overflow-wrap:break-word}
+.m-inline-date{display:none;font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+.m-date{font-size:11px;color:rgba(255,255,255,.4)}
+.m-pts{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#0ea5e9;text-align:right;white-space:nowrap}
+@media(max-width:480px){
+  .m-head,.m-row{grid-template-columns:60px minmax(0,1fr) 46px;gap:8px;padding:9px 10px}
+  .m-head .m-col-date,.m-date{display:none}
+  .m-inline-date{display:block}
+}
 .mileage-empty{text-align:center;padding:2rem;color:rgba(255,255,255,.3);font-size:13px}
 .mileage-loading{text-align:center;padding:2rem;color:rgba(255,255,255,.4);font-size:13px}
 .admin-mileage-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#10b981;font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;text-decoration:none}
@@ -740,47 +750,34 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="mileage-result-msg" id="mileageResultMsg"></div>
     </div>
 
-    <!-- ★ 40점 달성 배지 -->
-    <div class="mileage-achieve-badge" id="mileageAchieveBadge">
-      <div class="mileage-achieve-icon">🎉</div>
-      <div class="mileage-achieve-text">
-        <strong>장학금 수혜 요건 충족!</strong>
-        마일리지 40점을 달성했습니다. 나머지 요건(활동계획서·결과보고서·신청서 현장 제출)도 챙겨주세요!
-      </div>
-    </div>
-    <!-- ★ 미달성 진행바 -->
-    <div class="mileage-progress-wrap" id="mileageProgressWrap">
-      <div class="mileage-progress-label">
-        <span>마일리지 달성 현황</span>
-        <span id="mileageProgressText">0 / 40점</span>
+    <!-- ★ 요약 카드 (총점 + 달성 상태 + 진행바 통합) -->
+    <div class="mileage-total-card" id="mileageTotalCard" style="display:none">
+      <div class="mtc-row">
+        <div>
+          <div class="mileage-total-label">2026-1학기 마일리지</div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span class="mileage-total-num" id="mileageTotalNum">0</span>
+            <span class="mileage-total-unit">점</span>
+            <span class="mtc-count" id="mileageActCount">0건</span>
+          </div>
+        </div>
+        <span class="mtc-badge pending" id="mileageAchieveBadge">40점까지 진행 중</span>
       </div>
       <div class="mileage-progress-bar">
         <div class="mileage-progress-fill" id="mileageProgressFill" style="width:0%"></div>
       </div>
-      <div class="mileage-remain" id="mileageRemain" style="font-size:11px;color:rgba(255,255,255,.4);margin-top:5px;text-align:right"></div>
+      <div class="mtc-note" id="mileageProgressText">0 / 40점</div>
     </div>
 
-    <div id="mileageEduNotice" style="display:none;background:rgba(160,98,10,.12);border:1px solid rgba(160,98,10,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleEduNotice()">
-        <span style="font-size:12px;font-weight:600;color:#f0b429">⚠️ 교과 마일리지 안내</span>
-        <span style="font-size:11px;color:rgba(255,255,255,.4)" id="eduNoticeToggleBtn">접기 ▲</span>
+    <div id="mileageEduNotice" style="display:none;border:1px solid rgba(160,98,10,.3);border-radius:8px;padding:8px 12px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="toggleEduNotice()">
+        <span style="font-size:12px;color:#f0b429;flex-shrink:0">⚠️</span>
+        <span style="font-size:12px;color:rgba(255,255,255,.7);flex:1">교과 마일리지는 <strong style="color:#f0b429">선지급</strong>된 점수입니다</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.4)" id="eduNoticeToggleBtn">자세히 ▼</span>
       </div>
-      <div id="eduNoticeBody" style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;margin-top:8px">
-        교과 마일리지는 수강 신청 현황을 기준으로 <strong style="color:#f0b429">선지급</strong>된 점수입니다.<br>
+      <div id="eduNoticeBody" style="display:none;font-size:11px;color:rgba(255,255,255,.6);line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)">
+        교과 마일리지는 수강 신청 현황을 기준으로 미리 지급됩니다.<br>
         학기 종료 후 이수 미확인(중도 포기·F학점 등) 시 해당 마일리지는 <strong style="color:#ff8a80">회수</strong>될 수 있습니다.
-      </div>
-    </div>
-    <div class="mileage-total-card" id="mileageTotalCard" style="display:none">
-      <div>
-        <div class="mileage-total-label">2026-1학기 마일리지</div>
-        <div style="display:flex;align-items:baseline;gap:4px">
-          <span class="mileage-total-num" id="mileageTotalNum">0</span>
-          <span class="mileage-total-unit">점</span>
-        </div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px">참여 활동</div>
-        <div style="font-size:18px;font-weight:700;color:rgba(255,255,255,.8)" id="mileageActCount">0건</div>
       </div>
     </div>
     <div class="mileage-penalty" id="mileagePenalty"></div>
@@ -794,7 +791,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <!-- ★ 외부활동 신청 현황 -->
     <div class="ext-section" id="extSection" style="display:none">
       <div class="ext-section-label" onclick="toggleExtSection()">
-        📋 외부활동 마일리지 신청 현황
+        📋 외부활동 신청 처리 현황
         <span class="ext-toggle-btn" id="extToggleBtn">접기 ▲</span>
       </div>
       <div id="extList">
@@ -802,6 +799,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       </div>
     </div>
 
+    <p class="m-section-label" id="mileageListLabel" style="display:none">적립 내역 <span id="mileageListCount"></span></p>
     <div class="mileage-list" id="mileageList">
       <div class="mileage-loading" id="mileageLoading" style="display:none">마일리지 조회 중...</div>
       <div class="mileage-empty" id="mileageEmpty" style="display:none">참여 내역이 없습니다.</div>
@@ -1438,7 +1436,7 @@ function loadMileage(studentId) {
 }
 
 function renderMileage(data) {
-  document.getElementById('mileageTotalCard').style.display = 'flex';
+  document.getElementById('mileageTotalCard').style.display = 'block';
   document.getElementById('mileageTotalNum').textContent = data.totalPoints;
   const normalRecs = data.records.filter(r => r['상태'] === '정상');
   document.getElementById('mileageActCount').textContent = normalRecs.length + '건';
@@ -1457,17 +1455,17 @@ function renderMileage(data) {
     .filter(r => (r['상태'] === '정상' || r['상태'] === '패널티') && normSemCheck(r['학기']) === '2026-1')
     .reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
   const achieveBadge = document.getElementById('mileageAchieveBadge');
-  const progressWrap = document.getElementById('mileageProgressWrap');
+  const pct = Math.min(pts261 / 40 * 100, 100);
+  document.getElementById('mileageProgressFill').style.width = pct + '%';
   if (pts261 >= 40) {
-    achieveBadge.classList.add('show');
-    progressWrap.classList.remove('show');
+    achieveBadge.classList.remove('pending');
+    achieveBadge.textContent = '🎉 장학금 요건 충족';
+    document.getElementById('mileageProgressText').textContent =
+      '40점 기준 달성 · 활동계획서·결과보고서·신청서 현장 제출도 챙겨주세요';
   } else {
-    achieveBadge.classList.remove('show');
-    progressWrap.classList.add('show');
-    const pct = Math.min(pts261 / 40 * 100, 100);
-    document.getElementById('mileageProgressFill').style.width = pct + '%';
+    achieveBadge.classList.add('pending');
+    achieveBadge.textContent = '40점까지 ' + (40 - pts261) + '점';
     document.getElementById('mileageProgressText').textContent = pts261 + ' / 40점 (2026-1학기)';
-    document.getElementById('mileageRemain').textContent = '장학금까지 ' + (40 - pts261) + '점 남음';
   }
 
   // 교과 항목 있으면 안내 박스 표시
@@ -1484,7 +1482,7 @@ function toggleEduNotice() {
   if (!body || !btn) return;
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '펼치기 ▼' : '접기 ▲';
+  btn.textContent = isOpen ? '자세히 ▼' : '접기 ▲';
 }
 
 function filterMileage(semester, btn) {
@@ -1499,61 +1497,97 @@ function filterMileage(semester, btn) {
   if (!mileageData) return;
 
   const list = document.getElementById('mileageList');
-  list.querySelectorAll('.mileage-item').forEach(el => el.remove());
+  list.querySelectorAll('.m-table').forEach(el => el.remove());
 
   const allNormal = mileageData.records.filter(r => r['상태'] === '정상' || r['상태'] === '패널티');
   const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
   let recs = semester === 'all' ? allNormal : allNormal.filter(r => normSem(r['학기']) === semester);
 
-  // 교과 먼저, 비교과 나중, 패널티 맨 마지막 / 각 그룹 내 날짜 오름차순
+  // 교과 → 비교과 → 외부활동 → 패널티 / 각 그룹 내 날짜 오름차순
   recs.sort((a, b) => {
-    const catOrder = {'교과':0,'비교과':1,'패널티':2};
-    const catA = catOrder[a['카테고리']] ?? 1;
-    const catB = catOrder[b['카테고리']] ?? 1;
-    if (catA !== catB) return catA - catB;
+    const catOrder = {'교과':0,'비교과':1,'외부활동':2,'패널티':3};
+    const ca = a['상태'] === '패널티' ? 3 : (catOrder[a['카테고리']] ?? 1);
+    const cb = b['상태'] === '패널티' ? 3 : (catOrder[b['카테고리']] ?? 1);
+    if (ca !== cb) return ca - cb;
     return (a['날짜'] || '').localeCompare(b['날짜'] || '');
   });
 
   const emptyEl = document.getElementById('mileageEmpty');
-  if (recs.length === 0) { emptyEl.style.display = 'block'; return; }
+  const labelEl = document.getElementById('mileageListLabel');
+  if (recs.length === 0) {
+    emptyEl.style.display = 'block';
+    if (labelEl) labelEl.style.display = 'none';
+    return;
+  }
   emptyEl.style.display = 'none';
+
+  const totalPts = recs.reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
+  if (labelEl) {
+    labelEl.style.display = 'block';
+    document.getElementById('mileageListCount').textContent = recs.length + '건 · ' + totalPts + '점';
+  }
+
+  const CAT_CLS = {'교과':'cat-edu','비교과':'cat-extra','외부활동':'cat-ext'};
+  const table = document.createElement('div');
+  table.className = 'm-table';
+  table.innerHTML =
+    '<div class="m-head">' +
+      '<span>구분</span><span>프로그램명</span>' +
+      '<span class="m-col-date">적립일</span><span class="m-right">마일리지</span>' +
+    '</div>';
 
   recs.forEach(r => {
     const isPenalty = r['상태'] === '패널티';
-    const isEdu = r['카테고리'] === '교과';
-    const progName = r['프로그램명'] || '';
-    const date = r['날짜'] || '';
+    const cat = isPenalty ? '패널티' : (r['카테고리'] || '비교과');
+    const catCls = isPenalty ? 'cat-pen' : (CAT_CLS[r['카테고리']] || 'cat-extra');
+    const date = (r['날짜'] || '').slice(5);   // MM-DD
     const pts = parseInt(r['점수']) || 0;
-    const item = document.createElement('div');
-    item.className = 'mileage-item';
-    if (isPenalty) item.style.cssText = 'border-color:rgba(200,57,43,.3);background:rgba(200,57,43,.06)';
-    item.innerHTML =
-      '<div class="mileage-item-left">' +
-        '<span class="mileage-item-name">' + progName + '</span>' +
-        (date ? '<span style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px;display:block">' + date + '</span>' : '') +
-        '<div style="display:flex;gap:6px;align-items:center;margin-top:3px">' +
-          '<span class="mileage-item-badge ' + (isPenalty ? '' : isEdu ? 'badge-edu' : 'badge-extra') + '"'
-            + (isPenalty ? ' style="background:rgba(200,57,43,.25);color:#ff8a80"' : '') + '>'
-            + (r['카테고리'] || '') + '</span>' +
-          '<span class="mileage-item-meta">' + normSem(r['학기'] || '') + '</span>' +
-        '</div>' +
-      '</div>' +
-      '<span class="mileage-item-pts" style="' + (isPenalty ? 'color:#ff8a80' : '') + '">'
-        + (isPenalty ? '' : '+') + pts + '점</span>';
-    list.appendChild(item);
+    const row = document.createElement('div');
+    row.className = 'm-row';
+    row.innerHTML =
+      '<span class="m-cat ' + catCls + '">' + escHtml(cat) + '</span>' +
+      '<span class="m-name">' +
+        '<span class="m-name-text">' + escHtml(r['프로그램명'] || '') + '</span>' +
+        (date ? '<span class="m-inline-date">' + escHtml(date) + '</span>' : '') +
+      '</span>' +
+      '<span class="m-date">' + escHtml(date) + '</span>' +
+      '<span class="m-pts"' + (isPenalty ? ' style="color:#ff8a80"' : '') + '>' +
+        (isPenalty ? '' : '+') + pts + '</span>';
+    table.appendChild(row);
+  });
+
+  list.appendChild(table);
+  applyNameWrap();
+}
+
+// ── 프로그램명 줄바꿈 ──
+// 한 줄에 들어가면 그대로 두고, 두 줄 이상일 때만 괄호 앞에서 끊는다.
+function applyNameWrap() {
+  document.querySelectorAll('.m-name-text').forEach(el => {
+    if (el.dataset.raw === undefined) el.dataset.raw = el.innerHTML;
+    el.innerHTML = el.dataset.raw;
+    const lh = parseFloat(getComputedStyle(el).lineHeight) || 20;
+    if (el.scrollHeight > lh * 1.4) {
+      el.innerHTML = el.dataset.raw.replace(/\s*(\()/, '<br>$1');
+    }
   });
 }
 
+let _nameWrapTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_nameWrapTimer);
+  _nameWrapTimer = setTimeout(applyNameWrap, 150);
+});
+
 function renderMileageEmpty() {
-  document.getElementById('mileageTotalCard').style.display = 'flex';
+  document.getElementById('mileageTotalCard').style.display = 'block';
   document.getElementById('mileageTotalNum').textContent = '0';
   document.getElementById('mileageActCount').textContent = '0건';
   document.getElementById('mileageEmpty').style.display = 'block';
-  // 0점 진행바 표시
-  document.getElementById('mileageProgressWrap').classList.add('show');
   document.getElementById('mileageProgressFill').style.width = '0%';
   document.getElementById('mileageProgressText').textContent = '0 / 40점';
-  document.getElementById('mileageRemain').textContent = '장학금까지 40점 남음';
+  const b = document.getElementById('mileageAchieveBadge');
+  if (b) { b.classList.add('pending'); b.textContent = '40점까지 40점'; }
 }
 
 // ── 외부활동 신청 현황 ──
@@ -1605,7 +1639,6 @@ function renderExtMileage(records) {
   visible.forEach(r => {
     const st = r['판정상태'] || '';
     const map = statusMap[st] || statusMap['미판정'];
-    const score = r['판정점수'] ? parseInt(r['판정점수']) : null;
     const studentMsg = r['학생안내메모'] || '';
     const progName = r['프로그램명'] || '';
     const date = (r['제출일시'] || '').slice(0,10);
@@ -1615,10 +1648,7 @@ function renderExtMileage(records) {
     div.innerHTML =
       '<div class="ext-item-top">' +
         '<div class="ext-item-name">' + progName + '</div>' +
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">' +
-          '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
-          (score && (st==='확정'||st==='조정') ? '<span class="ext-item-pts">+' + score + '점</span>' : '') +
-        '</div>' +
+        '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
       '</div>' +
       (studentMsg ? '<div class="ext-item-msg">' + studentMsg + '</div>' : '') +
       (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
@@ -1630,9 +1660,9 @@ function renderExtMileage(records) {
 
 function renderExtEmpty() {
   const listEl = document.getElementById('extList');
-  if(listEl) listEl.innerHTML = '<div class="ext-empty">외부활동 신청 내역이 없습니다.</div>';
+  if(listEl) listEl.innerHTML = '';
   const section = document.getElementById('extSection');
-  if(section) section.style.display = 'block';
+  if(section) section.style.display = 'none';   // 신청 내역이 없으면 섹션 자체를 숨김
 }
 
 function toggleExtSection() {
