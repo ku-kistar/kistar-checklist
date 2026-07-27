@@ -1372,7 +1372,8 @@ function escHtml(str) {
                   affiliation: result.affiliation || 'korea'
                 }));
                 document.getElementById('auth-overlay').classList.add('hidden');
-                showUserBar(); loadForms(); loadMileage(sid); loadExtMileage(sid); loadSurveys(sid);
+                // showUserBar() 내부에서 loadMileage/loadExtMileage를 호출하므로 여기서 중복 호출하지 않음 (JSONP 경합 방지)
+                showUserBar(); loadForms(); loadSurveys(sid);
                 checkNoticePopup();
               }
             }).catch(() => {});
@@ -1388,7 +1389,8 @@ function escHtml(str) {
     showUserBar();
     loadForms();
     checkNoticePopup();
-    if (auth.studentId) { loadMileage(auth.studentId); loadExtMileage(auth.studentId); loadSurveys(auth.studentId); }
+    // loadMileage/loadExtMileage는 위 showUserBar()에서 이미 호출됨 (JSONP 경합 방지)
+    if (auth.studentId) { loadSurveys(auth.studentId); }
   }
 })();
 
