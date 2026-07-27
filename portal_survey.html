@@ -310,6 +310,32 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
   .forms-section{padding:1.2rem 1.2rem 0}
   .notice-timing-grid{grid-template-columns:1fr}
 }
+
+/* ── 외부활동 신청 현황 섹션 ── */
+.ext-section{margin-bottom:14px}
+.ext-section-label{font-size:11px;font-weight:700;color:rgba(74,222,128,.65);letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;user-select:none}
+.ext-section-label::after{content:'';flex:1;height:1px;background:rgba(74,222,128,.15)}
+.ext-toggle-btn{font-size:10px;color:rgba(74,222,128,.5);background:rgba(74,222,128,.1);border-radius:4px;padding:2px 7px;white-space:nowrap}
+.ext-list{display:flex;flex-direction:column;gap:6px}
+.ext-item{border-radius:10px;padding:10px 13px;border:1px solid}
+.ext-item.status-ok{background:rgba(16,185,129,.06);border-color:rgba(16,185,129,.25)}
+.ext-item.status-adj{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.25)}
+.ext-item.status-pend{background:rgba(14,165,233,.06);border-color:rgba(14,165,233,.2)}
+.ext-item.status-rej{background:rgba(200,57,43,.06);border-color:rgba(200,57,43,.25)}
+.ext-item.status-none{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+.ext-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
+.ext-item-name{font-size:13px;font-weight:500;color:#fff;line-height:1.35;flex:1}
+.ext-status-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.ext-status-ok{background:rgba(16,185,129,.2);color:#34d399}
+.ext-status-adj{background:rgba(245,158,11,.2);color:#fbbf24}
+.ext-status-pend{background:rgba(14,165,233,.2);color:#38bdf8}
+.ext-status-rej{background:rgba(200,57,43,.2);color:#ff8a80}
+.ext-status-none{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4)}
+.ext-item-pts{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#0ea5e9;white-space:nowrap;flex-shrink:0}
+.ext-item-msg{font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.55;margin-top:3px;padding-top:5px;border-top:1px solid rgba(255,255,255,.06)}
+.ext-item-date{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px}
+.ext-loading{text-align:center;padding:1.5rem;color:rgba(255,255,255,.3);font-size:12px}
+.ext-empty{text-align:center;padding:1.5rem;color:rgba(255,255,255,.25);font-size:12px}
 </style>
 </head>
 <body>
@@ -765,6 +791,17 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div class="mileage-filter" id="mileageFilter" style="display:none">
       <button class="mileage-filter-btn active" data-sem="2026-1" onclick="filterMileage('2026-1', this)">2026-1학기</button>
     </div>
+    <!-- ★ 외부활동 신청 현황 -->
+    <div class="ext-section" id="extSection" style="display:none">
+      <div class="ext-section-label" onclick="toggleExtSection()">
+        📋 외부활동 마일리지 신청 현황
+        <span class="ext-toggle-btn" id="extToggleBtn">접기 ▲</span>
+      </div>
+      <div id="extList">
+        <div class="ext-loading" id="extLoading">조회 중...</div>
+      </div>
+    </div>
+
     <div class="mileage-list" id="mileageList">
       <div class="mileage-loading" id="mileageLoading" style="display:none">마일리지 조회 중...</div>
       <div class="mileage-empty" id="mileageEmpty" style="display:none">참여 내역이 없습니다.</div>
@@ -1116,7 +1153,7 @@ function showUserBar() {
 
 
   if (auth.studentId) {
-    loadMileage(auth.studentId);
+    loadMileage(auth.studentId); loadExtMileage(auth.studentId);
   }
 }
 
@@ -1335,7 +1372,7 @@ function escHtml(str) {
                   affiliation: result.affiliation || 'korea'
                 }));
                 document.getElementById('auth-overlay').classList.add('hidden');
-                showUserBar(); loadForms(); loadMileage(sid); loadSurveys(sid);
+                showUserBar(); loadForms(); loadMileage(sid); loadExtMileage(sid); loadSurveys(sid);
                 checkNoticePopup();
               }
             }).catch(() => {});
@@ -1351,7 +1388,7 @@ function escHtml(str) {
     showUserBar();
     loadForms();
     checkNoticePopup();
-    if (auth.studentId) { loadMileage(auth.studentId); loadSurveys(auth.studentId); }
+    if (auth.studentId) { loadMileage(auth.studentId); loadExtMileage(auth.studentId); loadSurveys(auth.studentId); }
   }
 })();
 
@@ -1370,6 +1407,95 @@ window.addEventListener('pageshow', function(e) {
 
 let mileageData = null;
 let currentFilter = 'all';
+
+
+// ── 외부활동 신청 현황 ──
+const EXT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec';
+
+function loadExtMileage(studentId) {
+  const section = document.getElementById('extSection');
+  const loadingEl = document.getElementById('extLoading');
+  if(loadingEl) loadingEl.style.display = 'block';
+
+  const cbName = '_extCb_' + Date.now();
+  window[cbName] = function(res) {
+    delete window[cbName];
+    if(res.status !== 'ok') { renderExtEmpty(); return; }
+    const mine = (res.records || []).filter(r => String(r['학번']).trim() === String(studentId).trim());
+    renderExtMileage(mine);
+  };
+  const s = document.createElement('script');
+  s.onerror = () => { delete window[cbName]; renderExtEmpty(); };
+  s.src = EXT_GAS_URL + '?action=getList&callback=' + cbName;
+  document.body.appendChild(s);
+}
+
+function renderExtMileage(records) {
+  const section = document.getElementById('extSection');
+  const listEl = document.getElementById('extList');
+  if(!records || records.length === 0) { renderExtEmpty(); return; }
+
+  // 판정상태 매핑
+  const statusMap = {
+    '확정':   { cls:'status-ok',   badge:'ext-status-ok',   label:'✅ 인정' },
+    '조정':   { cls:'status-adj',  badge:'ext-status-adj',  label:'🔶 점수조정 인정' },
+    '보류':   { cls:'status-pend', badge:'ext-status-pend', label:'⚠️ 검토 중' },
+    '반려':   { cls:'status-rej',  badge:'ext-status-rej',  label:'❌ 반려' },
+    '제외':   { cls:'status-none', badge:'ext-status-none', label:'— 제외' },
+    '미판정': { cls:'status-pend', badge:'ext-status-pend', label:'🕐 검토 중' },
+    '':       { cls:'status-none', badge:'ext-status-none', label:'🕐 검토 중' },
+  };
+
+  // 제외 건 제외하고 표시
+  const visible = records.filter(r => r['판정상태'] !== '제외');
+  if(!visible.length) { renderExtEmpty(); return; }
+
+  // 정렬: 반려 > 보류/미판정 > 조정 > 확정
+  const order = {'반려':0,'보류':1,'미판정':1,'':1,'조정':2,'확정':3,'제외':4};
+  visible.sort((a,b) => (order[a['판정상태']]??1) - (order[b['판정상태']]??1));
+
+  listEl.innerHTML = '';
+  visible.forEach(r => {
+    const st = r['판정상태'] || '';
+    const map = statusMap[st] || statusMap['미판정'];
+    const score = r['판정점수'] ? parseInt(r['판정점수']) : null;
+    const studentMsg = r['학생안내메모'] || '';
+    const progName = r['프로그램명'] || '';
+    const date = (r['제출일시'] || '').slice(0,10);
+
+    const div = document.createElement('div');
+    div.className = 'ext-item ' + map.cls;
+    div.innerHTML =
+      '<div class="ext-item-top">' +
+        '<div class="ext-item-name">' + progName + '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">' +
+          '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
+          (score && (st==='확정'||st==='조정') ? '<span class="ext-item-pts">+' + score + '점</span>' : '') +
+        '</div>' +
+      '</div>' +
+      (studentMsg ? '<div class="ext-item-msg">' + studentMsg + '</div>' : '') +
+      (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
+    listEl.appendChild(div);
+  });
+
+  if(section) section.style.display = 'block';
+}
+
+function renderExtEmpty() {
+  const listEl = document.getElementById('extList');
+  if(listEl) listEl.innerHTML = '<div class="ext-empty">외부활동 신청 내역이 없습니다.</div>';
+  const section = document.getElementById('extSection');
+  if(section) section.style.display = 'block';
+}
+
+function toggleExtSection() {
+  const listEl = document.getElementById('extList');
+  const btn = document.getElementById('extToggleBtn');
+  if(!listEl || !btn) return;
+  const isOpen = listEl.style.display !== 'none';
+  listEl.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '펼치기 ▼' : '접기 ▲';
+}
 
 function loadMileage(studentId) {
   const section = document.getElementById('mileage-section');
