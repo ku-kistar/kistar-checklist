@@ -1409,94 +1409,6 @@ let mileageData = null;
 let currentFilter = 'all';
 
 
-// ── 외부활동 신청 현황 ──
-const EXT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec';
-
-function loadExtMileage(studentId) {
-  const section = document.getElementById('extSection');
-  const loadingEl = document.getElementById('extLoading');
-  if(loadingEl) loadingEl.style.display = 'block';
-
-  const cbName = '_extCb_' + Date.now();
-  window[cbName] = function(res) {
-    delete window[cbName];
-    if(res.status !== 'ok') { renderExtEmpty(); return; }
-    const mine = (res.records || []).filter(r => String(r['학번']).trim() === String(studentId).trim());
-    renderExtMileage(mine);
-  };
-  const s = document.createElement('script');
-  s.onerror = () => { delete window[cbName]; renderExtEmpty(); };
-  s.src = EXT_GAS_URL + '?action=getList&callback=' + cbName;
-  document.body.appendChild(s);
-}
-
-function renderExtMileage(records) {
-  const section = document.getElementById('extSection');
-  const listEl = document.getElementById('extList');
-  if(!records || records.length === 0) { renderExtEmpty(); return; }
-
-  // 판정상태 매핑
-  const statusMap = {
-    '확정':   { cls:'status-ok',   badge:'ext-status-ok',   label:'✅ 인정' },
-    '조정':   { cls:'status-adj',  badge:'ext-status-adj',  label:'🔶 점수조정 인정' },
-    '보류':   { cls:'status-pend', badge:'ext-status-pend', label:'⚠️ 검토 중' },
-    '반려':   { cls:'status-rej',  badge:'ext-status-rej',  label:'❌ 반려' },
-    '제외':   { cls:'status-none', badge:'ext-status-none', label:'— 제외' },
-    '미판정': { cls:'status-pend', badge:'ext-status-pend', label:'🕐 검토 중' },
-    '':       { cls:'status-none', badge:'ext-status-none', label:'🕐 검토 중' },
-  };
-
-  // 제외 건 제외하고 표시
-  const visible = records.filter(r => r['판정상태'] !== '제외');
-  if(!visible.length) { renderExtEmpty(); return; }
-
-  // 정렬: 반려 > 보류/미판정 > 조정 > 확정
-  const order = {'반려':0,'보류':1,'미판정':1,'':1,'조정':2,'확정':3,'제외':4};
-  visible.sort((a,b) => (order[a['판정상태']]??1) - (order[b['판정상태']]??1));
-
-  listEl.innerHTML = '';
-  visible.forEach(r => {
-    const st = r['판정상태'] || '';
-    const map = statusMap[st] || statusMap['미판정'];
-    const score = r['판정점수'] ? parseInt(r['판정점수']) : null;
-    const studentMsg = r['학생안내메모'] || '';
-    const progName = r['프로그램명'] || '';
-    const date = (r['제출일시'] || '').slice(0,10);
-
-    const div = document.createElement('div');
-    div.className = 'ext-item ' + map.cls;
-    div.innerHTML =
-      '<div class="ext-item-top">' +
-        '<div class="ext-item-name">' + progName + '</div>' +
-        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">' +
-          '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
-          (score && (st==='확정'||st==='조정') ? '<span class="ext-item-pts">+' + score + '점</span>' : '') +
-        '</div>' +
-      '</div>' +
-      (studentMsg ? '<div class="ext-item-msg">' + studentMsg + '</div>' : '') +
-      (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
-    listEl.appendChild(div);
-  });
-
-  if(section) section.style.display = 'block';
-}
-
-function renderExtEmpty() {
-  const listEl = document.getElementById('extList');
-  if(listEl) listEl.innerHTML = '<div class="ext-empty">외부활동 신청 내역이 없습니다.</div>';
-  const section = document.getElementById('extSection');
-  if(section) section.style.display = 'block';
-}
-
-function toggleExtSection() {
-  const listEl = document.getElementById('extList');
-  const btn = document.getElementById('extToggleBtn');
-  if(!listEl || !btn) return;
-  const isOpen = listEl.style.display !== 'none';
-  listEl.style.display = isOpen ? 'none' : 'block';
-  btn.textContent = isOpen ? '펼치기 ▼' : '접기 ▲';
-}
-
 function loadMileage(studentId) {
   const section = document.getElementById('mileage-section');
   if (!section) return;
@@ -1641,6 +1553,95 @@ function renderMileageEmpty() {
   document.getElementById('mileageProgressText').textContent = '0 / 40점';
   document.getElementById('mileageRemain').textContent = '장학금까지 40점 남음';
 }
+
+// ── 외부활동 신청 현황 ──
+var EXT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec';
+
+function loadExtMileage(studentId) {
+  var section = document.getElementById('extSection');
+  const loadingEl = document.getElementById('extLoading');
+  if(loadingEl) loadingEl.style.display = 'block';
+
+  const cbName = '_extCb_' + Date.now();
+  window[cbName] = function(res) {
+    delete window[cbName];
+    if(res.status !== 'ok') { renderExtEmpty(); return; }
+    const mine = (res.records || []).filter(r => String(r['학번']).trim() === String(studentId).trim());
+    renderExtMileage(mine);
+  };
+  const s = document.createElement('script');
+  s.onerror = () => { delete window[cbName]; renderExtEmpty(); };
+  s.src = EXT_GAS_URL + '?action=getList&callback=' + cbName;
+  document.body.appendChild(s);
+}
+
+function renderExtMileage(records) {
+  const section = document.getElementById('extSection');
+  const listEl = document.getElementById('extList');
+  if(!records || records.length === 0) { renderExtEmpty(); return; }
+
+  // 판정상태 매핑
+  const statusMap = {
+    '확정':   { cls:'status-ok',   badge:'ext-status-ok',   label:'✅ 인정' },
+    '조정':   { cls:'status-adj',  badge:'ext-status-adj',  label:'🔶 점수조정 인정' },
+    '보류':   { cls:'status-pend', badge:'ext-status-pend', label:'⚠️ 검토 중' },
+    '반려':   { cls:'status-rej',  badge:'ext-status-rej',  label:'❌ 반려' },
+    '제외':   { cls:'status-none', badge:'ext-status-none', label:'— 제외' },
+    '미판정': { cls:'status-pend', badge:'ext-status-pend', label:'🕐 검토 중' },
+    '':       { cls:'status-none', badge:'ext-status-none', label:'🕐 검토 중' },
+  };
+
+  // 제외 건 제외하고 표시
+  const visible = records.filter(r => r['판정상태'] !== '제외');
+  if(!visible.length) { renderExtEmpty(); return; }
+
+  // 정렬: 반려 > 보류/미판정 > 조정 > 확정
+  const order = {'반려':0,'보류':1,'미판정':1,'':1,'조정':2,'확정':3,'제외':4};
+  visible.sort((a,b) => (order[a['판정상태']]??1) - (order[b['판정상태']]??1));
+
+  listEl.innerHTML = '';
+  visible.forEach(r => {
+    const st = r['판정상태'] || '';
+    const map = statusMap[st] || statusMap['미판정'];
+    const score = r['판정점수'] ? parseInt(r['판정점수']) : null;
+    const studentMsg = r['학생안내메모'] || '';
+    const progName = r['프로그램명'] || '';
+    const date = (r['제출일시'] || '').slice(0,10);
+
+    const div = document.createElement('div');
+    div.className = 'ext-item ' + map.cls;
+    div.innerHTML =
+      '<div class="ext-item-top">' +
+        '<div class="ext-item-name">' + progName + '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">' +
+          '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
+          (score && (st==='확정'||st==='조정') ? '<span class="ext-item-pts">+' + score + '점</span>' : '') +
+        '</div>' +
+      '</div>' +
+      (studentMsg ? '<div class="ext-item-msg">' + studentMsg + '</div>' : '') +
+      (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
+    listEl.appendChild(div);
+  });
+
+  if(section) section.style.display = 'block';
+}
+
+function renderExtEmpty() {
+  const listEl = document.getElementById('extList');
+  if(listEl) listEl.innerHTML = '<div class="ext-empty">외부활동 신청 내역이 없습니다.</div>';
+  const section = document.getElementById('extSection');
+  if(section) section.style.display = 'block';
+}
+
+function toggleExtSection() {
+  const listEl = document.getElementById('extList');
+  const btn = document.getElementById('extToggleBtn');
+  if(!listEl || !btn) return;
+  const isOpen = listEl.style.display !== 'none';
+  listEl.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '펼치기 ▼' : '접기 ▲';
+}
+
 
 function toggleAdminMileage() {
   document.getElementById('adminMileagePanel').classList.toggle('show');
