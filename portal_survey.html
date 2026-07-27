@@ -346,6 +346,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .ext-item-date{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px}
 .ext-loading{text-align:center;padding:1.5rem;color:rgba(255,255,255,.3);font-size:12px}
 .ext-empty{text-align:center;padding:1.5rem;color:rgba(255,255,255,.25);font-size:12px}
+.ext-error{text-align:center;padding:1.2rem;color:#ff8a80;font-size:12px;background:rgba(200,57,43,.08);border:1px solid rgba(200,57,43,.25);border-radius:10px}
 </style>
 </head>
 <body>
@@ -839,6 +840,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 <script>
 const EXEC_URL   = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec'; // URL2 통일 v14
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const EXT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec'; // 폼 응답 시트 GAS
+// ⚠ URL 상수는 반드시 이 위치에 둘 것. 초기화 IIFE가 스크립트 중간에서 동기 실행되므로,
+//   그보다 아래에서 선언하면 호출 시점에 undefined가 되어 조회가 조용히 실패한다.
 const AUTH_KEY   = 'kistar_auth_url2';
 const EXPIRE_MS  = 8 * 60 * 60 * 1000;
 const NOTICE_DISMISS_KEY = 'kistar_notice_2026_1_v1';
@@ -1591,7 +1595,6 @@ function renderMileageEmpty() {
 }
 
 // ── 외부활동 신청 현황 ──
-var EXT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec';
 
 function loadExtMileage(studentId) {
   var section = document.getElementById('extSection');
@@ -1601,12 +1604,18 @@ function loadExtMileage(studentId) {
   const cbName = '_extCb_' + Date.now();
   window[cbName] = function(res) {
     delete window[cbName];
-    if(res.status !== 'ok') { renderExtEmpty(); return; }
+    if(!res || res.status !== 'ok') { renderExtError(); return; }
     const mine = (res.records || []).filter(r => String(r['학번']).trim() === String(studentId).trim());
     renderExtMileage(mine);
   };
+  const to = setTimeout(() => {
+    if(window[cbName]) { delete window[cbName]; renderExtError(); }
+  }, 15000);
+  const origCb = window[cbName];
+  window[cbName] = function(res) { clearTimeout(to); origCb(res); };
+
   const s = document.createElement('script');
-  s.onerror = () => { delete window[cbName]; renderExtEmpty(); };
+  s.onerror = () => { clearTimeout(to); delete window[cbName]; renderExtError(); };
   s.src = EXT_GAS_URL + '?action=getList&callback=' + cbName;
   document.body.appendChild(s);
 }
@@ -1614,6 +1623,8 @@ function loadExtMileage(studentId) {
 function renderExtMileage(records) {
   const section = document.getElementById('extSection');
   const listEl = document.getElementById('extList');
+  const ld = document.getElementById('extLoading');
+  if(ld) ld.style.display = 'none';
   if(!records || records.length === 0) { renderExtEmpty(); return; }
 
   // 판정상태 매핑
@@ -1659,10 +1670,19 @@ function renderExtMileage(records) {
 }
 
 function renderExtEmpty() {
+  // 신청 내역이 정말 없는 경우에만 호출 — 섹션 자체를 숨긴다
   const listEl = document.getElementById('extList');
   if(listEl) listEl.innerHTML = '';
   const section = document.getElementById('extSection');
-  if(section) section.style.display = 'none';   // 신청 내역이 없으면 섹션 자체를 숨김
+  if(section) section.style.display = 'none';
+}
+
+function renderExtError() {
+  // 조회 실패 — 절대 숨기지 않는다. 숨기면 학생에게 신청이 사라진 것처럼 보인다.
+  const listEl = document.getElementById('extList');
+  if(listEl) listEl.innerHTML = '<div class="ext-error">⚠ 신청 현황을 불러오지 못했습니다. 새로고침해 주세요.</div>';
+  const section = document.getElementById('extSection');
+  if(section) section.style.display = 'block';
 }
 
 function toggleExtSection() {
