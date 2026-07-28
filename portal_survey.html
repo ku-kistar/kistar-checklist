@@ -1516,13 +1516,24 @@ function filterMileage(semester, btn) {
   const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
   let recs = semester === 'all' ? allNormal : allNormal.filter(r => normSem(r['학기']) === semester);
 
-  // 교과 → 비교과 → 외부활동 → 패널티 / 각 그룹 내 날짜 오름차순
+  // 교과 → 비교과 → 외부활동 → 패널티
+  // 각 그룹 내: 날짜 오름차순 → 과목명 → 이수 먼저, 출석 나중
+  // (교과는 이수·출석 날짜가 같으므로 과목명 기준으로 짝지어 보이게 함)
+  const baseName_ = r => String(r['프로그램명'] || '')
+    .replace(/\s*\(\s*출석\s*\)\s*$/, '')      // "과목 (출석)"      → "과목"
+    .replace(/\s*,\s*출석\s*\)\s*$/, ')')       // "과목 (26-여름, 출석)" → "과목 (26-여름)"
+    .trim();
+  const isAttend_ = r => /출석\s*\)\s*$/.test(String(r['프로그램명'] || ''));
   recs.sort((a, b) => {
     const catOrder = {'교과':0,'비교과':1,'외부활동':2,'패널티':3};
     const ca = a['상태'] === '패널티' ? 3 : (catOrder[a['카테고리']] ?? 1);
     const cb = b['상태'] === '패널티' ? 3 : (catOrder[b['카테고리']] ?? 1);
     if (ca !== cb) return ca - cb;
-    return (a['날짜'] || '').localeCompare(b['날짜'] || '');
+    const da = (a['날짜'] || ''), db = (b['날짜'] || '');
+    if (da !== db) return da.localeCompare(db);
+    const na = baseName_(a), nb = baseName_(b);
+    if (na !== nb) return na.localeCompare(nb, 'ko');
+    return (isAttend_(a) ? 1 : 0) - (isAttend_(b) ? 1 : 0);
   });
 
   const emptyEl = document.getElementById('mileageEmpty');
