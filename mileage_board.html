@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-1학기 마일리지 현황 · 차세대반도체 융합전공</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0b1f3a;
+  --blue:#0ea5e9;
+  --red:#c8392b;
+  --line:rgba(255,255,255,.10);
+  --line2:rgba(255,255,255,.06);
+  --ink:rgba(255,255,255,.92);
+  --ink2:rgba(255,255,255,.55);
+  --ink3:rgba(255,255,255,.32);
+  --surf:rgba(255,255,255,.03);
+  --surf2:rgba(255,255,255,.06);
+  --cell:rgba(14,165,233,.14);
+  --cell-hi:rgba(14,165,233,.26);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--navy);color:var(--ink);min-height:100vh;word-break:keep-all;
+  -webkit-text-size-adjust:100%;
+}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ── 헤더 ─────────────────────────────────────── */
+.top{padding:22px 16px 0;max-width:1400px;margin:0 auto}
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(14,165,233,.7);margin-bottom:6px;
+}
+h1{font-size:19px;font-weight:700;line-height:1.35}
+h1 .sub{display:block;font-size:13px;font-weight:400;color:var(--ink2);margin-top:5px}
+
+/* ── 요약 ─────────────────────────────────────── */
+.stats{display:flex;gap:9px;margin:16px 0 12px;flex-wrap:wrap;align-items:center}
+.stat{
+  background:var(--surf);border:1px solid var(--line);border-radius:10px;
+  padding:9px 14px;display:flex;align-items:baseline;gap:8px;
+}
+.stat b{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600}
+.stat span{font-size:12px;color:var(--ink2)}
+.stat.goal b{color:var(--blue)}
+.privacy{
+  margin:-4px 0 12px;font-size:12px;line-height:1.6;color:var(--ink2);
+}
+.privacy b{color:var(--ink);font-weight:500}
+.reload{
+  display:inline-flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid var(--line);border-radius:99px;
+  color:var(--ink2);font-family:inherit;font-size:12px;padding:8px 14px;
+  min-height:38px;cursor:pointer;transition:border-color .15s,color .15s;
+}
+.reload:hover{border-color:rgba(14,165,233,.5);color:var(--blue)}
+/* 내 마일리지 — 여기서 나가는 유일한 통로라 색을 준다 */
+.reload.go{
+  margin-left:auto;text-decoration:none;
+  border-color:rgba(14,165,233,.4);color:var(--blue);background:rgba(14,165,233,.08);
+}
+.reload.go:hover{background:rgba(14,165,233,.16)}
+.reload:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.reload.busy{opacity:.5;pointer-events:none}
+
+/* ── 카테고리 띠 ───────────────────────────────── */
+/* ── 학년별 상위 5명 ─────────────────────────── */
+.rank{border:1px solid var(--line);border-radius:11px;background:var(--surf);margin:0 0 12px;overflow:hidden}
+.rank-head{
+  width:100%;display:flex;align-items:center;gap:9px;min-height:48px;
+  padding:0 14px;background:transparent;border:0;cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);text-align:left;
+}
+.rank-head:hover{background:rgba(255,255,255,.03)}
+.rank-head:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.rk-tag{
+  font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:5px;flex-shrink:0;
+  background:rgba(14,165,233,.16);color:rgba(14,165,233,.9);
+}
+.rk-sub{font-size:11.5px;color:var(--ink3);font-weight:400}
+.rk-arw{margin-left:auto;font-size:11.5px;color:var(--ink3);flex-shrink:0}
+.rank-body{padding:2px 14px 14px;border-top:1px solid var(--line2)}
+.rank-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.rk-col{border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+.rk-ch{
+  padding:8px 12px;background:rgba(255,255,255,.04);
+  font-size:12px;font-weight:700;color:var(--ink);
+  border-bottom:1px solid var(--line2);
+}
+.rk-ch span{font-weight:400;font-size:11px;color:var(--ink3);margin-left:5px}
+.rk-row{display:flex;align-items:center;gap:9px;padding:8px 12px;font-size:12.5px}
+.rk-row+.rk-row{border-top:1px solid var(--line2)}
+.rk-n{
+  flex-shrink:0;width:20px;height:20px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;
+  background:rgba(255,255,255,.07);color:var(--ink2);
+}
+.rk-row.top .rk-n{background:rgba(14,165,233,.22);color:#bfe6fb}
+.rk-gen{font-size:10.5px;color:var(--ink3)}
+.rk-sid{font-family:'JetBrains Mono',monospace;font-size:12px}
+.rk-tot{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--blue)}
+.rk-ns{
+  padding:1px 5px;border-radius:4px;font-size:9.5px;font-weight:700;
+  background:rgba(200,57,43,.3);color:#f2998e;
+}
+.rank-note{margin-top:11px;font-size:11.5px;line-height:1.65;color:var(--ink3)}
+.rank-note b{color:var(--ink2);font-weight:500}
+
+.bands-cap{font-size:11.5px;color:var(--ink3);margin:2px 0 7px;display:flex;align-items:center;gap:6px}
+.bands-cap .ico{font-size:10px}
+.bands{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.band{
+  display:inline-flex;align-items:center;gap:7px;min-height:44px;
+  padding:0 14px;border-radius:9px;cursor:pointer;
+  background:var(--surf);border:1px solid var(--line);
+  color:var(--ink);font-size:12.5px;font-weight:500;font-family:inherit;
+  transition:background .15s,border-color .15s,color .15s;
+}
+.band:hover{border-color:rgba(14,165,233,.45)}
+.band:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.band .n{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3)}
+.band .arw{font-size:9px;color:var(--ink3);transition:transform .2s}
+.band.off{background:transparent;border-style:dashed;color:var(--ink3)}
+.band.all{background:rgba(14,165,233,.1);border-color:rgba(14,165,233,.35);color:var(--blue)}
+.band.all:hover{background:rgba(14,165,233,.18)}
+.band.off .arw{transform:rotate(-90deg)}
+
+/* ── 안내줄 (헤더·빗금 칸을 누르면 여기에 뜬다) ── */
+.infobar{
+  min-height:38px;display:flex;align-items:center;gap:9px;
+  padding:8px 13px;margin-bottom:8px;border-radius:9px;
+  background:var(--surf);border:1px solid var(--line2);
+  font-size:12.5px;color:var(--ink2);line-height:1.45;
+}
+.infobar .tag{
+  flex-shrink:0;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:5px;
+  background:rgba(14,165,233,.16);color:rgba(14,165,233,.9);
+}
+.infobar.warn{background:rgba(200,57,43,.1);border-color:rgba(200,57,43,.28)}
+.infobar.warn .tag{background:rgba(200,57,43,.25);color:#f2998e}
+.infobar .cnt{margin-left:auto;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink3)}
+
+/* ── 격자 ─────────────────────────────────────── */
+.wrap{max-width:1400px;margin:0 auto;padding:0 16px 40px}
+.scroller{
+  position:relative;border:1px solid var(--line);border-radius:12px;
+  background:rgba(0,0,0,.14);
+}
+.scroll{
+  overflow:auto;max-height:calc(100vh - 300px);min-height:260px;
+  border-radius:12px;scrollbar-width:thin;
+  scrollbar-color:rgba(255,255,255,.22) transparent;
+}
+.scroll::-webkit-scrollbar{width:10px;height:10px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:99px}
+.scroll::-webkit-scrollbar-track{background:rgba(0,0,0,.2)}
+
+/* 스크롤 가능 표시 — 가장자리 그림자 */
+.edge{position:absolute;top:0;bottom:10px;width:26px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:6}
+.edge.l{left:0;background:linear-gradient(90deg,rgba(0,0,0,.5),transparent)}
+.edge.r{right:0;background:linear-gradient(270deg,rgba(0,0,0,.5),transparent)}
+.edge.b{left:0;right:10px;top:auto;bottom:0;width:auto;height:22px;
+        background:linear-gradient(0deg,rgba(0,0,0,.5),transparent)}
+.scroller.can-l .edge.l,.scroller.can-r .edge.r,.scroller.can-b .edge.b{opacity:1}
+
+table{border-collapse:separate;border-spacing:0;font-size:12.5px}
+
+th,td{white-space:nowrap;background:var(--navy)}
+
+/* 카테고리 헤더행 */
+thead tr.cats th{
+  position:sticky;top:0;z-index:5;height:32px;
+  font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--ink2);
+  background:#0d2544;border-bottom:1px solid var(--line);
+  border-right:1px solid var(--line);
+}
+/* 프로그램 헤더행 */
+thead tr.progs th{
+  position:sticky;top:32px;z-index:5;height:54px;vertical-align:middle;
+  font-weight:500;font-size:11.5px;line-height:1.28;color:var(--ink);
+  background:#0d2544;border-bottom:1px solid var(--line);
+  border-right:1px solid var(--line2);
+  padding:4px 5px;cursor:pointer;
+  /* 약칭이 최대 10글자('공정실습 여름 출석')라 nowrap이면 열이 100px 넘게 벌어진다.
+     헤더만 줄바꿈을 허용하고 낱말은 keep-all로 지킨다. */
+  white-space:normal;word-break:keep-all;
+}
+thead tr.progs th:hover{background:#123056;color:var(--blue)}
+thead tr.progs th:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+
+/* 왼쪽 고정 열 */
+.fx{position:sticky;z-index:4;border-right:1px solid var(--line)}
+thead .fx{z-index:7;background:#0d2544}
+tbody .fx{background:#0c2140}
+.c-no{left:0;width:46px;min-width:46px;text-align:center}
+.c-id{left:46px;width:124px;min-width:124px;text-align:left;padding-left:11px}
+.c-tot{left:170px;width:58px;min-width:58px;text-align:right;padding-right:11px}
+/* 고정 3열은 머리글만 가운데로. 본문은 학번 왼쪽·총점 오른쪽이 읽기 좋다. */
+thead .c-id,thead .c-tot{text-align:center;padding-left:0;padding-right:0}
+/* ③ 왼쪽 고정 열의 머리글은 가운데 정렬 (본문은 각자 정렬 유지) */
+thead .fx{text-align:center;padding-left:0;padding-right:0}
+tbody tr:hover .fx{background:#123056}
+
+/* 본문 */
+tbody td{height:38px;text-align:center;border-bottom:1px solid var(--line2);border-right:1px solid var(--line2)}
+tbody tr:hover td{background:rgba(255,255,255,.045)}
+.pt{width:46px;min-width:46px}
+.pt.on{background:var(--cell);color:#bfe6fb;font-family:'JetBrains Mono',monospace;font-weight:600}
+.pt.hi{background:var(--cell-hi);color:#dff2fd}
+.pt.neg{background:rgba(200,57,43,.2);color:#f2998e;font-family:'JetBrains Mono',monospace;font-weight:600}
+tbody tr:hover .pt.on{background:rgba(14,165,233,.22)}
+
+/* 노쇼가 난 행사 — 원인이므로 붉게. 뱃지·패널티와 같은 계통으로 묶는다. */
+.pt.ns{
+  background:rgba(200,57,43,.16);color:#f2998e;
+  font-weight:700;font-size:11px;cursor:pointer;
+}
+.pt.ns:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+tbody tr:hover .pt.ns{background:rgba(200,57,43,.24)}
+
+/* 참여제한 — 결과이므로 조용하게. 색이 아니라 질감으로 구분한다
+   (어두운 배경에서 회색은 빈 칸과 구별되지 않는다) */
+.pt.lim{
+  background-image:repeating-linear-gradient(45deg,
+    rgba(255,255,255,.13) 0 2px, transparent 2px 6px);
+  cursor:pointer;
+}
+.pt.lim:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+
+.no{color:var(--ink3);font-family:'JetBrains Mono',monospace;font-size:11px}
+.gen{color:var(--ink3);font-size:10.5px;margin-right:5px}
+.sid{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.01em}
+.tot{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px}
+.tot.zero{color:var(--ink3)}
+.tot.minus{color:#f2998e}
+.nsb{
+  display:inline-block;margin-left:5px;padding:1px 5px;border-radius:4px;
+  background:rgba(200,57,43,.3);color:#f2998e;font-size:9.5px;font-weight:700;
+  vertical-align:1px;font-family:'JetBrains Mono',monospace;
+}
+.nsb.hi{background:rgba(200,57,43,.55);color:#ffd9d3}  /* 2회 이상 — 3회면 장학금 제외 */
+
+/* 접힌 카테고리 자리 표시 */
+.ph{width:14px;min-width:14px;padding:0;background:rgba(255,255,255,.05)!important;
+    border-right:1px solid var(--line)}
+tbody .ph{border-bottom:1px solid var(--line2)}
+
+/* 상태 */
+.msg{padding:52px 20px;text-align:center;color:var(--ink2);font-size:13px;line-height:1.7}
+.msg b{display:block;color:var(--ink);font-size:14px;margin-bottom:7px}
+.msg button{
+  margin-top:14px;background:transparent;border:1px solid var(--line);border-radius:99px;
+  color:var(--ink);font-family:inherit;font-size:12.5px;padding:9px 18px;min-height:40px;cursor:pointer;
+}
+.foot{max-width:1400px;margin:0 auto;padding:0 16px 34px;font-size:11.5px;color:var(--ink3);line-height:1.7}
+/* 말머리는 대시(–)를 쓴다. 본문에 '이수·출석·비교과'처럼 가운뎃점이 많아
+   가운뎃점을 말머리로 쓰면 두 기호가 같은 역할처럼 보인다. */
+.foot li{
+  list-style:none;position:relative;padding-left:13px;margin-bottom:5px;
+}
+.foot li::before{
+  content:'–';position:absolute;left:0;top:0;color:rgba(255,255,255,.2);
+}
+.foot li:last-child{margin-bottom:0}
+.foot .away{
+  margin-top:11px;padding-top:10px;border-top:1px solid var(--line2);
+  color:rgba(255,255,255,.22);
+}
+.foot b{color:var(--ink2);font-weight:500}
+
+
+/* ── 모바일 ───────────────────────────────────── */
+@media(max-width:767px){
+  .rank-cols{grid-template-columns:1fr}
+  .top{padding:16px 12px 0}
+  .wrap{padding:0 12px 30px}
+  h1{font-size:16px}
+  h1 .sub{font-size:12px}
+  .c-no{display:none}          /* 순번은 감춘다 — 폭이 아깝다 */
+  .c-id{left:0;width:112px;min-width:112px;padding-left:9px}
+  .c-tot{left:112px;width:48px;min-width:48px;padding-right:9px}
+  .pt{width:36px;min-width:36px}
+  table{font-size:11.5px}
+  .scroll{max-height:calc(100vh - 320px)}
+  .stat{padding:8px 12px}
+  .stat b{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="eyebrow">Korea University · KI-STAR Center</div>
+  <h1>2026-1학기 사업단 마일리지 현황
+    <span class="sub">차세대반도체 융합전공</span>
+  </h1>
+
+  <div class="stats" id="stats"></div>
+  <div class="privacy">
+    개인정보 보호를 위해 학번 일부가 가려져 있습니다.
+    본인 내역은 <b>내 마일리지</b>에서 전체를 확인할 수 있습니다.
+  </div>
+  <div class="rank" id="rank" hidden>
+    <button class="rank-head" id="rankHead" aria-expanded="false" aria-controls="rankBody">
+      <span class="rk-tag">우수</span>
+      <span>학년별 상위 5명</span>
+      <span class="rk-sub" id="rankSub"></span>
+      <span class="rk-arw" id="rankArw">펼치기 ▾</span>
+    </button>
+    <div class="rank-body" id="rankBody" hidden></div>
+  </div>
+
+  <div class="bands-cap"><span class="ico">▾</span>분류를 누르면 해당 행사 열이 접히고, 다시 누르면 펼쳐집니다.</div>
+  <div class="bands" id="bands"></div>
+  <div class="infobar" id="infobar">
+    <span class="tag">안내</span>
+    <span id="infotext">행사 이름을 누르면 전체 이름과 참여 인원이 여기에 표시됩니다.</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="scroller" id="scroller">
+    <div class="edge l"></div><div class="edge r"></div><div class="edge b"></div>
+    <div class="scroll" id="scroll">
+      <div class="msg" id="msg"><b>불러오는 중</b>잠시만 기다려 주세요.</div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <ul>
+    <li>누적 마일리지는 이수·출석·비교과·서류·외부활동을 합산한 값입니다. 서류 3종은 3기 학생만 해당합니다.</li>
+    <li>붉은 <b>노</b> 칸은 신청 후 참석하지 않은 행사, 빗금 칸은 그로 인해 참여가 제한된 행사입니다.</li>
+    <li>학번 옆 <b>노쇼</b> 뒤의 숫자는 노쇼 횟수입니다. 3회부터는 장학금 지급 대상에서 제외됩니다.</li>
+  </ul>
+  <div class="away">이 현황판은 데이터 허브 <b>공지사항</b>에서 들어올 수 있습니다.</div>
+</div>
+
+<script>
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+
+/* ── 약칭: 프로그램ID 기준 고정표 (학기 접미사 제외) ────────────
+   프로그램ID로 매칭하므로 프로그램명이 바뀌어도 흔들리지 않고,
+   접미사(-26-1)를 떼고 보므로 다음 학기에도 그대로 동작한다. */
+var ABBR = {
+  'EDU-PBL1':'PBL',               'ATT-PBL1':'PBL 출석',
+  'EDU-콜로키움1':'콜로키움Ⅰ',       'ATT-콜로키움1':'콜로키움Ⅰ 출석',
+  'EDU-패키징2':'패키징Ⅱ',          'ATT-패키징2':'패키징Ⅱ 출석',
+  'EDU-공정실습':'공정실습',         'ATT-공정실습':'공정실습 출석',
+  'EDU-공정실습S':'공정실습 여름',    'ATT-공정실습S':'공정실습 여름출석',
+  'EDU-진공장비S':'진공장비 여름',    'ATT-진공장비S':'진공장비 여름출석',
+  'EXT-글로벌역량1':'글로벌역량 2.25','EXT-글로벌역량2':'글로벌역량 2.26',
+  'EXT-콜세미1':'콜세미1', 'EXT-콜세미2':'콜세미2', 'EXT-콜세미3':'콜세미3',
+  'EXT-초청세미1':'초청세미1','EXT-초청세미2':'초청세미2','EXT-SYNIC':'초청세미3',
+  'EXT-커리어브릿지':'커리어브릿지',
+  'EXT-취업캠프특강':'취업캠프 특강','EXT-취업캠프컨설팅':'취업캠프 컨설팅',
+  'EXT-설명회':'설명회', 'EXT-GCIM':'GCIM',
+  'EXT-글로벌연수':'칭화대', 'EXT-퍼듀연수':'Purdue', 'EXT-독일연수':'독일연수',
+  'EXT-STOB미팅1':'STOB1', 'EXT-STOB미팅2':'STOB2', 'EXT-서포터즈':'서포터즈',
+  'DOC-활동계획서':'활동계획서','DOC-장학금신청서':'장학금신청서','DOC-결과보고서':'결과보고서',
+  'EXT-외부활동':'외부활동', 'PENALTY-서류지각':'패널티'
+};
+
+/* 고정표에 없는 새 프로그램용 자동 축약 */
+function autoAbbr(name){
+  var s = String(name || '').trim();
+  var att = /출석\s*\)?\s*$/.test(s);
+  s = s.replace(/\s*\([^)]*\)\s*$/, '')
+       .replace(/\s*\d{2}\.\d{2}\.\d{2}.*$/, '')
+       .replace(/\s*26-1\s*$/, '')
+       .replace(/^(차세대반도체|반도체|융합전공|차반융|2026)\s*/, '')
+       .trim();
+  if (s.length > 9) s = s.slice(0, 9) + '…';
+  if (!s) s = '프로그램';
+  return att ? s + ' 출석' : s;
+}
+function shortName(id, name){
+  var key = String(id || '').replace(/-\d{2}-\d$/, '');
+  return ABBR[key] || autoAbbr(name);
+}
+
+function esc(v){
+  return String(v === null || v === undefined ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── JSONP ────────────────────────────────────── */
+var _n = 0;
+function jsonp(params){
+  return new Promise(function(res, rej){
+    var cb = '__mb' + (++_n) + '_' + Date.now();
+    var s  = document.createElement('script');
+    var to = setTimeout(function(){ cleanup(); rej(new Error('시간 초과')); }, 30000);
+    function cleanup(){
+      clearTimeout(to);
+      try { delete window[cb]; } catch(e){ window[cb] = undefined; }
+      if (s.parentNode) s.parentNode.removeChild(s);
+    }
+    window[cb] = function(d){ cleanup(); res(d); };
+    s.onerror = function(){ cleanup(); rej(new Error('연결 실패')); };
+    s.src = SCRIPT_URL + '?' + params + '&callback=' + cb;
+    document.body.appendChild(s);
+  });
+}
+
+/* ── 상태 ─────────────────────────────────────── */
+var DATA = null;
+var GROUPS = [];            // 카테고리 이름별 묶음 (띠 = 이 단위)
+var SEGS   = [];            // 표에서 실제로 이어져 있는 구간 (colspan 단위)
+var OFF    = {};            // 접힌 카테고리 이름
+var hinted = false;
+
+function info(text, opts){
+  opts = opts || {};
+  var bar = document.getElementById('infobar');
+  bar.className = 'infobar' + (opts.warn ? ' warn' : '');
+  bar.innerHTML =
+    '<span class="tag">' + esc(opts.tag || '안내') + '</span>' +
+    '<span id="infotext">' + esc(text) + '</span>' +
+    (opts.count ? '<span class="cnt">' + esc(opts.count) + '</span>' : '');
+}
+
+function load(force){
+  var btn = document.getElementById('reload');
+  if (btn) btn.classList.add('busy');
+  document.getElementById('scroll').innerHTML =
+    '<div class="msg"><b>불러오는 중</b>잠시만 기다려 주세요.</div>';
+
+  jsonp('action=getBoardData' + (force ? '&nocache=1' : ''))
+    .then(function(d){
+      if (!d || d.status !== 'ok') throw new Error((d && d.message) || '데이터를 받지 못했습니다');
+      DATA = d;
+      render();
+    })
+    .catch(function(e){
+      document.getElementById('scroll').innerHTML =
+        '<div class="msg"><b>현황을 불러오지 못했습니다</b>' + esc(e.message) +
+        '<br>잠시 후 다시 시도해 주세요.' +
+        '<br><button onclick="load(true)">다시 불러오기</button></div>';
+    })
+    .then(function(){ if (btn) btn.classList.remove('busy'); });
+}
+
+/* ── 그리기 ───────────────────────────────────── */
+function render(){
+  var P = DATA.programs, S = DATA.students, i;
+
+  /* 요약 */
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><b>' + DATA.stats.students + '</b><span>전체 학생</span></div>' +
+    '<div class="stat goal"><b>' + DATA.stats.goalCount + '</b><span>' + DATA.goal + '점 이상</span></div>' +
+    '<a class="reload go" href="portal_survey.html">내 마일리지</a>' +
+    '<button class="reload" id="reload" onclick="load(true)">새로고침</button>';
+
+  /* 카테고리를 두 가지로 나눠 본다.
+     · GROUPS — 이름 기준. 띠 하나 = 카테고리 하나.
+     · SEGS   — 표에서 실제로 이어져 있는 구간. colspan 계산용.
+     둘을 나눈 이유: '외부활동'의 카테고리가 프로그램 탭에 '비교과'로
+     들어 있는데 위치는 서류 뒤라, 연속 구간으로만 묶으면 '비교과' 띠가
+     두 개로 갈라진다. 이름으로 묶으면 열 위치와 무관하게 하나로 모인다. */
+  GROUPS = []; SEGS = [];
+  var gi = {};
+  for (i = 0; i < P.length; i++){
+    var c = P[i].cat || '기타';
+    if (!(c in gi)){ gi[c] = GROUPS.length; GROUPS.push({ name:c, n:0 }); }
+    GROUPS[gi[c]].n++;
+    if (!SEGS.length || SEGS[SEGS.length-1].name !== c) SEGS.push({ name:c, from:i, to:i });
+    else SEGS[SEGS.length-1].to = i;
+  }
+  for (i = 0; i < SEGS.length; i++) SEGS[i].n = SEGS[i].to - SEGS[i].from + 1;
+
+  /* 전체 버튼 — 라벨이 다음에 일어날 일을 말하도록 한다.
+     '전체'라고만 두면 눌렀을 때 뭐가 될지 알 수 없다. */
+  var anyOff = false;
+  for (i = 0; i < GROUPS.length; i++) if (OFF[GROUPS[i].name]) anyOff = true;
+
+  var bh = '<button class="band all" data-all="' + (anyOff ? 'open' : 'close') + '">' +
+           (anyOff ? '전체 펼치기' : '전체 접기') + '</button>';
+  for (i = 0; i < GROUPS.length; i++){
+    var gn = GROUPS[i].name;
+    bh += '<button class="band' + (OFF[gn] ? ' off' : '') + '" data-c="' + esc(gn) + '" ' +
+          'aria-expanded="' + (OFF[gn] ? 'false' : 'true') + '">' +
+          esc(gn) + '<span class="n">' + GROUPS[i].n + '</span>' +
+          '<span class="arw">▾</span></button>';
+  }
+  document.getElementById('bands').innerHTML = bh;
+  renderRanks();
+
+  /* 표 */
+  var h = '<table><thead><tr class="cats">' +
+          '<th class="fx c-no"></th><th class="fx c-id"></th><th class="fx c-tot"></th>';
+  for (i = 0; i < SEGS.length; i++){
+    if (OFF[SEGS[i].name]) { h += '<th class="ph"></th>'; continue; }
+    h += '<th colspan="' + SEGS[i].n + '">' + esc(SEGS[i].name) + '</th>';
+  }
+  h += '</tr><tr class="progs">' +
+       '<th class="fx c-no">순번</th><th class="fx c-id">학번</th><th class="fx c-tot">총점</th>';
+
+  for (i = 0; i < SEGS.length; i++){
+    if (OFF[SEGS[i].name]) { h += '<th class="ph"></th>'; continue; }
+    for (var j = SEGS[i].from; j <= SEGS[i].to; j++){
+      h += '<th class="pt" data-p="' + j + '" tabindex="0">' +
+           esc(shortName(P[j].id, P[j].name)) + '</th>';
+    }
+  }
+  h += '</tr></thead><tbody>';
+
+  for (i = 0; i < S.length; i++){
+    var st = S[i];
+    var lim = {}; for (var k = 0; k < st.lim.length; k++) lim[st.lim[k]] = 1;
+    // nsc 는 Board.gs v2 부터 내려온다. 구버전이면 조용히 넘어간다.
+    var nsc = {}; var nsl = st.nsc || [];
+    for (k = 0; k < nsl.length; k++) nsc[nsl[k]] = 1;
+    var tc = st.tot < 0 ? ' minus' : (st.tot === 0 ? ' zero' : '');
+
+    h += '<tr>' +
+         '<td class="fx c-no no">' + st.no + '</td>' +
+         '<td class="fx c-id"><span class="gen">' + esc(st.gen) + '</span>' +
+         '<span class="sid">' + esc(st.sid) + '</span>' +
+         (st.ns ? '<span class="nsb' + (st.ns >= 2 ? ' hi' : '') + '">노쇼' + st.ns + '</span>' : '') + '</td>' +
+         '<td class="fx c-tot"><span class="tot' + tc + '">' + st.tot + '</span></td>';
+
+    for (var a = 0; a < SEGS.length; a++){
+      if (OFF[SEGS[a].name]) { h += '<td class="ph"></td>'; continue; }
+      for (var b = SEGS[a].from; b <= SEGS[a].to; b++){
+        var v = st.s[b] || 0;
+        var cls = 'pt', mark = v ? v : '', attr = '';
+        if (v < 0)        cls += ' neg';
+        else if (v >= 20) cls += ' on hi';
+        else if (v > 0)   cls += ' on';
+
+        if (!v && nsc[b]){                       // 노쇼가 난 행사
+          cls += ' ns'; mark = '노';
+          attr = ' data-ns="' + b + '" tabindex="0"';
+        } else if (!v && lim[b]){                // 그 결과 막힌 행사
+          cls += ' lim';
+          attr = ' data-lim="' + b + '" tabindex="0"';
+        }
+        h += '<td class="' + cls + '"' + attr + '>' + mark + '</td>';
+      }
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table>';
+
+  document.getElementById('scroll').innerHTML = h;
+  updateEdges();
+  if (!hinted && S.length) { hinted = true; showHint(); }
+}
+
+/* ── 학년별 상위 5명 ──────────────────────────── */
+function renderRanks(){
+  var box = document.getElementById('rank');
+  var R = DATA.ranks || [];
+  var total = 0, i, j;
+  for (i = 0; i < R.length; i++) total += R[i].rows.length;
+  if (!R.length || !total){ box.hidden = true; return; }   // 구버전 GAS 대비
+  box.hidden = false;
+
+  var gl = [];
+  for (i = 0; i < R.length; i++) gl.push(R[i].grade);
+  document.getElementById('rankSub').textContent =
+    gl.join('·') + '학년 ' + total + '명';
+
+  var h = '<div class="rank-cols">';
+  for (i = 0; i < R.length; i++){
+    h += '<div class="rk-col"><div class="rk-ch">' + esc(R[i].grade) + '학년' +
+         '<span>' + R[i].rows.length + '명</span></div>';
+    for (j = 0; j < R[i].rows.length; j++){
+      var r = R[i].rows[j];
+      h += '<div class="rk-row' + (r.rank <= 3 ? ' top' : '') + '">' +
+           '<span class="rk-n">' + r.rank + '</span>' +
+           '<span class="rk-gen">' + esc(r.gen) + '</span>' +
+           '<span class="rk-sid">' + esc(r.sid) + '</span>' +
+           (r.ns ? '<span class="rk-ns">노쇼 ' + r.ns + '</span>' : '') +
+           '<span class="rk-tot">' + r.tot + '</span></div>';
+    }
+    h += '</div>';
+  }
+  h += '</div>' +
+       '<p class="rank-note">마일리지가 같으면 같은 순위로 표시됩니다. ' +
+       '우수학생 선발 시 누적 마일리지가 동점인 경우 ' +
+       '<b>2026-1학기 성적 평점평균 상위자</b>가 선발됩니다.</p>';
+
+  document.getElementById('rankBody').innerHTML = h;
+}
+
+document.getElementById('rankHead').addEventListener('click', function(){
+  var body = document.getElementById('rankBody');
+  var open = body.hidden;
+  body.hidden = !open;
+  this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  document.getElementById('rankArw').textContent = open ? '접기 ▴' : '펼치기 ▾';
+});
+
+/* ── 상호작용 ───────────────────────────────────
+   #scroll 요소 자체는 계속 살아 있고 안쪽 HTML만 교체되므로
+   리스너는 최초 1회만 건다. render() 안에서 걸면 접기를 누를 때마다
+   리스너가 쌓여 한 번 클릭에 여러 번 반응하게 된다. */
+(function bindGrid(){
+  var sc = document.getElementById('scroll');
+
+  sc.addEventListener('click', onPick);
+  sc.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' ') { onPick(e); e.preventDefault(); }
+  });
+
+  function onPick(e){
+    var th = e.target.closest('th[data-p]');
+    if (th){
+      var p = DATA.programs[+th.dataset.p];
+      info(p.name, { tag:'행사', count:p.n + '명 참여' });
+      return;
+    }
+    var tn = e.target.closest('td[data-ns]');
+    if (tn){
+      var pn = DATA.programs[+tn.dataset.ns];
+      info('신청 후 참석하지 않은 행사입니다 — ' + pn.name, { tag:'노쇼', warn:true });
+      return;
+    }
+    var td = e.target.closest('td[data-lim]');
+    if (td){
+      var pg = DATA.programs[+td.dataset.lim];
+      info('노쇼로 참여가 제한된 행사입니다 — ' + pg.name, { tag:'참여제한', warn:true });
+    }
+  }
+})();
+
+document.getElementById('bands').addEventListener('click', function(e){
+  var b = e.target.closest('.band');
+  if (!b) return;
+  if (b.dataset.all){
+    var open = b.dataset.all === 'open';
+    for (var i = 0; i < GROUPS.length; i++) OFF[GROUPS[i].name] = open ? false : true;
+    render();
+    return;
+  }
+  var name = b.dataset.c;
+  OFF[name] = !OFF[name];
+  render();
+});
+
+/* 가장자리 그림자 — 어느 방향으로 더 볼 수 있는지 항상 보이게 */
+function updateEdges(){
+  var sc = document.getElementById('scroll');
+  var wr = document.getElementById('scroller');
+  wr.classList.toggle('can-l', sc.scrollLeft > 4);
+  wr.classList.toggle('can-r', sc.scrollLeft + sc.clientWidth < sc.scrollWidth - 4);
+  wr.classList.toggle('can-b', sc.scrollTop + sc.clientHeight < sc.scrollHeight - 4);
+}
+document.getElementById('scroll').addEventListener('scroll', updateEdges, { passive:true });
+window.addEventListener('resize', updateEdges);
+
+/* 첫 진입 시 1회만 — 옆으로 밀 수 있다는 걸 알린다 */
+function showHint(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var sc = document.getElementById('scroll');
+  if (sc.scrollWidth <= sc.clientWidth + 8) return;   // 스크롤할 게 없으면 안 한다
+  // CSS transform 으로 흔들면 sticky 헤더가 깨지므로 실제로 살짝 스크롤한다.
+  try {
+    sc.scrollTo({ left:36, behavior:'smooth' });
+    setTimeout(function(){ sc.scrollTo({ left:0, behavior:'smooth' }); }, 420);
+  } catch(e){}
+}
+
+load(false);
+</script>
+</body>
+</html>
