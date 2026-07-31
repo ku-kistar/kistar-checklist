@@ -9,7 +9,10 @@
 :root{
   --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#dddbd3;
   --text:#1a1916;--text2:#6b6960;--text3:#9a9890;
-  --navy:#0b1f3a;--accent:#7B1F2A;--accent-light:#fdf0ee;
+  /* 관리자 화면은 학생용 현황판(네이비 #0b1f3a)과 구분되도록 미디엄 블루를 쓴다.
+     --navy 는 이름만 유지하고 값을 밝은 계열로 바꿨다. 인쇄 머리글만 진한 색을 따로 쓴다. */
+  --navy:#1e4d8c;--navy-deep:#163a6b;--hdr:#e8f0fb;--hdr2:#dae7f7;
+  --accent:#7B1F2A;--accent-light:#fdf0ee;
   --green:#2d7a4f;--green-light:#edf7f1;
   --amber:#a0620a;--amber-light:#fdf5e6;
   --blue:#1a5fa8;--blue-light:#eaf1fb;
@@ -20,7 +23,7 @@
 body{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 4rem}
 
 /* ── 상단 바 ── */
-.top-bar{background:rgba(11,31,58,.96);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300}
+.top-bar{background:var(--navy);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300}
 .top-bar-left{display:flex;align-items:center;gap:10px}
 .top-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:3px 8px;border-radius:4px}
 .top-title{font-size:13px;font-weight:600;color:#fff}
@@ -50,7 +53,51 @@ body{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;backg
 .summary-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:15px 17px}
 .summary-label{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600;letter-spacing:.04em}
 .summary-val{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1}
-.summary-sub{font-size:11px;color:var(--text3);margin-top:5px}
+.summary-val .u{font-size:15px;font-weight:600;margin-left:2px;font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+.summary-sub{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5}
+
+/* ── 카테고리 구성 띠 ── */
+.catstrip{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:10px 16px;
+  margin-bottom:1.25rem;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:11.5px}
+.catstrip .cs-lb{font-weight:700;color:var(--navy);font-size:11px;letter-spacing:.04em}
+.cs-item{display:inline-flex;align-items:center;gap:5px;color:var(--text2)}
+.cs-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.cs-item b{font-family:'JetBrains Mono',monospace;color:var(--text);font-size:12px}
+.cs-sum{margin-left:auto;color:var(--text3);font-size:11px}
+
+/* ── 학년별 통계 ── */
+.gstat{background:var(--surface);border:.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.25rem}
+.gstat-head{padding:11px 16px;border-bottom:.5px solid var(--border);font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gstat-head .hint{font-size:11px;font-weight:400;color:var(--text3)}
+table.gs{width:100%;border-collapse:collapse;font-size:12.5px}
+table.gs th{background:var(--hdr);color:var(--navy);font-weight:600;font-size:11.5px;padding:8px 10px;
+  text-align:right;border-bottom:.5px solid var(--border);white-space:nowrap}
+table.gs th:first-child{text-align:left}
+table.gs td{padding:8px 10px;text-align:right;border-bottom:.5px solid var(--border);
+  font-family:'JetBrains Mono',monospace;white-space:nowrap}
+table.gs td:first-child{text-align:left;font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-weight:600}
+table.gs tbody tr{cursor:pointer;transition:background .12s}
+table.gs tbody tr:hover{background:var(--hdr)}
+table.gs tbody tr.on{background:var(--hdr2)}
+table.gs tfoot td{background:var(--surface2);font-weight:700;border-bottom:none}
+.gs-ok{color:var(--green);font-weight:700}
+.gs-no{color:var(--accent);font-weight:700}
+.gs-bar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--border);
+  overflow:hidden;vertical-align:middle;margin-right:6px}
+.gs-bar i{display:block;height:100%;background:var(--green)}
+
+/* ── 인사이트 칩 ── */
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem}
+.chip{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:9px 14px;
+  font-size:12px;color:var(--text2);display:inline-flex;align-items:center;gap:7px;
+  font-family:inherit;cursor:pointer;transition:all .15s}
+.chip b{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--text)}
+.chip:hover{border-color:var(--navy);color:var(--navy)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip.on b{color:#fff}
+.chip.static{cursor:default}
+.chip.static:hover{border-color:var(--border);color:var(--text2)}
 
 /* ── 도구 막대 ── */
 .toolbar{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -111,26 +158,53 @@ body{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;backg
 .grid-scroll{overflow:auto;max-height:72vh}
 table.grid{border-collapse:separate;border-spacing:0;font-size:11px;font-family:'JetBrains Mono','Malgun Gothic',monospace}
 table.grid th,table.grid td{border-right:.5px solid var(--border);border-bottom:.5px solid var(--border);padding:0;text-align:center;white-space:nowrap}
-table.grid thead th{position:sticky;top:0;z-index:20;background:var(--surface2);font-weight:600;color:var(--text2)}
+table.grid thead th{position:sticky;top:0;z-index:20;background:var(--hdr);font-weight:600;color:var(--navy)}
 table.grid thead tr.cat th{top:0;height:5px;padding:0;z-index:21}
-table.grid thead tr.nm th{top:5px;z-index:20;height:150px;vertical-align:bottom;padding:6px 2px}
-.vt{writing-mode:vertical-rl;text-orientation:mixed;white-space:nowrap;font-size:10.5px;line-height:1.15;height:138px;overflow:hidden;margin:0 auto;font-family:'Malgun Gothic','맑은 고딕',sans-serif;text-align:right}
-th.pcol,td.pcol{width:26px;min-width:26px;max-width:26px}
+table.grid thead tr.nm th{top:5px;z-index:20;height:58px;vertical-align:bottom;padding:5px 3px}
+
+/* ★ 헤더는 가로쓰기다. (2026-07-31 변경 — 세로쓰기는 인쇄에서만)
+   word-break:keep-all 로 한글 낱말이 중간에서 끊기지 않게 한다. */
+.vt{display:block;white-space:normal;word-break:keep-all;font-size:10px;line-height:1.25;
+    max-height:48px;overflow:hidden;font-family:'Malgun Gothic','맑은 고딕',sans-serif;text-align:center}
+th.pcol,td.pcol{width:68px;min-width:68px;max-width:68px}
+
+/* 🔴 z-index 층 — 건드리지 말 것 (학생용 현황판 §4-5와 같은 함정)
+   thead tr.cat th (21) 가 thead th.fx 를 덮으면 가로 스크롤 시 고정열 머리글이 가려진다.
+   아래 .fx 규칙은 같은 특이도이면서 뒤에 오므로 이긴다. 순서를 바꾸지 말 것. */
 th.fx,td.fx{position:sticky;background:var(--surface);z-index:15}
-table.grid thead th.fx{z-index:30;background:var(--surface2)}
+table.grid thead th.fx{z-index:30;background:var(--hdr)}
 th.c0,td.c0{left:0;width:38px;min-width:38px}
 th.c1,td.c1{left:38px;width:88px;min-width:88px}
-th.c2,td.c2{left:126px;width:62px;min-width:62px;border-right:1.5px solid var(--navy);font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+th.c2,td.c2{left:126px;width:62px;min-width:62px;font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+th.c3,td.c3{left:188px;width:54px;min-width:54px;border-right:1.5px solid var(--navy)}
 td.c1{font-size:10.5px;color:var(--text2)}
 td.c2{font-weight:600;color:var(--text)}
+td.c3{font-weight:700}
 td.meta{padding:0 7px;font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10.5px;color:var(--text2);text-align:left;max-width:130px;overflow:hidden;text-overflow:ellipsis}
 tbody tr{height:26px}
 tbody tr:hover td{background:#fbfaf6}
 tbody tr:hover td.fx{background:#fbfaf6}
 td.v{color:var(--text)}
 td.z{color:#dcdad2}
-td.tot{font-weight:700;border-left:1.5px solid var(--navy);width:44px;min-width:44px}
 td.ok{color:var(--green)}
+
+/* ── 하단 합계 행 (프로그램별 참여 인원) ── */
+table.grid tfoot td{position:sticky;bottom:0;z-index:18;background:var(--hdr2);
+  font-weight:700;color:var(--navy);font-size:10.5px;border-top:1.5px solid var(--navy)}
+table.grid tfoot td.fx{z-index:33;background:var(--hdr2)}
+table.grid tfoot td.lb{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10.5px}
+
+/* ── 카테고리 접기 칩 ── */
+.gchips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-basis:100%;order:2}
+.grid-legend{order:1}
+.gchip{padding:5px 11px;border-radius:99px;border:1px solid var(--border);background:var(--surface);
+  font-size:11px;font-family:inherit;cursor:pointer;color:var(--text2);display:inline-flex;
+  align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.gchip .gdot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.gchip b{font-family:'JetBrains Mono',monospace;font-size:11px}
+.gchip.off{background:var(--surface2);color:var(--text3);text-decoration:line-through;opacity:.7}
+.gchip:hover{border-color:var(--navy)}
+.gchip-all{font-weight:700;color:var(--navy);border-color:var(--navy)}
 td.no{background:var(--accent-light);color:var(--accent);font-weight:700}
 td.lim{background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)}
 td.nsn{width:34px;min-width:34px;color:var(--accent)}
@@ -149,16 +223,26 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   @page{size:A4 landscape;margin:9mm 7mm}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{background:#fff!important;padding:0!important}
-  .top-bar,.toolbar,.tie-card,.grid-head,.grid-foot,.toast,#birth-gate{display:none!important}
+  .top-bar,.toolbar,.tie-card,.grid-head,.grid-foot,.toast,#birth-gate,.chips{display:none!important}
   .container{max-width:100%!important;padding:0!important}
   .print-head{display:block!important;margin-bottom:6pt;padding-bottom:5pt;border-bottom:1.5pt solid #0b1f3a}
   .print-head h1{font-size:13pt;font-weight:700;color:#0b1f3a}
   .print-head .ph-sub{font-size:8.5pt;color:#555;margin-top:2pt;display:flex;justify-content:space-between}
-  .summary-grid{grid-template-columns:repeat(5,1fr)!important;gap:5pt!important;margin-bottom:6pt!important}
+  .summary-grid{grid-template-columns:repeat(5,1fr)!important;gap:5pt!important;margin-bottom:5pt!important}
   .summary-card{padding:5pt 7pt!important;border:.5pt solid #bbb!important;border-radius:4pt!important}
   .summary-val{font-size:13pt!important}
+  .summary-val .u{font-size:8pt!important}
   .summary-label{font-size:7pt!important;margin-bottom:2pt!important}
-  .summary-sub{display:none!important}
+  .summary-sub{font-size:6.5pt!important;margin-top:2pt!important}
+  .catstrip{padding:3pt 6pt!important;margin-bottom:5pt!important;gap:8pt!important;
+            font-size:7pt!important;border:.5pt solid #bbb!important;border-radius:4pt!important}
+  .cs-item b{font-size:7.5pt!important}
+  .gstat{margin-bottom:5pt!important;border:.5pt solid #bbb!important;break-inside:avoid}
+  .gstat-head{padding:3pt 6pt!important;font-size:8pt!important}
+  .gstat-head .hint{display:none!important}
+  table.gs th,table.gs td{padding:2.5pt 5pt!important;font-size:7.5pt!important}
+  table.gs tbody tr{cursor:default!important}
+  .gs-bar{display:none!important}
   .rank-wrap{gap:5pt!important;margin-bottom:6pt!important;break-inside:avoid}
   .rank-card{border:.5pt solid #bbb!important;break-inside:avoid}
   .rank-head{padding:4pt 8pt!important;font-size:8.5pt!important}
@@ -169,14 +253,23 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   table.grid{font-size:6.5pt!important;width:100%!important}
   table.grid thead{display:table-header-group}
   table.grid thead tr.nm th{height:88px!important;padding:2pt 1pt!important}
-  .vt{font-size:6pt!important;height:80px!important}
+  /* ★ 인쇄에서만 세로쓰기로 되돌린다.
+     화면은 가로 헤더지만, 가로 헤더로는 활동 36열이 A4 가로 한 장에 절대 들어가지 않는다.
+     (인쇄 가능 폭 283mm − 고정열/메타 96mm ÷ 36 ≒ 열당 5mm = 가로 2글자) */
+  .vt{writing-mode:vertical-rl!important;text-orientation:mixed!important;
+      white-space:nowrap!important;display:inline-block!important;
+      font-size:6pt!important;height:80px!important;max-height:80px!important;
+      line-height:1.1!important;text-align:right!important;margin:0 auto!important}
   th.fx,td.fx{position:static!important}
+  table.grid tfoot td{position:static!important;font-size:6pt!important;border-top:1pt solid #0b1f3a!important}
   tbody tr{height:auto!important}
   tbody tr td{padding:.5pt 0!important}
   th.c1,td.c1{width:58px!important;min-width:58px!important}
   th.c2,td.c2{width:44px!important;min-width:44px!important}
+  th.c3,td.c3{width:32px!important;min-width:32px!important;border-right:1pt solid #0b1f3a!important}
   th.pcol,td.pcol{width:15px!important;min-width:15px!important;max-width:15px!important}
   td.meta{font-size:6pt!important;max-width:78px!important}
+  /* 접어 놓은 카테고리는 인쇄에도 그대로 빠진다 — 필요한 범위만 뽑을 수 있게. */
 }
 </style>
 </head>
@@ -217,12 +310,55 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   </div>
 
   <div class="summary-grid">
-    <div class="summary-card"><div class="summary-label">대상 학생</div><div class="summary-val" id="sTot">–</div><div class="summary-sub">2026-1학기 등록</div></div>
-    <div class="summary-card"><div class="summary-label">40점 이상</div><div class="summary-val" id="sGoal" style="color:var(--green)">–</div><div class="summary-sub" id="sGoalSub">–</div></div>
-    <div class="summary-card"><div class="summary-label">총점 합계</div><div class="summary-val" id="sSum">–</div><div class="summary-sub">검증용 수치</div></div>
-    <div class="summary-card"><div class="summary-label">활동 열</div><div class="summary-val" id="sCol">–</div><div class="summary-sub">프로그램 수</div></div>
-    <div class="summary-card"><div class="summary-label">갱신</div><div class="summary-val" id="sUpd" style="font-size:15px">–</div><div class="summary-sub">캐시 없음 · 실시간</div></div>
+    <div class="summary-card">
+      <div class="summary-label">전체 학생 수</div>
+      <div class="summary-val" id="sTot">–</div>
+      <div class="summary-sub" id="sTotSub">–</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">장학금 요건 충족</div>
+      <div class="summary-val" id="sGoal" style="color:var(--green)">–</div>
+      <div class="summary-sub" id="sGoalSub">–</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">요건 미충족</div>
+      <div class="summary-val" id="sMiss" style="color:var(--accent)">–</div>
+      <div class="summary-sub" id="sMissSub">–</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">프로그램 수</div>
+      <div class="summary-val" id="sCol">–</div>
+      <div class="summary-sub" id="sColSub">–</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">갱신</div>
+      <div class="summary-val" id="sUpd" style="font-size:15px">–</div>
+      <div class="summary-sub">캐시 없음 · 실시간</div>
+    </div>
   </div>
+
+  <div class="catstrip">
+    <span class="cs-lb">프로그램 구성</span>
+    <span id="catStrip" style="display:flex;gap:15px;flex-wrap:wrap"></span>
+    <span class="cs-sum" id="catSum"></span>
+  </div>
+
+  <div class="gstat">
+    <div class="gstat-head">
+      <span>학년별 현황</span>
+      <span class="hint">행을 누르면 아래 격자가 해당 학년으로 걸러집니다</span>
+    </div>
+    <table class="gs">
+      <thead><tr>
+        <th>학년</th><th>인원</th><th>요건 충족</th><th>미충족</th>
+        <th>충족률</th><th>평균</th><th>중앙값</th><th>최고</th>
+      </tr></thead>
+      <tbody id="gsBody"></tbody>
+      <tfoot id="gsFoot"></tfoot>
+    </table>
+  </div>
+
+  <div class="chips" id="chips"></div>
 
   <div class="toolbar">
     <input type="text" class="tb-search" id="q" placeholder="이름 · 학번 검색" oninput="renderGrid()">
@@ -253,6 +389,7 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   <div class="grid-card">
     <div class="grid-head">
       <div class="grid-title">활동별 마일리지 격자 <span style="font-weight:400;color:var(--text3);font-size:11px" id="gridCount"></span></div>
+      <div class="gchips" id="gchips"></div>
       <div class="grid-legend">
         <span class="lg"><span class="lg-box cat-EDU"></span>교과</span>
         <span class="lg"><span class="lg-box cat-ATT"></span>출결</span>
@@ -284,6 +421,19 @@ var CDN_ZIP  = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
 var AUTH = null;      // {studentId, birthDate}
 var DATA = null;      // 서버 응답
 var gradeFilter = "";
+var flagFilter  = "";   // "" | "edge" | "zero" | "ns3"  — 인사이트 칩
+var collapsed   = {};   // {EDU:true, ...} 접힌 카테고리
+
+/* 카테고리 표시 순서·라벨·색 — catClass() 가 돌려주는 키와 1:1 대응한다.
+   여기와 catClass() 가 갈라지면 색 띠와 지표 숫자가 어긋난다. 반드시 함께 고칠 것. */
+var CATS = [
+  {k:"EDU", label:"교과",   color:"#1a5fa8"},
+  {k:"ATT", label:"출결",   color:"#7fa8d4"},
+  {k:"EXT", label:"비교과", color:"#2d7a4f"},
+  {k:"DOC", label:"서류",   color:"#a0620a"},
+  {k:"OUT", label:"외부활동",color:"#5b3fa6"},
+  {k:"PEN", label:"패널티", color:"#c8392b"}
+];
 
 /* ═══════════════════════════════════════════════════════════
    공용
@@ -384,12 +534,19 @@ function loadData(){
    ═══════════════════════════════════════════════════════════ */
 function renderAll(){
   var d=DATA;
-  $("sTot").textContent=d.stats.students;
-  $("sGoal").textContent=d.stats.goalCount;
-  $("sGoalSub").textContent=d.stats.students?Math.round(d.stats.goalCount/d.stats.students*100)+"% 달성":"–";
-  $("sSum").textContent=d.stats.sumTot;
-  $("sCol").textContent=d.programs.length;
+  var n=d.stats.students, gc=d.stats.goalCount, miss=n-gc;
+
+  $("sTot").innerHTML=n+'<span class="u">명</span>';
+  $("sGoal").innerHTML=gc+'<span class="u">명</span>';
+  $("sGoalSub").textContent="누적 "+d.goal+"점 이상 · "+(n?Math.round(gc/n*100):0)+"%";
+  $("sMiss").innerHTML=miss+'<span class="u">명</span>';
+  $("sMissSub").textContent=d.goal+"점 미만 · "+(n?Math.round(miss/n*100):0)+"%";
+  $("sCol").innerHTML=d.programs.length+'<span class="u">개</span>';
   $("sUpd").textContent=(d.updated||"").slice(5);
+
+  renderCatStrip();
+  renderGradeStat();
+  renderChips();
   $("phTitle").textContent="2026학년도 "+d.semester.split("-")[1]+"학기 <차세대반도체 융합전공> 마일리지 현황";
   $("phMeta").textContent="출력일 "+fmtToday()+" · 대상 "+d.stats.students+"명 · 총점 합계 "+d.stats.sumTot;
 
@@ -397,16 +554,18 @@ function renderAll(){
   var grades=[]; 
   d.students.forEach(function(s){ if(s.grade&&grades.indexOf(s.grade)<0) grades.push(s.grade); });
   grades.sort(function(a,b){return parseInt(a,10)-parseInt(b,10);});
-  var html='<button class="grade-tab active" data-g="" onclick="setGrade(this,\'\')">전체</button>';
-  grades.forEach(function(g){ html+='<button class="grade-tab" data-g="'+esc(g)+'" onclick="setGrade(this,\''+esc(g)+'\')">'+esc(g)+'학년</button>'; });
+  var html='<button class="grade-tab active" data-g="" onclick="setGrade(\'\')">전체</button>';
+  grades.forEach(function(g){ html+='<button class="grade-tab" data-g="'+esc(g)+'" onclick="setGrade(\''+esc(g)+'\')">'+esc(g)+'학년</button>'; });
   $("gradeTabs").innerHTML=html;
 
   renderTie();
   renderRanks();
+  renderGroupChips();
   renderGrid();
 
-  var foot="검증 수치 — 학생 "+d.stats.students+"명 · 활동 열 "+d.programs.length+"개 · 총점 합계 "+d.stats.sumTot+
-           " · "+d.goal+"점 이상 "+d.stats.goalCount+"명 · 기준 "+d.semester+"학기";
+  var foot="검증 수치 — 학생 "+d.stats.students+"명 · 활동 열 "+d.programs.length+"개 · <strong>총점 합계 "+
+           d.stats.sumTot+"</strong> · "+d.goal+"점 이상 "+d.stats.goalCount+"명 · 기준 "+d.semester+"학기"+
+           "<br>이 네 숫자는 엑셀(증빙) 말미·보고서(docx) 4항과 같아야 합니다. 다르면 어느 한쪽이 오래된 화면입니다.";
   if(d.unmapped&&d.unmapped.length) foot+="<br>⚠ 열에 매핑되지 않은 프로그램ID: "+esc(d.unmapped.join(", "))+" — 프로그램 탭 확인 필요";
   $("gridFoot").innerHTML=foot;
 }
@@ -416,11 +575,131 @@ function fmtToday(){
   return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
 }
 
-function setGrade(btn,g){
-  gradeFilter=g;
-  document.querySelectorAll(".grade-tab").forEach(function(t){t.classList.remove("active");});
-  btn.classList.add("active");
+/** 학년 필터. 탭·학년별 표 어디서 눌러도 여기 한 곳으로 모은다.
+ *  (예전에는 클릭한 버튼 자신을 active 로 바꿨는데, 표에서도 부르게 되면서 상태가 갈라진다) */
+function setGrade(g){
+  gradeFilter=(gradeFilter===g&&g!=="")?"":g;
+  syncFilterUI();
   renderGrid();
+}
+
+function setFlag(f){
+  flagFilter=(flagFilter===f)?"":f;
+  syncFilterUI();
+  renderGrid();
+}
+
+function syncFilterUI(){
+  document.querySelectorAll(".grade-tab").forEach(function(t){
+    t.classList.toggle("active", (t.getAttribute("data-g")||"")===gradeFilter);
+  });
+  document.querySelectorAll("#gsBody tr").forEach(function(tr){
+    tr.classList.toggle("on", (tr.getAttribute("data-g")||"")===gradeFilter && gradeFilter!=="");
+  });
+  document.querySelectorAll("#chips .chip[data-f]").forEach(function(c){
+    c.classList.toggle("on", c.getAttribute("data-f")===flagFilter);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   상단 지표
+   ═══════════════════════════════════════════════════════════ */
+
+/** 카테고리별 프로그램 수. catClass() 를 그대로 재사용한다 —
+ *  색 띠를 칠하는 함수와 숫자를 세는 함수가 다르면 화면이 서로 다른 말을 하게 된다. */
+function catCounts(){
+  var m={}; CATS.forEach(function(c){ m[c.k]=0; });
+  DATA.programs.forEach(function(p){ m[catClass(p).slice(4)]++; });
+  return m;
+}
+
+function renderCatStrip(){
+  var m=catCounts(), h="";
+  CATS.forEach(function(c){
+    h+='<span class="cs-item"><span class="cs-dot" style="background:'+c.color+'"></span>'+
+       esc(c.label)+' <b>'+m[c.k]+'</b></span>';
+  });
+  $("catStrip").innerHTML=h;
+  $("catSum").textContent="합 "+DATA.programs.length+"개 열";
+  $("sColSub").textContent="교과계 "+(m.EDU+m.ATT)+" · 비교과계 "+(m.EXT+m.OUT)+" · 기타 "+(m.DOC+m.PEN);
+}
+
+/** 학년별 통계 — 인원 / 요건 충족 / 미충족 / 충족률 / 평균 / 중앙값 / 최고 */
+function gradeStats(){
+  var goal=DATA.goal, by={}, order=[];
+  DATA.students.forEach(function(s){
+    var g=s.grade||"미상";
+    if(!by[g]){ by[g]={g:g,tots:[]}; order.push(g); }
+    by[g].tots.push(s.tot);
+  });
+  order.sort(function(a,b){ return (parseInt(a,10)||99)-(parseInt(b,10)||99); });
+  return order.map(function(g){
+    var t=by[g].tots.slice().sort(function(a,b){return a-b;});
+    var ok=t.filter(function(v){return v>=goal;}).length;
+    var sum=t.reduce(function(a,b){return a+b;},0);
+    var mid=t.length?(t.length%2?t[(t.length-1)/2]:(t[t.length/2-1]+t[t.length/2])/2):0;
+    return {g:g,n:t.length,ok:ok,miss:t.length-ok,
+            rate:t.length?Math.round(ok/t.length*100):0,
+            avg:t.length?Math.round(sum/t.length*10)/10:0,
+            mid:Math.round(mid*10)/10, max:t.length?t[t.length-1]:0};
+  });
+}
+
+function renderGradeStat(){
+  var rows=gradeStats(), h="";
+  $("sTotSub").textContent=rows.map(function(r){
+    return r.g+(/^\d+$/.test(r.g)?"학년":"")+" "+r.n;
+  }).join(" · ");
+  rows.forEach(function(r){
+    h+='<tr data-g="'+esc(r.g)+'" onclick="setGrade(\''+esc(r.g)+'\')">'+
+       '<td>'+esc(r.g)+(/^\d+$/.test(r.g)?"학년":"")+'</td>'+
+       '<td>'+r.n+'</td>'+
+       '<td class="gs-ok">'+r.ok+'</td>'+
+       '<td class="gs-no">'+r.miss+'</td>'+
+       '<td><span class="gs-bar"><i style="width:'+r.rate+'%"></i></span>'+r.rate+'%</td>'+
+       '<td>'+r.avg+'</td><td>'+r.mid+'</td><td>'+r.max+'</td></tr>';
+  });
+  $("gsBody").innerHTML=h;
+
+  var n=DATA.stats.students, ok=DATA.stats.goalCount;
+  var all=DATA.students.map(function(s){return s.tot;}).sort(function(a,b){return a-b;});
+  var sum=all.reduce(function(a,b){return a+b;},0);
+  var mid=all.length?(all.length%2?all[(all.length-1)/2]:(all[all.length/2-1]+all[all.length/2])/2):0;
+  $("gsFoot").innerHTML='<tr><td>전체</td><td>'+n+'</td>'+
+    '<td class="gs-ok">'+ok+'</td><td class="gs-no">'+(n-ok)+'</td>'+
+    '<td>'+(n?Math.round(ok/n*100):0)+'%</td>'+
+    '<td>'+(all.length?Math.round(sum/all.length*10)/10:0)+'</td>'+
+    '<td>'+Math.round(mid*10)/10+'</td>'+
+    '<td>'+(all.length?all[all.length-1]:0)+'</td></tr>';
+}
+
+/** 인사이트 칩 — 앞의 셋은 누르면 격자가 그 조건으로 걸러진다. */
+function renderChips(){
+  var d=DATA, goal=d.goal;
+  var edge=d.students.filter(function(s){ return s.tot>=goal-10 && s.tot<goal; });
+  var zero=d.students.filter(function(s){ return s.tot===0; });
+  var ns3 =d.students.filter(function(s){ return (s.ns||0)>=3; });
+  var gpaIn=d.students.filter(function(s){ return s.gpa!==null && s.gpa!==""; }).length;
+  var unres=(d.unresolved||[]).length, need=(d.needGpa||[]).length;
+
+  var h="";
+  h+='<button class="chip" data-f="edge" onclick="setFlag(\'edge\')" '+
+     'title="조금만 더 하면 요건을 채우는 학생입니다. 다음 학기 독려 대상.">'+
+     '경계선 '+(goal-10)+'~'+(goal-1)+'점 <b>'+edge.length+'</b>명</button>';
+  h+='<button class="chip" data-f="zero" onclick="setFlag(\'zero\')" '+
+     'title="활동 기록이 하나도 없습니다. 이탈 위험군이거나 명단·집계 누락일 수 있습니다.">'+
+     '0점 <b>'+zero.length+'</b>명</button>';
+  h+='<button class="chip" data-f="ns3" onclick="setFlag(\'ns3\')" '+
+     'title="노쇼 3회 이상 — 인재장학금 제외 대상입니다.">'+
+     '노쇼 3회 이상 <b>'+ns3.length+'</b>명</button>';
+
+  var gpaTxt='평점평균 입력 <b>'+gpaIn+'</b>명';
+  if(need)  gpaTxt+=' <span style="color:var(--amber)">· 입력 대기 '+need+'건</span>';
+  if(unres) gpaTxt+=' <span style="color:var(--red)">· 미해소 '+unres+'건</span>';
+  if(!need&&!unres) gpaTxt+=' <span style="color:var(--green)">· 동점 모두 해소</span>';
+  h+='<span class="chip static">'+gpaTxt+'</span>';
+
+  $("chips").innerHTML=h;
 }
 
 /* ── 동점 알림 ── */
@@ -539,48 +818,132 @@ function catClass(p){
 }
 
 function filtered(){
-  var q=$("q").value.trim().toLowerCase();
+  var q=$("q").value.trim().toLowerCase(), goal=DATA.goal;
   return DATA.students.filter(function(s){
     if(gradeFilter&&s.grade!==gradeFilter) return false;
+    if(flagFilter==="edge" && !(s.tot>=goal-10&&s.tot<goal)) return false;
+    if(flagFilter==="zero" && s.tot!==0) return false;
+    if(flagFilter==="ns3"  && (s.ns||0)<3) return false;
     if(!q) return true;
     return (s.name||"").toLowerCase().indexOf(q)>=0 || String(s.sid).indexOf(q)>=0;
   });
 }
 
+/* ── 카테고리 접기 ──
+   열을 지웠다 다시 그리지 않고 CSS 로 감춘다. 다시 그리면 가로 스크롤 위치가 초기화되어
+   "접었더니 보던 자리를 잃는" 문제가 생긴다. */
+function renderGroupChips(){
+  var m=catCounts(), h="";
+  h+='<button class="gchip gchip-all" onclick="toggleAll()" id="gchipAll">전체 접기</button>';
+  CATS.forEach(function(c){
+    if(!m[c.k]) return;
+    h+='<button class="gchip" data-k="'+c.k+'" onclick="toggleGroup(\''+c.k+'\')">'+
+       '<span class="gdot" style="background:'+c.color+'"></span>'+esc(c.label)+' <b>'+m[c.k]+'</b></button>';
+  });
+  $("gchips").innerHTML=h;
+  applyCollapse();
+}
+
+function toggleGroup(k){
+  if(collapsed[k]) delete collapsed[k]; else collapsed[k]=true;
+  applyCollapse();
+}
+
+function toggleAll(){
+  var m=catCounts();
+  var anyOpen=CATS.some(function(c){ return m[c.k]&&!collapsed[c.k]; });
+  collapsed={};
+  if(anyOpen) CATS.forEach(function(c){ if(m[c.k]) collapsed[c.k]=true; });
+  applyCollapse();
+}
+
+function applyCollapse(){
+  var sel=[];
+  Object.keys(collapsed).forEach(function(k){ sel.push(".gp-"+k); });
+  var st=$("colHide");
+  if(!st){ st=document.createElement("style"); st.id="colHide"; document.head.appendChild(st); }
+  st.textContent = sel.length ? sel.join(",")+"{display:none}" : "";
+
+  document.querySelectorAll(".gchip[data-k]").forEach(function(b){
+    b.classList.toggle("off", !!collapsed[b.getAttribute("data-k")]);
+  });
+  var m=catCounts();
+  var anyOpen=CATS.some(function(c){ return m[c.k]&&!collapsed[c.k]; });
+  var all=$("gchipAll"); if(all) all.textContent = anyOpen ? "전체 접기" : "전체 펼치기";
+
+  var shown=DATA.programs.filter(function(p){ return !collapsed[catClass(p).slice(4)]; }).length;
+  var cnt=$("gridCount");
+  if(cnt) cnt.textContent="· "+filtered().length+"명 / "+shown+"개 열"+
+    (shown<DATA.programs.length?" (전체 "+DATA.programs.length+")":"");
+}
+
 function renderGrid(){
-  var P=DATA.programs, rows=filtered();
-  $("gridCount").textContent="· "+rows.length+"명 / "+P.length+"개 열";
-  if(!rows.length){ $("gridHost").innerHTML='<div class="no-result">조건에 맞는 학생이 없습니다.</div>'; return; }
+  var P=DATA.programs, rows=filtered(), goal=DATA.goal;
+  if(!rows.length){
+    $("gridHost").innerHTML='<div class="no-result">조건에 맞는 학생이 없습니다.</div>';
+    $("gridCount").textContent="· 0명";
+    return;
+  }
+
+  // 프로그램마다 카테고리 키를 미리 뽑아 둔다 (접기용 클래스 · 색 띠 공용)
+  var GK=P.map(function(p){ return catClass(p).slice(4); });
 
   var h='<table class="grid"><thead>';
-  // 카테고리 색 띠
-  h+='<tr class="cat"><th class="fx c0"></th><th class="fx c1"></th><th class="fx c2"></th><th></th><th></th><th></th>';
-  P.forEach(function(p){ h+='<th class="pcol '+catClass(p)+'"></th>'; });
-  h+='<th></th><th></th></tr>';
-  // 이름 행
+
+  // ① 카테고리 색 띠  — 고정 4열 + 메타 3열 + 활동열 + 노쇼
+  h+='<tr class="cat"><th class="fx c0"></th><th class="fx c1"></th><th class="fx c2"></th><th class="fx c3"></th>'+
+     '<th></th><th></th><th></th>';
+  P.forEach(function(p,j){ h+='<th class="pcol gp-'+GK[j]+' cat-'+GK[j]+'"></th>'; });
+  h+='<th></th></tr>';
+
+  // ② 헤더 이름 행 — 가로쓰기
   h+='<tr class="nm"><th class="fx c0">번호</th><th class="fx c1">학번</th><th class="fx c2">이름</th>'+
+     '<th class="fx c3"><span class="vt">누적 마일리지</span></th>'+
      '<th style="width:120px"><span class="vt">학과</span></th>'+
      '<th style="width:34px"><span class="vt">학년</span></th>'+
      '<th style="width:34px"><span class="vt">기수</span></th>';
-  P.forEach(function(p){
-    h+='<th class="pcol" title="'+esc(p.name)+(p.date?" · "+esc(p.date):"")+' ('+esc(p.cat)+', 참석 '+p.n+'명)"><span class="vt">'+esc(shortName(p.name))+'</span></th>';
+  P.forEach(function(p,j){
+    h+='<th class="pcol gp-'+GK[j]+'" title="'+esc(p.name)+(p.date?" · "+esc(p.date):"")+
+       ' ('+esc(p.cat)+', 참석 '+p.n+'명)"><span class="vt">'+esc(shortName(p.name))+'</span></th>';
   });
-  h+='<th style="width:44px"><span class="vt">누적 마일리지</span></th><th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
+  h+='<th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
+
+  // ③ 본문
+  var colN=new Array(P.length); for(var k=0;k<P.length;k++) colN[k]=0;
+  var sumTot=0, sumNs=0;
 
   rows.forEach(function(s){
-    h+='<tr><td class="fx c0">'+s.no+'</td><td class="fx c1">'+esc(s.sid)+'</td><td class="fx c2">'+esc(s.name)+'</td>'+
+    h+='<tr><td class="fx c0">'+s.no+'</td><td class="fx c1">'+esc(s.sid)+'</td>'+
+       '<td class="fx c2">'+esc(s.name)+'</td>'+
+       '<td class="fx c3 '+(s.tot>=goal?"ok":"")+'">'+s.tot+'</td>'+
        '<td class="meta">'+esc(s.dept)+'</td><td>'+esc(s.grade)+'</td><td>'+esc(s.gen)+'</td>';
     for(var j=0;j<P.length;j++){
       var v=s.s[j]||0;
       var isNo=s.nsc.indexOf(j)>=0, isLim=s.lim.indexOf(j)>=0;
-      var cls="pcol "+(isNo?"no":(isLim?"lim ":"")+(v?"v":"z"));
+      var cls="pcol gp-"+GK[j]+" "+(isNo?"no":(isLim?"lim ":"")+(v?"v":"z"));
       h+='<td class="'+cls+'">'+(isNo?"노":(v?v:"·"))+'</td>';
+      if(v) colN[j]++;
     }
-    h+='<td class="tot '+(s.tot>=DATA.goal?"ok":"")+'">'+s.tot+'</td>'+
-       '<td class="nsn">'+(s.ns?s.ns:"")+'</td></tr>';
+    sumTot+=s.tot; sumNs+=(s.ns||0);
+    h+='<td class="nsn">'+(s.ns?s.ns:"")+'</td></tr>';
   });
-  h+='</tbody></table>';
+  h+='</tbody>';
+
+  // ④ 합계 행 — 프로그램별 참여 인원. 화면에 보이는 범위 기준으로 다시 센다.
+  h+='<tfoot><tr>'+
+     '<td class="fx c0"></td>'+
+     '<td class="fx c1 lb">참여 인원</td>'+
+     '<td class="fx c2 lb">'+rows.length+'명</td>'+
+     '<td class="fx c3">'+sumTot+'</td>'+
+     '<td class="lb" style="text-align:left;padding:0 7px">합계</td><td></td><td></td>';
+  for(var j2=0;j2<P.length;j2++){
+    h+='<td class="pcol gp-'+GK[j2]+'" title="'+esc(shortName(P[j2].name))+' — 화면 표시 대상 중 '+
+       colN[j2]+'명 참여">'+(colN[j2]||"·")+'</td>';
+  }
+  h+='<td class="nsn">'+(sumNs||"")+'</td></tr></tfoot></table>';
+
   $("gridHost").innerHTML=h;
+  applyCollapse();
 }
 
 /* ═══════════════════════════════════════════════════════════
