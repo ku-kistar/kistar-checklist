@@ -113,8 +113,8 @@ table.grid{border-collapse:separate;border-spacing:0;font-size:11px;font-family:
 table.grid th,table.grid td{border-right:.5px solid var(--border);border-bottom:.5px solid var(--border);padding:0;text-align:center;white-space:nowrap}
 table.grid thead th{position:sticky;top:0;z-index:20;background:var(--surface2);font-weight:600;color:var(--text2)}
 table.grid thead tr.cat th{top:0;height:5px;padding:0;z-index:21}
-table.grid thead tr.nm th{top:5px;z-index:20;height:132px;vertical-align:bottom;padding:6px 2px}
-.vt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:10.5px;line-height:1.2;max-height:118px;overflow:hidden;margin:0 auto;font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+table.grid thead tr.nm th{top:5px;z-index:20;height:150px;vertical-align:bottom;padding:6px 2px}
+.vt{writing-mode:vertical-rl;text-orientation:mixed;white-space:nowrap;font-size:10.5px;line-height:1.15;height:138px;overflow:hidden;margin:0 auto;font-family:'Malgun Gothic','맑은 고딕',sans-serif;text-align:right}
 th.pcol,td.pcol{width:26px;min-width:26px;max-width:26px}
 th.fx,td.fx{position:sticky;background:var(--surface);z-index:15}
 table.grid thead th.fx{z-index:30;background:var(--surface2)}
@@ -168,8 +168,8 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   .grid-scroll{overflow:visible!important;max-height:none!important}
   table.grid{font-size:6.5pt!important;width:100%!important}
   table.grid thead{display:table-header-group}
-  table.grid thead tr.nm th{height:74px!important;padding:2pt 1pt!important}
-  .vt{font-size:6pt!important;max-height:68px!important}
+  table.grid thead tr.nm th{height:88px!important;padding:2pt 1pt!important}
+  .vt{font-size:6pt!important;height:80px!important}
   th.fx,td.fx{position:static!important}
   tbody tr{height:auto!important}
   tbody tr td{padding:.5pt 0!important}
@@ -440,7 +440,7 @@ function renderTie(){
        '<span class="tie-meta">'+n.tot+'점</span>'+
        '<span style="margin-left:auto;display:flex;align-items:center;gap:6px">'+
        '<span style="font-size:11px;color:var(--text2)">평점평균</span>'+
-       '<input class="tie-input" data-sid="'+esc(n.sid)+'" inputmode="decimal" placeholder="0.00" value="'+(n.gpa===null?"":n.gpa)+'">'+
+       '<input class="tie-input" data-sid="'+esc(n.sid)+'" inputmode="decimal" placeholder="미입력" value="'+(n.gpa===null?"":n.gpa)+'">'+
        '</span></div>';
   });
   $("tieRows").innerHTML=h||'<div style="font-size:12px;color:var(--text2)">입력이 필요한 학생은 없습니다.</div>';
@@ -517,6 +517,18 @@ function renderRanks(){
 }
 
 /* ── 격자 ── */
+/** 헤더 라벨 — 프로그램명 뒤에 붙은 날짜를 떼고 길이를 줄인다.
+ *  전체 이름과 참석 인원은 칸에 마우스를 올리면 나온다. */
+function shortName(n){
+  var s=String(n||"").trim();
+  s=s.replace(/\s*\d{2}[.\-/]\d{2}[.\-/]\d{2}\s*\([월화수목금토일]\)/g,"");  // 26.04.03(수)
+  s=s.replace(/\s*\(\s*\d{1,2}[.\-/]\d{1,2}\s*\)/g,"");                      // (4.3)
+  s=s.replace(/\s*\d{4}[.\-/]\d{2}[.\-/]\d{2}/g,"");                         // 2026-04-03
+  s=s.replace(/\s+\d{2}[.\-/]\d{2}[.\-/]\d{2}\s*$/,"");                       // 26.02.25 (끝)
+  s=s.replace(/\s{2,}/g," ").trim();
+  return s.length>14 ? s.slice(0,13)+"…" : s;
+}
+
 function catClass(p){
   if(p.cat==="외부활동") return "cat-OUT";
   if(p.cat==="서류")     return "cat-DOC";
@@ -551,7 +563,7 @@ function renderGrid(){
      '<th style="width:34px"><span class="vt">학년</span></th>'+
      '<th style="width:34px"><span class="vt">기수</span></th>';
   P.forEach(function(p){
-    h+='<th class="pcol" title="'+esc(p.name)+' ('+esc(p.cat)+', '+p.n+'명)"><span class="vt">'+esc(p.name)+'</span></th>';
+    h+='<th class="pcol" title="'+esc(p.name)+(p.date?" · "+esc(p.date):"")+' ('+esc(p.cat)+', 참석 '+p.n+'명)"><span class="vt">'+esc(shortName(p.name))+'</span></th>';
   });
   h+='<th style="width:44px"><span class="vt">누적 마일리지</span></th><th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
 
