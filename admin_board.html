@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>활동별 마일리지 현황 · 증빙 | KI-STAR 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#dddbd3;
+  --text:#1a1916;--text2:#6b6960;--text3:#9a9890;
+  --navy:#0b1f3a;--accent:#7B1F2A;--accent-light:#fdf0ee;
+  --green:#2d7a4f;--green-light:#edf7f1;
+  --amber:#a0620a;--amber-light:#fdf5e6;
+  --blue:#1a5fa8;--blue-light:#eaf1fb;
+  --purple:#5b3fa6;--purple-light:#f2effe;
+  --red:#c8392b;--gold:#d4af37;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Malgun Gothic','맑은 고딕','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 4rem}
+
+/* ── 상단 바 ── */
+.top-bar{background:rgba(11,31,58,.96);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300}
+.top-bar-left{display:flex;align-items:center;gap:10px}
+.top-badge{font-size:10px;font-weight:700;background:var(--accent);color:#fff;padding:3px 8px;border-radius:4px}
+.top-title{font-size:13px;font-weight:600;color:#fff}
+.top-back{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.6);text-decoration:none;font-size:12px;transition:color .15s}
+.top-back:hover{color:#fff}
+
+.container{max-width:1600px;margin:0 auto;padding:1.5rem 1rem}
+
+/* ── 접근 거부 / 로딩 ── */
+#access-denied{display:none;max-width:420px;margin:4rem auto;text-align:center;padding:2.5rem 2rem;background:#fff;border-radius:16px;border:1px solid var(--border)}
+#access-denied h2{font-size:17px;margin-bottom:10px;color:var(--navy)}
+#access-denied p{font-size:13px;color:var(--text2);line-height:1.7}
+#birth-gate{display:none;max-width:420px;margin:4rem auto;padding:2.2rem 2rem;background:#fff;border-radius:16px;border:1px solid var(--border)}
+#birth-gate h2{font-size:16px;margin-bottom:6px;color:var(--navy)}
+#birth-gate p{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+#birth-gate input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;letter-spacing:.08em;text-align:center;outline:none}
+#birth-gate input:focus{border-color:var(--navy)}
+#birth-gate button{width:100%;margin-top:10px;padding:11px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+#birth-err{font-size:12px;color:var(--red);margin-top:8px;display:none}
+#loadingState{text-align:center;padding:4rem 1rem;color:var(--text3);font-size:13px}
+#main-content{display:none}
+
+/* ── 요약 ── */
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:1.25rem}
+@media(max-width:900px){.summary-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
+.summary-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:15px 17px}
+.summary-label{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600;letter-spacing:.04em}
+.summary-val{font-size:26px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1}
+.summary-sub{font-size:11px;color:var(--text3);margin-top:5px}
+
+/* ── 도구 막대 ── */
+.toolbar{background:var(--surface);border:.5px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tb-search{border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;font-family:inherit;width:190px;outline:none}
+.tb-search:focus{border-color:var(--navy)}
+.grade-tab{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
+.grade-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.grade-tab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+.tb-spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;font-size:12.5px;font-family:inherit;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--navy);color:var(--navy)}
+.btn-primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn-primary:hover{opacity:.88;color:#fff}
+.btn-navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn-navy:hover{opacity:.88;color:#fff}
+.btn:disabled{opacity:.5;cursor:wait}
+
+/* ── 동점 알림 ── */
+.tie-card{background:var(--amber-light);border:1px solid #f0d9a8;border-radius:12px;padding:16px 18px;margin-bottom:1.25rem;display:none}
+.tie-card.show{display:block}
+.tie-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--amber);margin-bottom:4px}
+.tie-desc{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px}
+.tie-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #f0d9a8;flex-wrap:wrap}
+.tie-rank{font-size:11px;font-weight:700;background:var(--amber);color:#fff;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tie-name{font-size:13px;font-weight:600;min-width:64px}
+.tie-meta{font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.tie-input{width:82px;padding:6px 9px;border:1px solid #d8bb7a;border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;text-align:center;outline:none;background:#fff}
+.tie-input:focus{border-color:var(--amber)}
+.tie-actions{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tie-msg{font-size:12px}
+.tie-unres{background:var(--accent-light);border:1px solid #f5c6c0;border-radius:8px;padding:10px 13px;margin-top:12px;font-size:12px;color:var(--accent);line-height:1.7}
+
+/* ── 상위 5명 ── */
+.rank-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:1.25rem}
+.rank-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;overflow:hidden}
+.rank-head{background:var(--navy);color:#fff;padding:9px 15px;font-size:12.5px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.rank-head span{font-weight:400;font-size:11px;color:rgba(255,255,255,.65)}
+.rank-body{padding:4px 0}
+.rank-row{display:flex;align-items:center;gap:9px;padding:7px 15px;border-bottom:.5px solid var(--border);font-size:12.5px}
+.rank-row:last-child{border-bottom:none}
+.rank-row.tie{background:var(--amber-light)}
+.rank-no{width:22px;height:22px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.rank-row:nth-child(1) .rank-no{background:var(--gold);color:#fff}
+.rank-nm{font-weight:600;min-width:56px}
+.rank-sid{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)}
+.rank-dp{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-sp{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap}
+.rank-gpa{font-size:11px;color:var(--blue);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.rank-ns{font-size:10px;background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:99px;white-space:nowrap}
+
+/* ── 격자 ── */
+.grid-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;overflow:hidden}
+.grid-head{padding:12px 16px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.grid-title{font-size:13px;font-weight:700}
+.grid-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text2);align-items:center}
+.lg{display:inline-flex;align-items:center;gap:4px}
+.lg-box{width:12px;height:12px;border-radius:3px;border:.5px solid var(--border)}
+.grid-scroll{overflow:auto;max-height:72vh}
+table.grid{border-collapse:separate;border-spacing:0;font-size:11px;font-family:'JetBrains Mono','Malgun Gothic',monospace}
+table.grid th,table.grid td{border-right:.5px solid var(--border);border-bottom:.5px solid var(--border);padding:0;text-align:center;white-space:nowrap}
+table.grid thead th{position:sticky;top:0;z-index:20;background:var(--surface2);font-weight:600;color:var(--text2)}
+table.grid thead tr.cat th{top:0;height:5px;padding:0;z-index:21}
+table.grid thead tr.nm th{top:5px;z-index:20;height:132px;vertical-align:bottom;padding:6px 2px}
+.vt{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;font-size:10.5px;line-height:1.2;max-height:118px;overflow:hidden;margin:0 auto;font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+th.pcol,td.pcol{width:26px;min-width:26px;max-width:26px}
+th.fx,td.fx{position:sticky;background:var(--surface);z-index:15}
+table.grid thead th.fx{z-index:30;background:var(--surface2)}
+th.c0,td.c0{left:0;width:38px;min-width:38px}
+th.c1,td.c1{left:38px;width:88px;min-width:88px}
+th.c2,td.c2{left:126px;width:62px;min-width:62px;border-right:1.5px solid var(--navy);font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+td.c1{font-size:10.5px;color:var(--text2)}
+td.c2{font-weight:600;color:var(--text)}
+td.meta{padding:0 7px;font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10.5px;color:var(--text2);text-align:left;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+tbody tr{height:26px}
+tbody tr:hover td{background:#fbfaf6}
+tbody tr:hover td.fx{background:#fbfaf6}
+td.v{color:var(--text)}
+td.z{color:#dcdad2}
+td.tot{font-weight:700;border-left:1.5px solid var(--navy);width:44px;min-width:44px}
+td.ok{color:var(--green)}
+td.no{background:var(--accent-light);color:var(--accent);font-weight:700}
+td.lim{background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)}
+td.nsn{width:34px;min-width:34px;color:var(--accent)}
+.cat-EDU{background:#1a5fa8}.cat-ATT{background:#7fa8d4}
+.cat-EXT{background:#2d7a4f}.cat-DOC{background:#a0620a}
+.cat-PEN{background:#c8392b}.cat-OUT{background:#5b3fa6}
+.grid-foot{padding:11px 16px;border-top:.5px solid var(--border);font-size:11px;color:var(--text3);line-height:1.8}
+.no-result{padding:2.5rem;text-align:center;color:var(--text3);font-size:13px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;z-index:900;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.err{background:var(--accent)}
+
+/* ── 인쇄 ── */
+.print-head{display:none}
+@media print{
+  @page{size:A4 landscape;margin:9mm 7mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;padding:0!important}
+  .top-bar,.toolbar,.tie-card,.grid-head,.grid-foot,.toast,#birth-gate{display:none!important}
+  .container{max-width:100%!important;padding:0!important}
+  .print-head{display:block!important;margin-bottom:6pt;padding-bottom:5pt;border-bottom:1.5pt solid #0b1f3a}
+  .print-head h1{font-size:13pt;font-weight:700;color:#0b1f3a}
+  .print-head .ph-sub{font-size:8.5pt;color:#555;margin-top:2pt;display:flex;justify-content:space-between}
+  .summary-grid{grid-template-columns:repeat(5,1fr)!important;gap:5pt!important;margin-bottom:6pt!important}
+  .summary-card{padding:5pt 7pt!important;border:.5pt solid #bbb!important;border-radius:4pt!important}
+  .summary-val{font-size:13pt!important}
+  .summary-label{font-size:7pt!important;margin-bottom:2pt!important}
+  .summary-sub{display:none!important}
+  .rank-wrap{gap:5pt!important;margin-bottom:6pt!important;break-inside:avoid}
+  .rank-card{border:.5pt solid #bbb!important;break-inside:avoid}
+  .rank-head{padding:4pt 8pt!important;font-size:8.5pt!important}
+  .rank-row{padding:2.5pt 8pt!important;font-size:8pt!important}
+  .rank-no{width:14px!important;height:14px!important;font-size:7.5pt!important}
+  .grid-card{border:none!important;overflow:visible!important;break-before:page}
+  .grid-scroll{overflow:visible!important;max-height:none!important}
+  table.grid{font-size:6.5pt!important;width:100%!important}
+  table.grid thead{display:table-header-group}
+  table.grid thead tr.nm th{height:74px!important;padding:2pt 1pt!important}
+  .vt{font-size:6pt!important;max-height:68px!important}
+  th.fx,td.fx{position:static!important}
+  tbody tr{height:auto!important}
+  tbody tr td{padding:.5pt 0!important}
+  th.c1,td.c1{width:58px!important;min-width:58px!important}
+  th.c2,td.c2{width:44px!important;min-width:44px!important}
+  th.pcol,td.pcol{width:15px!important;min-width:15px!important;max-width:15px!important}
+  td.meta{font-size:6pt!important;max-width:78px!important}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <span class="top-badge">ADMIN</span>
+    <span class="top-title">활동별 마일리지 현황 · 증빙</span>
+  </div>
+  <a href="admin_mileage.html" class="top-back">← 마일리지 대시보드</a>
+</div>
+
+<div id="access-denied">
+  <h2>접근 권한이 없습니다</h2>
+  <p id="denyMsg">관리자만 열람할 수 있는 페이지입니다.<br>데이터허브에서 다시 로그인해 주세요.</p>
+</div>
+
+<div id="birth-gate">
+  <h2>관리자 확인</h2>
+  <p>증빙 자료에는 학생 실명과 학번이 포함됩니다.<br>생년월일 8자리를 입력해 주세요. (예: 19990101)</p>
+  <input type="password" id="birthInput" maxlength="8" inputmode="numeric" placeholder="········" autocomplete="off">
+  <button onclick="submitBirth()">확인</button>
+  <div id="birth-err"></div>
+</div>
+
+<div id="loadingState" style="display:none">데이터를 불러오는 중입니다…</div>
+
+<div id="main-content">
+<div class="container">
+
+  <div class="print-head">
+    <h1 id="phTitle">2026학년도 1학기 &lt;차세대반도체 융합전공&gt; 마일리지 현황</h1>
+    <div class="ph-sub">
+      <span>차세대AI반도체특성화대학사업단 · 차세대반도체 융합전공</span>
+      <span id="phMeta"></span>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card"><div class="summary-label">대상 학생</div><div class="summary-val" id="sTot">–</div><div class="summary-sub">2026-1학기 등록</div></div>
+    <div class="summary-card"><div class="summary-label">40점 이상</div><div class="summary-val" id="sGoal" style="color:var(--green)">–</div><div class="summary-sub" id="sGoalSub">–</div></div>
+    <div class="summary-card"><div class="summary-label">총점 합계</div><div class="summary-val" id="sSum">–</div><div class="summary-sub">검증용 수치</div></div>
+    <div class="summary-card"><div class="summary-label">활동 열</div><div class="summary-val" id="sCol">–</div><div class="summary-sub">프로그램 수</div></div>
+    <div class="summary-card"><div class="summary-label">갱신</div><div class="summary-val" id="sUpd" style="font-size:15px">–</div><div class="summary-sub">캐시 없음 · 실시간</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" class="tb-search" id="q" placeholder="이름 · 학번 검색" oninput="renderGrid()">
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="gradeTabs"></div>
+    <div class="tb-spacer"></div>
+    <button class="btn" onclick="loadData()">↻ 새로고침</button>
+    <button class="btn btn-primary" id="btnXlsx" onclick="exportXlsx()">엑셀 (증빙)</button>
+    <button class="btn btn-navy" id="btnDocx" onclick="exportDocx()">보고서 (docx)</button>
+    <button class="btn" onclick="window.print()">인쇄</button>
+  </div>
+
+  <div class="tie-card" id="tieCard">
+    <div class="tie-head">⚠ 평점평균 확인이 필요합니다</div>
+    <div class="tie-desc">
+      상위권에 동점자가 있습니다. 선발기준 2항에 따라 평점평균이 높은 학생이 상위 순위가 됩니다.<br>
+      아래에 입력하면 <strong>구글시트 명단 탭 L열</strong>에 저장되고 순위가 다시 매겨집니다.
+    </div>
+    <div id="tieRows"></div>
+    <div class="tie-actions">
+      <button class="btn btn-navy" id="btnGpa" onclick="saveGpa()">평점평균 저장</button>
+      <span class="tie-msg" id="gpaMsg"></span>
+    </div>
+    <div class="tie-unres" id="tieUnres" style="display:none"></div>
+  </div>
+
+  <div class="rank-wrap" id="rankWrap"></div>
+
+  <div class="grid-card">
+    <div class="grid-head">
+      <div class="grid-title">활동별 마일리지 격자 <span style="font-weight:400;color:var(--text3);font-size:11px" id="gridCount"></span></div>
+      <div class="grid-legend">
+        <span class="lg"><span class="lg-box cat-EDU"></span>교과</span>
+        <span class="lg"><span class="lg-box cat-ATT"></span>출결</span>
+        <span class="lg"><span class="lg-box cat-EXT"></span>비교과</span>
+        <span class="lg"><span class="lg-box cat-DOC"></span>서류</span>
+        <span class="lg"><span class="lg-box cat-OUT"></span>외부활동</span>
+        <span class="lg"><span class="lg-box cat-PEN"></span>패널티</span>
+        <span class="lg"><span style="color:var(--accent);font-weight:700">노</span> 노쇼</span>
+        <span class="lg"><span class="lg-box lim" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)"></span> 참여제한</span>
+      </div>
+    </div>
+    <div class="grid-scroll"><div id="gridHost"></div></div>
+    <div class="grid-foot" id="gridFoot"></div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   설정
+   ═══════════════════════════════════════════════════════════ */
+var EXEC_URL = "https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec";
+var CDN_XLSX = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+var CDN_ZIP  = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+
+var AUTH = null;      // {studentId, birthDate}
+var DATA = null;      // 서버 응답
+var gradeFilter = "";
+
+/* ═══════════════════════════════════════════════════════════
+   공용
+   ═══════════════════════════════════════════════════════════ */
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function $(id){return document.getElementById(id);}
+
+function toast(msg, isErr){
+  var t=$("toast"); t.textContent=msg; t.className="toast show"+(isErr?" err":"");
+  setTimeout(function(){t.className="toast"+(isErr?" err":"");},2600);
+}
+
+function callGAS(params){
+  return new Promise(function(resolve,reject){
+    var cb="_cb_"+Date.now()+"_"+Math.floor(Math.random()*1e6);
+    var s=document.createElement("script");
+    var q=Object.assign({callback:cb},params);
+    s.src=EXEC_URL+"?"+Object.keys(q).map(function(k){return k+"="+encodeURIComponent(q[k]);}).join("&");
+    window[cb]=function(d){delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);resolve(d);};
+    s.onerror=function(){delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);reject(new Error("서버 호출 실패"));};
+    document.body.appendChild(s);
+  });
+}
+
+/** CDN 라이브러리 지연 로드 */
+function loadScript(url){
+  return new Promise(function(resolve,reject){
+    var s=document.createElement("script");
+    s.src=url; s.onload=resolve;
+    s.onerror=function(){reject(new Error("라이브러리를 불러오지 못했습니다. 네트워크를 확인해 주세요."));};
+    document.head.appendChild(s);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   인증
+   ═══════════════════════════════════════════════════════════ */
+window.addEventListener("DOMContentLoaded", function(){
+  var auth=null;
+  try{ auth=JSON.parse(localStorage.getItem("kistar_auth_url2")||"null"); }catch(e){}
+  var EXPIRE=8*60*60*1000;
+  if(!auth||!auth.studentId||Date.now()-(auth.loginTime||0)>EXPIRE){
+    $("access-denied").style.display="block"; return;
+  }
+  AUTH={studentId:auth.studentId, birthDate:""};
+  var b=String(auth.birthDate||auth.birth||"").replace(/[^0-9]/g,"");
+  if(b.length===8){ AUTH.birthDate=b; loadData(); }
+  else{ $("birth-gate").style.display="block"; $("birthInput").focus(); }
+});
+
+$("birthInput").addEventListener("keydown",function(e){ if(e.key==="Enter") submitBirth(); });
+
+function submitBirth(){
+  var v=$("birthInput").value.replace(/[^0-9]/g,"");
+  if(v.length!==8){ showBirthErr("생년월일 8자리를 입력해 주세요."); return; }
+  AUTH.birthDate=v;
+  $("birth-gate").style.display="none";
+  loadData();
+}
+function showBirthErr(m){ var e=$("birth-err"); e.textContent=m; e.style.display="block"; }
+
+/* ═══════════════════════════════════════════════════════════
+   데이터 로드
+   ═══════════════════════════════════════════════════════════ */
+function loadData(){
+  $("main-content").style.display="none";
+  $("loadingState").style.display="block";
+  $("loadingState").textContent="데이터를 불러오는 중입니다… (캐시를 쓰지 않아 5초 정도 걸립니다)";
+
+  callGAS({
+    action:"getBoardDataAdmin",
+    studentId:AUTH.studentId,
+    birthDate:AUTH.birthDate,
+    page:"admin_board",
+    userAgent:navigator.userAgent
+  }).then(function(res){
+    if(!res){ throw new Error("응답 없음"); }
+    if(res.status==="denied"){
+      $("loadingState").style.display="none";
+      $("birth-gate").style.display="block";
+      $("birthInput").value=""; $("birthInput").focus();
+      showBirthErr(res.message||"확인에 실패했습니다.");
+      return;
+    }
+    if(res.status!=="ok") throw new Error(res.message||"데이터 오류");
+    DATA=res;
+    $("loadingState").style.display="none";
+    $("main-content").style.display="block";
+    renderAll();
+  }).catch(function(e){
+    $("loadingState").innerHTML='<p style="color:var(--red)">불러오지 못했습니다: '+esc(e.message)+
+      '<br><button class="btn" style="margin-top:10px" onclick="loadData()">다시 시도</button></p>';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   렌더링
+   ═══════════════════════════════════════════════════════════ */
+function renderAll(){
+  var d=DATA;
+  $("sTot").textContent=d.stats.students;
+  $("sGoal").textContent=d.stats.goalCount;
+  $("sGoalSub").textContent=d.stats.students?Math.round(d.stats.goalCount/d.stats.students*100)+"% 달성":"–";
+  $("sSum").textContent=d.stats.sumTot;
+  $("sCol").textContent=d.programs.length;
+  $("sUpd").textContent=(d.updated||"").slice(5);
+  $("phTitle").textContent="2026학년도 "+d.semester.split("-")[1]+"학기 <차세대반도체 융합전공> 마일리지 현황";
+  $("phMeta").textContent="출력일 "+fmtToday()+" · 대상 "+d.stats.students+"명 · 총점 합계 "+d.stats.sumTot;
+
+  // 학년 탭
+  var grades=[]; 
+  d.students.forEach(function(s){ if(s.grade&&grades.indexOf(s.grade)<0) grades.push(s.grade); });
+  grades.sort(function(a,b){return parseInt(a,10)-parseInt(b,10);});
+  var html='<button class="grade-tab active" data-g="" onclick="setGrade(this,\'\')">전체</button>';
+  grades.forEach(function(g){ html+='<button class="grade-tab" data-g="'+esc(g)+'" onclick="setGrade(this,\''+esc(g)+'\')">'+esc(g)+'학년</button>'; });
+  $("gradeTabs").innerHTML=html;
+
+  renderTie();
+  renderRanks();
+  renderGrid();
+
+  var foot="검증 수치 — 학생 "+d.stats.students+"명 · 활동 열 "+d.programs.length+"개 · 총점 합계 "+d.stats.sumTot+
+           " · "+d.goal+"점 이상 "+d.stats.goalCount+"명 · 기준 "+d.semester+"학기";
+  if(d.unmapped&&d.unmapped.length) foot+="<br>⚠ 열에 매핑되지 않은 프로그램ID: "+esc(d.unmapped.join(", "))+" — 프로그램 탭 확인 필요";
+  $("gridFoot").innerHTML=foot;
+}
+
+function fmtToday(){
+  var t=new Date();
+  return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");
+}
+
+function setGrade(btn,g){
+  gradeFilter=g;
+  document.querySelectorAll(".grade-tab").forEach(function(t){t.classList.remove("active");});
+  btn.classList.add("active");
+  renderGrid();
+}
+
+/* ── 동점 알림 ── */
+function renderTie(){
+  var need=DATA.needGpa||[], unres=DATA.unresolved||[];
+  var card=$("tieCard");
+  if(!need.length&&!unres.length){ card.className="tie-card"; return; }
+  card.className="tie-card show";
+
+  var h="";
+  need.forEach(function(n){
+    h+='<div class="tie-row">'+
+       '<span class="tie-rank">'+esc(n.grade)+'학년 '+n.rank+'위</span>'+
+       '<span class="tie-name">'+esc(n.name)+'</span>'+
+       '<span class="tie-meta">'+esc(n.sid)+'</span>'+
+       '<span class="tie-meta" style="color:var(--text3)">'+esc(n.dept)+'</span>'+
+       '<span class="tie-meta">'+n.tot+'점</span>'+
+       '<span style="margin-left:auto;display:flex;align-items:center;gap:6px">'+
+       '<span style="font-size:11px;color:var(--text2)">평점평균</span>'+
+       '<input class="tie-input" data-sid="'+esc(n.sid)+'" inputmode="decimal" placeholder="0.00" value="'+(n.gpa===null?"":n.gpa)+'">'+
+       '</span></div>';
+  });
+  $("tieRows").innerHTML=h||'<div style="font-size:12px;color:var(--text2)">입력이 필요한 학생은 없습니다.</div>';
+  $("btnGpa").style.display=need.length?"":"none";
+
+  if(unres.length){
+    var u='<strong>평점평균까지 같아 순위를 가리지 못했습니다.</strong><br>';
+    unres.forEach(function(x){
+      u+=esc(x.grade)+"학년 "+x.rank+"위 · "+esc(x.name)+" ("+esc(x.sid)+") · "+x.tot+"점 · 평점 "+x.gpa+"<br>";
+    });
+    u+='규정에 3차 기준이 없어 자동 판정하지 않습니다. 담당자 판단이 필요합니다.';
+    $("tieUnres").innerHTML=u; $("tieUnres").style.display="block";
+  }else{ $("tieUnres").style.display="none"; }
+}
+
+function saveGpa(){
+  var inputs=document.querySelectorAll(".tie-input");
+  var items=[], bad=null;
+  inputs.forEach(function(el){
+    var v=el.value.trim();
+    if(v!==""){
+      var n=parseFloat(v);
+      if(isNaN(n)||n<0||n>4.5) bad=el.getAttribute("data-sid");
+    }
+    items.push({sid:el.getAttribute("data-sid"), gpa:v});
+  });
+  if(bad){ $("gpaMsg").innerHTML='<span style="color:var(--red)">0 ~ 4.5 사이 숫자를 입력해 주세요.</span>'; return; }
+  if(!items.length) return;
+
+  var btn=$("btnGpa"); btn.disabled=true;
+  $("gpaMsg").innerHTML='<span style="color:var(--text2)">저장 중…</span>';
+
+  callGAS({
+    action:"setGpa",
+    studentId:AUTH.studentId,
+    birthDate:AUTH.birthDate,
+    items:JSON.stringify(items)
+  }).then(function(res){
+    btn.disabled=false;
+    if(!res||res.status!=="ok"){
+      $("gpaMsg").innerHTML='<span style="color:var(--red)">저장 실패: '+esc((res&&res.message)||"알 수 없는 오류")+'</span>';
+      return;
+    }
+    $("gpaMsg").innerHTML='<span style="color:var(--green)">'+res.saved+'명 저장 완료 · 순위를 다시 계산합니다…</span>';
+    setTimeout(loadData,700);
+  }).catch(function(e){
+    btn.disabled=false;
+    $("gpaMsg").innerHTML='<span style="color:var(--red)">저장 실패: '+esc(e.message)+'</span>';
+  });
+}
+
+/* ── 학년별 상위 5명 ── */
+function renderRanks(){
+  var h="";
+  (DATA.ranks||[]).forEach(function(r){
+    if(!r.rows.length) return;
+    // 같은 순위가 둘 이상이면 동점 표시
+    var cnt={}; r.rows.forEach(function(w){cnt[w.rank]=(cnt[w.rank]||0)+1;});
+    h+='<div class="rank-card"><div class="rank-head"><span style="color:#fff">'+esc(r.grade)+'학년 상위 '+DATA.topN+'명</span><span>'+r.rows.length+'명</span></div><div class="rank-body">';
+    r.rows.forEach(function(w){
+      h+='<div class="rank-row'+(cnt[w.rank]>1?' tie':'')+'">'+
+         '<span class="rank-no">'+w.rank+'</span>'+
+         '<span class="rank-nm">'+esc(w.name)+'</span>'+
+         '<span class="rank-sid">'+esc(w.sid)+'</span>'+
+         '<span class="rank-dp">'+esc(w.dept)+'</span>'+
+         (w.gpa!==null?'<span class="rank-gpa">'+w.gpa.toFixed(2)+'</span>':'')+
+         (w.ns>=3?'<span class="rank-ns">노쇼 '+w.ns+'</span>':'')+
+         '<span class="rank-sp">'+w.tot+'점</span>'+
+         '</div>';
+    });
+    h+='</div></div>';
+  });
+  $("rankWrap").innerHTML=h;
+}
+
+/* ── 격자 ── */
+function catClass(p){
+  if(p.cat==="외부활동") return "cat-OUT";
+  if(p.cat==="서류")     return "cat-DOC";
+  if(p.cat==="패널티")   return "cat-PEN";
+  if(p.cat==="비교과")   return "cat-EXT";
+  if(/^ATT[-_]/.test(p.id)) return "cat-ATT";
+  return "cat-EDU";
+}
+
+function filtered(){
+  var q=$("q").value.trim().toLowerCase();
+  return DATA.students.filter(function(s){
+    if(gradeFilter&&s.grade!==gradeFilter) return false;
+    if(!q) return true;
+    return (s.name||"").toLowerCase().indexOf(q)>=0 || String(s.sid).indexOf(q)>=0;
+  });
+}
+
+function renderGrid(){
+  var P=DATA.programs, rows=filtered();
+  $("gridCount").textContent="· "+rows.length+"명 / "+P.length+"개 열";
+  if(!rows.length){ $("gridHost").innerHTML='<div class="no-result">조건에 맞는 학생이 없습니다.</div>'; return; }
+
+  var h='<table class="grid"><thead>';
+  // 카테고리 색 띠
+  h+='<tr class="cat"><th class="fx c0"></th><th class="fx c1"></th><th class="fx c2"></th><th></th><th></th><th></th>';
+  P.forEach(function(p){ h+='<th class="pcol '+catClass(p)+'"></th>'; });
+  h+='<th></th><th></th></tr>';
+  // 이름 행
+  h+='<tr class="nm"><th class="fx c0">번호</th><th class="fx c1">학번</th><th class="fx c2">이름</th>'+
+     '<th style="width:120px"><span class="vt">학과</span></th>'+
+     '<th style="width:34px"><span class="vt">학년</span></th>'+
+     '<th style="width:34px"><span class="vt">기수</span></th>';
+  P.forEach(function(p){
+    h+='<th class="pcol" title="'+esc(p.name)+' ('+esc(p.cat)+', '+p.n+'명)"><span class="vt">'+esc(p.name)+'</span></th>';
+  });
+  h+='<th style="width:44px"><span class="vt">누적 마일리지</span></th><th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
+
+  rows.forEach(function(s){
+    h+='<tr><td class="fx c0">'+s.no+'</td><td class="fx c1">'+esc(s.sid)+'</td><td class="fx c2">'+esc(s.name)+'</td>'+
+       '<td class="meta">'+esc(s.dept)+'</td><td>'+esc(s.grade)+'</td><td>'+esc(s.gen)+'</td>';
+    for(var j=0;j<P.length;j++){
+      var v=s.s[j]||0;
+      var isNo=s.nsc.indexOf(j)>=0, isLim=s.lim.indexOf(j)>=0;
+      var cls="pcol "+(isNo?"no":(isLim?"lim ":"")+(v?"v":"z"));
+      h+='<td class="'+cls+'">'+(isNo?"노":(v?v:"·"))+'</td>';
+    }
+    h+='<td class="tot '+(s.tot>=DATA.goal?"ok":"")+'">'+s.tot+'</td>'+
+       '<td class="nsn">'+(s.ns?s.ns:"")+'</td></tr>';
+  });
+  h+='</tbody></table>';
+  $("gridHost").innerHTML=h;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   엑셀 (증빙)  —  회계 제출용 전체 격자
+   ═══════════════════════════════════════════════════════════ */
+function exportXlsx(){
+  var btn=$("btnXlsx"); btn.disabled=true; btn.textContent="생성 중…";
+  var p=(typeof XLSX!=="undefined")?Promise.resolve():loadScript(CDN_XLSX);
+  p.then(function(){ buildXlsx(); btn.disabled=false; btn.textContent="엑셀 (증빙)"; })
+   .catch(function(e){ btn.disabled=false; btn.textContent="엑셀 (증빙)"; toast(e.message,true); });
+}
+
+function buildXlsx(){
+  var d=DATA, P=d.programs;
+  var yr="2026", sem=d.semester.split("-")[1];
+  var aoa=[], merges=[];
+  var W=10+P.length+3;   // 전체 열 수
+
+  aoa.push([yr+"학년도 "+sem+"학기 <차세대반도체 융합전공> 마일리지 현황"]);
+  aoa.push([]);
+  aoa.push(["[차세대반도체 융합전공] 우수학생 선발기준\n1) 누적 마일리지 점수 상위 학년별 5명 <총 15명>\n2) 동점자의 경우 "+yr+"학년도 "+sem+"학기 평점평균이 높은 자"]);
+  aoa.push([]);
+  merges.push({s:{r:0,c:0},e:{r:0,c:W-1}});
+  merges.push({s:{r:2,c:0},e:{r:2,c:W-1}});
+
+  var head=["이름(학번)","NO","관리번호","성명","학부/과","학번","학년","기수","연락처 (휴대폰)","연락처(메일)"];
+  P.forEach(function(p){ head.push(p.name); });
+  head.push("누적마일리지"); head.push(yr+"-"+sem+"\n평점평균"); head.push("노쇼");
+  aoa.push(head);
+
+  var rows=d.students.slice().sort(function(a,b){
+    var ga=parseInt(a.grade,10)||99, gb=parseInt(b.grade,10)||99;
+    if(ga!==gb) return ga-gb;
+    return b.tot-a.tot;
+  });
+
+  rows.forEach(function(s,i){
+    var r=[s.name+" ("+s.sid+")", i+1, s.uid, s.name, s.dept, s.sid,
+           s.grade?s.grade+"학년":"", s.gen, "", ""];
+    for(var j=0;j<P.length;j++) r.push(s.s[j]?s.s[j]:"");
+    r.push(s.tot);
+    r.push(s.gpa===null?"":s.gpa);
+    r.push(s.ns?s.ns:"");
+    aoa.push(r);
+  });
+
+  aoa.push([]);
+  aoa.push(["검증 수치 — 대상 "+d.stats.students+"명 / 활동 열 "+P.length+"개 / 총점 합계 "+
+            d.stats.sumTot+" / "+d.goal+"점 이상 "+d.stats.goalCount+"명 / 기준 "+d.semester+"학기"]);
+  aoa.push(["출처 — 데이터허브 마일리지내역 탭. 출력일시 "+fmtToday()+" "+
+            new Date().toTimeString().slice(0,5)+". 연락처·평점평균은 시스템에 없어 빈 열로 둡니다."]);
+  merges.push({s:{r:aoa.length-2,c:0},e:{r:aoa.length-2,c:W-1}});
+  merges.push({s:{r:aoa.length-1,c:0},e:{r:aoa.length-1,c:W-1}});
+
+  var ws=XLSX.utils.aoa_to_sheet(aoa);
+
+  // ★ 학번·관리번호를 텍스트로 고정한다.
+  //   숫자로 두면 엑셀이 2.02217E+09 로 표시해 증빙에서 학번이 보이지 않는다.
+  var HEADROW=4;                          // 0-based, 헤더는 5행
+  for(var i=0;i<rows.length;i++){
+    [2,5].forEach(function(c){            // C열 관리번호, F열 학번
+      var ref=XLSX.utils.encode_cell({r:HEADROW+1+i,c:c});
+      if(ws[ref]){ ws[ref].t="s"; ws[ref].v=String(ws[ref].v); ws[ref].z="@"; }
+    });
+  }
+
+  var cols=[{wch:18},{wch:5},{wch:9},{wch:9},{wch:16},{wch:12},{wch:7},{wch:6},{wch:15},{wch:22}];
+  P.forEach(function(){ cols.push({wch:7}); });
+  cols.push({wch:12},{wch:9},{wch:6});
+  ws["!cols"]=cols;
+  ws["!merges"]=merges;
+  ws["!freeze"]={xSplit:6,ySplit:5};
+
+  var wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,yr+"_"+sem+"_마일리지");
+  XLSX.writeFile(wb, yr+"학년도_"+sem+"학기_마일리지현황_"+fmtToday().replace(/-/g,"")+".xlsx");
+  toast("엑셀 파일을 내려받았습니다.");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   보고서 (docx)  —  우수학생 선발 결과
+   OOXML 을 직접 만들어 zip 으로 묶는다. 한글(HWP)에서도 열린다.
+   ═══════════════════════════════════════════════════════════ */
+function exportDocx(){
+  var btn=$("btnDocx"); btn.disabled=true; btn.textContent="생성 중…";
+  var p=(typeof JSZip!=="undefined")?Promise.resolve():loadScript(CDN_ZIP);
+  p.then(function(){ return buildDocx(); })
+   .then(function(){ btn.disabled=false; btn.textContent="보고서 (docx)"; })
+   .catch(function(e){ btn.disabled=false; btn.textContent="보고서 (docx)"; toast(e.message,true); });
+}
+
+function xe(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+/** 문단 */
+function dp(text,o){
+  o=o||{};
+  var jc=o.align?'<w:jc w:val="'+o.align+'"/>':"";
+  var sp='<w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after===undefined?60:o.after)+'" w:line="264" w:lineRule="auto"/>';
+  var ind=o.indent?'<w:ind w:left="'+o.indent+'"/>':"";
+  var rpr='<w:rPr>'+
+    '<w:rFonts w:ascii="맑은 고딕" w:hAnsi="맑은 고딕" w:eastAsia="맑은 고딕"/>'+
+    (o.b?'<w:b/>':"")+
+    (o.color?'<w:color w:val="'+o.color+'"/>':"")+
+    '<w:sz w:val="'+(o.sz||20)+'"/><w:szCs w:val="'+(o.sz||20)+'"/></w:rPr>';
+  var runs=String(text==null?"":text).split("\n").map(function(t,i){
+    return (i?'<w:r>'+rpr+'<w:br/></w:r>':"")+'<w:r>'+rpr+'<w:t xml:space="preserve">'+xe(t)+'</w:t></w:r>';
+  }).join("");
+  return '<w:p><w:pPr>'+sp+jc+ind+'</w:pPr>'+runs+'</w:p>';
+}
+
+/** 표 셀 */
+function dtc(text,w,o){
+  o=o||{};
+  return '<w:tc><w:tcPr><w:tcW w:w="'+w+'" w:type="dxa"/>'+
+    (o.shd?'<w:shd w:val="clear" w:color="auto" w:fill="'+o.shd+'"/>':"")+
+    '<w:vAlign w:val="center"/></w:tcPr>'+
+    dp(text,{align:o.align||"center",b:o.b,sz:o.sz||18,after:0,color:o.color})+'</w:tc>';
+}
+
+function buildDocx(){
+  var d=DATA, yr="2026", sem=d.semester.split("-")[1];
+  var CW=[660,1200,2000,1700,700,1500,1200,1078];   // 합 9638 dxa
+  var body="";
+
+  body+=dp(yr+"학년도 "+sem+"학기",{align:"center",sz:22,after:40});
+  body+=dp("<차세대반도체 융합전공> 우수학생 선발 결과",{align:"center",b:true,sz:32,after:120});
+  body+=dp("차세대AI반도체특성화대학사업단",{align:"center",sz:18,color:"666666",after:320});
+
+  body+=dp("1. 선발 기준",{b:true,sz:22,before:120,after:80});
+  body+=dp("가. 누적 마일리지 점수 상위 학년별 5명 <총 15명>",{indent:280,after:40});
+  body+=dp("나. 동점자의 경우 "+yr+"학년도 "+sem+"학기 평점평균이 높은 자",{indent:280,after:240});
+
+  body+=dp("2. 선발 개요",{b:true,sz:22,before:120,after:80});
+  var total=0; (d.ranks||[]).forEach(function(r){ total+=r.rows.length; });
+  body+=dp("가. 대상 인원 : "+d.stats.students+"명 ("+d.semester+"학기 등록)",{indent:280,after:40});
+  body+=dp("나. 선발 인원 : "+total+"명",{indent:280,after:40});
+  body+=dp("다. 산출 기준일 : "+fmtToday(),{indent:280,after:240});
+
+  body+=dp("3. 선발 명단",{b:true,sz:22,before:120,after:80});
+
+  var HEAD=["연번","성명","학부/과","학번","학년","누적마일리지","평점평균","비고"];
+  (d.ranks||[]).forEach(function(r){
+    if(!r.rows.length) return;
+    var cnt={}; r.rows.forEach(function(w){cnt[w.rank]=(cnt[w.rank]||0)+1;});
+
+    body+=dp("["+r.grade+"학년]",{b:true,sz:20,indent:140,before:120,after:60});
+    var t='<w:tbl><w:tblPr><w:tblW w:w="9638" w:type="dxa"/>'+
+      '<w:tblBorders>'+
+      ['top','left','bottom','right','insideH','insideV'].map(function(x){
+        return '<w:'+x+' w:val="single" w:sz="4" w:space="0" w:color="999999"/>';}).join("")+
+      '</w:tblBorders><w:tblLayout w:type="fixed"/></w:tblPr>'+
+      '<w:tblGrid>'+CW.map(function(x){return '<w:gridCol w:w="'+x+'"/>';}).join("")+'</w:tblGrid>';
+
+    t+='<w:tr><w:trPr><w:tblHeader/></w:trPr>';
+    HEAD.forEach(function(hh,i){ t+=dtc(hh,CW[i],{b:true,shd:"E8EAED"}); });
+    t+='</w:tr>';
+
+    r.rows.forEach(function(w,i){
+      var note=(cnt[w.rank]>1)?(w.gpa===null?"동점 · 평점 확인 필요":"동점 · 평점 반영"):"";
+      var cells=[String(i+1), w.name, w.dept, w.sid, w.grade+"학년",
+                 String(w.tot), (w.gpa===null?"":w.gpa.toFixed(2)), note];
+      t+='<w:tr>';
+      cells.forEach(function(c,j){
+        t+=dtc(c,CW[j],{align:(j===2?"left":"center"),color:(j===7&&note?"A0620A":null)});
+      });
+      t+='</w:tr>';
+    });
+    t+='</w:tbl>';
+    body+=t+dp("",{after:120});
+  });
+
+  if((d.needGpa||[]).length){
+    body+=dp("※ 동점자가 있어 평점평균 확인 후 최종 확정이 필요합니다.",
+             {sz:18,color:"A0620A",indent:140,after:60});
+  }
+  if((d.unresolved||[]).length){
+    body+=dp("※ 평점평균까지 동일하여 순위를 가리지 못한 학생이 있습니다. 담당자 판단이 필요합니다.",
+             {sz:18,color:"C8392B",indent:140,after:60});
+  }
+
+  body+=dp("4. 산출 근거",{b:true,sz:22,before:240,after:80});
+  body+=dp("가. 데이터허브 마일리지내역을 기준으로 집계하였으며, 별첨 엑셀 자료와 동일합니다.",{indent:280,after:40});
+  body+=dp("나. 검증 수치 : 대상 "+d.stats.students+"명 / 총점 합계 "+d.stats.sumTot+
+           " / "+d.goal+"점 이상 "+d.stats.goalCount+"명 / 활동 열 "+d.programs.length+"개",{indent:280,after:40});
+  body+=dp("다. 출력일시 : "+fmtToday()+" "+new Date().toTimeString().slice(0,5),{indent:280,after:40});
+
+  var sect='<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'+
+    '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="851" w:footer="992" w:gutter="0"/>'+
+    '</w:sectPr>';
+
+  var doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
+    '<w:body>'+body+sect+'</w:body></w:document>';
+
+  var styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
+    '<w:docDefaults><w:rPrDefault><w:rPr>'+
+    '<w:rFonts w:ascii="맑은 고딕" w:hAnsi="맑은 고딕" w:eastAsia="맑은 고딕" w:cs="맑은 고딕"/>'+
+    '<w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:rPrDefault>'+
+    '<w:pPrDefault><w:pPr><w:spacing w:after="60" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault>'+
+    '</w:docDefaults>'+
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'+
+    '</w:styles>';
+
+  var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+    '<Default Extension="xml" ContentType="application/xml"/>'+
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+    '</Types>';
+
+  var rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+    '</Relationships>';
+
+  var drels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+
+    '</Relationships>';
+
+  var zip=new JSZip();
+  zip.file("[Content_Types].xml",ct);
+  zip.folder("_rels").file(".rels",rels);
+  var w=zip.folder("word");
+  w.file("document.xml",doc);
+  w.file("styles.xml",styles);
+  w.folder("_rels").file("document.xml.rels",drels);
+
+  return zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"})
+    .then(function(blob){
+      var a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download=yr+"학년도_"+sem+"학기_우수학생_선발결과_"+fmtToday().replace(/-/g,"")+".docx";
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); document.body.removeChild(a); },1500);
+      toast("보고서를 내려받았습니다.");
+    });
+}
+</script>
+</body>
+</html>
