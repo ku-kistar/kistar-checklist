@@ -87,6 +87,39 @@ table.gs tfoot td{background:var(--surface2);font-weight:700;border-bottom:none}
   overflow:hidden;vertical-align:middle;margin-right:6px}
 .gs-bar i{display:block;height:100%;background:var(--green)}
 
+/* ── 학번 옆 노쇼 뱃지 ── */
+.nsb{display:inline-block;margin-left:4px;padding:0 4px;border-radius:99px;font-size:9px;
+  font-weight:700;background:#f7dcd8;color:var(--accent);vertical-align:middle;
+  font-family:'Malgun Gothic','맑은 고딕',sans-serif;letter-spacing:0}
+.nsb.hi{background:var(--accent);color:#fff}
+
+/* ── 프로그램명 안내줄 ── */
+.ginfo{padding:9px 16px;border-bottom:.5px solid var(--border);background:var(--hdr);
+  font-size:11.5px;color:var(--text2);line-height:1.6;min-height:36px}
+.ginfo b{color:var(--navy)}
+.ginfo .muted{color:var(--text3)}
+th.pcol{cursor:pointer}
+th.pcol:hover{background:var(--hdr2)}
+td.no,td.lim{cursor:pointer}
+
+/* ── 접히는 구획 ── */
+.sect{background:var(--surface);border:.5px solid var(--border);border-radius:12px;
+  overflow:hidden;margin-bottom:1.25rem}
+.sect-head{padding:11px 16px;font-size:13px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;user-select:none}
+.sect.open .sect-head{border-bottom:.5px solid var(--border)}
+.sect-head:hover{background:var(--hdr)}
+.sect-head .hint{font-size:11px;font-weight:400;color:var(--text3)}
+.sect-head .caret{margin-left:auto;color:var(--text3);font-size:11px;transition:transform .15s}
+.sect.closed .caret{transform:rotate(-90deg)}
+.sect.closed .sect-body{display:none}
+.sect-tabs{display:inline-flex;gap:5px}
+.stab{padding:4px 11px;border-radius:99px;border:1px solid var(--border);background:var(--surface);
+  font-size:11px;font-family:inherit;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.stab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.stat-pane{display:none}
+.stat-pane.on{display:block}
+
 /* ── 인사이트 칩 ── */
 .chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem}
 .chip{background:var(--surface);border:.5px solid var(--border);border-radius:10px;padding:9px 14px;
@@ -168,15 +201,19 @@ table.grid thead tr.nm th{top:5px;z-index:20;height:58px;vertical-align:bottom;p
     max-height:48px;overflow:hidden;font-family:'Malgun Gothic','맑은 고딕',sans-serif;text-align:center}
 th.pcol,td.pcol{width:68px;min-width:68px;max-width:68px}
 
-/* 🔴 z-index 층 — 건드리지 말 것 (학생용 현황판 §4-5와 같은 함정)
-   thead tr.cat th (21) 가 thead th.fx 를 덮으면 가로 스크롤 시 고정열 머리글이 가려진다.
-   아래 .fx 규칙은 같은 특이도이면서 뒤에 오므로 이긴다. 순서를 바꾸지 말 것. */
+/* 🔴 z-index 층 — 건드리지 말 것 (학생용 현황판 §4-5와 같은 함정, 2026-08-01 재발)
+   `table.grid thead th.fx` (클래스2·요소3) 는
+   `table.grid thead tr.nm th` (클래스2·요소4) 에게 우선순위에서 진다.
+   그래서 고정열 머리글이 z-index 30 이 아니라 20 으로 떨어지고,
+   활동 헤더와 같은 층이 되어 HTML 뒤쪽인 활동 헤더가 위에 그려진다.
+   → 행(tr)까지 명시한 선택자로 못 박는다. 아래 두 줄을 축약하지 말 것. */
 th.fx,td.fx{position:sticky;background:var(--surface);z-index:15}
-table.grid thead th.fx{z-index:30;background:var(--hdr)}
+table.grid thead tr.cat th.fx,
+table.grid thead tr.nm  th.fx{z-index:40;background:var(--hdr)}
 th.c0,td.c0{left:0;width:38px;min-width:38px}
-th.c1,td.c1{left:38px;width:88px;min-width:88px}
-th.c2,td.c2{left:126px;width:62px;min-width:62px;font-family:'Malgun Gothic','맑은 고딕',sans-serif}
-th.c3,td.c3{left:188px;width:54px;min-width:54px;border-right:1.5px solid var(--navy)}
+th.c1,td.c1{left:38px;width:106px;min-width:106px}
+th.c2,td.c2{left:144px;width:62px;min-width:62px;font-family:'Malgun Gothic','맑은 고딕',sans-serif}
+th.c3,td.c3{left:206px;width:54px;min-width:54px;border-right:1.5px solid var(--navy)}
 td.c1{font-size:10.5px;color:var(--text2)}
 td.c2{font-weight:600;color:var(--text)}
 td.c3{font-weight:700}
@@ -237,6 +274,14 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   .catstrip{padding:3pt 6pt!important;margin-bottom:5pt!important;gap:8pt!important;
             font-size:7pt!important;border:.5pt solid #bbb!important;border-radius:4pt!important}
   .cs-item b{font-size:7.5pt!important}
+  /* 접어 둔 구획도 인쇄에는 전부 나온다 — 증빙에서 항목이 빠지면 안 된다. */
+  .sect{border:.5pt solid #bbb!important;margin-bottom:5pt!important;break-inside:avoid}
+  .sect .sect-body{display:block!important}
+  /* 학년별·기수별은 화면에선 탭이지만 인쇄에는 둘 다 나온다. */
+  .stat-pane{display:block!important;margin-bottom:4pt!important}
+  .sect-head{padding:3pt 6pt!important;font-size:8pt!important;cursor:default!important}
+  .sect-head .caret,.sect-tabs,.sect-head .hint{display:none!important}
+  .ginfo,.nsb{display:none!important}
   .gstat{margin-bottom:5pt!important;border:.5pt solid #bbb!important;break-inside:avoid}
   .gstat-head{padding:3pt 6pt!important;font-size:8pt!important}
   .gstat-head .hint{display:none!important}
@@ -343,19 +388,38 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
     <span class="cs-sum" id="catSum"></span>
   </div>
 
-  <div class="gstat">
-    <div class="gstat-head">
-      <span>학년별 현황</span>
-      <span class="hint">행을 누르면 아래 격자가 해당 학년으로 걸러집니다</span>
+  <div class="sect open" id="secStat">
+    <div class="sect-head" onclick="toggleSect('secStat')">
+      <span>현황 통계</span>
+      <span class="sect-tabs" onclick="event.stopPropagation()">
+        <button class="stab active" data-m="grade" onclick="setStatMode('grade')">학년별</button>
+        <button class="stab" data-m="gen" onclick="setStatMode('gen')">기수별</button>
+      </span>
+      <span class="hint">행을 누르면 아래 격자가 걸러집니다</span>
+      <span class="caret">▾</span>
     </div>
-    <table class="gs">
-      <thead><tr>
-        <th>학년</th><th>인원</th><th>요건 충족</th><th>미충족</th>
-        <th>충족률</th><th>평균</th><th>중앙값</th><th>최고</th>
-      </tr></thead>
-      <tbody id="gsBody"></tbody>
-      <tfoot id="gsFoot"></tfoot>
-    </table>
+    <div class="sect-body">
+      <div class="stat-pane on" id="paneGrade">
+        <table class="gs">
+          <thead><tr>
+            <th>학년</th><th>인원</th><th>요건 충족</th><th>미충족</th>
+            <th>충족률</th><th>평균</th><th>중앙값</th><th>최고</th>
+          </tr></thead>
+          <tbody id="gsBody"></tbody>
+          <tfoot id="gsFoot"></tfoot>
+        </table>
+      </div>
+      <div class="stat-pane" id="paneGen">
+        <table class="gs">
+          <thead><tr>
+            <th>기수</th><th>인원</th><th>요건 충족</th><th>미충족</th>
+            <th>충족률</th><th>평균</th><th>중앙값</th><th>최고</th>
+          </tr></thead>
+          <tbody id="gnBody"></tbody>
+          <tfoot id="gnFoot"></tfoot>
+        </table>
+      </div>
+    </div>
   </div>
 
   <div class="chips" id="chips"></div>
@@ -384,7 +448,16 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
     <div class="tie-unres" id="tieUnres" style="display:none"></div>
   </div>
 
-  <div class="rank-wrap" id="rankWrap"></div>
+  <div class="sect open" id="secRank">
+    <div class="sect-head" onclick="toggleSect('secRank')">
+      <span>학년별 상위 5명</span>
+      <span class="hint">선발기준 1항 · 동점자는 노란 배경</span>
+      <span class="caret">▾</span>
+    </div>
+    <div class="sect-body" style="padding:12px">
+      <div class="rank-wrap" id="rankWrap" style="margin-bottom:0"></div>
+    </div>
+  </div>
 
   <div class="grid-card">
     <div class="grid-head">
@@ -401,6 +474,7 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
         <span class="lg"><span class="lg-box lim" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)"></span> 참여제한</span>
       </div>
     </div>
+    <div class="ginfo" id="gInfo"><span class="muted">헤더의 프로그램명을 누르면 전체 이름·개최일·참석 인원이 여기에 표시됩니다. 붉은 <b>노</b> 칸과 빗금 칸도 누를 수 있습니다.</span></div>
     <div class="grid-scroll"><div id="gridHost"></div></div>
     <div class="grid-foot" id="gridFoot"></div>
   </div>
@@ -421,7 +495,9 @@ var CDN_ZIP  = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
 var AUTH = null;      // {studentId, birthDate}
 var DATA = null;      // 서버 응답
 var gradeFilter = "";
+var genFilter   = "";   // 기수 필터 (예: "1기")
 var flagFilter  = "";   // "" | "edge" | "zero" | "ns3"  — 인사이트 칩
+var statMode    = "grade";  // "grade" | "gen"
 var collapsed   = {};   // {EDU:true, ...} 접힌 카테고리
 
 /* 카테고리 표시 순서·라벨·색 — catClass() 가 돌려주는 키와 1:1 대응한다.
@@ -583,10 +659,33 @@ function setGrade(g){
   renderGrid();
 }
 
+function setGen(v){
+  genFilter=(genFilter===v)?"":v;
+  syncFilterUI();
+  renderGrid();
+}
+
 function setFlag(f){
   flagFilter=(flagFilter===f)?"":f;
   syncFilterUI();
   renderGrid();
+}
+
+/** 구획 접기/펼치기 */
+function toggleSect(id){
+  var e=$(id);
+  var closed=e.classList.contains("closed");
+  e.classList.toggle("closed",!closed);
+  e.classList.toggle("open",closed);
+}
+
+function setStatMode(m){
+  statMode=m;
+  document.querySelectorAll(".stab").forEach(function(b){
+    b.classList.toggle("active", b.getAttribute("data-m")===m);
+  });
+  $("paneGrade").classList.toggle("on", m==="grade");
+  $("paneGen").classList.toggle("on", m==="gen");
 }
 
 function syncFilterUI(){
@@ -594,7 +693,10 @@ function syncFilterUI(){
     t.classList.toggle("active", (t.getAttribute("data-g")||"")===gradeFilter);
   });
   document.querySelectorAll("#gsBody tr").forEach(function(tr){
-    tr.classList.toggle("on", (tr.getAttribute("data-g")||"")===gradeFilter && gradeFilter!=="");
+    tr.classList.toggle("on", gradeFilter!=="" && (tr.getAttribute("data-k")||"")===gradeFilter);
+  });
+  document.querySelectorAll("#gnBody tr").forEach(function(tr){
+    tr.classList.toggle("on", genFilter!=="" && (tr.getAttribute("data-k")||"")===genFilter);
   });
   document.querySelectorAll("#chips .chip[data-f]").forEach(function(c){
     c.classList.toggle("on", c.getAttribute("data-f")===flagFilter);
@@ -624,53 +726,66 @@ function renderCatStrip(){
   $("sColSub").textContent="교과계 "+(m.EDU+m.ATT)+" · 비교과계 "+(m.EXT+m.OUT)+" · 기타 "+(m.DOC+m.PEN);
 }
 
-/** 학년별 통계 — 인원 / 요건 충족 / 미충족 / 충족률 / 평균 / 중앙값 / 최고 */
-function gradeStats(){
+/** 집계 — 학년(grade) · 기수(gen) 어느 쪽이든 같은 함수로 낸다.
+ *  두 벌로 짜면 한쪽만 고쳐서 숫자가 갈리는 사고가 난다. */
+function statsBy(field){
   var goal=DATA.goal, by={}, order=[];
   DATA.students.forEach(function(s){
-    var g=s.grade||"미상";
-    if(!by[g]){ by[g]={g:g,tots:[]}; order.push(g); }
-    by[g].tots.push(s.tot);
+    var k=s[field]||"미상";
+    if(!by[k]){ by[k]={k:k,tots:[]}; order.push(k); }
+    by[k].tots.push(s.tot);
   });
-  order.sort(function(a,b){ return (parseInt(a,10)||99)-(parseInt(b,10)||99); });
-  return order.map(function(g){
-    var t=by[g].tots.slice().sort(function(a,b){return a-b;});
+  order.sort(function(a,b){
+    var na=parseInt(a,10), nb=parseInt(b,10);
+    if(isNaN(na)) na=999; if(isNaN(nb)) nb=999;
+    return na-nb;
+  });
+  return order.map(function(k){
+    var t=by[k].tots.slice().sort(function(a,b){return a-b;});
     var ok=t.filter(function(v){return v>=goal;}).length;
     var sum=t.reduce(function(a,b){return a+b;},0);
     var mid=t.length?(t.length%2?t[(t.length-1)/2]:(t[t.length/2-1]+t[t.length/2])/2):0;
-    return {g:g,n:t.length,ok:ok,miss:t.length-ok,
+    return {k:k,n:t.length,ok:ok,miss:t.length-ok,
             rate:t.length?Math.round(ok/t.length*100):0,
             avg:t.length?Math.round(sum/t.length*10)/10:0,
             mid:Math.round(mid*10)/10, max:t.length?t[t.length-1]:0};
   });
 }
 
-function renderGradeStat(){
-  var rows=gradeStats(), h="";
-  $("sTotSub").textContent=rows.map(function(r){
-    return r.g+(/^\d+$/.test(r.g)?"학년":"")+" "+r.n;
-  }).join(" · ");
-  rows.forEach(function(r){
-    h+='<tr data-g="'+esc(r.g)+'" onclick="setGrade(\''+esc(r.g)+'\')">'+
-       '<td>'+esc(r.g)+(/^\d+$/.test(r.g)?"학년":"")+'</td>'+
-       '<td>'+r.n+'</td>'+
-       '<td class="gs-ok">'+r.ok+'</td>'+
-       '<td class="gs-no">'+r.miss+'</td>'+
-       '<td><span class="gs-bar"><i style="width:'+r.rate+'%"></i></span>'+r.rate+'%</td>'+
-       '<td>'+r.avg+'</td><td>'+r.mid+'</td><td>'+r.max+'</td></tr>';
-  });
-  $("gsBody").innerHTML=h;
+function statRowsHtml(rows,fn,suffix){
+  return rows.map(function(r){
+    return '<tr data-k="'+esc(r.k)+'" onclick="'+fn+'(\''+esc(r.k)+'\')">'+
+      '<td>'+esc(r.k)+(/^\d+$/.test(r.k)?suffix:"")+'</td>'+
+      '<td>'+r.n+'</td>'+
+      '<td class="gs-ok">'+r.ok+'</td>'+
+      '<td class="gs-no">'+r.miss+'</td>'+
+      '<td><span class="gs-bar"><i style="width:'+r.rate+'%"></i></span>'+r.rate+'%</td>'+
+      '<td>'+r.avg+'</td><td>'+r.mid+'</td><td>'+r.max+'</td></tr>';
+  }).join("");
+}
 
+function totalRowHtml(){
   var n=DATA.stats.students, ok=DATA.stats.goalCount;
   var all=DATA.students.map(function(s){return s.tot;}).sort(function(a,b){return a-b;});
   var sum=all.reduce(function(a,b){return a+b;},0);
   var mid=all.length?(all.length%2?all[(all.length-1)/2]:(all[all.length/2-1]+all[all.length/2])/2):0;
-  $("gsFoot").innerHTML='<tr><td>전체</td><td>'+n+'</td>'+
+  return '<tr><td>전체</td><td>'+n+'</td>'+
     '<td class="gs-ok">'+ok+'</td><td class="gs-no">'+(n-ok)+'</td>'+
     '<td>'+(n?Math.round(ok/n*100):0)+'%</td>'+
     '<td>'+(all.length?Math.round(sum/all.length*10)/10:0)+'</td>'+
     '<td>'+Math.round(mid*10)/10+'</td>'+
     '<td>'+(all.length?all[all.length-1]:0)+'</td></tr>';
+}
+
+function renderGradeStat(){
+  var g=statsBy("grade"), n=statsBy("gen");
+  $("sTotSub").textContent=g.map(function(r){
+    return r.k+(/^\d+$/.test(r.k)?"학년":"")+" "+r.n;
+  }).join(" · ");
+  $("gsBody").innerHTML=statRowsHtml(g,"setGrade","학년");
+  $("gsFoot").innerHTML=totalRowHtml();
+  $("gnBody").innerHTML=statRowsHtml(n,"setGen","기");
+  $("gnFoot").innerHTML=totalRowHtml();
 }
 
 /** 인사이트 칩 — 앞의 셋은 누르면 격자가 그 조건으로 걸러진다. */
@@ -821,6 +936,7 @@ function filtered(){
   var q=$("q").value.trim().toLowerCase(), goal=DATA.goal;
   return DATA.students.filter(function(s){
     if(gradeFilter&&s.grade!==gradeFilter) return false;
+    if(genFilter&&s.gen!==genFilter) return false;
     if(flagFilter==="edge" && !(s.tot>=goal-10&&s.tot<goal)) return false;
     if(flagFilter==="zero" && s.tot!==0) return false;
     if(flagFilter==="ns3"  && (s.ns||0)<3) return false;
@@ -872,9 +988,14 @@ function applyCollapse(){
   var all=$("gchipAll"); if(all) all.textContent = anyOpen ? "전체 접기" : "전체 펼치기";
 
   var shown=DATA.programs.filter(function(p){ return !collapsed[catClass(p).slice(4)]; }).length;
+  var f=[];
+  if(gradeFilter) f.push(gradeFilter+"학년");
+  if(genFilter)   f.push(genFilter);
+  if(flagFilter)  f.push({edge:"경계선",zero:"0점",ns3:"노쇼 3회+"}[flagFilter]);
   var cnt=$("gridCount");
   if(cnt) cnt.textContent="· "+filtered().length+"명 / "+shown+"개 열"+
-    (shown<DATA.programs.length?" (전체 "+DATA.programs.length+")":"");
+    (shown<DATA.programs.length?" (전체 "+DATA.programs.length+")":"")+
+    (f.length?"  ▸ "+f.join(" · "):"");
 }
 
 function renderGrid(){
@@ -903,8 +1024,8 @@ function renderGrid(){
      '<th style="width:34px"><span class="vt">학년</span></th>'+
      '<th style="width:34px"><span class="vt">기수</span></th>';
   P.forEach(function(p,j){
-    h+='<th class="pcol gp-'+GK[j]+'" title="'+esc(p.name)+(p.date?" · "+esc(p.date):"")+
-       ' ('+esc(p.cat)+', 참석 '+p.n+'명)"><span class="vt">'+esc(shortName(p.name))+'</span></th>';
+    h+='<th class="pcol gp-'+GK[j]+'" data-j="'+j+'" title="누르면 전체 이름이 표 위에 표시됩니다"><span class="vt">'+
+       esc(shortName(p.name))+'</span></th>';
   });
   h+='<th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
 
@@ -913,7 +1034,9 @@ function renderGrid(){
   var sumTot=0, sumNs=0;
 
   rows.forEach(function(s){
-    h+='<tr><td class="fx c0">'+s.no+'</td><td class="fx c1">'+esc(s.sid)+'</td>'+
+    var nsb = s.ns ? '<span class="nsb'+(s.ns>=3?' hi':'')+'" title="노쇼 '+s.ns+'회'+
+                     (s.ns>=3?' — 인재장학금 제외 대상':'')+'">노'+s.ns+'</span>' : '';
+    h+='<tr><td class="fx c0">'+s.no+'</td><td class="fx c1">'+esc(s.sid)+nsb+'</td>'+
        '<td class="fx c2">'+esc(s.name)+'</td>'+
        '<td class="fx c3 '+(s.tot>=goal?"ok":"")+'">'+s.tot+'</td>'+
        '<td class="meta">'+esc(s.dept)+'</td><td>'+esc(s.grade)+'</td><td>'+esc(s.gen)+'</td>';
@@ -944,6 +1067,48 @@ function renderGrid(){
 
   $("gridHost").innerHTML=h;
   applyCollapse();
+  bindGridClicks();
+}
+
+/* ── 안내줄 ──
+   학생용 현황판과 같은 방식이다. 칸 옆 말풍선은 화면 끝에서 잘리고,
+   title 속성은 터치 기기에서 뜨지 않아 표 위 고정 위치 한 곳에 모은다. */
+var _gridBound=false;
+function bindGridClicks(){
+  if(_gridBound) return;
+  _gridBound=true;
+  $("gridHost").addEventListener("click", function(e){
+    var th=e.target.closest ? e.target.closest("th.pcol[data-j]") : null;
+    if(th){ showProg(parseInt(th.getAttribute("data-j"),10)); return; }
+    var td=e.target.closest ? e.target.closest("td.pcol") : null;
+    if(!td || !td.parentNode || td.parentNode.parentNode.tagName==="TFOOT") return;
+    var j=td.cellIndex-FIXED_COLS;
+    if(j<0||j>=DATA.programs.length) return;
+    if(td.classList.contains("no"))  return showCell(j,"no",td);
+    if(td.classList.contains("lim")) return showCell(j,"lim",td);
+    showProg(j);
+  });
+}
+
+/** 고정 4열(번호·학번·이름·누적) + 메타 3열(학과·학년·기수) = 7 */
+var FIXED_COLS=7;
+
+function progInfo(j){
+  var p=DATA.programs[j];
+  return '<b>'+esc(p.name)+'</b>'+
+         (p.date?' <span class="muted">· '+esc(p.date)+'</span>':'')+
+         ' <span class="muted">· '+esc(p.cat)+' · 참석 '+p.n+'명</span>';
+}
+
+function showProg(j){ $("gInfo").innerHTML=progInfo(j); }
+
+function showCell(j,kind,td){
+  var tr=td.parentNode;
+  var nm=tr.cells[2]?tr.cells[2].textContent:"";
+  var msg = (kind==="no")
+    ? '<b>'+esc(nm)+'</b> — 이 행사에 <b style="color:var(--accent)">노쇼</b>했습니다. (원인)'
+    : '<b>'+esc(nm)+'</b> — 노쇼로 <b>참여가 제한</b>된 행사입니다. (결과)';
+  $("gInfo").innerHTML=msg+'<br>'+progInfo(j);
 }
 
 /* ═══════════════════════════════════════════════════════════
