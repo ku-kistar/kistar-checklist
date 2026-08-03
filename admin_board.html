@@ -911,9 +911,35 @@ function renderRanks(){
 }
 
 /* ── 격자 ── */
-/** 헤더 라벨 — 프로그램명 뒤에 붙은 날짜를 떼고 길이를 줄인다.
- *  전체 이름과 참석 인원은 칸에 마우스를 올리면 나온다. */
-function shortName(n){
+/* ── 약칭 고정표 ──
+   학생용 mileage_board.html과 동일하게 유지할 것. 두 화면의 열 이름이 어긋나면 대조가 어렵다.
+   프로그램ID로 매칭하므로 프로그램명이 바뀌어도 흔들리지 않고,
+   접미사(-26-1)를 떼고 보므로 다음 학기에도 그대로 동작한다. */
+var ABBR = {
+  'EDU-PBL1':'PBL',               'ATT-PBL1':'PBL 출석',
+  'EDU-콜로키움1':'콜로키움Ⅰ',       'ATT-콜로키움1':'콜로키움Ⅰ 출석',
+  'EDU-패키징2':'패키징Ⅱ',          'ATT-패키징2':'패키징Ⅱ 출석',
+  'EDU-공정실습':'공정실습',         'ATT-공정실습':'공정실습 출석',
+  'EDU-공정실습S':'공정실습 여름',    'ATT-공정실습S':'공정실습 여름출석',
+  'EDU-진공장비S':'진공장비 여름',    'ATT-진공장비S':'진공장비 여름출석',
+  'EXT-글로벌역량1':'글로벌역량 2.25','EXT-글로벌역량2':'글로벌역량 2.26',
+  'EXT-콜세미1':'콜세미1', 'EXT-콜세미2':'콜세미2', 'EXT-콜세미3':'콜세미3',
+  'EXT-초청세미1':'초청세미1','EXT-초청세미2':'초청세미2','EXT-SYNIC':'초청세미3',
+  'EXT-커리어브릿지':'커리어브릿지',
+  'EXT-취업캠프특강':'취업캠프 특강','EXT-취업캠프컨설팅':'취업캠프 컨설팅',
+  'EXT-설명회':'설명회', 'EXT-GCIM':'GCIM',
+  'EXT-글로벌연수':'칭화대', 'EXT-퍼듀연수':'Purdue', 'EXT-독일연수':'독일연수',
+  'EXT-STOB미팅1':'STOB1', 'EXT-Ansys':'Ansys',
+  'EXT-STOB미팅2':'STOB2', 'EXT-STOB미팅3':'STOB3', 'EXT-서포터즈':'서포터즈',
+  'DOC-활동계획서':'활동계획서','DOC-장학금신청서':'장학금신청서','DOC-결과보고서':'결과보고서',
+  'EXT-외부활동':'외부활동', 'PENALTY-서류지각':'패널티'
+};
+
+/* 헤더 라벨 — 고정표 우선, 없으면 프로그램명에서 날짜를 떼고 길이를 줄인다.
+ * 전체 이름과 참석 인원은 칸에 마우스를 올리면 나온다. */
+function shortName(id,n){
+  var key=String(id||"").replace(/-\d{2}-\d$/,"");
+  if(ABBR[key]) return ABBR[key];
   var s=String(n||"").trim();
   s=s.replace(/\s*\d{2}[.\-/]\d{2}[.\-/]\d{2}\s*\([월화수목금토일]\)/g,"");  // 26.04.03(수)
   s=s.replace(/\s*\(\s*\d{1,2}[.\-/]\d{1,2}\s*\)/g,"");                      // (4.3)
@@ -1025,7 +1051,7 @@ function renderGrid(){
      '<th style="width:34px"><span class="vt">기수</span></th>';
   P.forEach(function(p,j){
     h+='<th class="pcol gp-'+GK[j]+'" data-j="'+j+'" title="누르면 전체 이름이 표 위에 표시됩니다"><span class="vt">'+
-       esc(shortName(p.name))+'</span></th>';
+       esc(shortName(p.id,p.name))+'</span></th>';
   });
   h+='<th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
 
@@ -1060,7 +1086,7 @@ function renderGrid(){
      '<td class="fx c3">'+sumTot+'</td>'+
      '<td class="lb" style="text-align:left;padding:0 7px">합계</td><td></td><td></td>';
   for(var j2=0;j2<P.length;j2++){
-    h+='<td class="pcol gp-'+GK[j2]+'" title="'+esc(shortName(P[j2].name))+' — 화면 표시 대상 중 '+
+    h+='<td class="pcol gp-'+GK[j2]+'" title="'+esc(shortName(P[j2].id,P[j2].name))+' — 화면 표시 대상 중 '+
        colN[j2]+'명 참여">'+(colN[j2]||"·")+'</td>';
   }
   h+='<td class="nsn">'+(sumNs||"")+'</td></tr></tfoot></table>';
