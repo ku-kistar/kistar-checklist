@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사업단 마일리지 — 개정안 (2026-2학기) | KI-STAR</title>
+<style>
+:root {
+  --red:       #c8392b;
+  --red-light: #fdf0ee;
+  --dark:      #2e2e2e;
+  --text:      #1a1916;
+  --text2:     #5a5850;
+  --text3:     #8a8880;
+  --border:    #dddbd3;
+  --bg:        #f5f4f0;
+  --surf:      #ffffff;
+  --surf2:     #f4f3ef;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans KR', '맑은 고딕', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 2rem 1rem 4rem;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── 안내 박스 ── */
+.notice {
+  max-width: 1000px;
+  margin: 0 auto 1.5rem;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-left: 4px solid #f9a825;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #5a4a00;
+  line-height: 1.8;
+}
+.notice strong { display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 4px; color: #3e3000; }
+
+/* ── 표 래퍼 ── */
+/* overflow 제거 필수 — 있으면 sticky 헤더 작동 안 함 */
+.wrap {
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+/* 데스크톱: overflow-x visible → sticky 보존 */
+/* 모바일: overflow-x auto → 가로 스크롤 (미디어쿼리에서 전환) */
+.table-scroll {
+  width: 100%;
+  overflow-x: visible;
+  background: var(--surf);
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+}
+
+/* ── 헤더 1행 (빨강, top:0 고정) ── */
+thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 11;
+  background: var(--red);
+  color: #fff;
+  padding: 10px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: .02em;
+  border-right: 1px solid rgba(255,255,255,.15);
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  white-space: nowrap;
+}
+thead tr:first-child th:last-child { border-right: none; }
+thead tr:first-child th.col-item { text-align: left; padding-left: 14px; }
+thead tr:first-child th.col-sub  { text-align: left; padding-left: 14px; }
+
+/* ── 헤더 2행 (다크, 1행 아래 고정) ── */
+thead tr:nth-child(2) th {
+  position: sticky;
+  top: 41px; /* 1행 높이 */
+  z-index: 10;
+  background: var(--dark);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 5px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,.15);
+  white-space: nowrap;
+}
+thead tr:nth-child(2) th:last-child { border-right: none; }
+
+/* 열 너비 */
+col.c-item  { width: 105px; }
+col.c-sub   { }
+col.c-score { width: 52px; }
+
+/* ── 섹션 구분행 ── */
+.sec td {
+  background: var(--surf2);
+  border-top: 2px solid var(--border);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: .02em;
+}
+
+/* ── 데이터행 ── */
+tbody tr:not(.sec) td {
+  padding: 8px 5px;
+  border-top: 1px solid #eee;
+  vertical-align: middle;
+  font-size: 13px;
+}
+tbody tr:not(.sec):hover td { background: #fafaf8; }
+
+td.cat {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text2);
+  padding-left: 10px;
+  padding-right: 6px;
+  background: var(--surf2);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
+}
+td.sub { padding-left: 10px; text-align: left; line-height: 1.5; }
+
+/* ── 점수 셀 ── */
+td.sc {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text3);
+  border-left: 1px solid #f0eeea;
+}
+td.sc.on {
+  background: var(--red-light);
+  color: var(--red);
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+/* ── 각주 번호 연결 ── */
+
+
+
+
+/* ── 주석 영역 ── */
+.fn-box {
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+.fn-box p {
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.9;
+  padding-left: 2em;
+  text-indent: -2em;
+}
+.fn-box p .fn-num {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+  vertical-align: middle;
+  text-indent: 0;
+}
+.fn-box p + p { margin-top: 3px; }
+
+/* ── 모바일 ── */
+@media (max-width: 700px) {
+  .table-scroll { overflow-x: auto; }
+  thead tr:first-child th,
+  thead tr:nth-child(2) th { position: static; }
+  td.cat  { font-size: 11px; padding-left: 6px; }
+  td.sub  { font-size: 12px; padding-left: 6px; }
+  thead tr:first-child th,
+  thead tr:nth-child(2) th { font-size: 11px; padding: 6px 4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 안내 박스 -->
+<div class="notice">
+  <strong>▪ 마일리지 배점 기준 안내</strong>
+  그동안 내부 판정에 적용해 온 기준에 일부 항목을 세분화·추가하여 정리한 배점표입니다. 2026-2학기부터 공식 기준으로 전면 적용합니다.
+</div>
+
+<!-- 기준표 -->
+<div class="wrap">
+<div class="table-scroll">
+<table>
+  <colgroup>
+    <col class="c-item">
+    <col class="c-sub">
+    <col class="c-score"><col class="c-score"><col class="c-score"><col class="c-score">
+    <col class="c-score"><col class="c-score"><col class="c-score"><col class="c-score">
+    <col class="c-score"><col class="c-score">
+  </colgroup>
+  <thead>
+    <tr>
+      <th class="col-item" rowspan="2">항목</th>
+      <th class="col-sub"  rowspan="2">세부 내용</th>
+      <th colspan="10">마일리지</th>
+    </tr>
+    <tr>
+      <th>50점</th><th>40점</th><th>30점</th><th>20점</th>
+      <th>15점</th><th>10점</th><th>5점</th><th>3점</th><th>2점</th><th>1점</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- ▶ 교과목 -->
+    <tr class="sec"><td colspan="12">▶ 차세대반도체 융합전공 교과목</td></tr>
+    <tr>
+      <td class="cat" rowspan="2">교과목</td>
+      <td class="sub">과목 이수</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">이수</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">출석</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">100% 출석</td><td class="sc"></td><td class="sc on">지각 2회까지</td>
+    </tr>
+
+    <!-- ▶ 특성화 교육프로그램 -->
+    <tr class="sec"><td colspan="12">▶ 특성화 교육프로그램</td></tr>
+
+    <tr>
+      <td class="cat" rowspan="6">교육</td>
+      <td class="sub">오프라인 교육 (2일 · 16시간 이상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">오프라인 교육 (1일 · 6~15시간)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">오프라인 교육 (반일 · 3~5시간)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">온라인 교육 (16시간 이상, 수료증 필수)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">온라인 교육 (8~15시간, 수료증 필수)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">온라인 교육 (3~7시간, 수료증 필수)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <tr>
+      <td class="cat" rowspan="2">행사·세미나</td>
+      <td class="sub">간담회 / 설명회 / 세미나 등 단기행사 (3시간 미만)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">세미나 · 포럼 · 컨퍼런스 (3시간 이상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <tr>
+      <td class="cat" rowspan="3">현장체험</td>
+      <td class="sub">기업탐방</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">전시회 — 적극 참여 (부스운영 · 발표)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">전시회 — 참관</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참관</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <!-- ▶ 학술활동 -->
+    <tr class="sec"><td colspan="12">▶ 학술활동</td></tr>
+
+    <tr>
+      <td class="cat" rowspan="6">학술대회</td>
+      <td class="sub">국제 학술대회 구두 발표 (국제학술단체 주관 또는 영문 논문집 등재)</td>
+      <td class="sc"></td><td class="sc on">발표</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">국제 학술대회 포스터 발표</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">발표</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">국내 학술대회 구두 발표 (주저자)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">발표</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">국내 학술대회 포스터 발표 (주저자)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">발표</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">학술대회 수상</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">수상</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">학술대회 참관 (청중)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참관</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <tr>
+      <td class="cat" rowspan="4">학술논문</td>
+      <td class="sub">SCI / SCIE 등재지 — 주저자</td>
+      <td class="sc on">게재</td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">SCI / SCIE 등재지 — 공저자</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">게재</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">KCI 등재지 — 주저자</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">게재</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">KCI 등재지 — 공저자</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">게재</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <tr>
+      <td class="cat" rowspan="2">특허</td>
+      <td class="sub">특허 등록</td>
+      <td class="sc"></td><td class="sc on">등록</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">특허 출원</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">출원</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <!-- ▶ 경진대회 & 공모전 -->
+    <tr class="sec"><td colspan="12">▶ 경진대회 &amp; 공모전</td></tr>
+    <tr>
+      <td class="cat" rowspan="6">경진대회 / 공모전</td>
+      <td class="sub">1등 (대상 · 최우수상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">수상</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">2등 (우수상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">수상</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">3등 (장려상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">수상</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">4등 (입선)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">수상</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">결선 진출</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">참가</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">예선 참가</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">참가</td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <!-- ▶ 연구·실습 & 산학연계 -->
+    <tr class="sec"><td colspan="12">▶ 연구·실습 &amp; 산학연계</td></tr>
+
+    <tr>
+      <td class="cat" rowspan="6">연구·실습</td>
+      <td class="sub">학부연구생 (한 학기 이상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">학부연구생 (1~2개월)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">참여</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">학부연구생 (1개월 미만)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">채용연계형 인턴</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">일반 인턴 (4주 이상)</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc on">참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">공동활용장비 교육</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc on">참여</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+    <tr>
+      <td class="cat" rowspan="5">산학연계</td>
+      <td class="sub">기업연계 프로그램</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">취업연계 프로그램 / 반도체 관련 대학원 합격</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">현직자 멘토링 · 인터뷰</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">산학공동기술 개발 과제</td>
+      <td class="sc"></td><td class="sc on">참여</td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+    <tr>
+      <td class="sub">운영위원회 참여</td>
+      <td class="sc"></td><td class="sc"></td><td class="sc on">참여</td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+      <td class="sc"></td><td class="sc"></td><td class="sc"></td>
+    </tr>
+
+  </tbody>
+</table>
+</div>
+</div>
+
+<!-- 주석 — 번호로 본문과 연결 -->
+<div class="fn-box">
+  <p>※ 국제 학술대회: 국제 학술단체 주관 또는 영문 논문집(Proceedings) 등재 학회에 한함</p>
+  <p>※ 학술논문: SCI/SCIE 또는 KCI 등재 학술지에 한함 (저자 확인 필수)</p>
+  <p>※ 결선 진출 마일리지는 해당 대회 수상자에게는 적용되지 않으며, 수상 마일리지와 중복 적용 불가</p>
+  <p>※ 학부연구생: 지도교수 확인서 필수 / 기간은 참여 시작일~종료일 기준</p>
+  <p>※ 인턴: 재직증명서 또는 참여 증빙 서류 필수</p>
+  <p style="padding-left:0;text-indent:0;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">※ 온라인 교육: 수료증 제출 필수 / 3시간 미만은 간담회·설명회 항목(5점)으로 처리</p>
+  <p style="padding-left:0;text-indent:0">※ 동일 활동에 대해 중복 마일리지 적용 불가</p>
+</div>
+
+</body>
+</html>
