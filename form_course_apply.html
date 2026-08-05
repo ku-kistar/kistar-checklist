@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반도체머신러닝 수강신청 · 차세대반도체 융합전공</title>
+<style>
+/* ══════════════════════════════════════════════════════════
+   form_course_apply.html
+   2026-2학기 공동운영 교과목(반도체머신러닝) 수강신청
+   인증키: kistar_auth_url2  /  데이터허브 GAS 사용
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --bg:#EDEAE4; --paper:#FFFFFF; --ink:#2B2825; --ink2:#3A3733;
+  --ink3:#6E6963; --ink4:#8A857D; --line:#DAD5CD; --line2:#C9C4BC;
+  --crimson:#8B1E2D; --crimson-t:#9B1B30; --crimson-l:#F7EDEE; --crimson-b:#E4CBCF;
+  --green:#1D6B4F; --green-l:#E8F2ED; --green-b:#BFDCCF;
+  --amber:#8A5A0B; --amber-l:#FBF1DE; --amber-b:#EBD6AC;
+  --gray-l:#F3F1EC;
+  --r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.65;
+  -webkit-text-size-adjust:100%;
+}
+.topbar{height:6px;background:var(--crimson)}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px 64px}
+
+/* ── 헤더 ── */
+header{padding:32px 0 22px;text-align:center}
+.eyebrow{font-size:12px;letter-spacing:3px;color:var(--ink4)}
+h1{font-size:24px;font-weight:600;margin-top:10px;letter-spacing:-.4px}
+.sub{font-size:14px;color:var(--ink3);margin-top:6px}
+
+/* ── 카드 ── */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:14px}
+.sec-label{font-size:11px;letter-spacing:2.5px;color:var(--ink4);margin-bottom:12px}
+h2{font-size:16px;font-weight:600;margin-bottom:12px}
+
+/* ── 정원 상태 ── */
+#seatBox{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:13px 16px;border-radius:var(--r);font-size:14px;margin-bottom:14px;
+  background:var(--gray-l);border:1px solid var(--line)}
+#seatBox.ok{background:var(--green-l);border-color:var(--green-b);color:var(--green)}
+#seatBox.warn{background:var(--amber-l);border-color:var(--amber-b);color:var(--amber)}
+#seatBox.full{background:var(--crimson-l);border-color:var(--crimson-b);color:var(--crimson-t)}
+#seatBox strong{font-weight:600}
+#seatBox .right{margin-left:auto;font-size:13px}
+
+/* ── 신청자 정보 ── */
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.meta div{background:var(--gray-l);border-radius:var(--r);padding:9px 12px}
+.meta .k{font-size:11px;color:var(--ink4)}
+.meta .v{font-size:14px;margin-top:2px}
+.note{font-size:12px;color:var(--ink4);margin-top:9px}
+
+/* ── 표 ── */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child th,tr:last-child td{border-bottom:none}
+th{width:112px;font-weight:400;color:var(--ink3)}
+td strong{font-weight:600}
+.yes{color:var(--green);font-weight:600}
+.no{color:var(--crimson-t);font-weight:600}
+
+/* ── 링크 버튼 ── */
+.linkbtn{display:inline-flex;align-items:center;gap:7px;margin-top:12px;
+  padding:9px 15px;border:1px solid var(--line2);border-radius:var(--r);
+  font-size:14px;color:var(--ink);text-decoration:none;background:var(--paper)}
+.linkbtn:hover{background:var(--gray-l)}
+
+/* ── 경고 ── */
+.warnbox{background:var(--crimson-l);border:1px solid var(--crimson-b);
+  border-radius:var(--r);padding:13px 15px;font-size:14px;color:var(--crimson-t);line-height:1.7}
+.warnbox b{font-weight:600}
+.closing{font-size:13px;color:var(--ink3);margin-top:10px}
+
+/* ── 동의 ── */
+label.agree{display:flex;gap:10px;align-items:flex-start;margin-top:14px;
+  font-size:14px;line-height:1.6;cursor:pointer}
+label.agree input{width:17px;height:17px;margin-top:3px;accent-color:var(--crimson);flex-shrink:0}
+
+/* ── 제출 ── */
+#submitBtn{width:100%;height:50px;margin-top:6px;border:none;border-radius:var(--r);
+  background:var(--crimson);color:#fff;font-size:16px;font-weight:600;
+  font-family:inherit;cursor:pointer}
+#submitBtn:disabled{background:#BDB8B0;cursor:not-allowed}
+#submitBtn.wait{background:var(--amber)}
+.foot{font-size:12px;color:var(--ink4);text-align:center;margin-top:11px;line-height:1.7}
+
+/* ── 상태 메시지 ── */
+.msg{border-radius:var(--r);padding:13px 15px;font-size:14px;margin-bottom:14px;line-height:1.7}
+.msg.err{background:var(--crimson-l);border:1px solid var(--crimson-b);color:var(--crimson-t)}
+.msg.done{background:var(--green-l);border:1px solid var(--green-b);color:var(--green)}
+.msg.info{background:var(--gray-l);border:1px solid var(--line);color:var(--ink2)}
+.hide{display:none}
+
+/* ── 로그인 게이트 / 로딩 ── */
+#gate,#loading{text-align:center;padding:64px 20px;color:var(--ink3);font-size:15px}
+#gate a{color:var(--crimson-t);font-weight:600}
+.spin{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--crimson);
+  border-radius:50%;margin:0 auto 12px;animation:s .8s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+@media (max-width:480px){h1{font-size:21px}th{width:92px}}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">차세대반도체 융합전공</div>
+  <h1>반도체머신러닝 수강신청</h1>
+  <div class="sub">2026학년도 2학기 공동운영 교과목 · 인제대학교 개설 · 3학점</div>
+</header>
+
+<div id="gate" class="hide">
+  로그인이 필요합니다.<br>
+  <a href="portal_survey.html">데이터허브로 이동 →</a>
+</div>
+
+<div id="loading"><div class="spin"></div>신청 정보를 불러오는 중입니다</div>
+
+<main id="main" class="hide">
+
+  <div id="msg" class="msg hide"></div>
+
+  <div id="seatBox">
+    <span id="seatText">정원 확인 중</span>
+    <span class="right" id="seatDue"></span>
+  </div>
+
+  <!-- 신청자 정보 -->
+  <div class="card">
+    <div class="sec-label">신 청 자</div>
+    <div class="meta">
+      <div><div class="k">이름</div><div class="v" id="mName">-</div></div>
+      <div><div class="k">학번</div><div class="v" id="mSid">-</div></div>
+      <div><div class="k">소속</div><div class="v" id="mDept">-</div></div>
+      <div><div class="k">학년</div><div class="v" id="mGrade">-</div></div>
+    </div>
+    <p class="note">로그인 정보에서 자동으로 불러옵니다. 정보가 다르면 사업단으로 문의해 주세요.</p>
+  </div>
+
+  <!-- 수업 운영 -->
+  <div class="card">
+    <div class="sec-label">수 업 운 영</div>
+    <table>
+      <tr><th>강의 방식</th><td>온라인 수강 · 인제대학교 LMS 동영상<br><span style="color:var(--ink3);font-size:13px">원하는 시간에 수강할 수 있습니다</span></td></tr>
+      <tr><th>대면 수업</th><td>중간·기말고사 2회 · 안암캠퍼스<br><span style="color:var(--ink3);font-size:13px">강의실은 추후 공지합니다</span></td></tr>
+      <tr><th>시험 일정</th><td>학기 중 수강생 대상 일정 조율 후 확정·안내</td></tr>
+      <tr><th>평가 방법</th><td>중간고사 30% · 기말고사 30% · 과제 40%</td></tr>
+      <tr><th>담당 교수</th><td>이남용 (인제대학교 AI소프트웨어학과)</td></tr>
+      <tr><th>마일리지</th><td>사업단 마일리지 10점</td></tr>
+    </table>
+    <a class="linkbtn" href="https://drive.google.com/file/d/1-MzF2FN9EMGb6D9jpxi9yIHb9UIPUtTp/view?usp=sharing" target="_blank" rel="noopener">강의계획서 전문 보기 ↗</a>
+  </div>
+
+  <!-- 성적 처리 -->
+  <div class="card">
+    <div class="sec-label">성 적 처 리</div>
+    <p style="font-size:14px;color:var(--ink2);margin-bottom:12px">
+      타대학 학점교류 과목이라 인제대학교와 고려대학교에서 각각 처리됩니다.
+    </p>
+    <table>
+      <tr><th>졸업 이수학점</th><td class="yes">3학점 인정</td></tr>
+      <tr><th>공동운영 영역</th><td class="yes">인정</td></tr>
+      <tr><th>평점(GPA) 계산</th><td class="no">미반영</td></tr>
+      <tr><th>성적증명서</th><td>인제대학교 등급(A·B·F) 그대로 표시</td></tr>
+    </table>
+    <p class="closing">평점 계산에서만 빠질 뿐, 학점과 등급 기록은 그대로 남습니다.</p>
+  </div>
+
+  <!-- 신청 전 확인 -->
+  <div class="card">
+    <div class="sec-label">신 청 전 확 인</div>
+    <div class="warnbox">
+      공동운영 교과목은 사업 성과지표로 관리되어 <b>신청 후 취소가 어렵습니다.</b>
+      온라인 수강이지만 과제 비중이 40%이고 시험은 대면으로 진행합니다.
+      학사 일정과 학습 부담을 함께 고려하여 신중히 신청해 주세요.
+    </div>
+    <label class="agree">
+      <input type="checkbox" id="agree">
+      <span>위 내용을 모두 확인했으며, 신청 후 취소가 어렵다는 점을 이해하고 수강을 신청합니다.</span>
+    </label>
+    <button id="submitBtn" disabled>신청하기</button>
+    <p class="foot">
+      모집기간 2026. 8. 5.(수) 13:00 ~ 8. 10.(월) 15:00<br>
+      문의 02-3290-4988 · jiyeon310@korea.ac.kr
+    </p>
+  </div>
+
+</main>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   🔴 URL 상수는 반드시 이 위치(스크립트 최상단)에 선언할 것.
+      초기화 IIFE보다 아래에서 선언하면 호출 시점에 undefined가 되어
+      요청이 통째로 실패한다. (portal_survey.html 2026-07-28 사고)
+   ══════════════════════════════════════════════════════════ */
+var SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+var AUTH_KEY   = 'kistar_auth_url2';
+var COURSE_ID  = 'ML_26-2';
+var TIMEOUT_MS = 15000;
+
+var AUTH = null, STATE = null;
+
+/* ── JSONP ── */
+function jsonp(params, onOk, onErr){
+  var cb = 'cb_' + Date.now() + '_' + Math.floor(Math.random()*100000);
+  var done = false;
+  var timer = setTimeout(function(){
+    if(done) return;
+    done = true; cleanup();
+    onErr('요청 시간이 초과되었습니다. 네트워크 상태를 확인한 뒤 새로고침해 주세요.');
+  }, TIMEOUT_MS);
+
+  function cleanup(){
+    clearTimeout(timer);
+    try{ delete window[cb]; }catch(e){ window[cb] = undefined; }
+    if(s && s.parentNode) s.parentNode.removeChild(s);
+  }
+  window[cb] = function(res){
+    if(done) return;
+    done = true; cleanup();
+    if(res && res.status === 'ok') onOk(res);
+    else onErr((res && res.message) || '처리 중 오류가 발생했습니다.');
+  };
+  var qs = Object.keys(params).map(function(k){
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  var s = document.createElement('script');
+  s.src = SCRIPT_URL_HUB + '?' + qs + '&callback=' + cb;
+  s.onerror = function(){
+    if(done) return;
+    done = true; cleanup();
+    onErr('서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+  };
+  document.body.appendChild(s);
+}
+
+/* ── 화면 상태 ── */
+function showMsg(type, html){
+  var el = document.getElementById('msg');
+  el.className = 'msg ' + type;
+  el.innerHTML = html;
+}
+function hideMsg(){ document.getElementById('msg').className = 'msg hide'; }
+
+function fmtDue(iso){
+  if(!iso) return '';
+  var d = new Date(iso.replace(' ', 'T'));
+  if(isNaN(d)) return '';
+  var w = ['일','월','화','수','목','금','토'][d.getDay()];
+  var hh = ('0'+d.getHours()).slice(-2), mm = ('0'+d.getMinutes()).slice(-2);
+  return '마감 ' + (d.getMonth()+1) + '/' + d.getDate() + '(' + w + ') ' + hh + ':' + mm;
+}
+
+/* ── 정원 표시 ── */
+function renderSeat(d){
+  var box  = document.getElementById('seatBox');
+  var text = document.getElementById('seatText');
+  var due  = document.getElementById('seatDue');
+  var left = Math.max(0, d.capacity - d.filled);
+
+  due.textContent = fmtDue(d.closeAt);
+
+  if(d.phase === 'before'){
+    box.className = ''; text.textContent = '모집 시작 전입니다';
+    due.textContent = '8. 5.(수) 13:00 신청 시작';
+  } else if(d.phase === 'after'){
+    box.className = ''; text.textContent = '모집이 종료되었습니다';
+    due.textContent = '결과는 개별 안내합니다';
+  } else if(left <= 0){
+    box.className = 'full';
+    text.innerHTML = '<strong>정원 마감</strong> · 현재 대기 ' + d.waitCount + '명';
+  } else if(left <= 5){
+    box.className = 'warn';
+    text.innerHTML = '<strong>잔여 ' + left + '석</strong> / ' + d.capacity + '석 · 마감 임박';
+  } else {
+    box.className = 'ok';
+    text.innerHTML = '<strong>잔여 ' + left + '석</strong> / ' + d.capacity + '석';
+  }
+}
+
+/* ── 버튼 상태 ── */
+function renderButton(d){
+  var btn = document.getElementById('submitBtn');
+  var agree = document.getElementById('agree');
+  var left = Math.max(0, d.capacity - d.filled);
+
+  btn.classList.remove('wait');
+
+  if(d.myApply){
+    var isWait = d.myApply.status === '대기';
+    btn.textContent = isWait ? '대기 신청 완료 (대기 ' + d.myApply.waitNo + '번)' : '신청 완료';
+    btn.disabled = true;
+    agree.checked = true; agree.disabled = true;
+    showMsg('done', isWait
+      ? '<b>대기 신청이 접수되었습니다.</b><br>결원이 발생하면 대기 순번에 따라 개별 안내합니다.'
+      : '<b>수강신청이 접수되었습니다.</b><br>모집 종료 후 확정 명단과 학점교류 신청 절차를 개별 안내합니다.');
+    return;
+  }
+
+  if(d.phase === 'before'){
+    btn.textContent = '8월 5일 13:00부터 신청할 수 있습니다';
+    btn.disabled = true; agree.disabled = true; return;
+  }
+  if(d.phase === 'after'){
+    btn.textContent = '모집이 종료되었습니다';
+    btn.disabled = true; agree.disabled = true; return;
+  }
+  if(!d.eligible){
+    btn.textContent = '신청 대상이 아닙니다';
+    btn.disabled = true; agree.disabled = true;
+    showMsg('info', '차세대반도체 융합전공 이수 학생만 신청할 수 있습니다. 문의는 02-3290-4988로 연락해 주세요.');
+    return;
+  }
+  if(left <= 0){
+    btn.textContent = '대기 신청하기';
+    btn.classList.add('wait');
+  } else {
+    btn.textContent = '신청하기';
+  }
+  btn.disabled = !agree.checked;
+}
+
+/* ── 현황 조회 ── */
+function loadStatus(){
+  jsonp({ action:'getCourseApplyStatus', courseId:COURSE_ID, studentId:AUTH.studentId },
+    function(res){
+      STATE = res.data;
+      document.getElementById('loading').className = 'hide';
+      document.getElementById('main').className = '';
+      document.getElementById('mName').textContent  = STATE.name  || AUTH.name || '-';
+      document.getElementById('mSid').textContent   = STATE.studentId || AUTH.studentId;
+      document.getElementById('mDept').textContent  = STATE.dept  || '-';
+      document.getElementById('mGrade').textContent = STATE.grade ? STATE.grade + '학년' : '-';
+      renderSeat(STATE);
+      renderButton(STATE);
+    },
+    function(err){
+      document.getElementById('loading').className = 'hide';
+      document.getElementById('main').className = '';
+      showMsg('err', '신청 정보를 불러오지 못했습니다.<br>' + err);
+      document.getElementById('submitBtn').disabled = true;
+    });
+}
+
+/* ── 제출 ── */
+function submitApply(){
+  var btn = document.getElementById('submitBtn');
+  var isWait = btn.classList.contains('wait');
+  if(!confirm(isWait
+      ? '대기 신청을 접수합니다. 계속할까요?'
+      : '수강신청을 접수합니다. 신청 후에는 취소가 어렵습니다. 계속할까요?')) return;
+
+  btn.disabled = true;
+  btn.textContent = '접수 중입니다...';
+  hideMsg();
+
+  jsonp({ action:'applyCourse', courseId:COURSE_ID, studentId:AUTH.studentId },
+    function(res){
+      STATE = res.data;
+      renderSeat(STATE);
+      renderButton(STATE);
+      window.scrollTo({ top:0, behavior:'smooth' });
+    },
+    function(err){
+      showMsg('err', '신청이 접수되지 않았습니다.<br>' + err);
+      btn.textContent = isWait ? '대기 신청하기' : '신청하기';
+      btn.disabled = !document.getElementById('agree').checked;
+      window.scrollTo({ top:0, behavior:'smooth' });
+    });
+}
+
+/* ── 초기화 ── */
+(function init(){
+  try{ AUTH = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); }catch(e){ AUTH = null; }
+  if(!AUTH || !AUTH.studentId){
+    document.getElementById('loading').className = 'hide';
+    document.getElementById('gate').className = '';
+    return;
+  }
+  document.getElementById('agree').addEventListener('change', function(){
+    if(STATE) renderButton(STATE);
+  });
+  document.getElementById('submitBtn').addEventListener('click', submitApply);
+  loadStatus();
+})();
+</script>
+</body>
+</html>
