@@ -54,6 +54,9 @@ h2{font-size:16px;font-weight:600;margin-bottom:12px}
 .meta div{background:var(--gray-l);border-radius:var(--r);padding:9px 12px}
 .meta .k{font-size:11px;color:var(--ink4)}
 .meta .v{font-size:14px;margin-top:2px}
+.meta select{width:100%;margin-top:3px;padding:5px 8px;font-size:14px;font-family:inherit;
+  border:1px solid var(--line2);border-radius:6px;background:var(--paper);color:var(--ink)}
+.meta select:disabled{background:var(--gray-l);color:var(--ink3)}
 .note{font-size:12px;color:var(--ink4);margin-top:9px}
 
 /* ── 표 ── */
@@ -140,9 +143,20 @@ label.agree input{width:17px;height:17px;margin-top:3px;accent-color:var(--crims
       <div><div class="k">이름</div><div class="v" id="mName">-</div></div>
       <div><div class="k">학번</div><div class="v" id="mSid">-</div></div>
       <div><div class="k">소속</div><div class="v" id="mDept">-</div></div>
-      <div><div class="k">학년</div><div class="v" id="mGrade">-</div></div>
+      <div>
+        <div class="k">2026-2학기 기준 학년</div>
+        <select id="mGrade">
+          <option value="1">1학년</option>
+          <option value="2">2학년</option>
+          <option value="3">3학년</option>
+          <option value="4">4학년</option>
+        </select>
+      </div>
     </div>
-    <p class="note">로그인 정보에서 자동으로 불러옵니다. 정보가 다르면 사업단으로 문의해 주세요.</p>
+    <p class="note">
+      이름·학번·소속은 로그인 정보에서 자동으로 불러옵니다. 정보가 다르면 사업단으로 문의해 주세요.<br>
+      학년은 직전 학기 기준값이 선택되어 있습니다. <strong>휴학·복학 등으로 2026-2학기 학년이 다르면 직접 바꿔 주세요.</strong>
+    </p>
   </div>
 
   <!-- 수업 운영 -->
@@ -168,10 +182,10 @@ label.agree input{width:17px;height:17px;margin-top:3px;accent-color:var(--crims
     <table>
       <tr><th>졸업 이수학점</th><td class="yes">3학점 인정</td></tr>
       <tr><th>공동운영 영역</th><td class="yes">인정</td></tr>
-      <tr><th>평점(GPA) 계산</th><td class="no">미반영</td></tr>
-      <tr><th>성적증명서</th><td>인제대학교 등급(A·B·F) 그대로 표시</td></tr>
+      <tr><th>고려대 성적</th><td>학점교류 과목으로 <strong>'S' 등급</strong> 처리</td></tr>
+      <tr><th>평점(GPA)</th><td class="no">미반영</td></tr>
+      <tr><th>제출용 성적증명서</th><td>인제대학교 등급(A·B·F) 표시</td></tr>
     </table>
-    <p class="closing">평점 계산에서만 빠질 뿐, 학점과 등급 기록은 그대로 남습니다.</p>
   </div>
 
   <!-- 신청 전 확인 -->
@@ -300,6 +314,8 @@ function renderButton(d){
     btn.textContent = isWait ? '대기 신청 완료 (대기 ' + d.myApply.waitNo + '번)' : '신청 완료';
     btn.disabled = true;
     agree.checked = true; agree.disabled = true;
+    document.getElementById('mGrade').disabled = true;
+    if(d.myApply.grade) document.getElementById('mGrade').value = d.myApply.grade;
     showMsg('done', isWait
       ? '<b>대기 신청이 접수되었습니다.</b><br>결원이 발생하면 대기 순번에 따라 개별 안내합니다.'
       : '<b>수강신청이 접수되었습니다.</b><br>모집 종료 후 확정 명단과 학점교류 신청 절차를 개별 안내합니다.');
@@ -339,7 +355,9 @@ function loadStatus(){
       document.getElementById('mName').textContent  = STATE.name  || AUTH.name || '-';
       document.getElementById('mSid').textContent   = STATE.studentId || AUTH.studentId;
       document.getElementById('mDept').textContent  = STATE.dept  || '-';
-      document.getElementById('mGrade').textContent = STATE.grade ? STATE.grade + '학년' : '-';
+      var gsel = document.getElementById('mGrade');
+      var g0 = String(STATE.grade || '').replace(/[^0-9]/g, '');
+      gsel.value = (g0 >= '1' && g0 <= '4') ? g0 : '4';
       renderSeat(STATE);
       renderButton(STATE);
     },
@@ -363,7 +381,8 @@ function submitApply(){
   btn.textContent = '접수 중입니다...';
   hideMsg();
 
-  jsonp({ action:'applyCourse', courseId:COURSE_ID, studentId:AUTH.studentId },
+  jsonp({ action:'applyCourse', courseId:COURSE_ID, studentId:AUTH.studentId,
+          grade: document.getElementById('mGrade').value },
     function(res){
       STATE = res.data;
       renderSeat(STATE);
