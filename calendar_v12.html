@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KI-STAR 업무·학사 캘린더</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+/* ── 토큰 ── 고려대 크림슨 하나만 강조색. 카테고리 색은 데이터라 따로 둔다. */
+:root{
+  --paper:#f2f1ee; --surface:#fff; --sunk:#faf9f7;
+  --ink:#1c1a17; --ink2:#57524b; --muted:#8d877e;
+  --line:#e6e2db; --line2:#f0ede8;
+  --ku:#862633; --ku-d:#5e1a24; --ku-tint:#f6ecee;
+  --ok:#2e7d4f; --warnc:#b8860b;
+  --r:10px;
+  --mono:'Pretendard Variable',ui-monospace,'SF Mono',Menlo,monospace;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Pretendard Variable',Pretendard,-apple-system,'Malgun Gothic',sans-serif;
+  font-size:14px;line-height:1.6;font-feature-settings:'tnum' 1;}
+.wrap{max-width:1280px;margin:0 auto;padding:22px 20px 60px;}
+@media(max-width:640px){.wrap{padding:14px 12px 44px;}}
+a{color:inherit;}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer;}
+:focus-visible{outline:2px solid var(--ku);outline-offset:2px;border-radius:4px;}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;}
+.hd{display:flex;align-items:baseline;gap:9px;padding:14px 18px 0;flex-wrap:wrap;}
+.hd h2{font-size:14px;font-weight:700;margin:0;letter-spacing:-.01em;}
+.hd .n{font-size:11.5px;color:var(--muted);}
+.hd .rt{margin-left:auto;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:7px;}
+
+/* ── 머리 ── */
+.top{padding:15px 18px 13px;}
+.trow{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.bm{font-size:10px;font-weight:700;letter-spacing:.15em;color:var(--ku);margin-bottom:4px;}
+h1{font-size:21px;font-weight:800;letter-spacing:-.022em;margin:0;line-height:1.2;}
+.tools{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
+.tools button{background:var(--surface);border:1px solid var(--line);border-radius:7px;
+  padding:6px 11px;font-size:12.5px;color:var(--ink2);transition:.12s;white-space:nowrap;}
+.tools button:hover{border-color:var(--ku);color:var(--ku);}
+.tools button.key{background:var(--ku);border-color:var(--ku);color:#fff;font-weight:600;}
+.tools button.key:hover{background:var(--ku-d);}
+.navrow{display:flex;align-items:center;gap:9px;margin-top:11px;padding-top:11px;
+  border-top:1px solid var(--line2);font-size:12px;white-space:nowrap;overflow-x:auto;
+  scrollbar-width:none;}
+.navrow::-webkit-scrollbar{display:none;}
+.navrow .st{display:inline-flex;align-items:center;gap:6px;color:var(--muted);flex:none;}
+.navrow .st i{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none;}
+.navrow.bad .st{color:var(--ku);} .navrow.bad .st i{background:var(--ku);}
+.navrow .bar{width:1px;height:11px;background:var(--line);flex:none;}
+.navrow a{color:var(--ink2);text-decoration:none;flex:none;
+  background:var(--sunk);border:1px solid var(--line);border-radius:6px;
+  padding:3px 10px;line-height:1.5;transition:.12s;}
+.navrow a:hover{color:var(--ku);border-color:var(--ku);background:var(--surface);}
+#quick{display:inline-flex;gap:6px;align-items:center;}
+
+.warn{display:none;background:#fff8e8;border:1px solid #ecd9a8;border-left:3px solid var(--warnc);
+  border-radius:var(--r);padding:11px 15px;font-size:12.5px;color:#7a5a15;margin-bottom:14px;line-height:1.65;}
+.warn.show{display:block;}
+
+/* ── 본문 2단 ── */
+.main{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1fr);gap:14px;align-items:start;}
+.main .col-list{order:1;} .main .col-cal{order:2;}
+/* 좁아지면 위아래로 쌓인다. 이때 달력을 먼저 둔다 —
+   목록이 길어서 아래에 두면 한참 스크롤해야 달력이 나온다.
+   동시에 목록 스크롤을 푼다. 옆에 맞출 달력이 없으므로 가둘 이유가 없다. */
+@media(max-width:960px){
+  .main{grid-template-columns:1fr;}
+  .main .col-list{order:2;} .main .col-cal{order:1;}
+  .ledger{max-height:none;overflow:visible;}
+  .ledgerwrap:after{display:none;}
+}
+
+/* ── 대장 ── */
+.seg2{display:inline-flex;background:var(--sunk);border:1px solid var(--line);border-radius:7px;padding:2px;gap:2px;}
+.seg2 button{border:0;background:transparent;border-radius:5px;padding:2px 8px;font-size:11.5px;color:var(--muted);}
+.seg2 button.on{background:var(--surface);color:var(--ku);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.06);}
+/* 오른쪽 달력과 높이를 맞춘다. 접기가 아니라 스크롤인 이유 —
+   접으면 「몇 건 있는지」 보려고 매번 펼쳐야 하고, 매일 여는 화면이라 그 한 번이 쌓인다. */
+.ledgerwrap{position:relative;}
+.ledgerwrap:after{content:'';position:absolute;left:1px;right:1px;bottom:0;height:36px;
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0,var(--surface) 86%);
+  border-radius:0 0 var(--r) var(--r);pointer-events:none;opacity:0;transition:opacity .15s;}
+.ledgerwrap.more:after{opacity:1;}
+.ledger{padding:4px 0 10px;max-height:524px;overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#d8d3ca transparent;}
+.ledger::-webkit-scrollbar{width:8px;}
+.ledger::-webkit-scrollbar-thumb{background:#d8d3ca;border-radius:4px;}
+.ledger::-webkit-scrollbar-track{background:transparent;}
+.grp{display:flex;align-items:center;gap:9px;padding:13px 18px 5px;}
+.grp span{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);white-space:nowrap;}
+.grp:before{content:'';width:3px;height:11px;background:var(--line);border-radius:2px;flex:none;}
+.grp hr{flex:1;border:0;border-top:1px solid var(--line2);margin:0;}
+.grp.hot:before{background:var(--ku);} .grp.hot span{color:var(--ku);}
+.grp.over:before{background:var(--ku);} .grp.over span{color:var(--ku);}
+
+.item{display:flex;align-items:flex-start;gap:11px;padding:8px 18px;transition:background .12s;}
+.item+.item{border-top:1px solid var(--line2);}
+.item:hover{background:var(--sunk);}
+.chk{flex:none;width:17px;height:17px;margin-top:3px;border:1.5px solid var(--line);border-radius:5px;
+  background:var(--surface);padding:0;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:transparent;line-height:1;transition:.12s;}
+.chk:hover{border-color:var(--ku);}
+.chk.on{background:var(--ok);border-color:var(--ok);color:#fff;}
+.chk.busy{opacity:.4;}
+.dcell{flex:none;width:50px;text-align:right;padding-top:1px;}
+.dnum{font-family:var(--mono);font-size:16px;font-weight:800;letter-spacing:-.04em;line-height:1.15;color:var(--ink2);display:block;}
+.dsub{font-size:9.5px;color:var(--muted);display:block;margin-top:1px;}
+.item.hot .dnum{color:var(--ku);}
+.item.now .dcell{background:var(--ku);border-radius:6px;padding:3px 4px 4px;}
+.item.now .dnum,.item.now .dsub{color:#fff;}
+.item.over .dnum{color:var(--ku);}
+.item.done{opacity:.5;}
+.item.done .ttl{text-decoration:line-through;}
+.item.done .dnum{color:var(--muted);}
+.item.done.now .dcell{background:var(--line);}
+.body{flex:1;min-width:0;padding-top:1px;}
+.ttl{font-size:13px;line-height:1.5;display:block;word-break:keep-all;}
+.item.hot .ttl,.item.over .ttl{font-weight:600;}
+.ttl a{text-decoration:none;border-bottom:1px solid var(--line);}
+.ttl a:hover{border-color:var(--ku);color:var(--ku);}
+.meta{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap;}
+.meta i{width:7px;height:7px;border-radius:50%;flex:none;}
+.meta em{font-style:normal;font-size:10.5px;color:var(--muted);}
+.meta .own{font-size:10px;color:var(--ink2);background:var(--sunk);border:1px solid var(--line);border-radius:4px;padding:0 5px;line-height:16px;}
+.meta .own.req{background:var(--ku-tint);border-color:#e6ccd2;color:var(--ku-d);font-weight:600;}
+.meta .run{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px;line-height:16px;}
+.meta .fin{font-size:10px;color:var(--ok);border:1px solid #cfe3d6;background:#f2f8f4;border-radius:4px;padding:0 5px;line-height:16px;}
+.more{width:100%;border:0;background:transparent;padding:9px 18px;font-size:12px;color:var(--muted);text-align:left;}
+.more:hover{color:var(--ku);background:var(--sunk);}
+.empty{padding:24px 18px 28px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.8;}
+.empty b{display:block;color:var(--ink2);font-size:13px;margin-bottom:3px;}
+
+/* ── 이번 달 ── */
+.mnow{padding:6px 18px 16px;}
+.mnow table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.mnow th{font-size:10.5px;font-weight:600;color:var(--muted);padding:0 0 4px;}
+.mnow td{vertical-align:top;padding:3px 2px;border-top:1px solid var(--line2);height:62px;}
+.sun{color:#c0504d!important;} .sat{color:#4a6fa5!important;}
+.dn{font-size:11px;color:var(--ink2);font-family:var(--mono);}
+/* 🔴 오늘 표시는 색이 아니라 형태로 구분한다.
+   크림슨은 졸업사정 알약에도 쓰여서, 같은 색을 쓰면 8월처럼 졸업사정이 몰린 달에
+   오늘이 어디인지 안 보인다. 칸을 물들이고 테두리를 두른 뒤 숫자를 잉크색으로 뒤집었다. */
+td.todaycell{background:var(--ku-tint);box-shadow:inset 0 0 0 2px var(--ku);border-radius:5px;}
+.dn.today{background:var(--ink);color:#fff;border-radius:999px;padding:1px 7px;font-weight:800;
+  display:inline-block;letter-spacing:0;}
+.dn.today:after{content:' 오늘';font-size:9px;font-weight:700;letter-spacing:.04em;}
+.pill{font-size:9.5px;line-height:1.35;color:#fff;border-radius:3px;padding:1px 3px;margin-top:2px;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.pill.done{opacity:.45;text-decoration:line-through;}
+.dots{display:flex;gap:2px;flex-wrap:wrap;margin-top:2px;}
+.dots i{width:5px;height:5px;border-radius:50%;}
+
+/* ── 회고 ── */
+.look{padding:6px 18px 16px;}
+.lrow{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px solid var(--line2);}
+.lrow:first-child{border-top:0;}
+.lrow .ago{flex:none;width:74px;font-size:10.5px;color:var(--muted);font-family:var(--mono);padding-top:2px;}
+.lrow .lt{flex:1;min-width:0;font-size:12.5px;line-height:1.5;word-break:keep-all;}
+.lrow .lt em{font-style:normal;display:block;font-size:10.5px;color:var(--muted);margin-top:1px;}
+.lrow button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:6px;
+  padding:3px 9px;font-size:11px;color:var(--ink2);white-space:nowrap;}
+.lrow button:hover{border-color:var(--ku);color:var(--ku);}
+.lrow button:disabled{opacity:.45;cursor:default;}
+
+/* ── 필터 ── */
+.filters{padding:13px 18px 15px;}
+.frow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.frow+.frow{margin-top:9px;padding-top:11px;border-top:1px solid var(--line2);}
+.flab{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--muted);width:34px;flex:none;}
+.seg{display:inline-flex;background:var(--sunk);border:1px solid var(--line);border-radius:8px;padding:2px;gap:2px;flex-wrap:wrap;}
+.seg button{border:0;background:transparent;border-radius:6px;padding:5px 11px;font-size:12.5px;color:var(--ink2);transition:.12s;white-space:nowrap;}
+.seg button:hover{color:var(--ku);}
+.seg button.on{background:var(--ku);color:#fff;font-weight:600;}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);
+  border-radius:20px;padding:5px 12px;font-size:12.5px;color:var(--ink2);transition:.12s;white-space:nowrap;}
+.chip i{width:8px;height:8px;border-radius:50%;flex:none;opacity:.3;transition:.12s;}
+.chip.on{border-color:var(--ink);color:var(--ink);font-weight:600;}
+.chip.on i{opacity:1;}
+.chip:hover{border-color:var(--ku);}
+details.mo{margin-top:9px;}
+details.mo>summary{list-style:none;cursor:pointer;font-size:11.5px;color:var(--muted);display:inline-flex;align-items:center;gap:5px;}
+details.mo>summary::-webkit-details-marker{display:none;}
+details.mo>summary:after{content:'▾';font-size:9px;}
+details.mo[open]>summary:after{content:'▴';}
+details.mo>summary:hover{color:var(--ku);}
+.subs{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
+.subs label{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink2);cursor:pointer;
+  border:1px solid var(--line2);border-radius:6px;padding:3px 9px;background:var(--sunk);}
+.subs input{margin:0;accent-color:var(--ku);}
+.subs i{width:7px;height:7px;border-radius:50%;}
+
+/* ── 월 격자 ── */
+.strip{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;padding:4px 18px 18px;}
+@media(max-width:900px){.strip{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:560px){.strip{grid-template-columns:repeat(3,1fr);}}
+.mc{border:1px solid var(--line2);border-radius:8px;padding:9px 7px 8px;text-align:center;cursor:pointer;transition:.14s;background:var(--surface);}
+.mc:hover{border-color:var(--ku);box-shadow:0 3px 10px rgba(134,38,51,.08);}
+.mc b{display:block;font-size:12.5px;font-weight:700;}
+.mc .yr{font-size:9.5px;color:var(--muted);}
+.mc .c{font-size:11px;color:var(--ink2);font-family:var(--mono);margin-top:4px;}
+.mc.blank{opacity:.4;} .mc.blank .c{color:var(--muted);}
+.mc .bar{height:3px;border-radius:2px;background:var(--line2);margin-top:5px;overflow:hidden;}
+.mc .bar i{display:block;height:100%;background:var(--ku);opacity:.55;}
+
+/* ── 모달 ── */
+#back{position:fixed;inset:0;background:rgba(28,26,23,.44);display:none;align-items:center;justify-content:center;z-index:60;padding:18px;}
+#back.open{display:flex;}
+#box{background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+  padding:16px 20px 20px;max-width:980px;width:100%;max-height:90vh;overflow:auto;}
+.mnav{display:flex;align-items:center;gap:9px;margin-bottom:11px;}
+.mnav .cur{font-size:16px;font-weight:800;letter-spacing:-.02em;}
+.mnav button{border:1px solid var(--line);background:var(--surface);border-radius:7px;padding:4px 11px;font-size:13px;color:var(--ink2);}
+.mnav button:hover{border-color:var(--ku);color:var(--ku);}
+.mnav .x{margin-left:auto;border:0;font-size:17px;color:var(--muted);}
+#mDetail table{width:100%;border-collapse:collapse;table-layout:fixed;}
+#mDetail th{font-size:12px;font-weight:600;color:var(--muted);padding:0 0 5px;}
+#mDetail td{vertical-align:top;padding:5px 4px;border-top:1px solid var(--line2);height:108px;}
+#mDetail .dn{font-size:13px;}
+#mDetail .pill{font-size:11.5px;padding:2px 5px;-webkit-line-clamp:3;}
+
+.foot{font-size:11.5px;color:var(--muted);line-height:1.85;padding:0 4px;}
+.foot b{color:var(--ink2);}
+.foot hr{margin:9px 0;border:0;border-top:1px solid var(--line);}
+
+@media print{
+  .tools,.filters,.navrow,#back,.warn,details.mo,.more,.chk,.seg2{display:none!important;}
+  body{background:#fff;} .card{border-color:#ccc;break-inside:avoid;} .main{display:block;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <div class="top">
+      <div class="trow">
+        <div>
+          <div class="bm">KOREA UNIVERSITY · KI-STAR CENTER</div>
+          <h1>업무·학사 캘린더</h1>
+        </div>
+        <div class="tools">
+          <button id="bReload">↻ 새로고침</button>
+          <button id="bIcs">내 캘린더로</button>
+          <button id="bPrint">인쇄</button>
+          <button id="bSheet" class="key">일정 수정</button>
+        </div>
+      </div>
+      <div class="navrow" id="navrow">
+        <span class="st"><i></i><span id="stText">불러오는 중</span></span>
+        <span class="bar"></span>
+        <span id="quick"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn" id="warn"></div>
+
+  <div class="main">
+    <div class="col-list">
+      <div class="card">
+        <div class="hd">
+          <h2>다가오는 일정</h2>
+          <span class="rt">
+            <span class="seg2" id="segRange">
+              <button data-d="30">30일</button>
+              <button data-d="90">90일</button>
+              <button data-d="0">전체</button>
+            </span>
+            <span id="upCount"></span>
+          </span>
+        </div>
+        <div class="ledgerwrap" id="ledgerwrap"><div class="ledger" id="ledger"></div></div>
+      </div>
+
+      <div class="card" id="lookCard" style="display:none;">
+        <div class="hd">
+          <h2>작년 이맘때 했던 일</h2>
+          <span class="n">올해 일정이 아직 없는 것만</span>
+        </div>
+        <div class="look" id="look"></div>
+      </div>
+    </div>
+
+    <div class="card col-cal">
+      <div class="hd">
+        <h2 id="mnowTitle">이번 달</h2>
+        <span class="rt">
+          <button id="bZoom" style="border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 9px;font-size:11.5px;color:var(--ink2);">크게 보기</button>
+          <span id="mnowCount"></span>
+        </span>
+      </div>
+      <div class="mnow" id="mnow" style="cursor:zoom-in;" title="눌러서 크게 보기"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="filters">
+      <div class="frow">
+        <span class="flab">담당</span>
+        <div class="seg" id="segOwner">
+          <button data-o="all">전체</button>
+          <button data-o="mine">내 일</button>
+          <button data-o="req">학사팀 요청</button>
+          <button data-o="biz">사업단</button>
+          <button data-o="stu">학생</button>
+          <button data-o="ref">참고</button>
+        </div>
+      </div>
+      <div class="frow">
+        <span class="flab">종류</span>
+        <div id="chips" style="display:flex;gap:7px;flex-wrap:wrap;"></div>
+        <details class="mo" style="width:100%">
+          <summary>세부 종류</summary>
+          <div class="subs" id="subs"></div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="hd">
+      <h2>다음 달부터</h2>
+      <span class="n" id="rangeNote"></span>
+      <span class="rt"><button id="bPast" style="border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 9px;font-size:11.5px;color:var(--ink2);">지난 일정 펼치기</button></span>
+    </div>
+    <div class="strip" id="strip"></div>
+    <div class="strip" id="past" style="display:none;"></div>
+  </div>
+
+  <div class="foot">
+    <b>일정 추가·수정·삭제</b>는 오른쪽 위 <b>일정 수정</b>으로 구글시트에서 한다. 고친 뒤 <b>↻ 새로고침</b>을 누르면 반영된다.
+    <b>완료 체크</b>는 여기서 바로 누를 수 있고, 시트 <b>완료일</b> 칸에 기록된다.
+    마감이 지났는데 완료가 안 된 일은 목록 맨 위에 남는다.
+    <hr>
+    ① 고려대 2026학년도 학사일정(안) · ② 쿠카이브 등록 비교과 · ③ 사업단 업무 이메일 분석 ·
+    ④ 졸업사정 = 학사팀-4565 「2025학년도 후기 졸업예정자 졸업사정 업무 협조 요청」(2026.07.06)<br>
+    학사일정은 (안)이므로 학교 공지로 변경될 수 있다.
+  </div>
+</div>
+
+<div id="back"><div id="box">
+  <div class="mnav">
+    <button id="bPrev">‹</button>
+    <span class="cur" id="mCur"></span>
+    <button id="bNext">›</button>
+    <button class="x" id="bClose">✕</button>
+  </div>
+  <div id="mDetail"></div>
+</div></div>
+
+<script>
+const GAS_URL   = 'https://script.google.com/macros/s/AKfycbyvrnTLb3yBw5wu-qYHeEQsHeLEe9lv45ODT6Lt3Yih9SGh03VLtBbU6awGYqsdXfC-/exec';
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/18-h2_NvqZ3_oIN4nUeuJIyd-p5LzCn6wnJLYaXuEHaE/edit';
+const HUB       = 'https://ku-kistar.github.io/kistar-checklist/';
+const PREF_KEY  = 'kistar_cal_pref_v12';   // 필터·기간만 저장. 일정 데이터는 저장하지 않는다
+const KEY_KEY   = 'kistar_cal_writekey';
+
+const CAT = {
+  holiday   :{n:'공휴일',      c:'#c0504d', g:'acad'},
+  exam      :{n:'시험',        c:'#8e5aa8', g:'acad'},
+  semester  :{n:'개강·종강',   c:'#3d7fb8', g:'acad'},
+  apply     :{n:'신청·등록',   c:'#3f9e6b', g:'acad'},
+  other     :{n:'기타',        c:'#d68a3c', g:'acad'},
+  noncur    :{n:'비교과',      c:'#1e9e8f', g:'noncur'},
+  bizmail   :{n:'사업단 업무', c:'#4a5a6e', g:'biz'},
+  unanswered:{n:'미회신 문의', c:'#c94f86', g:'biz'},
+  grad      :{n:'졸업사정',    c:'#862633', g:'grad'}
+};
+const GROUPS = {
+  acad  :{n:'학사일정',   c:'#3d7fb8', cats:['holiday','exam','semester','apply','other']},
+  noncur:{n:'비교과',     c:'#1e9e8f', cats:['noncur']},
+  biz   :{n:'사업단 업무', c:'#4a5a6e', cats:['bizmail','unanswered']},
+  grad  :{n:'졸업사정',    c:'#862633', cats:['grad']}
+};
+const ALL_CATS = Object.keys(CAT);
+const CAT_KO = {holiday:'공휴일',exam:'시험',semester:'개강종강',apply:'신청등록',other:'기타',
+                noncur:'비교과',bizmail:'사업단업무',unanswered:'미회신',grad:'졸업사정'};
+const OWN = {biz:'사업단', req:'학사팀', stu:'학생', ref:'참고'};
+const OWN_KO = {biz:'사업단', req:'학사팀요청', stu:'학생', ref:'참고'};
+const ALL_OWNERS = ['biz','req','stu','ref'];
+const OWNER_SETS = {all:ALL_OWNERS, mine:['biz','req'], req:['req'], biz:['biz'], stu:['stu'], ref:['ref']};
+const LINKS = [
+  ['portal_survey.html','데이터 허브'], ['mileage_board.html','마일리지 현황판'],
+  ['admin_board.html','활동별 증빙'], ['admin_mileage.html','관리자 대시보드'],
+  ['mileage_criteria.html','배점 기준표']
+];
+
+function ev(i,s,e,t,c,o){ return {i:i,s:s,e:e,t:t,c:c,o:o,u:'',n:'',d:'',r:''}; }
+
+/* 내장 백업 — GAS·시트가 응답하지 않을 때만 쓴다 (2026-08-06 이관 시점 146건).
+   여기를 고쳐서 일정을 관리하지 말 것. 원천은 구글시트다. */
+const BACKUP = [
+ev('CAL-0001','2024-09-01','2024-09-30','사업단 초기 설립 업무','bizmail','biz'),
+  ev('CAL-0002','2024-09-01','2024-09-30','솔버톤 경진대회 준비','bizmail','biz'),
+  ev('CAL-0003','2024-10-01','2024-10-31','사업단 행정 업무','bizmail','biz'),
+  ev('CAL-0004','2024-10-01','2024-10-31','솔버톤 경진대회 진행','bizmail','biz'),
+  ev('CAL-0005','2024-11-01','2024-11-30','솔버톤 경진대회 진행','bizmail','biz'),
+  ev('CAL-0006','2024-11-01','2024-11-30','융합전공 신설 심의·면담','bizmail','biz'),
+  ev('CAL-0007','2024-12-01','2024-12-31','경진대회 최종제출·유니위크(부산)','bizmail','biz'),
+  ev('CAL-0008','2024-12-01','2024-12-31','연구사업단 해산/신설 논의','bizmail','biz'),
+  ev('CAL-0009','2025-01-01','2025-01-31','강의계획서(PBL·패키징) 준비','bizmail','biz'),
+  ev('CAL-0010','2025-01-01','2025-01-31','마일리지/세미나 인증 폭주','bizmail','biz'),
+  ev('CAL-0011','2025-02-01','2025-02-28','마일리지/세미나 인증 지속','bizmail','biz'),
+  ev('CAL-0012','2025-02-01','2025-02-28','사업단 소속 이관 기안 결재','bizmail','biz'),
+  ev('CAL-0013','2025-02-12','2025-02-12','[미회신] 장민경 — 반도체공정실습 문의','unanswered','biz'),
+  ev('CAL-0014','2025-03-01','2025-03-31','개소식 준비(참석자 조율)','bizmail','biz'),
+  ev('CAL-0015','2025-03-01','2025-03-31','신소재/전기전자 자료 협조','bizmail','biz'),
+  ev('CAL-0016','2025-03-06','2025-03-06','[미회신] 이윤서 — 전공학점 문의','unanswered','biz'),
+  ev('CAL-0017','2025-03-18','2025-03-18','무기발광디스플레이 이슈 처리','bizmail','biz'),
+  ev('CAL-0018','2025-04-01','2025-04-30','마일리지 신청 집중','bizmail','biz'),
+  ev('CAL-0019','2025-04-01','2025-04-30','홍콩 ASMPT 선발 결과 안내','bizmail','biz'),
+  ev('CAL-0020','2025-04-21','2025-04-22','사업단 개소식 실제 진행','bizmail','biz'),
+  ev('CAL-0021','2025-05-01','2025-05-31','STOB 리그(경진대회 후속)','bizmail','biz'),
+  ev('CAL-0022','2025-05-01','2025-05-31','고려대-인제대 복수학위 검토','bizmail','biz'),
+  ev('CAL-0023','2025-05-01','2025-05-31','홍콩 ASMPT 실습 자료 송부','bizmail','biz'),
+  ev('CAL-0024','2025-05-26','2025-05-26','[미회신] 류지원 — 융합전공 기타 문의','unanswered','biz'),
+  ev('CAL-0025','2025-06-01','2025-06-30','STOB 리그·하계 성과교류회 준비','bizmail','biz'),
+  ev('CAL-0026','2025-06-01','2025-06-30','고려대-인제대 복수학위 협약 논의','bizmail','biz'),
+  ev('CAL-0027','2025-06-01','2025-06-30','홍콩 ASMPT 실습 진행','bizmail','biz'),
+  ev('CAL-0028','2025-06-27','2025-06-27','[미회신] 황지윤 — 융합전공 이수 문의','unanswered','biz'),
+  ev('CAL-0029','2025-07-01','2025-07-31','STOB 리그 후속 진행','bizmail','biz'),
+  ev('CAL-0030','2025-07-01','2025-07-31','임시 교무위원회(교원채용 등)','bizmail','biz'),
+  ev('CAL-0031','2025-07-01','2025-07-31','홍콩 ASMPT·하계 성과교류회','bizmail','biz'),
+  ev('CAL-0032','2025-07-07','2025-07-07','[미회신] 황지윤 — 융합전공 이수 재문의','unanswered','biz'),
+  ev('CAL-0033','2025-07-23','2025-07-23','[미회신] 김현민 — 마일리지 문의','unanswered','biz'),
+  ev('CAL-0034','2025-09-01','2025-09-30','2025-2학기 교과 개편','bizmail','biz'),
+  ev('CAL-0035','2025-10-01','2025-10-31','반도체머신러닝 공동운영 교과목','bizmail','biz'),
+  ev('CAL-0036','2025-11-01','2025-11-30','2025-2학기 학사 행정 업무','bizmail','biz'),
+  ev('CAL-0037','2026-01-02','2026-01-30','제1학기 미래로장학금 1차 신청','apply','stu'),
+  ev('CAL-0038','2026-01-16','2026-01-16','겨울계절수업 종강','semester','ref'),
+  ev('CAL-0039','2026-02-02','2026-02-25','휴·복학 신청','apply','stu'),
+  ev('CAL-0040','2026-02-03','2026-02-05','제1학기 수강희망과목 등록','apply','stu'),
+  ev('CAL-0041','2026-02-10','2026-02-14','제1학기 수강신청','apply','stu'),
+  ev('CAL-0042','2026-02-16','2026-02-18','설날(공휴일)','holiday','ref'),
+  ev('CAL-0043','2026-02-23','2026-02-27','제1학기 등록','apply','stu'),
+  ev('CAL-0044','2026-02-24','2026-02-25','신입·편입생·학위취득유예생 수강신청','apply','stu'),
+  ev('CAL-0045','2026-02-25','2026-02-25','2025학년도 전기 학위수여식','other','ref'),
+  ev('CAL-0046','2026-02-27','2026-02-27','2026학년도 입학식','other','ref'),
+  ev('CAL-0047','2026-03-01','2026-03-01','삼일절(공휴일)','holiday','ref'),
+  ev('CAL-0048','2026-03-02','2026-03-02','대체휴일','holiday','ref'),
+  ev('CAL-0049','2026-03-03','2026-03-03','제1학기 개강','semester','ref'),
+  ev('CAL-0050','2026-03-03','2026-03-20','조기졸업 신청','apply','stu'),
+  ev('CAL-0051','2026-03-04','2026-03-06','수강신청 정정 및 확인','apply','stu'),
+  ev('CAL-0052','2026-03-23','2026-03-23','[비교과] 차세대반도체 서포터즈 모집','noncur','biz'),
+  ev('CAL-0053','2026-03-24','2026-03-26','수강포기 신청','apply','stu'),
+  ev('CAL-0054','2026-03-25','2026-03-27','복수전공 신청','apply','stu'),
+  ev('CAL-0055','2026-03-30','2026-03-30','제1학기 1/4 시점(4주차)','other','ref'),
+  ev('CAL-0056','2026-04-01','2026-04-01','[비교과] 콜로키움Ⅰ: GaN 에피 성장 기술','noncur','biz'),
+  ev('CAL-0057','2026-04-01','2026-04-30','제1학기 미래로장학금 2차 신청','apply','stu'),
+  ev('CAL-0058','2026-04-01','2026-04-30','학생설계전공 신청','apply','stu'),
+  ev('CAL-0059','2026-04-03','2026-04-03','[비교과] 초청 세미나: 인공지능과 양자컴퓨팅','noncur','biz'),
+  ev('CAL-0060','2026-04-15','2026-04-15','[비교과] 콜로키움Ⅰ 2: 차세대 소재 기술','noncur','biz'),
+  ev('CAL-0061','2026-04-15','2026-04-17','융합전공 신청','apply','stu'),
+  ev('CAL-0062','2026-04-21','2026-04-27','제1학기 중간고사','exam','stu'),
+  ev('CAL-0063','2026-04-22','2026-04-22','[비교과] 콜로키움Ⅰ 3: AR 글래스 시스템','noncur','biz'),
+  ev('CAL-0064','2026-04-27','2026-04-27','제1학기 1/2 시점(8주차)','other','ref'),
+  ev('CAL-0065','2026-05-01','2026-05-01','노동절(법정기념일)','holiday','ref'),
+  ev('CAL-0066','2026-05-05','2026-05-05','개교기념일','other','ref'),
+  ev('CAL-0067','2026-05-05','2026-05-05','어린이날(공휴일)','holiday','ref'),
+  ev('CAL-0068','2026-05-13','2026-05-15','이중전공 신청','apply','stu'),
+  ev('CAL-0069','2026-05-20','2026-05-20','[비교과] 글로벌 커리어 브릿지 프로그램','noncur','biz'),
+  ev('CAL-0070','2026-05-20','2026-05-20','[비교과] 초청 세미나: 패키징','noncur','biz'),
+  ev('CAL-0071','2026-05-21','2026-05-21','[비교과] 취업역량 강화(자소서 집중과정)','noncur','biz'),
+  ev('CAL-0072','2026-05-24','2026-05-24','부처님오신날(공휴일)','holiday','ref'),
+  ev('CAL-0073','2026-05-25','2026-05-25','대체휴일','holiday','ref'),
+  ev('CAL-0074','2026-05-26','2026-05-26','[비교과] 초청 세미나: AI 시대 디자인하우스','noncur','biz'),
+  ev('CAL-0075','2026-05-26','2026-05-26','제1학기 3/4 시점(12주차)','other','ref'),
+  ev('CAL-0076','2026-06-03','2026-06-03','2026 지방선거','other','ref'),
+  ev('CAL-0077','2026-06-03','2026-06-05','재입학 신청','apply','stu'),
+  ev('CAL-0078','2026-06-06','2026-06-06','현충일(공휴일)','holiday','ref'),
+  ev('CAL-0079','2026-06-16','2026-06-22','제1학기 기말고사','exam','stu'),
+  ev('CAL-0080','2026-06-21','2026-06-21','[비교과] 해외연수-칭화대 썸머스쿨','noncur','biz'),
+  ev('CAL-0081','2026-06-22','2026-06-22','제1학기 종강(16주차)','semester','ref'),
+  ev('CAL-0082','2026-06-23','2026-06-23','여름계절수업 개강','semester','ref'),
+  ev('CAL-0083','2026-06-23','2026-06-23','여름방학 시작','semester','ref'),
+  ev('CAL-0084','2026-07-01','2026-07-31','제2학기 미래로장학금 1차 신청','apply','stu'),
+  ev('CAL-0085','2026-07-03','2026-07-03','[졸업사정] 다중·복수전공 포기원 마감(온라인) 17:00','grad','req'),
+  ev('CAL-0086','2026-07-04','2026-07-04','[비교과] 글로벌 해외연수 프로그램','noncur','biz'),
+  ev('CAL-0087','2026-07-08','2026-07-08','[졸업사정] 2026-1학기 성적 확정 11:00','grad','req'),
+  ev('CAL-0088','2026-07-10','2026-07-10','[졸업사정] 1학기 성적 재수강 삭제 11:00 / 1차 졸업사정 작업 시작 14:00~','grad','req'),
+  ev('CAL-0089','2026-07-10','2026-07-30','[졸업사정] 학사학위취득 유예 신청 (7/10 12:00 ~ 7/30 17:00)','grad','req'),
+  ev('CAL-0090','2026-07-10','2026-07-31','[졸업사정] 1차 졸업판정(합격/수료/불합격) 입력 ~7/31 16:00','grad','req'),
+  ev('CAL-0091','2026-07-20','2026-07-20','여름계절수업 종강','semester','ref'),
+  ev('CAL-0092','2026-07-22','2026-07-22','[비교과] Ansys HFSS 실무활용 교육','noncur','biz'),
+  ev('CAL-0093','2026-07-28','2026-07-28','[졸업사정] 여름계절수업 성적 확정 17:00','grad','req'),
+  ev('CAL-0094','2026-07-29','2026-07-29','[졸업사정] 여름계절 재수강 삭제 15:00 / 최종 졸업사정 작업·사정표 출력','grad','req'),
+  ev('CAL-0095','2026-07-31','2026-07-31','[졸업사정] 복수전공 진입예정자 전산입력 마감 12:00','grad','req'),
+  ev('CAL-0096','2026-08-03','2026-08-25','휴·복학 신청','apply','stu'),
+  ev('CAL-0097','2026-08-04','2026-08-06','제2학기 수강희망과목 등록','apply','stu'),
+  ev('CAL-0098','2026-08-05','2026-08-05','[졸업사정] ✅ 최종 졸업판정 입력 마감 17:00 (완료)','grad','req'),
+  ev('CAL-0099','2026-08-11','2026-08-13','[졸업사정] 졸업예정자 졸업판정 조회기간 (학생 문의 대응)','grad','req'),
+  ev('CAL-0100','2026-08-11','2026-08-15','제2학기 수강신청','apply','stu'),
+  ev('CAL-0101','2026-08-12','2026-08-12','[졸업사정] ★ 졸업/이수/유예사정부 원본·전자문서 제출 마감','grad','req'),
+  ev('CAL-0102','2026-08-15','2026-08-15','광복절(공휴일)','holiday','ref'),
+  ev('CAL-0103','2026-08-17','2026-08-17','대체휴일','holiday','ref'),
+  ev('CAL-0104','2026-08-20','2026-08-20','[졸업사정] 졸업증서 케이스 대학행정팀 교부(예정)','grad','req'),
+  ev('CAL-0105','2026-08-21','2026-08-21','[졸업사정] 졸업증서 대학행정팀 교부(예정)','grad','req'),
+  ev('CAL-0106','2026-08-24','2026-08-25','신입·편입생·학위취득유예생 수강신청','apply','stu'),
+  ev('CAL-0107','2026-08-24','2026-08-28','제2학기 등록','apply','stu'),
+  ev('CAL-0108','2026-08-25','2026-08-25','[졸업사정] 학위수여일 · 졸업증서 학생 교부 시작(이전 교부 불가, 신원확인+서명 필수)','grad','req'),
+  ev('CAL-0109','2026-09-01','2026-09-01','[비교과] 서포터즈 추가모집(2학기)','noncur','biz'),
+  ev('CAL-0110','2026-09-01','2026-09-01','제2학기 개강','semester','ref'),
+  ev('CAL-0111','2026-09-01','2026-09-18','조기졸업 신청','apply','stu'),
+  ev('CAL-0112','2026-09-02','2026-09-04','수강신청 정정 및 확인','apply','stu'),
+  ev('CAL-0113','2026-09-18','2026-09-19','정기 고·연전','other','ref'),
+  ev('CAL-0114','2026-09-21','2026-09-23','복수전공 신청','apply','stu'),
+  ev('CAL-0115','2026-09-21','2026-09-23','수강포기 신청','apply','stu'),
+  ev('CAL-0116','2026-09-24','2026-09-26','추석(공휴일)','holiday','ref'),
+  ev('CAL-0117','2026-09-28','2026-09-28','제2학기 1/4 시점(4주차)','other','ref'),
+  ev('CAL-0118','2026-10-01','2026-10-30','제2학기 미래로장학금 2차 신청','apply','stu'),
+  ev('CAL-0119','2026-10-01','2026-10-30','학생설계전공 신청','apply','stu'),
+  ev('CAL-0120','2026-10-03','2026-10-03','개천절(공휴일)','holiday','ref'),
+  ev('CAL-0121','2026-10-05','2026-10-05','대체휴일','holiday','ref'),
+  ev('CAL-0122','2026-10-09','2026-10-09','한글날(공휴일)','holiday','ref'),
+  ev('CAL-0123','2026-10-14','2026-10-16','융합전공 신청','apply','stu'),
+  ev('CAL-0124','2026-10-20','2026-10-26','제2학기 중간고사','exam','stu'),
+  ev('CAL-0125','2026-10-26','2026-10-26','제2학기 1/2 시점(8주차)','other','ref'),
+  ev('CAL-0126','2026-11-02','2026-11-04','캠퍼스 내 소속변경(전과) 신청','apply','stu'),
+  ev('CAL-0127','2026-11-11','2026-11-13','이중전공 신청','apply','stu'),
+  ev('CAL-0128','2026-11-23','2026-11-23','제2학기 3/4 시점(12주차)','other','ref'),
+  ev('CAL-0129','2026-12-02','2026-12-04','재입학신청','apply','stu'),
+  ev('CAL-0130','2026-12-14','2026-12-18','제2학기 기말고사','exam','stu'),
+  ev('CAL-0131','2026-12-18','2026-12-18','제2학기 종강(16주차)','semester','ref'),
+  ev('CAL-0132','2026-12-21','2026-12-21','겨울계절수업 개강','semester','ref'),
+  ev('CAL-0133','2026-12-21','2026-12-21','겨울방학 시작','semester','ref'),
+  ev('CAL-0134','2026-12-25','2026-12-25','성탄절(공휴일)','holiday','ref'),
+  ev('CAL-0135','2027-01-01','2027-01-01','신정(공휴일)','holiday','ref'),
+  ev('CAL-0136','2027-01-04','2027-01-29','제1학기 미래로장학금 1차 신청','apply','stu'),
+  ev('CAL-0137','2027-01-15','2027-01-15','겨울계절수업 종강','semester','ref'),
+  ev('CAL-0138','2027-02-01','2027-02-25','휴·복학 신청','apply','stu'),
+  ev('CAL-0139','2027-02-02','2027-02-04','2027학년도 제1학기 수강희망과목 등록','apply','stu'),
+  ev('CAL-0140','2027-02-06','2027-02-08','설날 연휴(공휴일)','holiday','ref'),
+  ev('CAL-0141','2027-02-09','2027-02-09','대체휴일','holiday','ref'),
+  ev('CAL-0142','2027-02-15','2027-02-19','2027학년도 제1학기 수강신청','apply','stu'),
+  ev('CAL-0143','2027-02-22','2027-02-26','2027학년도 제1학기 등록','apply','stu'),
+  ev('CAL-0144','2027-02-23','2027-02-24','신입·편입생·학위취득유예생 수강신청','apply','stu'),
+  ev('CAL-0145','2027-02-25','2027-02-25','2026학년도 전기 학위수여식','other','ref'),
+  ev('CAL-0146','2027-02-26','2027-02-26','2027학년도 입학식','other','ref')
+];
+
+/* ── 상태 ── */
+let events = BACKUP.slice();
+let ownerMode = 'all', rangeDays = 30, showAllRows = false;
+let offCats = new Set();
+let modalYM = null, modalOpen = false, pastOpen = false;
+let writeKey = '';
+
+(function(){
+  try{
+    const o = JSON.parse(localStorage.getItem(PREF_KEY) || '{}');
+    if(o.owner && OWNER_SETS[o.owner]) ownerMode = o.owner;
+    if([0,30,90].indexOf(o.range) >= 0) rangeDays = o.range;
+    if(Array.isArray(o.off)) offCats = new Set(o.off.filter(c => CAT[c]));
+    writeKey = localStorage.getItem(KEY_KEY) || '';
+  }catch(e){}
+})();
+function savePref(){
+  try{ localStorage.setItem(PREF_KEY, JSON.stringify({owner:ownerMode, range:rangeDays, off:[...offCats]})); }catch(e){}
+}
+const visible = e => !offCats.has(e.c) && OWNER_SETS[ownerMode].indexOf(e.o) >= 0;
+
+/* ── 날짜 ── */
+const pad = n => n < 10 ? '0'+n : ''+n;
+const pd  = s => { const a = s.split('-').map(Number); return new Date(a[0], a[1]-1, a[2]); };
+const db  = (a,b) => Math.round((b-a)/86400000);
+const fmt = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const shift = (s,n) => { const t = pd(s); t.setDate(t.getDate()+n); return fmt(t); };
+const DOW = '일월화수목금토';
+const TS = fmt(new Date()), TODAY = pd(TS);
+const THIS_Y = TODAY.getFullYear(), THIS_M = TODAY.getMonth()+1;
+
+/* 다음 달부터 12개월. 학기 문자열을 하드코딩하지 않아 매 학기 고칠 일이 없다. */
+const STRIP = (function(){
+  const o = []; let y = THIS_Y, m = THIS_M;
+  for(let i=0;i<12;i++){ m++; if(m>12){m=1;y++;} o.push([y,m]); }
+  return o;
+})();
+const PAST = (function(){
+  const o = []; let y = THIS_Y, m = THIS_M;
+  for(let i=0;i<24;i++){ m--; if(m<1){m=12;y--;} o.unshift([y,m]); }
+  return o;
+})();
+
+/* ── GAS ── */
+function jsonp(params, cb){
+  const n = 'cal_'+Date.now()+'_'+Math.floor(Math.random()*9999);
+  let done = false;
+  window[n] = r => { done = true; delete window[n]; cb(r); };
+  const q = Object.keys(params).map(k => k+'='+encodeURIComponent(params[k])).join('&');
+  const sc = document.createElement('script');
+  sc.src = GAS_URL + '?' + q + '&callback=' + n;
+  sc.onerror = () => { if(!done){ delete window[n]; cb({status:'error', message:'네트워크 오류'}); } };
+  document.body.appendChild(sc);
+  setTimeout(() => { if(!done){ delete window[n]; cb({status:'error', message:'응답 시간 초과'}); } }, 12000);
+}
+
+function loadCal(nocache){
+  setStatus('load');
+  jsonp({action:'getCalendar', nocache: nocache ? 1 : 0}, res => {
+    if(res && res.status === 'ok' && res.events && res.events.length){
+      events = res.events;
+      setStatus('ok', res.count + '건 · ' + (res.updated||'') + (res.cached ? ' · 캐시' : ''));
+      hideWarn(); renderAll();
+    } else fallback(res && res.message ? res.message : '시트에서 일정을 읽지 못했습니다');
+  });
+}
+function fallback(msg){
+  events = BACKUP.slice();
+  setStatus('bad', '백업 ' + BACKUP.length + '건');
+  showWarn('<b>구글시트에서 일정을 불러오지 못했습니다</b> — ' + msg + '<br>' +
+    '지금 보이는 것은 2026-08-06 시점의 내장 백업입니다. 그 뒤 시트에서 바꾼 내용은 빠져 있습니다. ' +
+    '<b>↻ 새로고침</b>으로 다시 시도하고, 계속 실패하면 GAS 배포 상태를 확인하세요.');
+  renderAll();
+}
+function setStatus(kind, txt){
+  document.getElementById('navrow').className = 'navrow' + (kind === 'bad' ? ' bad' : '');
+  document.getElementById('stText').textContent = kind === 'load' ? '불러오는 중' : txt;
+}
+function showWarn(h){ const w = document.getElementById('warn'); w.innerHTML = h; w.classList.add('show'); }
+function hideWarn(){ document.getElementById('warn').classList.remove('show'); }
+
+/* ── 쓰기 ──
+   웹앱이 「모든 사용자」로 열려 있어 읽기는 누구나 된다(개인정보 없음).
+   쓰기는 GAS 쪽에서 암호를 확인한다. 여기 저장된 값은 확인용 사본일 뿐이다. */
+function askKey(){
+  const k = prompt('쓰기 암호를 입력하세요.\n\nGAS 편집기에서 showCalendarKey() 를 실행하면 볼 수 있습니다.\n한 번 입력하면 이 브라우저에 저장됩니다.');
+  if(k === null) return false;
+  writeKey = k.trim().toUpperCase();
+  try{ localStorage.setItem(KEY_KEY, writeKey); }catch(e){}
+  return true;
+}
+function write(params, cb){
+  if(!writeKey && !askKey()) return;
+  params.key = writeKey;
+  jsonp(params, res => {
+    if(res && res.code === 'badkey'){
+      writeKey = '';
+      try{ localStorage.removeItem(KEY_KEY); }catch(e){}
+      alert('쓰기 암호가 맞지 않습니다. 다시 입력해 주세요.');
+      return;
+    }
+    if(!res || res.status !== 'ok'){ alert('저장하지 못했습니다.\n' + ((res && res.message) || '알 수 없는 오류')); return; }
+    cb(res);
+  });
+}
+function toggleDone(e, btn){
+  const on = !e.d;
+  btn.classList.add('busy');
+  write({action:'setDone', id:e.i, done: on ? 1 : 0}, res => {
+    e.d = res.done || '';
+    btn.classList.remove('busy');
+    renderAll();
+  });
+}
+
+/* ── ① 대장 ──
+   정렬 기준은 화면에 찍히는 D-n 값이어야 한다. 시작일로 정렬하면 이미 시작된
+   장기 일정이 맨 위로 올라와 정작 급한 마감이 아래로 밀린다. */
+const ROW_LIMIT = 12;
+const anchorOf = e => (e.s <= TS ? e.e : e.s);
+
+function renderLedger(){
+  const root = document.getElementById('ledger');
+  root.innerHTML = '';
+
+  // 마감이 지났는데 완료가 안 된 것.
+  // 이걸 안 띄우면 놓친 마감이 조용히 사라진다.
+  //
+  // 🔴 범위를 좁게 잡는 것이 핵심이다. 넓히면 「이미 끝난 일」이 잔뜩 쌓여
+  //    경고가 배경 소음이 되고, 그때부터 아무도 안 본다.
+  //    · 내 일(사업단·학사팀요청)만  — 학생 일정은 내가 챙길 게 아니다
+  //    · 최근 OVER_DAYS 일 이내      — 그보다 오래된 건 이미 지나간 학기다
+  const OVER_DAYS = 21;
+  const from = shift(TS, -OVER_DAYS);
+  const over = events.filter(e => visible(e) && !e.d && e.e < TS && e.e >= from &&
+                                  (e.o === 'biz' || e.o === 'req'))
+                     .sort((a,b) => a.e > b.e ? -1 : 1);
+
+  const limS = rangeDays ? shift(TS, rangeDays) : '9999-12-31';
+  const list = events.filter(e => visible(e) && e.e >= TS && e.s <= limS)
+    .sort((a,b) => {
+      const x = anchorOf(a), y = anchorOf(b);
+      if(x !== y) return x < y ? -1 : 1;
+      const as = a.s <= TS ? 0 : 1, bs = b.s <= TS ? 0 : 1;
+      if(as !== bs) return as - bs;
+      return a.t < b.t ? -1 : 1;
+    });
+
+  document.getElementById('upCount').textContent = (over.length ? over.length + '+' : '') + list.length + '건';
+
+  if(over.length){
+    root.appendChild(grpEl('over', '지난 마감 · 완료 표시 안 됨'));
+    over.forEach(e => root.appendChild(itemEl(e, -db(pd(e.e), TODAY), true)));
+  }
+
+  if(!list.length){
+    const d = document.createElement('div');
+    d.className = 'empty';
+    d.innerHTML = '<b>표시할 일정이 없습니다</b>기간을 넓히거나 담당 필터를 확인해 보세요.';
+    root.appendChild(d);
+    return;
+  }
+
+  const BK = [{max:0,l:'오늘',h:1},{max:7,l:'이번 주 안',h:1},{max:14,l:'2주 안',h:0},
+              {max:30,l:'이번 달 안',h:0},{max:90,l:'3개월 안',h:0},{max:99999,l:'그 이후',h:0}];
+  const shown = showAllRows ? list : list.slice(0, ROW_LIMIT);
+  let bi = -1;
+  shown.forEach(e => {
+    const dn = db(TODAY, pd(anchorOf(e)));
+    let w = 0; while(BK[w].max < dn) w++;
+    if(w !== bi){ bi = w; root.appendChild(grpEl(BK[bi].h ? 'hot' : '', BK[bi].l)); }
+    root.appendChild(itemEl(e, dn, false));
+  });
+
+  if(list.length > ROW_LIMIT){
+    const b = document.createElement('button');
+    b.className = 'more';
+    b.textContent = showAllRows ? '접기' : '+ ' + (list.length - ROW_LIMIT) + '건 더 보기';
+    b.addEventListener('click', () => { showAllRows = !showAllRows; renderLedger(); });
+    root.appendChild(b);
+  }
+}
+/* 아래에 더 있다는 신호. 스크롤 여지가 없으면 페이드를 지운다 —
+   항상 켜두면 목록이 짧을 때도 잘린 것처럼 보인다. */
+function updateFade(){
+  const l = document.getElementById('ledger');
+  const w = document.getElementById('ledgerwrap');
+  if(!l || !w) return;
+  const room = l.scrollHeight - l.clientHeight;
+  w.classList.toggle('more', room > 8 && l.scrollTop < room - 8);
+}
+
+function grpEl(cls, label){
+  const g = document.createElement('div');
+  g.className = 'grp' + (cls ? ' ' + cls : '');
+  g.innerHTML = '<span>' + label + '</span><hr>';
+  return g;
+}
+function itemEl(e, dn, isOver){
+  const started = e.s <= TS && !isOver;
+  const anc = anchorOf(e);
+  const row = document.createElement('div');
+  row.className = 'item' + (isOver ? ' over' : (dn === 0 ? ' now' : (dn <= 7 ? ' hot' : ''))) + (e.d ? ' done' : '');
+
+  const chk = document.createElement('button');
+  chk.className = 'chk' + (e.d ? ' on' : '');
+  chk.textContent = '✓';
+  chk.title = e.d ? '완료 해제 (' + e.d + ')' : '완료로 표시';
+  chk.setAttribute('aria-label', chk.title);
+  chk.addEventListener('click', () => toggleDone(e, chk));
+  row.appendChild(chk);
+
+  const d = document.createElement('div');
+  d.className = 'dcell';
+  d.innerHTML = '<span class="dnum">' + (isOver ? '+' + dn : (dn === 0 ? '오늘' : 'D-' + dn)) + '</span>' +
+                '<span class="dsub">' + anc.slice(5).replace('-','.') + '(' + DOW[pd(anc).getDay()] + ')</span>';
+  row.appendChild(d);
+
+  const b = document.createElement('div');
+  b.className = 'body';
+  const t = document.createElement('span');
+  t.className = 'ttl';
+  if(e.u){
+    const a = document.createElement('a');
+    a.href = e.u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = e.t;
+    t.appendChild(a);
+  } else t.textContent = e.t;
+  b.appendChild(t);
+
+  const cat = CAT[e.c] || CAT.other;
+  const m = document.createElement('div');
+  m.className = 'meta';
+  m.innerHTML = '<i style="background:' + cat.c + '"></i><em>' + cat.n + '</em>' +
+    '<span class="own' + (e.o === 'req' ? ' req' : '') + '">' + (OWN[e.o]||'') + '</span>' +
+    (e.d ? '<span class="fin">완료 ' + e.d.slice(5).replace('-','.') + '</span>' : '') +
+    (started ? '<span class="run">진행 중 · ' + e.s.slice(5).replace('-','.') + ' 시작</span>' : '') +
+    (e.n ? '<em>' + e.n + '</em>' : '');
+  b.appendChild(m);
+  row.appendChild(b);
+  return row;
+}
+
+/* ── ② 작년 이맘때 ──
+   반복 규칙으로 날짜를 짐작하지 않는다. 학사 마감은 해마다 날짜가 달라서
+   규칙으로 박으면 틀린 날짜를 자신 있게 알려주게 된다. 「작년엔 이때 했다」만 알린다. */
+function renderLook(){
+  const root = document.getElementById('look');
+  const card = document.getElementById('lookCard');
+  root.innerHTML = '';
+
+  const lastY = shift(TS, -365);
+  const from = shift(lastY, -10), to = shift(lastY, 35);
+
+  const cand = events.filter(e => visible(e) && e.r && e.s >= from && e.s <= to);
+  const near = events.filter(e => e.s >= shift(TS, -45) && e.s <= shift(TS, 150));
+  const rows = cand.filter(e => !near.some(x => x.t === e.t))
+                   .sort((a,b) => a.s < b.s ? -1 : 1).slice(0, 6);
+
+  if(!rows.length){ card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  rows.forEach(e => {
+    const span = db(pd(e.s), pd(e.e));
+    const guess = shift(TS, db(pd(lastY), pd(e.s)));
+    const r = document.createElement('div');
+    r.className = 'lrow';
+
+    const a = document.createElement('span');
+    a.className = 'ago';
+    a.textContent = e.s.slice(0,4).slice(2) + '.' + e.s.slice(5).replace('-','.');
+    r.appendChild(a);
+
+    const t = document.createElement('div');
+    t.className = 'lt';
+    t.innerHTML = esc(e.t) + '<em>' + (CAT[e.c]||CAT.other).n + ' · ' + (OWN[e.o]||'') +
+                  ' · 올해라면 ' + guess.slice(5).replace('-','.') + ' 무렵</em>';
+    r.appendChild(t);
+
+    const btn = document.createElement('button');
+    btn.textContent = '올해 일정 만들기';
+    btn.addEventListener('click', () => {
+      const s = prompt('올해 시작일을 확인하세요. (공문이 나왔으면 실제 날짜로 고치세요)', guess);
+      if(!s) return;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(s.trim())){ alert('YYYY-MM-DD 형식으로 입력하세요.'); return; }
+      btn.disabled = true; btn.textContent = '추가 중…';
+      write({action:'addEvent', title:e.t, start:s.trim(), end:shift(s.trim(), span),
+             cat:CAT_KO[e.c]||'기타', owner:OWN_KO[e.o]||'사업단', rep:e.r,
+             note:'작년 ' + e.s + ' 기준으로 생성'}, () => {
+        btn.textContent = '추가됨';
+        loadCal(true);
+      });
+    });
+    r.appendChild(btn);
+    root.appendChild(r);
+  });
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── ③ 달력 ── */
+function monthList(y,m){
+  const f = y+'-'+pad(m)+'-01', dim = new Date(y,m,0).getDate();
+  const l = y+'-'+pad(m)+'-'+pad(dim);
+  return events.filter(e => visible(e) && e.e >= f && e.s <= l);
+}
+function monthTable(y,m,big){
+  const tb = document.createElement('table');
+  let h = '<thead><tr>';
+  for(let i=0;i<7;i++) h += '<th class="'+(i===0?'sun':i===6?'sat':'')+'">'+DOW[i]+'</th>';
+  tb.innerHTML = h + '</tr></thead>';
+  const body = document.createElement('tbody');
+  const first = new Date(y,m-1,1).getDay(), dim = new Date(y,m,0).getDate();
+  let tr = document.createElement('tr'), day = 1;
+  for(let i=0;i<first;i++) tr.appendChild(document.createElement('td'));
+  while(day <= dim){
+    const col = (first+day-1)%7;
+    if(col === 0 && day !== 1){ body.appendChild(tr); tr = document.createElement('tr'); }
+    const ds = y+'-'+pad(m)+'-'+pad(day);
+    const td = document.createElement('td');
+    if(ds === TS) td.className = 'todaycell';
+    const n = document.createElement('div');
+    n.className = 'dn' + (ds === TS ? ' today' : (col===0?' sun':col===6?' sat':''));
+    n.textContent = day;
+    td.appendChild(n);
+
+    const within = events.filter(e => visible(e) && ds >= e.s && ds <= e.e);
+    const start  = within.filter(e => e.s === ds);
+    const cont   = within.filter(e => e.s !== ds);
+
+    start.forEach(e => {
+      const p = document.createElement('div');
+      p.className = 'pill' + (e.d ? ' done' : '');
+      p.style.background = (CAT[e.c]||CAT.other).c;
+      p.title = e.t + (e.n ? '  |  ' + e.n : '');
+      p.textContent = e.t + (e.s !== e.e ? ' (~' + e.e.slice(5).replace('-','.') + ')' : '');
+      td.appendChild(p);
+    });
+    if(cont.length){
+      const dots = document.createElement('div');
+      dots.className = 'dots';
+      cont.slice(0,10).forEach(e => {
+        const i = document.createElement('i');
+        i.style.background = (CAT[e.c]||CAT.other).c;
+        i.style.opacity = e.d ? .35 : 1;
+        i.title = e.t;
+        dots.appendChild(i);
+      });
+      td.appendChild(dots);
+    }
+    tr.appendChild(td); day++;
+  }
+  while(tr.children.length < 7) tr.appendChild(document.createElement('td'));
+  body.appendChild(tr); tb.appendChild(body);
+  return tb;
+}
+function renderNow(){
+  const r = document.getElementById('mnow');
+  r.innerHTML = '';
+  r.appendChild(monthTable(THIS_Y, THIS_M, true));
+  document.getElementById('mnowTitle').textContent = THIS_Y + '년 ' + THIS_M + '월';
+  const n = monthList(THIS_Y, THIS_M).length;
+  document.getElementById('mnowCount').textContent = n + '건';
+}
+function monthCell(y,m){
+  const l = monthList(y,m), n = l.length;
+  const hot = l.filter(e => e.o === 'biz' || e.o === 'req').length;
+  const c = document.createElement('div');
+  c.className = 'mc' + (n === 0 ? ' blank' : '');
+  c.innerHTML = '<b>' + m + '월</b><span class="yr">' + y + '</span>' +
+                '<div class="c">' + (n || '–') + '</div>' +
+                '<div class="bar"><i style="width:' + (n ? Math.round(hot/n*100) : 0) + '%"></i></div>';
+  c.title = n ? n + '건 (내 일 ' + hot + '건)' : '일정 없음';
+  c.addEventListener('click', () => openModal(y,m));
+  return c;
+}
+function renderStrip(){
+  const r = document.getElementById('strip');
+  r.innerHTML = '';
+  STRIP.forEach(a => r.appendChild(monthCell(a[0],a[1])));
+  document.getElementById('rangeNote').textContent =
+    STRIP[0][0]+'.'+pad(STRIP[0][1]) + ' ~ ' + STRIP[11][0]+'.'+pad(STRIP[11][1]);
+  if(pastOpen){
+    const p = document.getElementById('past');
+    p.innerHTML = '';
+    PAST.forEach(a => p.appendChild(monthCell(a[0],a[1])));
+  }
+}
+function openModal(y,m){ modalYM = [y,m]; modalOpen = true; document.getElementById('back').classList.add('open'); renderModal(); }
+function closeModal(){ modalOpen = false; document.getElementById('back').classList.remove('open'); }
+function stepModal(d){ let [y,m] = modalYM; m += d; if(m>12){m=1;y++;} if(m<1){m=12;y--;} modalYM=[y,m]; renderModal(); }
+function renderModal(){
+  const d = document.getElementById('mDetail');
+  d.innerHTML = '';
+  d.appendChild(monthTable(modalYM[0], modalYM[1], true));
+  document.getElementById('mCur').textContent = modalYM[0] + '년 ' + modalYM[1] + '월';
+}
+
+/* ── ④ 필터 ── */
+function buildFilters(){
+  const chips = document.getElementById('chips');
+  Object.keys(GROUPS).forEach(k => {
+    const g = GROUPS[k];
+    const b = document.createElement('button');
+    b.className = 'chip'; b.dataset.g = k;
+    b.innerHTML = '<i style="background:' + g.c + '"></i>' + g.n;
+    b.addEventListener('click', () => {
+      const allOn = g.cats.every(c => !offCats.has(c));
+      g.cats.forEach(c => allOn ? offCats.add(c) : offCats.delete(c));
+      apply();
+    });
+    chips.appendChild(b);
+  });
+  const sub = document.getElementById('subs');
+  ALL_CATS.forEach(c => {
+    const l = document.createElement('label');
+    l.innerHTML = '<input type="checkbox" data-c="' + c + '"><i style="background:' + CAT[c].c + '"></i>' + CAT[c].n;
+    l.querySelector('input').addEventListener('change', function(){
+      this.checked ? offCats.delete(c) : offCats.add(c);
+      apply();
+    });
+    sub.appendChild(l);
+  });
+  document.querySelectorAll('#segOwner button').forEach(b =>
+    b.addEventListener('click', () => { ownerMode = b.dataset.o; showAllRows = false; apply(); }));
+  document.querySelectorAll('#segRange button').forEach(b =>
+    b.addEventListener('click', () => { rangeDays = Number(b.dataset.d); showAllRows = false; apply(); }));
+}
+function syncFilters(){
+  document.querySelectorAll('#segOwner button').forEach(b => b.classList.toggle('on', b.dataset.o === ownerMode));
+  document.querySelectorAll('#segRange button').forEach(b => b.classList.toggle('on', Number(b.dataset.d) === rangeDays));
+  document.querySelectorAll('#chips .chip').forEach(b => b.classList.toggle('on', GROUPS[b.dataset.g].cats.every(c => !offCats.has(c))));
+  document.querySelectorAll('#subs input').forEach(i => i.checked = !offCats.has(i.dataset.c));
+}
+function apply(){ savePref(); syncFilters(); renderAll(); }
+
+/* ── ICS ── */
+const icsEsc = t => String(t).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+function exportIcs(){
+  const list = events.filter(visible);
+  if(!list.length){ alert('내보낼 일정이 없습니다. 필터를 확인하세요.'); return; }
+  if(!confirm(list.length + '건을 .ics 파일로 내려받습니다.\n\n' +
+    '구글 캘린더에 넣기 전에 새 캘린더를 먼저 만들고(왼쪽 「다른 캘린더 +」 → 「새 캘린더 만들기」),\n' +
+    '가져오기 대상으로 그 캘린더를 지정하세요.\n' +
+    '기존 캘린더에 바로 부으면 되돌리기가 어렵습니다.\n\n계속할까요?')) return;
+
+  const now = new Date();
+  const st = now.getUTCFullYear()+pad(now.getUTCMonth()+1)+pad(now.getUTCDate())+'T'+
+             pad(now.getUTCHours())+pad(now.getUTCMinutes())+pad(now.getUTCSeconds())+'Z';
+  const L = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//KI-STAR//Calendar//KO',
+             'CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:KI-STAR 업무'];
+  list.forEach((e,i) => {
+    L.push('BEGIN:VEVENT');
+    L.push('UID:' + (e.i || ('E'+i)) + '@kistar.korea.ac.kr');
+    L.push('DTSTAMP:' + st);
+    L.push('DTSTART;VALUE=DATE:' + e.s.replace(/-/g,''));
+    L.push('DTEND;VALUE=DATE:' + shift(e.e, 1).replace(/-/g,''));   // 종일 일정의 DTEND는 종료 다음 날
+    L.push('SUMMARY:' + icsEsc((e.d ? '[완료] ' : '') + e.t));
+    const ds = [OWN[e.o] ? '담당: '+OWN[e.o] : '', e.n||''].filter(Boolean).join(' / ');
+    if(ds) L.push('DESCRIPTION:' + icsEsc(ds));
+    if(e.u) L.push('URL:' + e.u);
+    L.push('END:VEVENT');
+  });
+  L.push('END:VCALENDAR');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+L.join('\r\n')], {type:'text/calendar;charset=utf-8'}));
+  a.download = 'KI-STAR_일정_' + TS + '.ics';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+/* ── 배선 ── */
+function renderAll(){
+  renderLedger(); renderLook(); renderNow(); renderStrip();
+  if(modalOpen) renderModal();
+  setTimeout(updateFade, 0);
+}
+document.getElementById('ledger').addEventListener('scroll', updateFade, {passive:true});
+window.addEventListener('resize', updateFade);
+
+(function(){
+  const q = document.getElementById('quick');
+  LINKS.forEach(l => {
+    const a = document.createElement('a');
+    a.href = HUB + l[0]; a.target = '_blank'; a.rel = 'noopener'; a.textContent = l[1];
+    q.appendChild(a);
+  });
+})();
+
+document.getElementById('bZoom').addEventListener('click', () => openModal(THIS_Y, THIS_M));
+document.getElementById('mnow').addEventListener('click', () => openModal(THIS_Y, THIS_M));
+document.getElementById('bReload').addEventListener('click', () => loadCal(true));
+document.getElementById('bSheet').addEventListener('click', () => window.open(SHEET_URL,'_blank','noopener'));
+document.getElementById('bPrint').addEventListener('click', () => window.print());
+document.getElementById('bIcs').addEventListener('click', exportIcs);
+document.getElementById('bPrev').addEventListener('click', () => stepModal(-1));
+document.getElementById('bNext').addEventListener('click', () => stepModal(1));
+document.getElementById('bClose').addEventListener('click', closeModal);
+document.getElementById('back').addEventListener('click', e => { if(e.target.id === 'back') closeModal(); });
+document.addEventListener('keydown', e => {
+  if(!modalOpen) return;
+  if(e.key === 'Escape') closeModal();
+  if(e.key === 'ArrowLeft') stepModal(-1);
+  if(e.key === 'ArrowRight') stepModal(1);
+});
+document.getElementById('bPast').addEventListener('click', function(){
+  pastOpen = !pastOpen;
+  document.getElementById('past').style.display = pastOpen ? 'grid' : 'none';
+  this.textContent = pastOpen ? '지난 일정 접기' : '지난 일정 펼치기';
+  if(pastOpen) renderStrip();
+});
+
+buildFilters();
+syncFilters();
+renderAll();
+loadCal(false);
+</script>
+</body>
+</html>
