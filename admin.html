@@ -341,187 +341,287 @@ let aiChecked = false, gdChecked = {}, pblChecked = null, colChecked = null;
 
 // ── 학과별 COURSE_CODE_MAP ──
 const COURSE_CODE_MAPS = {
+  // ══ 신소재공학부 ══
   mseng: {
-    'KISE404':{action:'track',track:'socha',rowIndex:0},
-    'KECE462':{action:'track',track:'socha',rowIndex:1},
-    'PHYS466':{action:'track',track:'socha',rowIndex:2},
-    'KISE402':{action:'track',track:'gongjeong',rowIndex:0},
-    'KECE493':{action:'track',track:'gongjeong',rowIndex:1},
-    'KECE496':{action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},
-    'KISE304':{action:'track',track:'sojai',rowIndex:0},
-    'KMSE312':{action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},
-    'KECE415':{action:'track',track:'sojai',rowIndex:2},
-    'KISE306':{action:'pkg',key:'pkg1'},
-    'KMSE332':{action:'pkg',key:'pkg1'},
-    'KISE406':{action:'pkg',key:'pkg2'},
-    'KISE302':{action:'ai'},'KMSE330':{action:'ai'},
-    'KISE301':{action:'gd',key:'gd1'},
-    '313KISE':{action:'gd',key:'gd2'},
-    '312KISE':{action:'gd',key:'gd3'},
-    'KMSE213':{action:'recog',name:'반응속도론'},
-    'AMSE214':{action:'recog',name:'반응속도론'},
-    'KMSE417':{action:'recog',name:'융합기술및신소재응용'},
-    'KMSE205':{action:'recog',name:'공학수학 1'},'AMSE219':{action:'recog',name:'공학수학 1'},
-    'KMSE206':{action:'recog',name:'공학수학 2'},'AMSE220':{action:'recog',name:'공학수학 2'},
-    'KMSE201':{action:'recog',name:'물리화학 1'},'AMSE201':{action:'recog',name:'물리화학 1'},
-    'KMSE202':{action:'recog',name:'물리화학 2'},'AMSE202':{action:'recog',name:'물리화학 2'},
-    'KMSE303':{action:'recog',name:'재료열역학'},
-    'KMSE301':{action:'recog',name:'전자및반도체재료공학'},
-    'KMSE203':{action:'recog',name:'재료구조물성'},'AMSE205':{action:'recog',name:'재료구조물성'},
-    'KMSE204':{action:'recog',name:'재료전자기물성'},'AMSE204':{action:'recog',name:'재료전자기물성'},
-    'KMSE306':{action:'recog',name:'상평형론'},
-    'KMSE308':{action:'recog',name:'열전달및확산'},
-    'KISE407':{action:'pbl',type:'pbl',id:'pbl1'},
-    'KISE408':{action:'pbl',type:'pbl',id:'pbl2'},
-    'KISE409':{action:'pbl',type:'col',id:'col1'},
-    'KISE410':{action:'pbl',type:'col',id:'col2'},
-    'KMSE207':{action:'free',freeIndex:0},
-    'KMSE210':{action:'free',freeIndex:1},
-    'KMSE309':{action:'free',freeIndex:2},
-    'KMSE316':{action:'free',freeIndex:3},
-    'KMSE215':{action:'free',freeIndex:4},
-    'KMSE314':{action:'free',freeIndex:5},
-    'KMSE405':{action:'free',freeIndex:6},
-    'KMSE410':{action:'free',freeIndex:7},
-    'KMSE407':{action:'free',freeIndex:8},
-    'KMSE412':{action:'free',freeIndex:9},'AMSE328':{action:'free',freeIndex:9},
-    'KMSE416':{action:'free',freeIndex:10},
-    'KECE463':{action:'crossFree',crossIndex:0},
-    'KECE414':{action:'crossFree',crossIndex:1},
-    'MECH482':{action:'crossFree',crossIndex:3},
-    'CHBE308':{action:'crossFree',crossIndex:4},
-    'PHYS481':{action:'crossFree',crossIndex:5},
+    // 전공필수
+    KISE302: {action:'ai'},   // AI반도체개론
+    KMSE330: {action:'ai'},   // AI반도체개론
+    // [1] 전공트랙
+    KECE415: {action:'track',track:'sojai',rowIndex:2},   // 나노전자공학
+    KECE462: {action:'track',track:'socha',rowIndex:1},   // ASIC설계
+    KECE493: {action:'track',track:'gongjeong',rowIndex:1},   // 반도체프로세스
+    KECE496: {action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},   // 디지털집적회로
+    KISE304: {action:'track',track:'sojai',rowIndex:0},   // AI반도체신소재개론
+    KISE402: {action:'track',track:'gongjeong',rowIndex:0},   // 고급AI반도체공정및응용
+    KISE404: {action:'track',track:'socha',rowIndex:0},   // 고급AI반도체소자
+    KMSE312: {action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},   // 반도체재료
+    PHYS466: {action:'track',track:'socha',rowIndex:2},   // 인공지능물리학
+    // [1] 전공트랙 패키징
+    KISE306: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    KISE406: {action:'pkg',key:'pkg2'},   // 반도체패키징Ⅱ
+    KMSE332: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    // [2] 공동운영
+    '312KISE': {action:'gd',key:'gd3'},   // 반도체머신러닝 (인제대)
+    '313KISE': {action:'gd',key:'gd2'},   // 진공장비실습 (인제대)
+    KISE301: {action:'gd',key:'gd1'},   // 반도체공정실습
+    // [3] 산학연계
+    KISE407: {action:'pbl',type:'pbl',id:'pbl1'},   // PBL산학프로젝트Ⅰ
+    KISE408: {action:'pbl',type:'pbl',id:'pbl2'},   // PBL산학프로젝트Ⅱ
+    KISE409: {action:'pbl',type:'col',id:'col1'},   // 차세대반도체콜로키움Ⅰ
+    KISE410: {action:'pbl',type:'col',id:'col2'},   // 차세대반도체콜로키움Ⅱ
+    // [5] 학부인정
+    AMSE201: {action:'recog',name:'물리화학 1'},
+    AMSE202: {action:'recog',name:'물리화학 2'},
+    AMSE204: {action:'recog',name:'재료전자기물성'},
+    AMSE205: {action:'recog',name:'재료구조물성'},
+    AMSE214: {action:'recog',name:'반응속도론'},
+    AMSE219: {action:'recog',name:'공학수학 1'},
+    AMSE220: {action:'recog',name:'공학수학 2'},
+    KMSE201: {action:'recog',name:'물리화학 1'},   // 물리화학Ⅰ
+    KMSE202: {action:'recog',name:'물리화학 2'},   // 물리화학Ⅱ
+    KMSE203: {action:'recog',name:'재료구조물성'},   // 재료구조물성
+    KMSE204: {action:'recog',name:'재료전자기물성'},   // 재료전자기물성
+    KMSE205: {action:'recog',name:'공학수학 1'},   // 공학수학Ⅰ
+    KMSE206: {action:'recog',name:'공학수학 2'},   // 공학수학Ⅱ
+    KMSE213: {action:'recog',name:'반응속도론'},   // 반응속도론
+    KMSE301: {action:'recog',name:'전자및반도체재료공학'},   // 전자및반도체재료공학
+    KMSE303: {action:'recog',name:'재료열역학'},   // 재료열역학
+    KMSE306: {action:'recog',name:'상평형론'},   // 상평형론
+    KMSE308: {action:'recog',name:'열전달및확산'},   // 열전달및확산
+    KMSE417: {action:'recog',name:'융합기술및신소재응용'},   // 융합기술및신소재응용
+    // [4] 자유이수 본과
+    KMSE207: {action:'free',freeIndex:0},   // 세라믹재료개론
+    KMSE210: {action:'free',freeIndex:2},   // 유기재료개론
+    KMSE215: {action:'free',freeIndex:1},   // 유기재료화학
+    KMSE309: {action:'free',freeIndex:3},   // X-선결정학
+    KMSE314: {action:'free',freeIndex:5},   // 박막공학
+    KMSE316: {action:'free',freeIndex:4},   // 고체물리
+    KMSE405: {action:'free',freeIndex:6},   // 반도체공정
+    KMSE407: {action:'free',freeIndex:7},   // 광소재및소자
+    KMSE410: {action:'free',freeIndex:8},   // 전자재료응용물성
+    KMSE412: {action:'free',freeIndex:9},   // 디스플레이소재및공정
+    KMSE416: {action:'free',freeIndex:10},   // 나노소재
+    // [4] 자유이수 크로스
+    CHBE308: {action:'crossFree',crossIndex:4},   // 반도체화학공정
+    KECE414: {action:'crossFree',crossIndex:1},   // 정보기억소자
+    KECE463: {action:'crossFree',crossIndex:0},   // VLSI설계및실험
+    MECH463: {action:'crossFree',crossIndex:2},   // 마이크로프로세서프로그래밍
+    MECH482: {action:'crossFree',crossIndex:3},   // 나노공학입문
+    PHYS481: {action:'crossFree',crossIndex:5},   // 광학
   },
+  // ══ 전기전자공학부 ══
   ee: {
-    'KISE404':{action:'track',track:'socha',rowIndex:0},
-    'KECE462':{action:'track',track:'socha',rowIndex:1},
-    'PHYS466':{action:'track',track:'socha',rowIndex:2},
-    'KISE402':{action:'track',track:'gongjeong',rowIndex:0},
-    'KECE493':{action:'track',track:'gongjeong',rowIndex:1},
-    'KECE496':{action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},
-    'KISE304':{action:'track',track:'sojai',rowIndex:0},
-    'KMSE312':{action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},
-    'KECE415':{action:'track',track:'sojai',rowIndex:2},
-    'KISE306':{action:'pkg',key:'pkg1'},'KMSE332':{action:'pkg',key:'pkg1'},
-    'KISE406':{action:'pkg',key:'pkg2'},
-    'KISE302':{action:'ai'},'KMSE330':{action:'ai'},
-    'KISE301':{action:'gd',key:'gd1'},'313KISE':{action:'gd',key:'gd2'},'312KISE':{action:'gd',key:'gd3'},
-    'KECE231':{action:'recog',name:'공학수학 1'},
-    'KECE232':{action:'recog',name:'공학수학 2'},
-    'KECE206':{action:'recog',name:'전자기학'},
-    'KECE301':{action:'recog',name:'전자회로 1'},
-    'KECE303':{action:'recog',name:'전자회로 설계 및 실험 1'},
-    'KECE304':{action:'recog',name:'전자회로 설계 및 실험 2'},
-    'KECE212':{action:'recog',name:'물성전자공학'},
-    'KECE302':{action:'recog',name:'전자회로 2'},
-    'KISE407':{action:'pbl',type:'pbl',id:'pbl1'},'KISE408':{action:'pbl',type:'pbl',id:'pbl2'},
-    'KISE409':{action:'pbl',type:'col',id:'col1'},'KISE410':{action:'pbl',type:'col',id:'col2'},
-    'KECE331':{action:'free',freeIndex:0},
-    'KECE334':{action:'free',freeIndex:1},
-    'KECE415':{action:'free',freeIndex:2},
-    'KECE463':{action:'free',freeIndex:3},
-    'KECE414':{action:'free',freeIndex:4},
-    'KMSE312':{action:'crossFree',crossIndex:0},
-    'KMSE314':{action:'crossFree',crossIndex:1},
-    'MECH482':{action:'crossFree',crossIndex:2},
-    'CHBE308':{action:'crossFree',crossIndex:3},
-    'PHYS481':{action:'crossFree',crossIndex:4},
+    // 전공필수
+    KISE302: {action:'ai'},   // AI반도체개론
+    KMSE330: {action:'ai'},   // AI반도체개론
+    // [1] 전공트랙
+    KECE415: {action:'track',track:'sojai',rowIndex:2},   // 나노전자공학
+    KECE462: {action:'track',track:'socha',rowIndex:1},   // ASIC설계
+    KECE493: {action:'track',track:'gongjeong',rowIndex:1},   // 반도체프로세스
+    KECE496: {action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},   // 디지털집적회로
+    KISE304: {action:'track',track:'sojai',rowIndex:0},   // AI반도체신소재개론
+    KISE402: {action:'track',track:'gongjeong',rowIndex:0},   // 고급AI반도체공정및응용
+    KISE404: {action:'track',track:'socha',rowIndex:0},   // 고급AI반도체소자
+    KMSE312: {action:'track',track:'sojai',rowId:'row-bando'},   // 반도체재료
+    PHYS466: {action:'track',track:'socha',rowIndex:2},   // 인공지능물리학
+    // [1] 전공트랙 패키징
+    KISE306: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    KISE406: {action:'pkg',key:'pkg2'},   // 반도체패키징Ⅱ
+    KMSE332: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    // [2] 공동운영
+    '312KISE': {action:'gd',key:'gd3'},   // 반도체머신러닝 (인제대)
+    '313KISE': {action:'gd',key:'gd2'},   // 진공장비실습 (인제대)
+    KISE301: {action:'gd',key:'gd1'},   // 반도체공정실습
+    // [3] 산학연계
+    KISE407: {action:'pbl',type:'pbl',id:'pbl1'},   // PBL산학프로젝트Ⅰ
+    KISE408: {action:'pbl',type:'pbl',id:'pbl2'},   // PBL산학프로젝트Ⅱ
+    KISE409: {action:'pbl',type:'col',id:'col1'},   // 차세대반도체콜로키움Ⅰ
+    KISE410: {action:'pbl',type:'col',id:'col2'},   // 차세대반도체콜로키움Ⅱ
+    // [5] 학부인정
+    KECE206: {action:'recog',name:'전자기학'},   // 전자기학
+    KECE231: {action:'recog',name:'공학수학 1'},   // 공학수학Ⅰ
+    KECE232: {action:'recog',name:'공학수학 2'},   // 공학수학Ⅱ
+    KECE301: {action:'recog',name:'전자회로 1'},   // 전자회로I
+    KECE303: {action:'recog',name:'전자회로 설계 및 실험 1'},   // 전자회로설계및실험I
+    KECE304: {action:'recog',name:'전자회로 설계 및 실험 2'},   // 전자회로설계및실험II
+    // [4] 자유이수 본과
+    KECE212: {action:'free',freeIndex:0},   // 물성전자공학
+    KECE302: {action:'free',freeIndex:3},   // 전자회로Ⅱ
+    KECE331: {action:'free',freeIndex:1},   // 반도체공학Ⅰ
+    KECE334: {action:'free',freeIndex:2},   // 반도체공학Ⅱ
+    KECE414: {action:'free',freeIndex:5},   // 정보기억소자
+    KECE463: {action:'free',freeIndex:4},   // VLSI설계및실험
+    // [4] 자유이수 크로스
+    CHBE308: {action:'crossFree',crossIndex:1},   // 반도체화학공정
+    KMSE314: {action:'crossFree',crossIndex:0},   // 박막공학
+    KMSE405: {action:'crossFree',crossIndex:2},   // 반도체공정
+    KMSE407: {action:'crossFree',crossIndex:3},   // 광소재및소자
+    KMSE410: {action:'crossFree',crossIndex:6},   // 전자재료응용물성
+    KMSE412: {action:'crossFree',crossIndex:7},   // 디스플레이소재및공정
+    KMSE416: {action:'crossFree',crossIndex:8},   // 나노소재
+    MECH463: {action:'crossFree',crossIndex:4},   // 마이크로프로세서프로그래밍
+    MECH482: {action:'crossFree',crossIndex:9},   // 나노공학입문
+    PHYS481: {action:'crossFree',crossIndex:5},   // 광학
   },
+  // ══ 화공생명공학과 ══
   cbe: {
-    'KISE404':{action:'track',track:'socha',rowIndex:0},
-    'KECE462':{action:'track',track:'socha',rowIndex:1},
-    'PHYS466':{action:'track',track:'socha',rowIndex:2},
-    'KISE402':{action:'track',track:'gongjeong',rowIndex:0},
-    'KECE493':{action:'track',track:'gongjeong',rowIndex:1},
-    'KECE496':{action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},
-    'KISE304':{action:'track',track:'sojai',rowIndex:0},
-    'KMSE312':{action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},
-    'KECE415':{action:'track',track:'sojai',rowIndex:2},
-    'KISE306':{action:'pkg',key:'pkg1'},'KMSE332':{action:'pkg',key:'pkg1'},
-    'KISE406':{action:'pkg',key:'pkg2'},
-    'KISE302':{action:'ai'},'KMSE330':{action:'ai'},
-    'KISE301':{action:'gd',key:'gd1'},'313KISE':{action:'gd',key:'gd2'},'312KISE':{action:'gd',key:'gd3'},
-    'CHBE101':{action:'recog',name:'물리화학'},
-    'CHBE225':{action:'recog',name:'공학수학 1'},
-    'CHBE226':{action:'recog',name:'공학수학 2'},
-    'CHBE111':{action:'recog',name:'화공생명공학입문'},
-    'CHBE200':{action:'recog',name:'화공생명공학연구방법및동향'},
-    'CHBE342':{action:'recog',name:'화공재료과학'},
-    'CHBE319':{action:'recog',name:'양자 및 표면 화학'},
-    'CHBE320':{action:'recog',name:'공정제어'},
-    'KISE407':{action:'pbl',type:'pbl',id:'pbl1'},'KISE408':{action:'pbl',type:'pbl',id:'pbl2'},
-    'KISE409':{action:'pbl',type:'col',id:'col1'},'KISE410':{action:'pbl',type:'col',id:'col2'},
-    'CHBE308':{action:'free',freeIndex:0},
-    'CHBE417':{action:'free',freeIndex:1},
-    'KMSE312':{action:'crossFree',crossIndex:0},
-    'KMSE314':{action:'crossFree',crossIndex:1},
-    'KECE463':{action:'crossFree',crossIndex:2},
-    'KECE414':{action:'crossFree',crossIndex:3},
-    'MECH482':{action:'crossFree',crossIndex:4},
-    'PHYS481':{action:'crossFree',crossIndex:5},
+    // 전공필수
+    KISE302: {action:'ai'},   // AI반도체개론
+    KMSE330: {action:'ai'},   // AI반도체개론
+    // [1] 전공트랙
+    KECE415: {action:'track',track:'sojai',rowIndex:2},   // 나노전자공학
+    KECE462: {action:'track',track:'socha',rowIndex:1},   // ASIC설계
+    KECE493: {action:'track',track:'gongjeong',rowIndex:1},   // 반도체프로세스
+    KECE496: {action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},   // 디지털집적회로
+    KISE304: {action:'track',track:'sojai',rowIndex:0},   // AI반도체신소재개론
+    KISE402: {action:'track',track:'gongjeong',rowIndex:0},   // 고급AI반도체공정및응용
+    KISE404: {action:'track',track:'socha',rowIndex:0},   // 고급AI반도체소자
+    KMSE312: {action:'track',track:'sojai',rowId:'row-bando'},   // 반도체재료
+    PHYS466: {action:'track',track:'socha',rowIndex:2},   // 인공지능물리학
+    // [1] 전공트랙 패키징
+    KISE306: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    KISE406: {action:'pkg',key:'pkg2'},   // 반도체패키징Ⅱ
+    KMSE332: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    // [2] 공동운영
+    '312KISE': {action:'gd',key:'gd3'},   // 반도체머신러닝 (인제대)
+    '313KISE': {action:'gd',key:'gd2'},   // 진공장비실습 (인제대)
+    KISE301: {action:'gd',key:'gd1'},   // 반도체공정실습
+    // [3] 산학연계
+    KISE407: {action:'pbl',type:'pbl',id:'pbl1'},   // PBL산학프로젝트Ⅰ
+    KISE408: {action:'pbl',type:'pbl',id:'pbl2'},   // PBL산학프로젝트Ⅱ
+    KISE409: {action:'pbl',type:'col',id:'col1'},   // 차세대반도체콜로키움Ⅰ
+    KISE410: {action:'pbl',type:'col',id:'col2'},   // 차세대반도체콜로키움Ⅱ
+    // [5] 학부인정
+    CHBE101: {action:'recog',name:'물리화학'},
+    CHBE111: {action:'recog',name:'화공생명공학입문'},
+    CHBE200: {action:'recog',name:'화공생명공학연구방법및동향'},
+    CHBE225: {action:'recog',name:'공학수학 1'},
+    CHBE417: {action:'recog',name:'공정및제품설계'},   // 공정및제품설계
+    // [4] 자유이수 본과
+    CHBE226: {action:'free',freeIndex:0},   // 공학수학II
+    CHBE308: {action:'free',freeIndex:4},   // 반도체화학공정
+    CHBE319: {action:'free',freeIndex:3},   // 양자및표면화학
+    CHBE320: {action:'free',freeIndex:2},   // 공정제어
+    CHBE342: {action:'free',freeIndex:1},   // 화공재료과학
+    // [4] 자유이수 크로스
+    KECE414: {action:'crossFree',crossIndex:9},   // 정보기억소자
+    KECE463: {action:'crossFree',crossIndex:3},   // VLSI설계및실험
+    KMSE314: {action:'crossFree',crossIndex:0},   // 박막공학
+    KMSE405: {action:'crossFree',crossIndex:1},   // 반도체공정
+    KMSE407: {action:'crossFree',crossIndex:2},   // 광소재및소자
+    KMSE410: {action:'crossFree',crossIndex:6},   // 전자재료응용물성
+    KMSE412: {action:'crossFree',crossIndex:7},   // 디스플레이소재및공정
+    KMSE416: {action:'crossFree',crossIndex:8},   // 나노소재
+    MECH463: {action:'crossFree',crossIndex:4},   // 마이크로프로세서프로그래밍
+    MECH482: {action:'crossFree',crossIndex:10},   // 나노공학입문
+    PHYS481: {action:'crossFree',crossIndex:5},   // 광학
   },
+  // ══ 기계공학부 ══
   me: {
-    'KISE404':{action:'track',track:'socha',rowIndex:0},
-    'KECE462':{action:'track',track:'socha',rowIndex:1},
-    'PHYS466':{action:'track',track:'socha',rowIndex:2},
-    'KISE402':{action:'track',track:'gongjeong',rowIndex:0},
-    'KECE493':{action:'track',track:'gongjeong',rowIndex:1},
-    'KECE496':{action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},
-    'KISE304':{action:'track',track:'sojai',rowIndex:0},
-    'KMSE312':{action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},
-    'KECE415':{action:'track',track:'sojai',rowIndex:2},
-    'KISE306':{action:'pkg',key:'pkg1'},'KMSE332':{action:'pkg',key:'pkg1'},
-    'KISE406':{action:'pkg',key:'pkg2'},
-    'KISE302':{action:'ai'},'KMSE330':{action:'ai'},
-    'KISE301':{action:'gd',key:'gd1'},'313KISE':{action:'gd',key:'gd2'},'312KISE':{action:'gd',key:'gd3'},
-    'MECH201':{action:'recog',name:'열역학 1'},
-    'MECH204':{action:'recog',name:'유체역학 1'},
-    'MECH215':{action:'recog',name:'공업수학 1'},
-    'MECH222':{action:'recog',name:'열역학 2'},
-    'MECH323':{action:'recog',name:'유체역학 2'},
-    'MECH216':{action:'recog',name:'공업수학 2'},
-    'MECH386':{action:'recog',name:'전기전자공학개론'},
-    'MECH457':{action:'recog',name:'수치해석'},
-    'KISE407':{action:'pbl',type:'pbl',id:'pbl1'},'KISE408':{action:'pbl',type:'pbl',id:'pbl2'},
-    'KISE409':{action:'pbl',type:'col',id:'col1'},'KISE410':{action:'pbl',type:'col',id:'col2'},
-    'MECH482':{action:'free',freeIndex:0},
-    'KECE463':{action:'crossFree',crossIndex:0},
-    'KECE414':{action:'crossFree',crossIndex:1},
-    'CHBE308':{action:'crossFree',crossIndex:2},
-    'PHYS481':{action:'crossFree',crossIndex:3},
+    // 전공필수
+    KISE302: {action:'ai'},   // AI반도체개론
+    KMSE330: {action:'ai'},   // AI반도체개론
+    // [1] 전공트랙
+    KECE415: {action:'track',track:'sojai',rowIndex:2},   // 나노전자공학
+    KECE462: {action:'track',track:'socha',rowIndex:1},   // ASIC설계
+    KECE493: {action:'track',track:'gongjeong',rowIndex:1},   // 반도체프로세스
+    KECE496: {action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},   // 디지털집적회로
+    KISE304: {action:'track',track:'sojai',rowIndex:0},   // AI반도체신소재개론
+    KISE402: {action:'track',track:'gongjeong',rowIndex:0},   // 고급AI반도체공정및응용
+    KISE404: {action:'track',track:'socha',rowIndex:0},   // 고급AI반도체소자
+    KMSE312: {action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},   // 반도체재료
+    PHYS466: {action:'track',track:'socha',rowIndex:2},   // 인공지능물리학
+    // [1] 전공트랙 패키징
+    KISE306: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    KISE406: {action:'pkg',key:'pkg2'},   // 반도체패키징Ⅱ
+    KMSE332: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    // [2] 공동운영
+    '312KISE': {action:'gd',key:'gd3'},   // 반도체머신러닝 (인제대)
+    '313KISE': {action:'gd',key:'gd2'},   // 진공장비실습 (인제대)
+    KISE301: {action:'gd',key:'gd1'},   // 반도체공정실습
+    // [3] 산학연계
+    KISE407: {action:'pbl',type:'pbl',id:'pbl1'},   // PBL산학프로젝트Ⅰ
+    KISE408: {action:'pbl',type:'pbl',id:'pbl2'},   // PBL산학프로젝트Ⅱ
+    KISE409: {action:'pbl',type:'col',id:'col1'},   // 차세대반도체콜로키움Ⅰ
+    KISE410: {action:'pbl',type:'col',id:'col2'},   // 차세대반도체콜로키움Ⅱ
+    // [5] 학부인정
+    MECH201: {action:'recog',name:'열역학 1'},   // 열역학I
+    MECH204: {action:'recog',name:'유체역학 1'},   // 유체역학I
+    MECH222: {action:'recog',name:'열역학 2'},   // 열역학II
+    MECH323: {action:'recog',name:'유체역학 2'},   // 유체역학II
+    // [4] 자유이수 본과
+    MECH215: {action:'free',freeIndex:0},   // 공업수학I
+    MECH216: {action:'free',freeIndex:1},   // 공업수학II
+    MECH386: {action:'free',freeIndex:2},   // 전기전자공학개론
+    MECH457: {action:'free',freeIndex:3},   // 수치해석
+    MECH463: {action:'free',freeIndex:4},   // 마이크로프로세서프로그래밍
+    MECH482: {action:'free',freeIndex:5},   // 나노공학입문
+    // [4] 자유이수 크로스
+    CHBE308: {action:'crossFree',crossIndex:1},   // 반도체화학공정
+    KECE414: {action:'crossFree',crossIndex:9},   // 정보기억소자
+    KECE463: {action:'crossFree',crossIndex:4},   // VLSI설계및실험
+    KMSE314: {action:'crossFree',crossIndex:0},   // 박막공학
+    KMSE405: {action:'crossFree',crossIndex:2},   // 반도체공정
+    KMSE407: {action:'crossFree',crossIndex:3},   // 광소재및소자
+    KMSE410: {action:'crossFree',crossIndex:6},   // 전자재료응용물성
+    KMSE412: {action:'crossFree',crossIndex:7},   // 디스플레이소재및공정
+    KMSE416: {action:'crossFree',crossIndex:8},   // 나노소재
+    PHYS481: {action:'crossFree',crossIndex:5},   // 광학
   },
+  // ══ 물리학과 ══
   phys: {
-    'KISE404':{action:'track',track:'socha',rowIndex:0},
-    'KECE462':{action:'track',track:'socha',rowIndex:1},
-    'PHYS466':{action:'track',track:'socha',rowIndex:2},
-    'KISE402':{action:'track',track:'gongjeong',rowIndex:0},
-    'KECE493':{action:'track',track:'gongjeong',rowIndex:1},
-    'KECE496':{action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},
-    'KISE304':{action:'track',track:'sojai',rowIndex:0},
-    'KMSE312':{action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},
-    'KECE415':{action:'track',track:'sojai',rowIndex:2},
-    'KISE306':{action:'pkg',key:'pkg1'},'KMSE332':{action:'pkg',key:'pkg1'},
-    'KISE406':{action:'pkg',key:'pkg2'},
-    'KISE302':{action:'ai'},'KMSE330':{action:'ai'},
-    'KISE301':{action:'gd',key:'gd1'},'313KISE':{action:'gd',key:'gd2'},'312KISE':{action:'gd',key:'gd3'},
-    'PHYS203':{action:'recog',name:'전자물리학및실험'},
-    'PHYS224':{action:'recog',name:'전자기학 1'},
-    'PHYS361':{action:'recog',name:'양자역학 1'},
-    'PHYS331':{action:'recog',name:'전자기학 2'},
-    'PHYS362':{action:'recog',name:'양자역학 2'},
-    'PHYS463':{action:'recog',name:'양자정보물리학'},
-    'PHYS482':{action:'recog',name:'고체물리학'},
-    'PHYS462':{action:'recog',name:'원자물리학'},
-    'KISE407':{action:'pbl',type:'pbl',id:'pbl1'},'KISE408':{action:'pbl',type:'pbl',id:'pbl2'},
-    'KISE409':{action:'pbl',type:'col',id:'col1'},'KISE410':{action:'pbl',type:'col',id:'col2'},
-    'PHYS481':{action:'free',freeIndex:0},
-    'PHYS466':{action:'free',freeIndex:1},
-    'KECE463':{action:'crossFree',crossIndex:0},
-    'KECE414':{action:'crossFree',crossIndex:1},
-    'MECH482':{action:'crossFree',crossIndex:2},
-    'CHBE308':{action:'crossFree',crossIndex:3},
+    // 전공필수
+    KISE302: {action:'ai'},   // AI반도체개론
+    KMSE330: {action:'ai'},   // AI반도체개론
+    // [1] 전공트랙
+    KECE415: {action:'track',track:'sojai',rowIndex:2},   // 나노전자공학
+    KECE462: {action:'track',track:'socha',rowIndex:1},   // ASIC설계
+    KECE493: {action:'track',track:'gongjeong',rowIndex:1},   // 반도체프로세스
+    KECE496: {action:'track',track:'gongjeong',rowId:'row-digital',rowIndex:2},   // 디지털집적회로
+    KISE304: {action:'track',track:'sojai',rowIndex:0},   // AI반도체신소재개론
+    KISE402: {action:'track',track:'gongjeong',rowIndex:0},   // 고급AI반도체공정및응용
+    KISE404: {action:'track',track:'socha',rowIndex:0},   // 고급AI반도체소자
+    KMSE312: {action:'track',track:'sojai',rowId:'row-bando',rowIndex:1},   // 반도체재료
+    PHYS466: {action:'track',track:'socha',rowIndex:2},   // 인공지능물리학
+    // [1] 전공트랙 패키징
+    KISE306: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    KISE406: {action:'pkg',key:'pkg2'},   // 반도체패키징Ⅱ
+    KMSE332: {action:'pkg',key:'pkg1'},   // 반도체패키징Ⅰ
+    // [2] 공동운영
+    '312KISE': {action:'gd',key:'gd3'},   // 반도체머신러닝 (인제대)
+    '313KISE': {action:'gd',key:'gd2'},   // 진공장비실습 (인제대)
+    KISE301: {action:'gd',key:'gd1'},   // 반도체공정실습
+    // [3] 산학연계
+    KISE407: {action:'pbl',type:'pbl',id:'pbl1'},   // PBL산학프로젝트Ⅰ
+    KISE408: {action:'pbl',type:'pbl',id:'pbl2'},   // PBL산학프로젝트Ⅱ
+    KISE409: {action:'pbl',type:'col',id:'col1'},   // 차세대반도체콜로키움Ⅰ
+    KISE410: {action:'pbl',type:'col',id:'col2'},   // 차세대반도체콜로키움Ⅱ
+    // [5] 학부인정
+    PHYS203: {action:'recog',name:'전자물리학및실험'},   // 전자물리학및실험
+    PHYS224: {action:'recog',name:'전자기학 1'},   // 전자기학Ⅰ
+    PHYS331: {action:'recog',name:'전자기학 2'},   // 전자기학Ⅱ
+    PHYS361: {action:'recog',name:'양자역학 1'},   // 양자역학I
+    PHYS362: {action:'recog',name:'양자역학 2'},   // 양자역학Ⅱ
+    // [4] 자유이수 본과
+    PHYS462: {action:'free',freeIndex:3},   // 원자물리학
+    PHYS463: {action:'free',freeIndex:0},   // 양자정보물리학
+    PHYS481: {action:'free',freeIndex:1},   // 광학
+    PHYS482: {action:'free',freeIndex:2},   // 고체물리학
+    // [4] 자유이수 크로스
+    CHBE308: {action:'crossFree',crossIndex:1},   // 반도체화학공정
+    KECE414: {action:'crossFree',crossIndex:9},   // 정보기억소자
+    KECE463: {action:'crossFree',crossIndex:4},   // VLSI설계및실험
+    KMSE314: {action:'crossFree',crossIndex:0},   // 박막공학
+    KMSE405: {action:'crossFree',crossIndex:2},   // 반도체공정
+    KMSE407: {action:'crossFree',crossIndex:3},   // 광소재및소자
+    KMSE410: {action:'crossFree',crossIndex:6},   // 전자재료응용물성
+    KMSE412: {action:'crossFree',crossIndex:7},   // 디스플레이소재및공정
+    KMSE416: {action:'crossFree',crossIndex:8},   // 나노소재
+    MECH463: {action:'crossFree',crossIndex:5},   // 마이크로프로세서프로그래밍
+    MECH482: {action:'crossFree',crossIndex:10},   // 나노공학입문
   },
 };
+
 
 // ── 학과 전환 ──
 function switchDept(dept, tabEl) {
@@ -829,6 +929,17 @@ renderChecklist('mseng', document.getElementById('cl-mseng'));
 document.getElementById('cl-mseng').dataset.rendered = 'true';
 
 // ── 체크리스트 로직 (학생용과 동일) ──
+// ── [패치] 현재 학과 블록 안에서만 id/선택자를 찾는다.
+// 5개 학과 체크리스트가 한 페이지에 모두 렌더링되어 같은 id가 5벌 존재하므로,
+// document.getElementById 를 쓰면 항상 첫 번째(신소재) 블록이 잡힌다.
+function $d(id){
+  const w=document.getElementById('cl-'+currentDept);
+  return (w && w.querySelector('[id="'+id+'"]')) || document.getElementById(id);
+}
+function $$d(sel){
+  const w=document.getElementById('cl-'+currentDept);
+  return w ? w.querySelectorAll(sel) : document.querySelectorAll(sel);
+}
 function toggleSection(id){document.getElementById(id).classList.toggle('collapsed');}
 
 function toggleTrack(row, track) {
@@ -850,16 +961,16 @@ function togglePackaging(row, key) {
     else{row.classList.add('checked');raw[1]+=3;trackCounts.packaging+=1;autoState[key]='track';}
   }else if(cur==='track'){
     row.classList.remove('checked');raw[1]-=3;trackCounts.packaging=Math.max(0,trackCounts.packaging-1);autoState[key]='unchecked';
-    if(autoState[otherKey]==='free'){const or=document.getElementById('row-'+otherKey);or.classList.remove('auto-free');or.classList.add('checked');raw[5]-=3;raw[1]+=3;trackCounts.packaging+=1;autoState[otherKey]='track';showPkgFree(otherKey,false);}
+    if(autoState[otherKey]==='free'){const or=$d('row-'+otherKey);or.classList.remove('auto-free');or.classList.add('checked');raw[5]-=3;raw[1]+=3;trackCounts.packaging+=1;autoState[otherKey]='track';showPkgFree(otherKey,false);}
   }else if(cur==='free'){row.classList.remove('auto-free');raw[5]-=3;autoState[key]='unchecked';showPkgFree(key,false);}
   updateTrackUI('packaging');updateUI();
 }
 
-function showPkgFree(key,show){const el=document.getElementById('row-'+key+'-free');if(el)el.style.display=show?'flex':'none';}
+function showPkgFree(key,show){const el=$d('row-'+key+'-free');if(el)el.style.display=show?'flex':'none';}
 
 function toggleBando(){
-  const row=document.getElementById('row-bando');
-  const freeRow=document.getElementById('row-bando-free');
+  const row=$d('row-bando');
+  const freeRow=$d('row-bando-free');
   if(autoState.bando==='unchecked'){
     const others=countOtherSojai();
     if(others>=1){row.classList.add('auto-free');raw[5]+=3;autoState.bando='free';freeRow.style.display='flex';}
@@ -874,14 +985,14 @@ function toggleBando(){
 
 function reevaluateBando(){
   if(autoState.bando==='unchecked')return;
-  const row=document.getElementById('row-bando');
-  const freeRow=document.getElementById('row-bando-free');
+  const row=$d('row-bando');
+  const freeRow=$d('row-bando-free');
   const others=countOtherSojai();
   if(others>=1&&autoState.bando==='track'){row.classList.remove('checked');row.classList.add('auto-free');raw[1]-=3;raw[5]+=3;trackCounts.sojai=Math.max(0,trackCounts.sojai-1);autoState.bando='free';freeRow.style.display='flex';updateTrackUI('sojai');}
   else if(others===0&&autoState.bando==='free'){row.classList.remove('auto-free');row.classList.add('checked');raw[5]-=3;raw[1]+=3;trackCounts.sojai+=1;autoState.bando='track';freeRow.style.display='none';updateTrackUI('sojai');}
 }
 
-function countOtherSojai(){let c=0;document.querySelectorAll('[data-track="sojai"]').forEach(r=>{if(r.id!=='row-bando'&&r.classList.contains('checked'))c++;});return c;}
+function countOtherSojai(){let c=0;$$d('[data-track="sojai"]').forEach(r=>{if(r.id!=='row-bando'&&r.classList.contains('checked'))c++;});return c;}
 
 function updateTrackUI(track){
   const el=document.getElementById(currentDept+'-ts-'+track);
@@ -892,7 +1003,7 @@ function updateTrackUI(track){
 }
 
 function toggleAI(){
-  const row=document.getElementById('row-ai');
+  const row=$d('row-ai');
   aiChecked=row.classList.toggle('checked');
   raw[2]+=aiChecked?3:-3;
   updateGDFreeRows();updateUI();
@@ -946,8 +1057,8 @@ function toggleRecog(row){
 
 function updateRecogDim(){
   const cap=6,cur=Math.min(raw[3],cap);
-  document.getElementById('recogCapLabel').textContent=`${cur} / 6학점`;
-  document.querySelectorAll(`#${currentDept}-sec3 .course-row`).forEach(r=>{
+  { const _l=$d('recogCapLabel'); if(_l)_l.textContent=`${cur} / 6학점`; }
+  document.querySelectorAll(`#${currentDept}-sec5 .course-row`).forEach(r=>{
     if(r.classList.contains('checked')){r.classList.remove('dim');return;}
     r.classList.toggle('dim',raw[3]>=cap);
   });
@@ -969,15 +1080,19 @@ function updateUI(){
 
   document.getElementById(currentDept+'-cred1').textContent=`${c1} / 12학점`;
   document.getElementById(currentDept+'-cred2').textContent=`${c2} / 6학점`;
-  document.getElementById(currentDept+'-cred3').textContent=`${raw[4]} / 6학점`; // 산학연계
-  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`; // 자유이수
-  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`; // 자유이수
+  // [패치] 화면 영역번호 = [3]산학연계 [4]자유이수 [5]학부인정
+  //        내부 변수      = raw[3]학부인정 raw[4]산학연계 raw[5]자유이수
+  document.getElementById(currentDept+'-cred3').textContent=`${c4} / 6학점`; // [3] 산학연계
+  document.getElementById(currentDept+'-cred4').textContent=`${c5} / 6학점`; // [4] 자유이수
+  const cred5=document.getElementById(currentDept+'-cred5');
+  if(cred5)cred5.textContent=`${c3} / 6학점`;                                // [5] 학부인정
 
-  [{id:currentDept+'-ss2',ok:gd6},{id:currentDept+'-ss3',ok:c3>=6},{id:currentDept+'-ss4',ok:c5>=6}].forEach(s=>{
+  [{id:currentDept+'-ss2',ok:gd6},
+   {id:currentDept+'-ss3',ok:pbl4ok},
+   {id:currentDept+'-ss4',ok:c5>=6},
+   {id:currentDept+'-ss5',ok:c3>=6}].forEach(s=>{
     const el=document.getElementById(s.id);if(el){el.textContent=s.ok?'충족 ✓':'미충족';el.classList.toggle('satisfied',s.ok);}
   });
-  const ss4=document.getElementById(currentDept+'-ss4');
-  if(ss4){ss4.textContent=pbl4ok?'충족 ✓':'미충족';ss4.classList.toggle('satisfied',pbl4ok);}
 
   const floatTotal=document.getElementById('floatTotal');
   floatTotal.textContent=`${total} / 36학점`;
@@ -987,9 +1102,9 @@ function updateUI(){
   const segs=[
     {fc:'fc1',fd:'fd1',v:c1,m:12,ok:allOk1},
     {fc:'fc2',fd:'fd2',v:c2,m:6,ok:gd6},
-    {fc:'fc3',fd:'fd3',v:c3,m:6,ok:c3>=6},
-    {fc:'fc4',fd:'fd4',v:raw[4],m:6,ok:pbl4ok},
-    {fc:'fc5',fd:'fd5',v:c5,m:6,ok:c5>=6},
+    {fc:'fc3',fd:'fd3',v:c4,m:6,ok:pbl4ok},   // [3] 산학연계
+    {fc:'fc4',fd:'fd4',v:c5,m:6,ok:c5>=6},    // [4] 자유이수
+    {fc:'fc5',fd:'fd5',v:c3,m:6,ok:c3>=6},    // [5] 학부인정
   ];
   segs.forEach(s=>{
     document.getElementById(s.fc).textContent=`${s.v}/${s.m}`;
@@ -999,23 +1114,53 @@ function updateUI(){
 }
 
 // ── 성적 자동 체크 ──
+function currentDeptName(){
+  return {mseng:'신소재공학부',ee:'전기전자공학부',cbe:'화공생명공학과',
+          me:'기계공학부',phys:'물리학과'}[currentDept]||currentDept;
+}
 function runAutoCheck(){
   const text=document.getElementById('gradeInput').value.trim();
   if(!text){showGradeResult('warn','성적 데이터를 먼저 붙여넣어 주세요.');return;}
 
   const CMAP=COURSE_CODE_MAPS[currentDept];
-  const tokens=text.split(/[\s\t\n,]+/).map(t=>t.trim().toUpperCase()).filter(Boolean);
   const foundCodes=new Set();
-  tokens.forEach(t=>{if(CMAP[t])foundCodes.add(t);});
+  const excluded=[];
 
-  if(foundCodes.size===0){showGradeResult('warn','인식된 융합전공 관련 과목이 없습니다.');return;}
+  // [패치] 행 단위로 읽어 F·재수강·학점포기·수강포기를 제외한다.
+  //   포털 전체성적 표를 그대로 붙여넣으면 한 줄에
+  //   학년도학기 / 학수번호 / 분반 / 교과목명 / 이수구분 / … / 등급 / 평점 / 삭제구분 이 들어온다.
+  //   학수번호만 모으면 F 받은 과목·중도포기 과목까지 이수로 잡힌다.
+  const DROP=/재수강|학점포기|수강포기/;
+  text.split(/\r?\n/).forEach(line=>{
+    const cells=line.split(/\t|\s{2,}|,/).map(s=>s.trim()).filter(Boolean);
+    if(!cells.length)return;
+    const code=cells.map(c=>c.toUpperCase()).find(c=>CMAP[c]);
+    if(!code)return;
+    const isF   = cells.some(c=>c.trim()==='F');
+    const isDrop= cells.some(c=>DROP.test(c));
+    if(isF||isDrop){excluded.push(code+(isF?' (F)':' (중도포기·재수강)'));return;}
+    foundCodes.add(code);
+  });
+
+  // 표 형태가 아니라 학수번호만 붙여넣은 경우 대비
+  if(foundCodes.size===0&&excluded.length===0){
+    text.split(/[\s\t\n,]+/).forEach(t=>{const u=t.trim().toUpperCase();if(CMAP[u])foundCodes.add(u);});
+  }
+
+  if(foundCodes.size===0){
+    showGradeResult('warn', excluded.length
+      ? '인식된 과목이 모두 F 또는 중도포기·재수강 처리된 과목입니다.\n'+excluded.map(e=>'· '+e).join('\n')
+      : '인식된 융합전공 관련 과목이 없습니다.');
+    return;
+  }
 
   resetAll();
   const matched=[];
   const trackRows={
-    socha:document.querySelectorAll('[data-track="socha"]'),
-    gongjeong:document.querySelectorAll('[data-track="gongjeong"]'),
-    sojai:document.querySelectorAll('[data-track="sojai"]'),
+    socha:$$d('[data-track="socha"]'),
+    gongjeong:$$d('[data-track="gongjeong"]'),
+    sojai:$$d('[data-track="sojai"]'),
+    packaging:$$d('[data-track="packaging"]'),
   };
   const activeWrap=document.getElementById('cl-'+currentDept);
   const freeRows=activeWrap.querySelectorAll('.section-body .course-row:not(.readonly-free)');
@@ -1027,27 +1172,27 @@ function runAutoCheck(){
     const info=CMAP[code];if(!info)return;
     switch(info.action){
       case 'ai':
-        if(!aiChecked){document.getElementById('row-ai').click();matched.push('AI반도체개론');}break;
+        if(!aiChecked){$d('row-ai').click();matched.push('AI반도체개론');}break;
       case 'gd':{
         const gdMap={gd1:'row-gd1',gd2:'row-gd2',gd3:'row-gd3'};
         const gdName={gd1:'반도체공정실습',gd2:'진공장비실습',gd3:'반도체머신러닝'};
-        if(!gdChecked[info.key]){document.getElementById(gdMap[info.key]).click();matched.push(gdName[info.key]);}break;}
+        if(!gdChecked[info.key]){$d(gdMap[info.key]).click();matched.push(gdName[info.key]);}break;}
       case 'track':{
         const rows=trackRows[info.track];if(!rows)break;
-        const row=info.rowId?document.getElementById(info.rowId):rows[info.rowIndex];
+        const row=info.rowId?$d(info.rowId):rows[info.rowIndex];
         if(row&&!row.classList.contains('checked')&&!row.classList.contains('auto-free')){
           row.click();const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim().split('\n')[0].trim());}break;}
       case 'pkg':{
-        const row=document.getElementById('row-'+info.key);
+        const row=$d('row-'+info.key);
         if(row&&autoState[info.key]==='unchecked'){togglePackaging(row,info.key);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim().split('\n')[0].trim());}break;}
       case 'recog':{
-        const recogRows=document.querySelectorAll(`#${currentDept}-sec3 .course-row`);
+        const recogRows=document.querySelectorAll(`#${currentDept}-sec5 .course-row`);
         recogRows.forEach(r=>{
           const n=r.querySelector('.course-name');if(!n)return;
           if(n.textContent.replace(/ /g,'').includes(info.name.replace(/ /g,''))){
             if(!r.classList.contains('checked')&&!r.classList.contains('dim')){toggleRecog(r);matched.push(info.name);}}});break;}
       case 'pbl':{
-        const row=document.getElementById(info.id);
+        const row=$d(info.id);
         if(row&&!row.classList.contains('checked')){togglePBL(row,info.type);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim());}break;}
       case 'free':{
         const row=sec4FreeRows[info.freeIndex];
@@ -1062,8 +1207,9 @@ function runAutoCheck(){
   });
 
   const uniq=[...new Set(matched)];
-  if(uniq.length>0){showGradeResult('success',`✓ ${uniq.length}개 과목 자동 체크 완료\n${uniq.map(m=>'· '+m).join('\n')}`);}
-  else{showGradeResult('warn','인식된 학수번호가 있지만 체크 가능한 과목을 찾지 못했습니다.');}
+  const exMsg=excluded.length?`\n\n⚠ 제외 ${excluded.length}건 (이수로 보지 않음)\n${[...new Set(excluded)].map(e=>'· '+e).join('\n')}`:'';
+  if(uniq.length>0){showGradeResult('success',`✓ ${uniq.length}개 과목 자동 체크 완료 — ${currentDeptName()}\n${uniq.map(m=>'· '+m).join('\n')}${exMsg}`);}
+  else{showGradeResult('warn','인식된 학수번호가 있지만 체크 가능한 과목을 찾지 못했습니다.'+exMsg);}
 }
 
 function showGradeResult(type,msg){
@@ -1166,7 +1312,7 @@ function cancelReset(){
 function resetAll(){
   document.querySelectorAll('.course-row').forEach(r=>r.classList.remove('checked','auto-free','dim'));
   ['row-bando-free','row-gd1-free','row-gd2-free','row-gd3-free','row-pkg1-free','row-pkg2-free'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.display='none';
+    const el=$d(id);if(el)el.style.display='none';
   });
   Object.keys(raw).forEach(k=>raw[k]=0);
   Object.keys(trackCounts).forEach(k=>trackCounts[k]=0);
@@ -1180,7 +1326,7 @@ function resetAll(){
     const el=document.getElementById(currentDept+'-'+id);
     if(el){el.textContent='미충족';el.classList.remove('satisfied');}
   });
-  const rcl=document.getElementById('recogCapLabel');if(rcl)rcl.textContent='0 / 6학점';
+  const rcl=$d('recogCapLabel');if(rcl)rcl.textContent='0 / 6학점';
   document.getElementById('saveResult').className='save-result';
   updateUI();
 }
