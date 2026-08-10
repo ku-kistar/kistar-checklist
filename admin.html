@@ -96,6 +96,13 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .course-row.checked{background:#f0faf4}
 .course-row.auto-free{background:#fff8ed}
 .course-row.dim{opacity:.32;pointer-events:none}
+/* [패치] 관리자 표시용 — 이수했으나 영역 상한/트랙 중복으로 학점 미반영 */
+.course-row.taken-only{opacity:1;background:#f7f8fa}
+.course-row.taken-only .checkbox{background:#aeb6c2;border-color:#aeb6c2}
+.course-row.taken-only .checkbox svg{display:block}
+.course-row.taken-only .course-name{color:#5a6a7e}
+.over-tag{font-size:10px;font-weight:700;color:#8a6d1f;background:#fdf3d6;
+  border:1px solid #ecdcae;border-radius:20px;padding:1px 7px;margin-left:6px;white-space:nowrap}
 .checkbox{width:18px;height:18px;border:1.5px solid var(--border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--surface)}
 .course-row.checked .checkbox{background:var(--green);border-color:var(--green)}
 .course-row.auto-free .checkbox{background:var(--amber);border-color:var(--amber)}
@@ -1114,6 +1121,36 @@ function updateUI(){
 }
 
 // ── 성적 자동 체크 ──
+// [패치] 행에서 순수 과목명만 뽑는다.
+// .auto-tag('→ 자유이수')·.course-sub(개설학과)가 textContent 에 섞여 들어가
+// 실제로는 트랙으로 인정됐는데 결과 메시지에 '→ 자유이수'로 찍히는 문제가 있었다.
+function rowLabel(row){
+  const n=row&&row.querySelector('.course-name'); if(!n)return '';
+  const c=n.cloneNode(true);
+  c.querySelectorAll('.auto-tag,.course-sub,.sub,.badge,.req-badge,.over-tag').forEach(e=>e.remove());
+  return c.textContent.replace(/\s+/g,' ').trim();
+}
+// [패치] 관리자 화면에서는 학점에 반영되지 않는 과목도 '이수함'을 남긴다.
+//   학생 화면은 6학점을 채우면 나머지를 흐리게 처리하지만,
+//   관리자는 이 학생이 실제로 무엇을 이수했는지 전부 보여야 한다.
+//   학점 합산에는 넣지 않으므로 총점은 그대로다.
+function markTaken(row, reason){
+  if(!row || row.classList.contains('checked') || row.classList.contains('auto-free')) return false;
+  const label=rowLabel(row);   // 뱃지를 붙이기 전에 과목명을 먼저 확보
+  row.classList.remove('dim');
+  row.classList.add('taken-only');
+  const n=row.querySelector('.course-name');
+  if(n && !n.querySelector('.over-tag')){
+    const t=document.createElement('span');
+    t.className='over-tag'; t.textContent=reason;
+    n.appendChild(t);
+  }
+  return label;
+}
+function clearTakenMarks(){
+  document.querySelectorAll('.course-row.taken-only').forEach(r=>r.classList.remove('taken-only'));
+  document.querySelectorAll('.over-tag').forEach(e=>e.remove());
+}
 function currentDeptName(){
   return {mseng:'신소재공학부',ee:'전기전자공학부',cbe:'화공생명공학과',
           me:'기계공학부',phys:'물리학과'}[currentDept]||currentDept;
@@ -1125,6 +1162,7 @@ function runAutoCheck(){
   const CMAP=COURSE_CODE_MAPS[currentDept];
   const foundCodes=new Set();
   const excluded=[];
+  const capped=[];   // [패치] 상한 초과로 반영되지 않은 과목
 
   // [패치] 행 단위로 읽어 F·재수강·학점포기·수강포기를 제외한다.
   //   포털 전체성적 표를 그대로 붙여넣으면 한 줄에
@@ -1155,6 +1193,7 @@ function runAutoCheck(){
   }
 
   resetAll();
+  clearTakenMarks();
   const matched=[];
   const trackRows={
     socha:$$d('[data-track="socha"]'),
@@ -1176,38 +1215,59 @@ function runAutoCheck(){
       case 'gd':{
         const gdMap={gd1:'row-gd1',gd2:'row-gd2',gd3:'row-gd3'};
         const gdName={gd1:'반도체공정실습',gd2:'진공장비실습',gd3:'반도체머신러닝'};
-        if(!gdChecked[info.key]){$d(gdMap[info.key]).click();matched.push(gdName[info.key]);}break;}
+        if(!gdChecked[info.key]){
+          const gr=$d(gdMap[info.key]);
+          if(raw[2]>=6){ if(markTaken(gr,'6학점 상한 초과'))capped.push(gdName[info.key]); }
+          else { gr.click();matched.push(gdName[info.key]); }
+        }break;}
       case 'track':{
         const rows=trackRows[info.track];if(!rows)break;
         const row=info.rowId?$d(info.rowId):rows[info.rowIndex];
-        if(row&&!row.classList.contains('checked')&&!row.classList.contains('auto-free')){
-          row.click();const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim().split('\n')[0].trim());}break;}
+        if(!row)break;
+        if(!row.classList.contains('checked')&&!row.classList.contains('auto-free')){
+          if(trackCounts[info.track]>=1){                       // 트랙 이미 충족 → 학점 미반영
+            {const L=markTaken(row,'트랙 충족분 초과'); if(L)capped.push(L);}
+          }else{ row.click();matched.push(rowLabel(row)); }
+        }break;}
       case 'pkg':{
         const row=$d('row-'+info.key);
-        if(row&&autoState[info.key]==='unchecked'){togglePackaging(row,info.key);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim().split('\n')[0].trim());}break;}
+        if(row&&autoState[info.key]==='unchecked'){togglePackaging(row,info.key);matched.push(rowLabel(row)+(autoState[info.key]==='free'?' → 자유이수 전환':''));}break;}
       case 'recog':{
         const recogRows=document.querySelectorAll(`#${currentDept}-sec5 .course-row`);
         recogRows.forEach(r=>{
           const n=r.querySelector('.course-name');if(!n)return;
           if(n.textContent.replace(/ /g,'').includes(info.name.replace(/ /g,''))){
-            if(!r.classList.contains('checked')&&!r.classList.contains('dim')){toggleRecog(r);matched.push(info.name);}}});break;}
+            if(r.classList.contains('checked'))return;
+            if(r.classList.contains('dim')){markTaken(r,'6학점 상한 초과');capped.push(info.name);return;}
+            toggleRecog(r);matched.push(info.name);}});break;}
       case 'pbl':{
         const row=$d(info.id);
-        if(row&&!row.classList.contains('checked')){togglePBL(row,info.type);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim());}break;}
+        if(row&&!row.classList.contains('checked')){
+          const done = info.type==='pbl' ? pblChecked!==null : colChecked!==null;
+          if(done){ {const L=markTaken(row,'영역 충족분 초과'); if(L)capped.push(L);} }
+          else { togglePBL(row,info.type);matched.push(rowLabel(row)); }
+        }break;}
       case 'free':{
         const row=sec4FreeRows[info.freeIndex];
-        if(row&&!row.classList.contains('checked')){toggleFree(row);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim());}break;}
+        if(row&&!row.classList.contains('checked')){
+          if(raw[5]>=6){ {const L=markTaken(row,'6학점 상한 초과'); if(L)capped.push(L);} }
+          else { toggleFree(row);matched.push(rowLabel(row)); }
+        }break;}
       case 'crossFree':{
         // 크로스 수강: self 과목 다음
         const selfCount=FREE_DATA[currentDept].self.length;
         const allFree=sec4FreeRows;
         const row=allFree[selfCount+info.crossIndex];
-        if(row&&!row.classList.contains('checked')){toggleFree(row);const n=row.querySelector('.course-name');if(n)matched.push(n.textContent.trim().split('\n')[0].trim());}break;}
+        if(row&&!row.classList.contains('checked')){
+          if(raw[5]>=6){ {const L=markTaken(row,'6학점 상한 초과'); if(L)capped.push(L);} }
+          else { toggleFree(row);matched.push(rowLabel(row)); }
+        }break;}
     }
   });
 
   const uniq=[...new Set(matched)];
-  const exMsg=excluded.length?`\n\n⚠ 제외 ${excluded.length}건 (이수로 보지 않음)\n${[...new Set(excluded)].map(e=>'· '+e).join('\n')}`:'';
+  const exMsg=(excluded.length?`\n\n⚠ 제외 ${excluded.length}건 (이수로 보지 않음)\n${[...new Set(excluded)].map(e=>'· '+e).join('\n')}`:'')
+    +(capped.length?`\n\nℹ 이수했으나 학점에 반영되지 않은 과목 ${[...new Set(capped)].length}건 — 영역 상한·트랙 충족 초과\n${[...new Set(capped)].map(e=>'· '+e).join('\n')}\n(화면에는 회색 체크로 표시됩니다. 어떤 과목을 인정할지는 수동으로 바꿀 수 있습니다)`:'');
   if(uniq.length>0){showGradeResult('success',`✓ ${uniq.length}개 과목 자동 체크 완료 — ${currentDeptName()}\n${uniq.map(m=>'· '+m).join('\n')}${exMsg}`);}
   else{showGradeResult('warn','인식된 학수번호가 있지만 체크 가능한 과목을 찾지 못했습니다.'+exMsg);}
 }
@@ -1310,7 +1370,8 @@ function cancelReset(){
   btn.style.borderColor='';btn.style.color='';txt.textContent='초기화';
 }
 function resetAll(){
-  document.querySelectorAll('.course-row').forEach(r=>r.classList.remove('checked','auto-free','dim'));
+  clearTakenMarks();
+  document.querySelectorAll('.course-row').forEach(r=>r.classList.remove('checked','auto-free','dim','taken-only'));
   ['row-bando-free','row-gd1-free','row-gd2-free','row-gd3-free','row-pkg1-free','row-pkg2-free'].forEach(id=>{
     const el=$d(id);if(el)el.style.display='none';
   });
