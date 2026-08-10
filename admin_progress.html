@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이수 현황 관리 — 차세대반도체 융합전공</title>
+<style>
+:root{--navy:#0b1f3a;--navy2:#122440;--accent:#2563eb;--gold:#c9a84c;--bg:#f4f6f9;--card:#fff;
+--text:#1a2535;--text2:#5a6a7e;--text3:#8b98a9;--border:#dde3ec;--line:#eef1f6;
+--ok:#15803d;--okbg:#e8f5ec;--warn:#b45309;--warnbg:#fdf4e3;--dang:#b91c1c;--dangbg:#fbeaea}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;
+color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+.top{background:var(--navy);color:#fff;padding:13px 26px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:60}
+.top .badge{background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
+.top h1{font-weight:700;font-size:15px}
+.top .meta{margin-left:auto;font-size:12px;opacity:.7}
+.wrap{max-width:1240px;margin:24px auto 80px;padding:0 20px}
+
+/* 요약 */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:15px 17px}
+.kpi .n{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.kpi .l{font-size:12.5px;font-weight:600;color:var(--text2);margin-top:5px}
+.kpi .s{font-size:11px;color:var(--text3);margin-top:3px}
+.kpi.a{border-left:3px solid var(--dang)} .kpi.a .n{color:var(--dang)}
+.kpi.b{border-left:3px solid var(--accent)}
+.kpi.c{border-left:3px solid var(--ok)} .kpi.c .n{color:var(--ok)}
+.kpi.d{border-left:3px solid #b6bfcc} .kpi.d .n{color:var(--text3)}
+
+/* 탭 */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:0}
+.tab{padding:11px 20px;border:none;background:none;cursor:pointer;font:inherit;font-size:13.5px;
+font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+.tab .c{font-size:11px;background:var(--bg);border-radius:20px;padding:1px 7px;margin-left:6px;color:var(--text2)}
+.tab.on .c{background:var(--navy);color:#fff}
+
+.panel{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px}
+.bar{display:flex;gap:8px;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+select,.q{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:13px;background:#fff;color:var(--text);outline:none}
+select:focus,.q:focus{border-color:var(--accent)}
+.q{flex:1;min-width:180px}
+.btn{padding:7px 13px;border:1px solid var(--border);background:#fff;border-radius:6px;font:inherit;
+font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
+.btn:hover{background:var(--bg)}
+.btn.p{background:var(--navy);border-color:var(--navy);color:#fff}
+.cnt{margin-left:auto;font-size:12px;color:var(--text2);white-space:nowrap}
+
+/* 조치 목록 */
+.acts{padding:6px 0}
+.act{display:flex;gap:15px;align-items:flex-start;padding:15px 18px;border-bottom:1px solid var(--line);cursor:pointer}
+.act:last-child{border-bottom:none}
+.act:hover{background:#fafbfd}
+.act .sev{width:4px;align-self:stretch;border-radius:2px;background:var(--text3);flex-shrink:0}
+.act.s1 .sev{background:var(--dang)} .act.s2 .sev{background:#e08c2a}
+.act .who{min-width:250px}
+.act .nm{font-weight:700;font-size:14.5px}
+.act .sub{font-size:12px;color:var(--text2);margin-top:3px}
+.act .why{flex:1;min-width:0}
+.act .rsn{font-size:13.5px;line-height:1.55}
+.act .rsn b{color:var(--dang)}
+.act .hint{font-size:12px;color:var(--text2);margin-top:4px}
+.act .prog{text-align:right;white-space:nowrap;min-width:96px}
+.act .prog .p1{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.act .prog .p2{font-size:11px;color:var(--text3)}
+.seq{display:inline-block;background:#eef1f6;color:var(--text2);font-size:10.5px;font-weight:700;
+padding:2px 6px;border-radius:4px;font-variant-numeric:tabular-nums;margin-right:6px}
+
+/* 명단 표 */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{background:#f7f9fc;color:var(--text2);font-weight:600;font-size:11.5px;
+padding:9px 10px;border-bottom:1px solid var(--border);text-align:center;white-space:nowrap}
+.tbl thead th.l{text-align:left}
+.tbl tbody td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:center;
+font-variant-numeric:tabular-nums}
+.tbl tbody td.l{text-align:left}
+.tbl tbody tr{cursor:pointer}
+.tbl tbody tr:hover td{background:#fafbfd}
+.tbl td.div{border-left:1px solid var(--border)}
+.tbl th.div{border-left:1px solid var(--border)}
+.cell{display:inline-block;min-width:38px;padding:3px 0;border-radius:5px;font-weight:600}
+.cell.done{background:var(--okbg);color:var(--ok)}
+.cell.part{color:var(--text2)}
+.cell.zero{color:#c8cfd9}
+.tot{font-weight:800;font-size:14px}
+.bar2{width:56px;height:5px;background:#e9edf3;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:7px}
+.bar2 i{display:block;height:100%;background:var(--accent)}
+.bar2.full i{background:var(--ok)}
+.st{font-size:11.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.st.ok{background:var(--okbg);color:var(--ok)}
+.st.go{background:#eaf0fb;color:#1d4ed8}
+.st.no{background:#f0f2f5;color:var(--text2)}
+.need{font-weight:700;color:var(--dang)}
+.need.z{color:#c8cfd9;font-weight:400}
+.empty{padding:60px;text-align:center;color:var(--text2)}
+
+/* 상세 */
+.ovl{position:fixed;inset:0;background:rgba(11,31,58,.3);z-index:70;opacity:0;pointer-events:none;transition:opacity .2s}
+.ovl.on{opacity:1;pointer-events:auto}
+.dw{position:fixed;top:0;right:0;width:min(580px,95vw);height:100vh;background:#fff;z-index:80;
+box-shadow:-6px 0 30px rgba(11,31,58,.18);transform:translateX(100%);transition:transform .22s;display:flex;flex-direction:column}
+.dw.on{transform:none}
+.dwh{background:var(--navy);color:#fff;padding:17px 22px;display:flex;align-items:flex-start;gap:10px}
+.dwh h3{font-size:19px;font-weight:700}
+.dwh .s{font-size:12px;opacity:.8;margin-top:4px}
+.dwh .x{margin-left:auto;background:none;border:none;color:#fff;font-size:23px;cursor:pointer;opacity:.75;line-height:1}
+.dwb{padding:20px 22px 50px;overflow:auto;flex:1}
+.sec{font-size:12px;font-weight:700;color:var(--navy);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.sec:first-child{margin-top:0}
+.arow{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;border-bottom:1px solid var(--line)}
+.arow:last-child{border-bottom:none}
+.arow .an{width:88px;color:var(--text2);font-size:12px}
+.arow .ab{flex:1;height:6px;background:#e9edf3;border-radius:3px;overflow:hidden}
+.arow .ab i{display:block;height:100%;background:var(--accent)}
+.arow .ab.full i{background:var(--ok)}
+.arow .av{width:46px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.ct{width:100%;border-collapse:collapse;font-size:12.5px}
+.ct th{background:#f7f9fc;color:var(--text2);font-weight:600;padding:7px 9px;text-align:left;border-bottom:1px solid var(--border);font-size:11px}
+.ct td{padding:7px 9px;border-bottom:1px solid var(--line)}
+.ct td.c{text-align:center;width:30px}
+.ct tr.dn td{background:#fbfdfc}
+.ct .code{font-size:10.5px;color:var(--text3);font-variant-numeric:tabular-nums}
+.gh{background:#f2f5f9;font-size:11px;font-weight:700;color:var(--navy)}
+.gh td{padding:6px 9px}
+.gh .r{float:right;font-weight:700}
+.gh .r.y{color:var(--ok)} .gh .r.n{color:var(--dang)}
+.mk{color:var(--ok);font-weight:700}
+.note{background:#f7f9fc;border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+font-size:12px;line-height:1.7;color:var(--text2);margin-top:14px}
+.note b{color:var(--navy)}
+.note.w{background:var(--warnbg);border-color:#eddfbe;color:#6b5320}
+.kiat{background:#1e2936;color:#a8d8a8;font-family:Consolas,monospace;font-size:11.5px;padding:12px;
+border-radius:8px;white-space:pre-wrap;max-height:180px;overflow:auto;line-height:1.6;margin-top:8px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.act{flex-wrap:wrap}.act .who{min-width:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* 상단 현황판 */
+.board{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:22px}
+.bd{width:100%;border-collapse:collapse;font-size:13px}
+.bd thead th{background:#f7f9fc;color:var(--text2);font-weight:600;font-size:11.5px;padding:9px 12px;
+border-bottom:1px solid var(--border);text-align:center;white-space:nowrap}
+.bd thead th.l{text-align:left}
+.bd tbody td{padding:9px 12px;text-align:center;border-bottom:1px solid var(--line);
+font-variant-numeric:tabular-nums;font-weight:600}
+.bd tbody td.l{text-align:left;font-weight:400}
+.bd tbody tr{cursor:pointer}
+.bd tbody tr:hover td{background:#fafbfd}
+.bd tbody tr.on td{background:#eef4ff}
+.bd tbody tr.off td{color:var(--text3)}
+.bd tbody tr.sm td{background:#f7f9fc;border-top:1px solid var(--border);border-bottom:none}
+.bd tbody tr.sm.on td{background:#eef4ff}
+.bd td.g{color:var(--ok)} .bd td.o{color:#b45309} .bd td.r{color:var(--dang)} .bd td.z{color:var(--text3);font-weight:400}
+.lack{font-size:10.5px;color:var(--dang);margin-top:3px;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:5px;padding:2px 0 8px 96px}
+.chip{font-size:11px;padding:2px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg);color:var(--text2)}
+.chip.y{background:var(--okbg);border-color:#cfe7d6;color:var(--ok)}
+.chip.n{background:var(--dangbg);border-color:#f0cccc;color:var(--dang);font-weight:600}
+
+.bd td.kx{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+.bd td.kx:hover{background:#eef4ff!important}
+.hintx{font-size:11px;color:var(--text3);font-weight:400;margin-left:6px}
+.bd tbody tr.all td{background:var(--navy);color:#fff;border-bottom:none}
+.bd tbody tr.all td.g{color:#8fe3ad} .bd tbody tr.all td.z{color:#7f8ea3}
+.bd tbody tr.all .hintx{color:#9fb0c4}
+.bd tbody tr.all.on td{background:#17335a}
+</style>
+</head>
+<body>
+<div class="top"><span class="badge">관리자</span><h1>이수 현황 관리 · 차세대반도체 융합전공</h1>
+<span class="meta" id="meta"></span></div>
+
+<div id="gate" style="max-width:420px;margin:80px auto;padding:34px 30px;background:#fff;
+border:1px solid var(--border);border-radius:14px;text-align:center;display:none">
+  <div style="font-size:30px;margin-bottom:12px">🔒</div>
+  <h2 style="font-size:17px;font-weight:700;color:var(--navy)">관리자 권한이 필요합니다</h2>
+  <p style="font-size:13px;color:var(--text2);margin-top:8px;line-height:1.7" id="gateMsg">
+    데이터허브에 관리자 계정으로 로그인한 뒤 이용하세요.</p>
+  <a href="portal_survey.html" style="display:inline-block;margin-top:18px;padding:9px 20px;
+    background:var(--navy);color:#fff;text-decoration:none;border-radius:8px;font-size:13px">데이터허브로 이동</a>
+</div>
+
+<div id="loading" style="max-width:420px;margin:100px auto;text-align:center;color:var(--text2)">
+  <div style="width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--accent);
+    border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 14px"></div>
+  <div style="font-size:13px">이수현황을 불러오는 중...</div>
+</div>
+<style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+
+<div class="wrap" id="wrap" style="display:none">
+  <div class="board" id="board"></div>
+  <div class="tabs">
+    <button class="tab on" id="t0" onclick="go(0)">조치 필요 <span class="c" id="c0"></span></button>
+    <button class="tab" id="t1" onclick="go(1)">전체 명단 <span class="c" id="c1"></span></button>
+  </div>
+  <div class="panel">
+    <div class="bar">
+      <select id="fD"><option value="">전체 학과</option></select>
+      <select id="fY"><option value="">전체 학년</option></select>
+      <select id="fS"><option value="">재학·휴학·유예·수료</option><option value="재학">재학</option>
+      <option value="휴학">휴학</option><option value="수강유예">수강유예</option>
+      <option value="미수강유예">미수강유예</option><option value="수료">수료</option>
+      <option value="졸업">졸업</option><option value="융전포기">융전포기</option>
+      <option value="_all">전체 155명</option></select>
+      <input class="q" id="fQ" placeholder="이름 · 학번 · 순번 검색">
+      <button class="btn" onclick="reset_()">초기화</button>
+      <button class="btn p" onclick="csv()">엑셀 내려받기</button>
+      <span class="cnt" id="cnt"></span>
+    </div>
+    <div id="body"></div>
+  </div>
+</div>
+
+<div class="ovl" id="ovl" onclick="close_()"></div>
+<aside class="dw" id="dw"><div class="dwh"><div><h3 id="dN"></h3><div class="s" id="dS"></div></div>
+<button class="x" onclick="close_()">×</button></div><div class="dwb" id="dB"></div></aside>
+
+<script>
+// ── 데이터허브 GAS ──
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const CAT = {"mseng":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312"],"name":"반도체재료","ui":"반도체재료","area":"[1] 전공트랙","grp":"소재"},{"codes":["KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KMSE213"],"name":"반응속도론","ui":"반응속도론","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE214","KMSE417"],"name":"융합기술및신소재응용","ui":"융합기술및신소재응용","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE205"],"name":"공학수학Ⅰ","ui":"공학수학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE219","KMSE206"],"name":"공학수학Ⅱ","ui":"공학수학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE220","KMSE201"],"name":"물리화학Ⅰ","ui":"물리화학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE201","KMSE202"],"name":"물리화학Ⅱ(영강)","ui":"물리화학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE202","KMSE303"],"name":"재료열역학","ui":"재료열역학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE301"],"name":"전자및반도체재료공학(영강)","ui":"전자및반도체재료공학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE203"],"name":"재료구조물성(영강)","ui":"재료구조물성","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE205","KMSE204"],"name":"재료전자기물성","ui":"재료전자기물성","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE204","KMSE306"],"name":"상평형론(영강)","ui":"상평형론","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE308"],"name":"열전달및확산","ui":"열전달및확산","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE207"],"name":"세라믹재료개론","ui":"세라믹재료개론","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE215"],"name":"유기재료개론","ui":"유기재료화학 1","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE210"],"name":"X-선결정학(영강)","ui":"유기재료개론","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE309"],"name":"고체물리(영강)","ui":"X-선 결정학","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE316"],"name":"유기재료화학(영강)","ui":"고체물리","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"박막공학","ui":"박막공학","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE405"],"name":"반도체공정","ui":"반도체공정","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE407"],"name":"광소재 및 소자","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE410"],"name":"광소재및소자(영강)","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE412"],"name":"디스플레이소재및공정(영강)","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"본과"},{"codes":["AMSE328","KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE463"],"name":"VLSI설계및실험","ui":"VLSI설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"마이크로프로세서프로그래밍","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"반도체화학공정(영강)","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학(영강)","ui":"광학","area":"[4] 자유이수","grp":"크로스"}],"ee":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KECE231"],"name":"공학수학Ⅰ","ui":"공학수학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE232"],"name":"공학수학Ⅱ(영강)","ui":"공학수학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE206"],"name":"전자기학","ui":"전자기학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE301"],"name":"전자회로I(영강)","ui":"전자회로 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE303"],"name":"전자회로설계및실험I","ui":"전자회로설계및실험 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE304"],"name":"전자회로설계및실험II","ui":"전자회로설계및실험 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE212"],"name":"반도체공학Ⅰ","ui":"물성전자공학","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE331"],"name":"반도체공학Ⅱ(영강)","ui":"반도체공학 1","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE334"],"name":"나노전자공학","ui":"반도체공학 2","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE302"],"name":"VLSI설계및실험","ui":"전자회로 2","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"반도체재료","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"박막공학","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"나노공학입문","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"반도체화학공정(영강)","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"광학(영강)","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학","ui":"광학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"}],"cbe":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312","KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["CHBE101"],"name":"공학수학 1","ui":"공학수학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE225"],"name":"물리화학","ui":"물리화학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE111"],"name":"화공생명공학입문","ui":"화공생명공학입문","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE200"],"name":"화공생명공학연구방법및동향","ui":"화공생명공학연구방법및동향","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE417"],"name":"공정및제품설계","ui":"공정및제품설계","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE226"],"name":"반도체화학공정(영강)","ui":"공학수학 2","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE342"],"name":"공정및제품설계(영강)","ui":"화공재료과학","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE320"],"name":"공정제어","ui":"공정제어","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE319"],"name":"양자 및 표면 화학","ui":"양자 및 표면 화학","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE308"],"name":"반도체화학공정","ui":"반도체화학공정","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"반도체재료","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"박막공학","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"VLSI설계및실험","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"나노공학입문","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학(영강)","ui":"광학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"}],"me":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312"],"name":"반도체재료","ui":"반도체재료","area":"[1] 전공트랙","grp":"소재"},{"codes":["KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["MECH201"],"name":"열역학I","ui":"열역학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH204"],"name":"유체역학I(영강)","ui":"유체역학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH222"],"name":"열역학II","ui":"열역학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH323"],"name":"유체역학II(영강)","ui":"유체역학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH215"],"name":"나노공학입문","ui":"공업수학 1","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH216"],"name":"공업수학 2","ui":"공업수학 2","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH386"],"name":"전기전자공학개론","ui":"전기전자공학개론","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH457"],"name":"수치해석","ui":"수치해석","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH463"],"name":"마이크로프로세서프로그래밍","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"VLSI설계및실험","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"반도체화학공정","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"반도체화학공정(영강)","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"광학(영강)","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학","ui":"광학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"}],"phys":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312"],"name":"반도체재료","ui":"반도체재료","area":"[1] 전공트랙","grp":"소재"},{"codes":["KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["PHYS203"],"name":"전자물리학및실험(영강)","ui":"전자물리학및실험","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS224"],"name":"전자기학Ⅰ","ui":"전자기학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS331"],"name":"전자기학Ⅱ","ui":"전자기학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS361"],"name":"양자역학I","ui":"양자역학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS362"],"name":"양자역학Ⅱ","ui":"양자역학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS463"],"name":"광학(영강)","ui":"양자정보물리학","area":"[4] 자유이수","grp":"본과"},{"codes":["PHYS481"],"name":"인공지능물리학(영강)","ui":"광학","area":"[4] 자유이수","grp":"본과"},{"codes":["PHYS482"],"name":"고체물리학","ui":"고체물리학","area":"[4] 자유이수","grp":"본과"},{"codes":["PHYS462"],"name":"원자물리학","ui":"원자물리학","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"VLSI설계및실험","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"반도체화학공정","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"나노공학입문","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"반도체화학공정(영강)","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"마이크로프로세서프로그래밍","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"}]};      // 학과별 이수요건 과목표 (고정 데이터)
+let DATA = [];
+
+// 관리자 인증은 서버(_verifyAdmin)에서 다시 검증한다.
+// localStorage 는 화면 전환용일 뿐 권한 근거가 아니다.
+const AUTH = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+
+function jsonp(params){
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Math.random().toString(36).slice(2);
+    const t = setTimeout(() => { cleanup(); reject(new Error('응답 시간 초과')); }, 30000);
+    function cleanup(){ clearTimeout(t); delete window[cb]; if(sc.parentNode) sc.remove(); }
+    window[cb] = d => { cleanup(); resolve(d); };
+    const q = Object.entries({...params, callback: cb})
+      .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+    const sc = document.createElement('script');
+    sc.src = EXEC_URL + '?' + q;
+    sc.onerror = () => { cleanup(); reject(new Error('네트워크 오류')); };
+    document.head.appendChild(sc);
+  });
+}
+
+const gate = (msg) => {
+  loading.style.display='none'; wrap.style.display='none';
+  document.getElementById('gate').style.display='block';
+  if(msg) document.getElementById('gateMsg').textContent = msg;
+};
+
+// 시트 응답(영문 키) → 화면 구조로 변환
+function shape(r){
+  const ar = {트랙:r.area.track, 공동:r.area.joint, 산학:r.area.industry,
+              자유:r.area.free, 학부:r.area.recog};
+  const tk = r.codes || [];
+  const has = c => tk.includes(c);
+  const wish = r.wishCodes || [];
+  const w26 = {};
+  OPEN.forEach(([c]) => {
+    w26[c] = has(c) ? '✅ 이수완료' : wish.includes(c) ? '📝 신청함'
+           : satisfied(c, r, ar) ? '➖ 대체충족' : '❗ 미이수·미신청';
+  });
+  const DK = {'신소재공학부':'mseng','전기전자공학부':'ee','화공생명공학과':'cbe',
+              '기계공학부':'me','물리학과':'phys'};
+  return {
+    sid:r.sid, name:r.name, dept:r.dept, yr:r.year, st:r.status, seq:r.seq,
+    cohort:r.cohort, tot:r.total, ar,
+    ok:{트랙:ar.트랙>=12, 공동:ar.공동>=6, 산학:ar.산학>=6, 자유:ar.자유>=6, 학부:ar.학부>=6},
+    tr:{소자:r.tracks.소자==='O', 공정:r.tracks.공정==='O',
+        소재:r.tracks.소재==='O', 패키징:r.tracks.패키징==='O'},
+    ai:r.required==='이수', nw:wish.length, w26,
+    dk:DK[r.dept]||'mseng', tk,
+    crs:(r.semesters||[]).map(x => { const [c,s]=x.split(':'); return {c, s, n:c, ym:''}; }),
+    source:r.source, updated:r.updated, memo:r.memo
+  };
+}
+// 대체충족 = 그 영역이 다른 과목으로 이미 채워져 수강할 필요가 없는 상태.
+// 산학연계는 PBL 1 + 콜로키움 1 조합이므로 종류별로 따로 본다.
+function satisfied(code, r, ar){
+  const has = c => (r.codes||[]).includes(c);
+  if(code==='KISE302') return r.required==='이수';
+  if(code==='KISE408') return has('KISE407') || has('KISE408');
+  if(code==='KISE410') return has('KISE409') || has('KISE410');
+  const T={KISE304:'소재',KISE306:'패키징',KISE402:'공정',KISE404:'소자'};
+  return r.tracks[T[code]]==='O';
+}
+
+async function boot(){
+  if(!AUTH || !AUTH.studentId){ gate('로그인이 필요합니다.'); return; }
+  try{
+    const res = await jsonp({action:'getProgress', studentId:AUTH.studentId,
+                             page:'admin_progress.html', userAgent:navigator.userAgent});
+    if(res.status!=='ok'){ gate(res.message || '조회에 실패했습니다.'); return; }
+    DATA = res.students.map(shape);
+    DATA.forEach(d => d.dg = diag(d));
+    loading.style.display='none'; wrap.style.display='block';
+    init();
+  }catch(e){ gate('불러오지 못했습니다 — ' + e.message); }
+}
+const OPEN=[['KISE302','AI반도체개론'],['KISE404','고급AI반도체소자'],['KISE402','고급AI반도체공정및응용'],
+            ['KISE304','AI반도체신소재개론'],['KISE306','반도체패키징Ⅰ'],['KISE408','PBL산학프로젝트Ⅱ'],
+            ['KISE410','차세대반도체콜로키움Ⅱ']];
+const AREAS=[['트랙',12,'[1] 전공트랙'],['공동',6,'[2] 공동운영'],['산학',6,'[3] 산학연계'],
+             ['자유',6,'[4] 자유이수'],['학부',6,'[5] 학부인정']];
+const INACT=['휴학','수강유예','미수강유예','수료','졸업','융전포기'];
+let tab=0, sel=null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ── 학생별 조치 사유 산출 ──
+function diag(d){
+  const need=OPEN.filter(([c])=>d.w26[c].startsWith('❗')).map(([,n])=>n);
+  const wish=OPEN.filter(([c])=>d.w26[c].startsWith('📝')).length;
+  const r={need,wish,active:!INACT.includes(d.st),sev:0,rsn:'',hint:''};
+  if(d.st==='졸업'||d.st==='융전포기'){r.rsn=d.st;return r;}
+  if(!r.active){r.rsn=d.st+' — 이번 학기 수강신청 불가';return r;}
+  if(d.tot>=36){r.rsn='졸업요건 36학점 충족';return r;}
+  if(!d.ai&&d.yr>=3&&!d.w26['KISE302'].startsWith('📝')){
+    r.sev=1; r.rsn='<b>AI반도체개론(전공필수) 미이수</b> · 이번 학기 미신청';
+    r.hint=`${d.yr}학년 · 남은 학점 ${36-d.tot} · 미이수 요건 ${need.length}과목`;
+    return r;
+  }
+  if(d.yr>=3&&wish===0&&need.length){
+    r.sev=2; r.rsn='이번 학기 <b>수강희망 등록 없음</b>';
+    r.hint=`미이수 요건 ${need.length}과목 — ${need.slice(0,3).join(' · ')}${need.length>3?' 외':''}`;
+    return r;
+  }
+  if(d.yr>=3&&need.length){
+    r.sev=2; r.rsn=`미이수 요건 <b>${need.length}과목</b>을 이번 학기에 담지 않음`;
+    r.hint=`미신청 — ${need.join(' · ')}`;
+    return r;
+  }
+  r.rsn = d.yr<=2 ? '2학년 — 이수 시작 전' : '이번 학기 필요한 과목을 모두 신청';
+  return r;
+}
+const actList=()=>DATA.filter(d=>d.dg.sev>0);
+function rows(){
+  const dd=fD.value,yy=fY.value,ss=fS.value,q=fQ.value.trim().toLowerCase();
+  let base = tab===0?actList():DATA;
+  if(drill_==='urg') base=DATA.filter(d=>d.dg.sev===1);
+  else if(drill_==='act') base=actList();
+  else if(drill_==='ok')  base=DATA.filter(d=>d.tot>=36);
+  let L=base.filter(d=>
+    (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
+    (ss==='_all'?true: ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
+    (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
+  L.sort((a,b)=> tab===0 ? (a.dg.sev-b.dg.sev)||(b.yr-a.yr)||(a.tot-b.tot)
+                         : (parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1])));
+  return L;
+}
+function init(){
+  meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · 수강신청 기준`;
+  [...new Set(DATA.map(d=>d.dept))].forEach(v=>fD.insertAdjacentHTML('beforeend',`<option>${esc(v)}</option>`));
+  [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${v}학년</option>`));
+  [fD,fY].forEach(e=>e.onchange=()=>{drill_=null;render();}); fS.onchange=()=>{drill_=null;render();drawBoard();}; fQ.oninput=()=>{drill_=null;render();};
+
+  drawBoard();
+  c0.textContent=actList().length; c1.textContent=DATA.length;
+  render();
+}
+const STATUS=['재학','휴학','수강유예','미수강유예','수료','졸업','융전포기'];
+function drawBoard(){
+  const cur=fS.value;
+  const row=st=>{
+    const g=DATA.filter(d=>d.st===st);
+    const ok=g.filter(d=>d.tot>=36).length;
+    const ac=g.filter(d=>d.dg.sev>0).length;
+    const ur=g.filter(d=>d.dg.sev===1).length;
+    return {st,n:g.length,ok,ac,ur};
+  };
+  const R=STATUS.map(row), T=R.filter(r=>r.n);
+  const enrolled=['재학','휴학','수강유예','미수강유예','수료'];
+  const sum=k=>T.filter(r=>enrolled.includes(r.st)).reduce((a,r)=>a+r[k],0);
+  board.innerHTML=`<table class="bd">
+   <thead><tr><th class="l">학적상태</th><th>인원</th><th>요건 충족</th><th>이수 중</th>
+     <th>조치 필요</th><th>그중 긴급</th></tr></thead><tbody>
+   ${T.map(r=>{const off=['졸업','융전포기'].includes(r.st);
+     return `<tr class="${off?'off':''} ${cur===r.st?'on':''}" onclick="pickStatus('${r.st}')">
+      <td class="l"><b>${r.st}</b></td><td>${r.n}</td>
+      <td class="${r.ok?'g kx':'z'}" ${r.ok?`onclick="event.stopPropagation();drill('ok','${r.st}')"`:''}>${r.ok||'—'}</td>
+      <td class="z">${off?'—':r.n-r.ok}</td>
+      <td class="${r.ac?'o kx':'z'}" ${r.ac?`onclick="event.stopPropagation();drill('act','${r.st}')"`:''}>${off?'—':(r.ac||'—')}</td>
+      <td class="${r.ur?'r kx':'z'}" ${r.ur?`onclick="event.stopPropagation();drill('urg','${r.st}')"`:''}>${off?'—':(r.ur||'—')}</td></tr>`;}).join('')}
+   <tr class="sm ${cur===''?'on':''}" onclick="pickStatus('')"><td class="l"><b>관리 대상</b>
+       <span class="hintx">졸업·포기 제외</span></td>
+     <td>${sum('n')}</td>
+     <td class="g kx" onclick="event.stopPropagation();drill('ok')">${sum('ok')}</td>
+     <td class="z">${sum('n')-sum('ok')}</td>
+     <td class="o kx" onclick="event.stopPropagation();drill('act')">${sum('ac')}</td>
+     <td class="r kx" onclick="event.stopPropagation();drill('urg')">${sum('ur')}</td></tr>
+   <tr class="sm all ${cur==='_all'?'on':''}" onclick="pickStatus('_all')"><td class="l"><b>전체 양성인원</b>
+       <span class="hintx">졸업·포기 포함</span></td>
+     <td>${DATA.length}</td><td class="g">${DATA.filter(d=>d.tot>=36).length}</td>
+     <td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>
+   </tbody></table>`;
+}
+let drill_=null;
+function pickStatus(v){drill_=null;fS.value=v; render(); drawBoard();}
+function drill(kind, st){
+  drill_=kind; fS.value=st||''; fD.value=''; fY.value=''; fQ.value='';
+  tab=(kind==='ok')?1:0;
+  t0.classList.toggle('on',tab===0); t1.classList.toggle('on',tab===1);
+  render(); drawBoard();
+  document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function go(i){drill_=null;tab=i;t0.classList.toggle('on',i===0);t1.classList.toggle('on',i===1);render();}
+function reset_(){drill_=null;fD.value='';fY.value='';fS.value='';fQ.value='';render();drawBoard();}
+
+function render(){
+  const L=rows();
+  const DN={urg:'긴급 — AI반도체개론(전공필수) 미이수 · 이번 학기 미신청',
+            act:'조치 필요 — 연락·안내가 필요한 학생',
+            ok:'요건 충족 — 36학점 전부 이수'};
+  cnt.innerHTML = drill_ ? `<b style="color:var(--navy)">${DN[drill_]}</b> · ${L.length}명` : `${L.length}명`;
+  if(!L.length){body.innerHTML='<div class="empty">해당하는 학생이 없습니다.</div>';return;}
+  body.innerHTML = tab===0 ? L.map(actRow).join('') : tblHtml(L);
+}
+const actRow=d=>`<div class="act s${d.dg.sev}" onclick="open_('${d.sid}')">
+  <div class="sev"></div>
+  <div class="who"><div class="nm"><span class="seq">${esc(d.seq)}</span>${esc(d.name)}</div>
+    <div class="sub">${d.sid} · ${esc(d.dept)} · ${d.yr}학년</div></div>
+  <div class="why"><div class="rsn">${d.dg.rsn}</div>
+    ${d.dg.hint?`<div class="hint">${esc(d.dg.hint)}</div>`:''}</div>
+  <div class="prog"><div class="p1">${d.tot}<span class="p2"> / 36</span></div>
+    <div class="p2">희망등록 ${d.nw}건</div></div></div>`;
+
+function tblHtml(L){
+  return `<table class="tbl"><thead><tr>
+    <th class="l">순번 · 학생</th><th>학년</th><th>상태</th>
+    <th class="div">이수 학점</th>
+    ${AREAS.map((a,i)=>`<th class="${i===0?'div':''}">${a[0]}</th>`).join('')}
+    <th class="div">2026-2 신청</th><th>추가 필요</th></tr></thead><tbody>
+    ${L.map(d=>{const p=Math.round(d.tot/36*100);
+      const st=d.tot>=36?['ok','충족']:!d.dg.active?['no',d.st]:d.dg.sev?['go','조치 필요']:['no','진행 중'];
+      return `<tr onclick="open_('${d.sid}')">
+      <td class="l"><span class="seq">${esc(d.seq)}</span><b>${esc(d.name)}</b>
+        <span style="color:var(--text3)"> ${d.sid} · ${esc(d.dept)}</span></td>
+      <td>${d.yr}</td><td><span class="st ${st[0]}">${esc(st[1])}</span></td>
+      <td class="div"><span class="tot">${d.tot}</span><span style="color:var(--text3)">/36</span>
+        <span class="bar2 ${p>=100?'full':''}"><i style="width:${Math.min(p,100)}%"></i></span></td>
+      ${AREAS.map(([k,m],i)=>{const lack=k==='트랙'?Object.keys(d.tr).filter(t=>!d.tr[t]):[];
+        return `<td class="${i===0?'div':''}"><span class="cell ${d.ar[k]>=m?'done':d.ar[k]?'part':'zero'}">${d.ar[k]}/${m}</span>${
+        lack.length?`<div class="lack">${lack.join('·')} 부족</div>`:''}</td>`;}).join('')}
+      <td class="div">${d.nw||'—'}</td>
+      <td><span class="need ${d.dg.need.length?'':'z'}">${d.dg.need.length||'—'}</span></td></tr>`;}).join('')}
+    </tbody></table>`;
+}
+
+function open_(sid){
+  const d=DATA.find(x=>x.sid===sid); sel=sid;
+  dN.textContent=d.name;
+  dS.textContent=`${d.seq} · ${d.sid} · ${d.dept} · ${d.yr}학년 · ${d.st}`
+    + (d.source ? ` · ${d.source}${d.updated?' '+d.updated:''}` : '');
+  const rows=CAT[d.dk]||[], tk=new Set(d.tk);
+  const groups=[];
+  rows.forEach(c=>{const k=c.area+'|'+c.grp;let g=groups.find(x=>x.k===k);
+    if(!g){g={k,area:c.area,grp:c.grp,items:[]};groups.push(g);} g.items.push(c);});
+
+  dB.innerHTML=`
+  <div class="sec">이수 요약</div>
+  <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:12px">
+    <span style="font-size:34px;font-weight:800;letter-spacing:-1.5px">${d.tot}</span>
+    <span style="color:var(--text2)">/ 36학점</span>
+    <span style="margin-left:auto" class="st ${d.tot>=36?'ok':'go'}">${d.tot>=36?'요건 충족':'남은 학점 '+(36-d.tot)}</span></div>
+  ${AREAS.map(([k,m,l])=>`<div class="arow"><span class="an">${l}</span>
+    <span class="ab ${d.ar[k]>=m?'full':''}"><i style="width:${d.ar[k]/m*100}%"></i></span>
+    <span class="av">${d.ar[k]}/${m}</span></div>`
+    +(k==='트랙'?`<div class="chips">${['소자','공정','소재','패키징'].map(t=>
+       `<span class="chip ${d.tr[t]?'y':'n'}">${t} ${d.tr[t]?'이수':'미이수'}</span>`).join('')}</div>`:'')
+    +(k==='공동'&&!d.ai?`<div class="chips"><span class="chip n">AI반도체개론(전공필수) 미이수</span></div>`:'')
+    +(k==='산학'&&d.ar[k]<6?`<div class="chips"><span class="chip n">PBL·콜로키움 각 1과목 필요</span></div>`:'')
+    ).join('')}
+
+  <div class="sec">2026-2학기 개설과목</div>
+  <table class="ct"><tbody>${OPEN.map(([c,l])=>{
+    const v=d.w26[c];
+    const t=v.startsWith('✅')?['이수 완료','var(--ok)']:v.startsWith('📝')?['이번 학기 신청','#1d4ed8']
+           :v.startsWith('➖')?['수강 불필요','var(--text3)']:['미이수 · 미신청','var(--dang)'];
+    return `<tr><td>${l}<span class="code"> ${c}</span></td>
+      <td style="text-align:right;color:${t[1]};font-weight:600;white-space:nowrap">${t[0]}</td></tr>`;}).join('')}
+  </tbody></table>
+
+  <div class="sec">이수 요건 과목 — ${esc(d.dept)} 기준</div>
+  <table class="ct"><tbody>${groups.map(g=>{
+    const done=g.items.filter(c=>c.codes.some(x=>tk.has(x))).length;
+    const need=['소자','공정','소재','패키징','전공필수'].includes(g.grp)?1:0;
+    const ok=need?done>=need:done>0;
+    return `<tr class="gh"><td colspan="3">${esc(g.area)} · ${esc(g.grp)}
+      <span class="r ${need?(ok?'y':'n'):''}">${done}/${g.items.length}</span></td></tr>`
+     + g.items.map(c=>{const dn=c.codes.some(x=>tk.has(x));
+       const sem=dn?(d.crs.find(x=>c.codes.includes(x.c))||{}).s:'';
+       return `<tr class="${dn?'dn':''}"><td class="c">${dn?'<span class="mk">✓</span>':''}</td>
+         <td>${dn?'<b>':''}${esc(c.name)}${dn?'</b>':''}<span class="code"> ${esc(c.codes.join(' / '))}</span></td>
+         <td style="text-align:right" class="code">${esc(sem||'')}</td></tr>`;}).join('');}).join('')}
+  </tbody></table>
+`;
+  dw.classList.add('on'); ovl.classList.add('on');
+}
+function close_(){dw.classList.remove('on');ovl.classList.remove('on');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close_();});
+
+function csv(){
+  const L=rows();
+  const h=['순번','학번','이름','학과','학년','학적상태','총학점','졸업요건',
+    ...AREAS.map(a=>a[2]),'2026-2 신청건수','추가 필요 과목수','조치 사유'];
+  const b=L.map(d=>[d.seq,d.sid,d.name,d.dept,d.yr,d.st,d.tot,d.tot>=36?'충족':'미충족',
+    ...AREAS.map(a=>d.ar[a[0]]),d.nw,d.dg.need.length,d.dg.rsn.replace(/<[^>]+>/g,'')]);
+  const t=[h,...b].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8'}));
+  a.download='차반융_이수현황_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+boot();
+</script>
+</body>
+</html>
