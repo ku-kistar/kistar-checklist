@@ -164,6 +164,22 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .bd tbody tr.all td.g{color:#8fe3ad} .bd tbody tr.all td.z{color:#7f8ea3}
 .bd tbody tr.all .hintx{color:#9fb0c4}
 .bd tbody tr.all.on td{background:#17335a}
+.jump{display:flex;gap:8px;align-items:center;padding:12px 16px;background:#f4f7fb;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.jump label{font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap}
+.jump input{padding:8px 11px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:14px;
+  background:#fff;color:var(--text);outline:none;width:190px;letter-spacing:.02em}
+.jump input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(31,56,100,.1)}
+.jump .msg{font-size:12px;color:var(--dang)}
+.jump .tip{font-size:11px;color:var(--text3);margin-left:auto}
+.et{width:100%;border-collapse:collapse;font-size:13px}
+.et td{padding:6px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.et tr:last-child td{border-bottom:none}
+.et td.k{width:96px;color:var(--text2);white-space:nowrap;padding-right:10px}
+.et td.v{color:var(--text)}
+.et td.v.no{color:var(--text3)}
+.warnbox{background:var(--dangbg);border:1px solid #f0cccc;border-radius:8px;padding:10px 12px;
+  font-size:12px;color:var(--dang);line-height:1.7;margin:10px 0 0}
+.nodata{font-size:12.5px;color:var(--text3);padding:10px 0;line-height:1.7}
 </style>
 </head>
 <body>
@@ -194,6 +210,13 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
     <button class="tab" id="t1" onclick="go(1)">전체 명단 <span class="c" id="c1"></span></button>
   </div>
   <div class="panel">
+    <div class="jump">
+      <label for="jS">학번 조회</label>
+      <input id="jS" placeholder="예: 2022170155" autocomplete="off" inputmode="numeric">
+      <button class="btn p" onclick="jump()">조회</button>
+      <span class="msg" id="jMsg"></span>
+      <span class="tip">학번을 넣고 Enter — 학생 상세가 바로 열립니다</span>
+    </div>
     <div class="bar">
       <select id="fD"><option value="">전체 학과</option></select>
       <select id="fY"><option value="">전체 학년</option></select>
@@ -220,6 +243,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
 const CAT = {"mseng":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312"],"name":"반도체재료","ui":"반도체재료","area":"[1] 전공트랙","grp":"소재"},{"codes":["KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KMSE213"],"name":"반응속도론","ui":"반응속도론","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE214","KMSE417"],"name":"융합기술및신소재응용","ui":"융합기술및신소재응용","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE205"],"name":"공학수학Ⅰ","ui":"공학수학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE219","KMSE206"],"name":"공학수학Ⅱ","ui":"공학수학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE220","KMSE201"],"name":"물리화학Ⅰ","ui":"물리화학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE201","KMSE202"],"name":"물리화학Ⅱ(영강)","ui":"물리화학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE202","KMSE303"],"name":"재료열역학","ui":"재료열역학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE301"],"name":"전자및반도체재료공학(영강)","ui":"전자및반도체재료공학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE203"],"name":"재료구조물성(영강)","ui":"재료구조물성","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE205","KMSE204"],"name":"재료전자기물성","ui":"재료전자기물성","area":"[5] 학부인정","grp":"학부인정"},{"codes":["AMSE204","KMSE306"],"name":"상평형론(영강)","ui":"상평형론","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE308"],"name":"열전달및확산","ui":"열전달및확산","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KMSE207"],"name":"세라믹재료개론","ui":"세라믹재료개론","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE215"],"name":"유기재료개론","ui":"유기재료화학 1","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE210"],"name":"X-선결정학(영강)","ui":"유기재료개론","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE309"],"name":"고체물리(영강)","ui":"X-선 결정학","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE316"],"name":"유기재료화학(영강)","ui":"고체물리","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"박막공학","ui":"박막공학","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE405"],"name":"반도체공정","ui":"반도체공정","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE407"],"name":"광소재 및 소자","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE410"],"name":"광소재및소자(영강)","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE412"],"name":"디스플레이소재및공정(영강)","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"본과"},{"codes":["AMSE328","KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE463"],"name":"VLSI설계및실험","ui":"VLSI설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"마이크로프로세서프로그래밍","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"반도체화학공정(영강)","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학(영강)","ui":"광학","area":"[4] 자유이수","grp":"크로스"}],"ee":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KECE231"],"name":"공학수학Ⅰ","ui":"공학수학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE232"],"name":"공학수학Ⅱ(영강)","ui":"공학수학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE206"],"name":"전자기학","ui":"전자기학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE301"],"name":"전자회로I(영강)","ui":"전자회로 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE303"],"name":"전자회로설계및실험I","ui":"전자회로설계및실험 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE304"],"name":"전자회로설계및실험II","ui":"전자회로설계및실험 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["KECE212"],"name":"반도체공학Ⅰ","ui":"물성전자공학","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE331"],"name":"반도체공학Ⅱ(영강)","ui":"반도체공학 1","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE334"],"name":"나노전자공학","ui":"반도체공학 2","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE302"],"name":"VLSI설계및실험","ui":"전자회로 2","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"본과"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"반도체재료","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"박막공학","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"나노공학입문","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"반도체화학공정(영강)","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"광학(영강)","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학","ui":"광학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"}],"cbe":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312","KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["CHBE101"],"name":"공학수학 1","ui":"공학수학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE225"],"name":"물리화학","ui":"물리화학","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE111"],"name":"화공생명공학입문","ui":"화공생명공학입문","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE200"],"name":"화공생명공학연구방법및동향","ui":"화공생명공학연구방법및동향","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE417"],"name":"공정및제품설계","ui":"공정및제품설계","area":"[5] 학부인정","grp":"학부인정"},{"codes":["CHBE226"],"name":"반도체화학공정(영강)","ui":"공학수학 2","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE342"],"name":"공정및제품설계(영강)","ui":"화공재료과학","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE320"],"name":"공정제어","ui":"공정제어","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE319"],"name":"양자 및 표면 화학","ui":"양자 및 표면 화학","area":"[4] 자유이수","grp":"본과"},{"codes":["CHBE308"],"name":"반도체화학공정","ui":"반도체화학공정","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"반도체재료","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"박막공학","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"VLSI설계및실험","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"나노공학입문","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학(영강)","ui":"광학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"}],"me":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학(영강)","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312"],"name":"반도체재료","ui":"반도체재료","area":"[1] 전공트랙","grp":"소재"},{"codes":["KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["MECH201"],"name":"열역학I","ui":"열역학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH204"],"name":"유체역학I(영강)","ui":"유체역학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH222"],"name":"열역학II","ui":"열역학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH323"],"name":"유체역학II(영강)","ui":"유체역학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["MECH215"],"name":"나노공학입문","ui":"공업수학 1","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH216"],"name":"공업수학 2","ui":"공업수학 2","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH386"],"name":"전기전자공학개론","ui":"전기전자공학개론","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH457"],"name":"수치해석","ui":"수치해석","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH463"],"name":"마이크로프로세서프로그래밍","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"본과"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"VLSI설계및실험","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"반도체화학공정","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"반도체화학공정(영강)","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"광학(영강)","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["PHYS481"],"name":"광학","ui":"광학","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"}],"phys":[{"codes":["KISE302","KMSE330"],"name":"AI반도체개론","ui":"AI반도체개론","area":"전공필수","grp":"전공필수"},{"codes":["KISE404"],"name":"고급AI반도체소자","ui":"고급AI반도체소자","area":"[1] 전공트랙","grp":"소자"},{"codes":["KECE462"],"name":"ASIC설계(영강)","ui":"ASIC설계","area":"[1] 전공트랙","grp":"소자"},{"codes":["PHYS466"],"name":"인공지능물리학","ui":"인공지능물리학","area":"[1] 전공트랙","grp":"소자"},{"codes":["KISE402"],"name":"고급AI반도체공정및응용","ui":"고급AI반도체공정및응용","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE493"],"name":"반도체프로세스(영강)","ui":"반도체프로세스","area":"[1] 전공트랙","grp":"공정"},{"codes":["KECE496"],"name":"디지털집적회로","ui":"디지털집적회로","area":"[1] 전공트랙","grp":"공정"},{"codes":["KISE304"],"name":"AI반도체신소재개론","ui":"AI반도체신소재개론","area":"[1] 전공트랙","grp":"소재"},{"codes":["KMSE312"],"name":"반도체재료","ui":"반도체재료","area":"[1] 전공트랙","grp":"소재"},{"codes":["KECE415"],"name":"나노전자공학","ui":"나노전자공학","area":"[1] 전공트랙","grp":"소재"},{"codes":["KISE306","KMSE332"],"name":"반도체패키징Ⅰ","ui":"반도체패키징Ⅰ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE406"],"name":"반도체패키징Ⅱ","ui":"반도체패키징Ⅱ","area":"[1] 전공트랙","grp":"패키징"},{"codes":["KISE301"],"name":"반도체공정실습","ui":"반도체공정실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["313KISE"],"name":"진공장비실습","ui":"진공장비실습","area":"[2] 공동운영","grp":"공동운영"},{"codes":["312KISE"],"name":"반도체머신러닝","ui":"반도체머신러닝","area":"[2] 공동운영","grp":"공동운영"},{"codes":["KISE407"],"name":"PBL산학프로젝트Ⅰ","ui":"PBL산학프로젝트Ⅰ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE408"],"name":"PBL산학프로젝트Ⅱ","ui":"PBL산학프로젝트Ⅱ","area":"[3] 산학연계","grp":"PBL"},{"codes":["KISE409"],"name":"차세대반도체콜로키움Ⅰ","ui":"차세대반도체콜로키움Ⅰ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["KISE410"],"name":"차세대반도체콜로키움Ⅱ","ui":"차세대반도체콜로키움Ⅱ","area":"[3] 산학연계","grp":"콜로키움"},{"codes":["PHYS203"],"name":"전자물리학및실험(영강)","ui":"전자물리학및실험","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS224"],"name":"전자기학Ⅰ","ui":"전자기학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS331"],"name":"전자기학Ⅱ","ui":"전자기학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS361"],"name":"양자역학I","ui":"양자역학 1","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS362"],"name":"양자역학Ⅱ","ui":"양자역학 2","area":"[5] 학부인정","grp":"학부인정"},{"codes":["PHYS463"],"name":"광학(영강)","ui":"양자정보물리학","area":"[4] 자유이수","grp":"본과"},{"codes":["PHYS481"],"name":"인공지능물리학(영강)","ui":"광학","area":"[4] 자유이수","grp":"본과"},{"codes":["PHYS482"],"name":"고체물리학","ui":"고체물리학","area":"[4] 자유이수","grp":"본과"},{"codes":["PHYS462"],"name":"원자물리학","ui":"원자물리학","area":"[4] 자유이수","grp":"본과"},{"codes":["KMSE314"],"name":"VLSI설계및실험","ui":"박막공학","area":"[4] 자유이수","grp":"크로스"},{"codes":["CHBE308"],"name":"반도체화학공정","ui":"반도체화학공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE405"],"name":"나노공학입문","ui":"반도체공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE407"],"name":"반도체화학공정(영강)","ui":"광소재 및 소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE463"],"name":"VLSI 설계 및 실험","ui":"VLSI 설계 및 실험","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH463"],"name":"마이크로프로세서프로그래밍","ui":"마이크로프로세서프로그래밍","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE410"],"name":"전자재료응용물성","ui":"전자재료응용물성","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE412"],"name":"디스플레이소재및공정","ui":"디스플레이소재및공정","area":"[4] 자유이수","grp":"크로스"},{"codes":["KMSE416"],"name":"나노소재","ui":"나노소재","area":"[4] 자유이수","grp":"크로스"},{"codes":["KECE414"],"name":"정보기억소자","ui":"정보기억소자","area":"[4] 자유이수","grp":"크로스"},{"codes":["MECH482"],"name":"나노공학입문","ui":"나노공학입문","area":"[4] 자유이수","grp":"크로스"}]};      // 학과별 이수요건 과목표 (고정 데이터)
 let DATA = [];
+let ENR_N = 0;
 
 // 관리자 인증은 서버(_verifyAdmin)에서 다시 검증한다.
 // localStorage 는 화면 전환용일 뿐 권한 근거가 아니다.
@@ -269,7 +293,8 @@ function shape(r){
     ai:r.required==='이수', nw:wish.length, w26,
     dk:DK[r.dept]||'mseng', tk,
     crs:(r.semesters||[]).map(x => { const [c,s]=x.split(':'); return {c, s, n:c, ym:''}; }),
-    source:r.source, updated:r.updated, memo:r.memo
+    source:r.source, updated:r.updated, memo:r.memo,
+    en:r.enroll||null
   };
 }
 // 대체충족 = 그 영역이 다른 과목으로 이미 채워져 수강할 필요가 없는 상태.
@@ -290,6 +315,7 @@ async function boot(){
                              page:'admin_progress.html', userAgent:navigator.userAgent});
     if(res.status!=='ok'){ gate(res.message || '조회에 실패했습니다.'); return; }
     DATA = res.students.map(shape);
+    ENR_N = res.enrollCount || 0;
     DATA.forEach(d => d.dg = diag(d));
     loading.style.display='none'; wrap.style.display='block';
     init();
@@ -346,7 +372,8 @@ function rows(){
   return L;
 }
 function init(){
-  meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · 수강신청 기준`;
+  meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · 수강신청 기준`
+    + (ENR_N ? ` · 재적정보 ${ENR_N}명 연결` : ' · 재적정보 미연결');
   [...new Set(DATA.map(d=>d.dept))].forEach(v=>fD.insertAdjacentHTML('beforeend',`<option>${esc(v)}</option>`));
   [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${v}학년</option>`));
   [fD,fY].forEach(e=>e.onchange=()=>{drill_=null;render();}); fS.onchange=()=>{drill_=null;render();drawBoard();}; fQ.oninput=()=>{drill_=null;render();};
@@ -454,6 +481,7 @@ function open_(sid){
     if(!g){g={k,area:c.area,grp:c.grp,items:[]};groups.push(g);} g.items.push(c);});
 
   dB.innerHTML=`
+  ${enrollHtml(d)}
   <div class="sec">이수 요약</div>
   <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:12px">
     <span style="font-size:34px;font-weight:800;letter-spacing:-1.5px">${d.tot}</span>
@@ -493,6 +521,48 @@ function open_(sid){
 `;
   dw.classList.add('on'); ovl.classList.add('on');
 }
+function enrollHtml(d){
+  const e=d.en;
+  if(!e) return `<div class="sec">재적 정보</div>
+    <div class="nodata">재적정보 탭에 없는 학생입니다.<br>
+    졸업·제적 학생은 학사시스템 재적생목록에 나오지 않습니다.</div>`;
+
+  const w=[];
+  // 융전포기는 학적이 아니라 융합전공 상태다. 재적생목록과 달라도 정상.
+  if(e.status && d.st!=='융전포기' && e.status!==d.st)
+    w.push(`학적상태가 다릅니다 — 이수현황 <b>${esc(d.st)}</b> · 재적 <b>${esc(e.status)}</b>`);
+  if(e.year && d.yr && Number(e.year)!==Number(d.yr))
+    w.push(`학년 기준이 다릅니다 — 이수현황 <b>${d.yr}학년</b>(2026-2 가진급) · 재적 <b>${e.year}학년</b>(2026-1). 둘 다 맞습니다.`);
+
+  const v=(x,suf)=>x===null||x===undefined||x===''?'<span class="no">—</span>':esc(String(x))+(suf||'');
+  const gpa=[e.gpaAll!=null?'전체 '+e.gpaAll:'', e.gpaMajor!=null?'전공 '+e.gpaMajor:'']
+            .filter(Boolean).join('  ·  ');
+  return `<div class="sec">재적 정보 <span class="hintx">학사시스템 재적생목록 · ${esc(e.updated||'')}</span></div>
+  <table class="et"><tbody>
+    <tr><td class="k">학적</td><td class="v">${v(e.status)}${e.changeDate?` <span class="hintx">변동 ${esc(e.changeDate)}${e.changeCode?' ('+esc(e.changeCode)+')':''}</span>`:''}</td></tr>
+    <tr><td class="k">등록</td><td class="v">${v(e.reg)}${e.regCount!=null?` <span class="hintx">${e.regCount}회</span>`:''}</td></tr>
+    <tr><td class="k">학년</td><td class="v">${v(e.year,'학년')} <span class="hintx">2026-1 기준</span></td></tr>
+    <tr><td class="k">입학</td><td class="v">${v(e.admit)}</td></tr>
+    <tr><td class="k">취득학점</td><td class="v">${v(e.credits)} <span class="hintx">졸업 기준 전체 학점</span></td></tr>
+    <tr><td class="k">평점</td><td class="v">${gpa?esc(gpa):'<span class="no">—</span>'}</td></tr>
+    <tr><td class="k">지도교수</td><td class="v">${v(e.advisor)}</td></tr>
+  </tbody></table>
+  ${w.length?`<div class="warnbox">${w.join('<br>')}</div>`:''}`;
+}
+
+function jump(){
+  const v=(jS.value||'').trim(); jMsg.textContent='';
+  if(!v){ jS.focus(); return; }
+  let hit=DATA.filter(d=>d.sid===v);
+  if(!hit.length) hit=DATA.filter(d=>String(d.seq)===v);
+  if(!hit.length) hit=DATA.filter(d=>d.name===v);
+  if(!hit.length){ jMsg.textContent='이수현황에 없는 학번입니다. 졸업생이거나 융합전공생이 아닐 수 있습니다.'; return; }
+  if(hit.length>1){ jMsg.textContent=`같은 이름 ${hit.length}명 — 학번으로 조회하세요.`; fQ.value=v; render(); return; }
+  open_(hit[0].sid);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const el=document.getElementById('jS'); if(el) el.addEventListener('keydown',e=>{if(e.key==='Enter')jump();});
+});
 function close_(){dw.classList.remove('on');ovl.classList.remove('on');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')close_();});
 
