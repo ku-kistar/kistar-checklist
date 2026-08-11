@@ -1368,8 +1368,20 @@ function runAutoCheck(){
         const gdName={gd1:'반도체공정실습',gd2:'진공장비실습',gd3:'반도체머신러닝'};
         if(!gdChecked[info.key]){
           const gr=$d(gdMap[info.key]);
-          if(raw[2]>=6){ if(markTaken(gr,'6학점 상한 초과'))capped.push(gdName[info.key]); }
-          else { gr.click();matched.push(gdName[info.key]); }
+          // [패치 2026-08-11] 공동운영 6학점 충족 후 추가 이수분은 자유이수로 간다.
+          //   toggleGD 와 같은 기준으로 판정한다. 예전에는 raw[2]>=6 이면 무조건
+          //   상한 초과로 처리해 학점을 아예 주지 않았고, 진공장비실습·반도체머신러닝을
+          //   함께 들은 학생의 3학점이 사라졌다.
+          const otherGd=Object.entries(gdChecked).filter(([k,v])=>k!==info.key&&v===true).length;
+          const isExtra=aiChecked&&otherGd>=1;          // → 자유이수로 갈 과목인가
+          const isFull = isExtra ? (raw[5]>=6) : (raw[2]>=6);
+          if(isFull){
+            const L=markTaken(gr, isExtra?'자유이수 6학점 상한 초과':'공동운영 6학점 상한 초과');
+            if(L)capped.push(gdName[info.key]);
+          } else {
+            gr.click();
+            matched.push(gdName[info.key]+(isExtra?' → 자유이수 전환':''));
+          }
         }break;}
       case 'track':{
         const rows=trackRows[info.track];if(!rows)break;
