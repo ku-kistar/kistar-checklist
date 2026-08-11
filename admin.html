@@ -219,10 +219,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
   </div>
   <div class="grade-panel-body" id="gradePanelBody">
     <div class="grade-desc">
-      고려대학교 포털 → 학사정보 → 성적조회 → 전체성적 화면에서
+      <strong>전체성적_학번.xlsx 파일을 끌어다 놓으면</strong> 학번·이름·학과가 자동으로 채워집니다.<br>
+      또는 고려대학교 포털 → 학사정보 → 성적조회 → 전체성적 화면에서
       <strong>Ctrl+A → Ctrl+C</strong>로 복사 후 붙여넣기
     </div>
-    <textarea class="grade-textarea" id="gradeInput" placeholder="여기에 성적 데이터를 붙여넣으세요..."></textarea>
+    <div id="dropZone" style="border:1.5px dashed var(--border);border-radius:10px;padding:16px;
+  text-align:center;margin-bottom:10px;cursor:pointer;transition:.15s;background:var(--surface2)">
+  <div style="font-size:22px;line-height:1;margin-bottom:6px">📄</div>
+  <div style="font-size:13px;font-weight:600;color:var(--text2)" id="dropText">
+    성적 파일을 끌어다 놓거나 클릭해서 선택</div>
+  <div style="font-size:11px;color:var(--text3);margin-top:4px">
+    전체성적_2022170155.xlsx · 파일명의 학번으로 학생을 찾습니다</div>
+  <input type="file" id="gradeFile" accept=".xlsx,.xls,.csv" style="display:none">
+</div>
+<textarea class="grade-textarea" id="gradeInput" placeholder="여기에 성적 데이터를 붙여넣으세요..."></textarea>
     <div class="grade-actions">
       <button class="grade-run-btn" onclick="runAutoCheck()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7.5 3l3.5 3.5L7.5 10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1183,6 +1193,112 @@ function clearTakenMarks(){
   document.querySelectorAll('.course-row.taken-only').forEach(r=>r.classList.remove('taken-only'));
   document.querySelectorAll('.over-tag').forEach(e=>e.remove());
 }
+// ── [패치] 성적 파일 끌어놓기 ─────────────────────────────
+// 파일명(전체성적_2022170155.xlsx)에서 학번을 읽어
+// 이수현황 명단에서 이름·학과를 찾아 학과 탭까지 자동으로 맞춘다.
+// 학과를 잘못 고른 채 판정하는 사고를 막는 게 목적이다.
+
+const DEPT_KEY = {'신소재공학부':'mseng','전기전자공학부':'ee','화공생명공학과':'cbe',
+                  '기계공학부':'me','물리학과':'phys'};
+
+function dropMsg(t, color){
+  var el=document.getElementById('dropText');
+  if(el){ el.textContent=t; el.style.color=color||'var(--text2)'; }
+}
+
+// 학번으로 이름·학과 조회 → 입력칸과 학과 탭을 채운다
+function lookupStudent(sid){
+  var auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+  if(!auth || !auth.studentId) return Promise.resolve(null);
+  return hubCall({action:'getProgressOne', studentId:sid, adminId:auth.studentId})
+    .then(function(r){
+      if(!r || r.status!=='ok' || !r.student) return null;
+      var st=r.student;
+      document.getElementById('f-id').value   = st.sid;
+      document.getElementById('f-name').value = st.name;
+      var key = DEPT_KEY[st.dept];
+      if(key && key !== currentDept){
+        var btn = document.querySelector("button[onclick*=\"'"+key+"'\"]");
+        switchDept(key, btn);
+      }
+      return st;
+    }).catch(function(){ return null; });
+}
+
+// xlsx → 탭 구분 텍스트. SheetJS 는 파일을 놓았을 때만 불러온다.
+function loadSheetJS(){
+  if (window.XLSX) return Promise.resolve();
+  return new Promise(function(resolve, reject){
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=resolve;
+    s.onerror=function(){ reject(new Error('엑셀 판독기를 불러오지 못했습니다. 성적을 복사해서 붙여넣어 주세요.')); };
+    document.head.appendChild(s);
+  });
+}
+
+function handleGradeFile(file){
+  if(!file) return;
+  var m = String(file.name).match(/(\d{10})/);
+  dropMsg('읽는 중… ' + file.name);
+
+  var reader = new FileReader();
+  reader.onload = function(e){
+    // switchDept 가 gradeInput 을 비우므로
+    // 학번 조회·학과 전환을 먼저 끝낸 뒤에 성적 텍스트를 넣는다.
+    var run = function(text){
+      var finish = function(warn){
+        document.getElementById('gradeInput').value = text;
+        runAutoCheck();
+        if (warn) { dropMsg('⚠ ' + warn, '#b45309'); return; }
+        var nm = document.getElementById('f-name').value;
+        dropMsg('✓ ' + file.name + (nm ? ' · ' + nm : ''), '#2d7a4f');
+      };
+      if (m) lookupStudent(m[1]).then(function(st){
+        finish(st ? '' : '파일명 학번(' + m[1] + ')을 명단에서 찾지 못했습니다. 학번·이름·학과를 직접 확인해 주세요.');
+      });
+      else finish('파일명에서 학번을 찾지 못했습니다. 학번·이름을 직접 입력해 주세요.');
+    };
+
+    if (/\.csv$/i.test(file.name)) { run(e.target.result); return; }
+
+    loadSheetJS().then(function(){
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      run(XLSX.utils.sheet_to_csv(ws, {FS:'\t'}));
+    }).catch(function(err){ dropMsg('⚠ ' + err.message, '#b91c1c'); });
+  };
+  reader.onerror = function(){ dropMsg('⚠ 파일을 읽지 못했습니다.', '#b91c1c'); };
+
+  if (/\.csv$/i.test(file.name)) reader.readAsText(file, 'utf-8');
+  else reader.readAsArrayBuffer(file);
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  var dz = document.getElementById('dropZone');
+  var fi = document.getElementById('gradeFile');
+  if(!dz || !fi) return;
+  dz.onclick = function(){ fi.click(); };
+  fi.onchange = function(){ handleGradeFile(fi.files[0]); fi.value=''; };
+  ['dragenter','dragover'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault();
+      dz.style.borderColor='var(--blue,#1a5fa8)'; dz.style.background='#eef4ff'; });
+  });
+  ['dragleave','drop'].forEach(function(ev){
+    dz.addEventListener(ev, function(e){ e.preventDefault();
+      dz.style.borderColor='var(--border)'; dz.style.background='var(--surface2)'; });
+  });
+  dz.addEventListener('drop', function(e){
+    if(e.dataTransfer && e.dataTransfer.files.length) handleGradeFile(e.dataTransfer.files[0]);
+  });
+  // 학번을 직접 입력했을 때도 이름·학과를 채운다
+  var fid = document.getElementById('f-id');
+  if(fid) fid.addEventListener('change', function(){
+    var v=(fid.value||'').trim();
+    if(/^\d{10}$/.test(v)) lookupStudent(v);
+  });
+});
+
 function currentDeptName(){
   return {mseng:'신소재공학부',ee:'전기전자공학부',cbe:'화공생명공학과',
           me:'기계공학부',phys:'물리학과'}[currentDept]||currentDept;
