@@ -27,6 +27,9 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .admin-badge{background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:6px}
 .back-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-family:'Noto Sans KR',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s}
 .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.header-nav{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.back-btn.hub{border-color:var(--accent);color:var(--accent);font-weight:600}
+.back-btn.hub:hover{background:var(--accent);color:#fff}
 
 /* 학과 탭 */
 .dept-tabs{max-width:900px;margin:0 auto 1.25rem;display:flex;gap:6px;flex-wrap:wrap}
@@ -185,10 +188,20 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <h1>KI-STAR 융합전공 이수현황 체크리스트</h1>
     <p id="admin-user-info">로딩 중...</p>
   </div>
-  <a href="./" class="back-btn">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    학과 선택으로
-  </a>
+  <div class="header-nav">
+    <a href="./" class="back-btn">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      학과 선택으로
+    </a>
+    <a href="admin_progress.html" class="back-btn">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="1.5" width="9" height="9" rx="1.8" stroke="currentColor" stroke-width="1.4"/><path d="M4 8V5.5M6 8V3.5M8 8V6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      이수 현황
+    </a>
+    <a href="portal_survey.html" class="back-btn hub">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 5.5L6 2l4 3.5V10a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 2 10z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      데이터허브
+    </a>
+  </div>
 </div>
 
 <!-- 학과 탭 -->
@@ -1324,8 +1337,12 @@ function runAutoCheck(){
     const code=cells.map(c=>c.toUpperCase()).find(c=>CMAP[c]);
     if(!code)return;
     const isF   = cells.some(c=>c.trim()==='F');
-    const isDrop= cells.some(c=>DROP.test(c));
-    if(isF||isDrop){excluded.push(code+(isF?' (F)':' (중도포기·재수강)'));return;}
+    // [패치 2026-08-11] 제외 사유를 실제 값 그대로 보여준다.
+    //   예전에는 셋을 뭉뚱그려 '중도포기·재수강'으로 적어, 왜 빠졌는지 확인하려면
+    //   성적 파일을 다시 열어야 했다.
+    let dropWhy='';
+    cells.some(c=>{const m=String(c).match(DROP); if(m){dropWhy=m[0];return true;} return false;});
+    if(isF||dropWhy){excluded.push(code+' ('+(isF?'F 등급':dropWhy)+')');return;}
     var sem = normSem(cells[0]) || normSem(line);
     if (sem) gradeSemMap[code] = sem;      // 이수현황 탭 수강학기 열에 쓴다
     foundCodes.add(code);
@@ -1358,7 +1375,20 @@ function runAutoCheck(){
   const sec4=document.getElementById(currentDept+'-sec4');
   const sec4FreeRows=sec4?Array.from(sec4.querySelectorAll('.course-row:not(.readonly-free)')):[];
 
-  foundCodes.forEach(code=>{
+  // [패치 2026-08-11] 처리 순서를 고정한다.
+  //   Set 은 성적 파일에 나온 순서대로 돌기 때문에, 같은 학생이라도 파일 정렬이
+  //   다르면 어느 과목이 영역에 잡히고 어느 과목이 자유이수로 넘어가는지가 달라졌다.
+  //   학점 합계는 같지만 화면 문구가 매번 바뀌어 확인이 어렵다.
+  const ACT_ORDER={ai:0,gd:1,track:2,pkg:3,pbl:4,recog:5,free:6,crossFree:7};
+  const slot=i=>String(i.key||i.id||i.rowId||i.name||
+                       (i.rowIndex??i.freeIndex??i.crossIndex??''));
+  const orderedCodes=[...foundCodes].sort((a,b)=>{
+    const ia=CMAP[a],ib=CMAP[b];
+    const d=(ACT_ORDER[ia.action]??9)-(ACT_ORDER[ib.action]??9);
+    return d||slot(ia).localeCompare(slot(ib))||a.localeCompare(b);
+  });
+
+  orderedCodes.forEach(code=>{
     const info=CMAP[code];if(!info)return;
     switch(info.action){
       case 'ai':
