@@ -306,6 +306,38 @@ const EXEC_URL = 'https://script.google.com/macros/s/AKfycbwbcXNJ-g2nq9OGcYw2SVP
 
 // ── 접근 권한 체크 (서버사이드 재검증) ──
 const HUB_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+
+// [패치] 이수현황 탭 저장용 JSONP 헬퍼
+// GAS 는 CORS 를 안 열어 주므로 JSONP 로 호출한다.
+function hubCall(params){
+  return new Promise(function(resolve, reject){
+    var cb = 'hcb_' + Math.random().toString(36).slice(2);
+    var sc = document.createElement('script');
+    var t  = setTimeout(function(){ cleanup(); reject(new Error('응답 시간 초과')); }, 30000);
+    function cleanup(){ clearTimeout(t); try{ delete window[cb]; }catch(e){} if(sc.parentNode) sc.remove(); }
+    window[cb] = function(d){ cleanup(); resolve(d); };
+    params.callback = cb;
+    var q = Object.keys(params).map(function(k){
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+    sc.src = HUB_URL + '?' + q;
+    sc.onerror = function(){ cleanup(); reject(new Error('네트워크 오류')); };
+    document.head.appendChild(sc);
+  });
+}
+
+// 성적 붙여넣기에서 읽은 수강학기 (학수번호 → '2025-2')
+var gradeSemMap = {};
+function normSem(txt){
+  var s = String(txt || '');
+  var m = s.match(/(\d{4})\s*학년도\s*(\d)\s*학기/);
+  if (m) return m[1] + '-' + m[2];
+  m = s.match(/(\d{4})[^\d]*계절[^()]*\(([가-힣]+)\)/);
+  if (m) return m[1] + '-' + m[2];
+  m = s.match(/(\d{4})[-.\/](\d)\b/);
+  if (m) return m[1] + '-' + m[2];
+  return '';
+}
 (function(){
   try {
     const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
@@ -1169,6 +1201,7 @@ function runAutoCheck(){
   //   학년도학기 / 학수번호 / 분반 / 교과목명 / 이수구분 / … / 등급 / 평점 / 삭제구분 이 들어온다.
   //   학수번호만 모으면 F 받은 과목·중도포기 과목까지 이수로 잡힌다.
   const DROP=/재수강|학점포기|수강포기/;
+  gradeSemMap = {};
   text.split(/\r?\n/).forEach(line=>{
     const cells=line.split(/\t|\s{2,}|,/).map(s=>s.trim()).filter(Boolean);
     if(!cells.length)return;
@@ -1177,6 +1210,8 @@ function runAutoCheck(){
     const isF   = cells.some(c=>c.trim()==='F');
     const isDrop= cells.some(c=>DROP.test(c));
     if(isF||isDrop){excluded.push(code+(isF?' (F)':' (중도포기·재수강)'));return;}
+    var sem = normSem(cells[0]) || normSem(line);
+    if (sem) gradeSemMap[code] = sem;      // 이수현황 탭 수강학기 열에 쓴다
     foundCodes.add(code);
   });
 
@@ -1293,6 +1328,45 @@ function toggleGradePanel(){
 }
 
 // ── 시트 저장 ──
+// [패치] 현재 화면에서 이수로 표시된 학수번호를 모은다.
+//   checked      학점 인정
+//   auto-free    자유이수 자동전환
+//   taken-only   이수했으나 상한 초과 (관리자 표시용)
+function collectCodes(){
+  var CMAP = COURSE_CODE_MAPS[currentDept] || {};
+  var out = [];
+  var trackRows = {
+    socha:$$d('[data-track="socha"]'), gongjeong:$$d('[data-track="gongjeong"]'),
+    sojai:$$d('[data-track="sojai"]'), packaging:$$d('[data-track="packaging"]')
+  };
+  var allFree = $$d('#'+currentDept+'-sec4 .course-row');
+  var selfCount = (FREE_DATA[currentDept] && FREE_DATA[currentDept].self.length) || 0;
+  var gdMap = {gd1:'row-gd1', gd2:'row-gd2', gd3:'row-gd3'};
+
+  Object.keys(CMAP).forEach(function(code){
+    var info = CMAP[code], row = null;
+    switch(info.action){
+      case 'ai':   row = $d('row-ai'); break;
+      case 'gd':   row = $d(gdMap[info.key]); break;
+      case 'pkg':  row = $d('row-' + info.key); break;
+      case 'pbl':  row = $d(info.id); break;
+      case 'track':
+        var rows = trackRows[info.track];
+        row = info.rowId ? $d(info.rowId) : (rows ? rows[info.rowIndex] : null); break;
+      case 'recog':
+        $$d('#'+currentDept+'-sec5 .course-row').forEach(function(r){
+          var n = r.querySelector('.course-name');
+          if (n && n.textContent.replace(/ /g,'').indexOf(info.name.replace(/ /g,'')) !== -1) row = r;
+        }); break;
+      case 'free':      row = allFree[info.freeIndex]; break;
+      case 'crossFree': row = allFree[selfCount + info.crossIndex]; break;
+    }
+    if (row && (row.classList.contains('checked') || row.classList.contains('auto-free')
+                || row.classList.contains('taken-only'))) out.push(code);
+  });
+  return out;
+}
+
 function saveResult(){
   const sid=document.getElementById('f-id').value.trim();
   const sname=document.getElementById('f-name').value.trim();
@@ -1300,47 +1374,44 @@ function saveResult(){
     showSaveResult('error','학번과 이름을 입력해주세요.');return;
   }
 
-  const c1=Math.min(raw[1],12),c2=Math.min(raw[2],6),c3=Math.min(raw[3],6),c4=Math.min(raw[4],6),c5=Math.min(raw[5],6);
-  const total=c1+c2+c3+c4+c5;
-  const pbl4ok=pblChecked!==null&&colChecked!==null;
-  const gd6=aiChecked&&Object.values(gdChecked).filter(Boolean).length>=1;
-  const allOk=['socha','gongjeong','sojai','packaging'].every(t=>trackCounts[t]>=1);
-  const satisfied=total>=36&&allOk&&gd6&&c3>=6&&pbl4ok&&c5>=6;
+  const c1=Math.min(raw[1],12), c2=Math.min(raw[2],6), c3=Math.min(raw[3],6),
+        c4=Math.min(raw[4],6), c5=Math.min(raw[5],6);
+  // raw[3]=학부인정  raw[4]=산학연계  raw[5]=자유이수  (화면 번호와 다름에 주의)
+  const total  = c1+c2+c3+c4+c5;
+  const pbl4ok = pblChecked!==null && colChecked!==null;
+  const gd6    = aiChecked && Object.values(gdChecked).filter(Boolean).length>=1;
 
-  const DEPT_NAMES={mseng:'신소재공학부',ee:'전기전자공학부',cbe:'화공생명공학과',me:'기계공학부',phys:'물리학과'};
+  const codes = collectCodes();
+  const sems  = codes.filter(c=>gradeSemMap[c]).map(c=>c+':'+gradeSemMap[c]).join('|');
+  const T = t => trackCounts[t]>=1 ? 'O' : 'X';
 
-  const params=new URLSearchParams({
-    action:'submit',
-    studentId:sid,
-    studentName:sname,
-    dept:DEPT_NAMES[currentDept],
-    sec1_satisfied:String(allOk),
-    sec2_satisfied:String(gd6),
-    sec3_satisfied:String(c3>=6),
-    sec4_satisfied:String(pbl4ok),
-    sec4_satisfied:String(c5>=6),
-    ai_checked:String(aiChecked),
-    sec3_credits:String(c3),
-    pbl_checked:pblChecked||'',
-    col_checked:colChecked||'',
-    sec4_credits:String(c5),
-    total_credits:String(total),
-    satisfied:String(satisfied),
-  });
+  const el = document.getElementById('saveResult');
+  el.className = 'save-result show success';
+  el.textContent = '저장 중...';
 
-  document.getElementById('saveResult').className='save-result show success';
-  document.getElementById('saveResult').textContent='저장 중...';
+  const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+  if (!auth || !auth.studentId) { showSaveResult('error','관리자 로그인이 필요합니다.'); return; }
 
-  fetch(EXEC_URL+'?'+params.toString())
-    .then(r=>r.json())
-    .then(result=>{
-      if(result.status==='ok'){
-        showSaveResult('success',`✅ ${sname}(${sid}) 저장 완료! (총 ${total}학점)`);
-      }else{
-        showSaveResult('error','저장 실패: '+JSON.stringify(result));
-      }
-    })
-    .catch(()=>showSaveResult('error','네트워크 오류. 다시 시도해주세요.'));
+  hubCall({
+    action:'saveProgress',
+    studentId: sid,
+    adminId:   auth.studentId,     // 서버가 이 값으로 관리자 여부를 재확인한다
+    total:    total,
+    track:    c1, joint: c2, industry: c4, free: c5, recog: c3,
+    required: aiChecked ? '이수' : '미이수',
+    t1: T('socha'), t2: T('gongjeong'), t3: T('sojai'), t4: T('packaging'),
+    codes:     codes.join('|'),
+    semesters: sems,
+    source:    sems ? '성적확정' : '수동입력'
+  }).then(function(r){
+    if (r && r.status === 'ok') {
+      showSaveResult('success',
+        '✅ ' + sname + '(' + sid + ') 이수현황 저장 완료 — 총 ' + total + '학점 · 과목 ' + codes.length + '개'
+        + (sems ? '' : '  ※ 수강학기 정보가 없어 「수동입력」으로 기록됩니다.'));
+    } else {
+      showSaveResult('error','저장 실패: ' + ((r && r.message) || '알 수 없는 오류'));
+    }
+  }).catch(function(e){ showSaveResult('error','저장 실패: ' + e.message); });
 }
 
 function showSaveResult(type,msg){
