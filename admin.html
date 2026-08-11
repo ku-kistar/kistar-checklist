@@ -1089,11 +1089,16 @@ function toggleGD(row,key){
 
 function updateGDFreeRows(){
   const map={gd1:'row-gd1-free',gd2:'row-gd2-free',gd3:'row-gd3-free'};
-  Object.entries(map).forEach(([key,freeId])=>{
-    const freeRow=document.getElementById(freeId);if(!freeRow)return;
-    const otherGd=Object.entries(gdChecked).filter(([k,v])=>k!==key&&v===true).length;
-    const isExtraFree=aiChecked&&gdChecked[key]&&otherGd>=1;
-    freeRow.style.display=isExtraFree?'flex':'none';
+  // [패치 2026-08-11] 체크된 공동운영 과목 중 앞의 한 과목만 공동운영 6학점에 쓰이고
+  //   나머지가 자유이수로 넘어간다. 예전에는 과목마다 "나 말고 다른 게 체크됐나"만
+  //   따로 봐서, 두 과목이 체크되면 서로를 근거로 둘 다 '자유이수 반영됨'이 됐다.
+  //   학점 계산(raw)은 정상이었고 표시만 틀렸다.
+  const order=['gd1','gd2','gd3'];
+  const checked=order.filter(k=>gdChecked[k]===true);
+  const freeKeys=aiChecked?checked.slice(1):[];   // 첫 과목은 공동운영, 나머지는 자유이수
+  order.forEach(k=>{
+    const freeRow=document.getElementById(map[k]);if(!freeRow)return;
+    freeRow.style.display=freeKeys.indexOf(k)>=0?'flex':'none';
   });
 }
 
