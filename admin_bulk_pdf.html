@@ -11,6 +11,8 @@ body{background:var(--bg);font-family:'Pretendard','Apple SD Gothic Neo',sans-se
 .top-bar{background:var(--navy);color:#fff;padding:12px 24px;display:flex;align-items:center;gap:12px}
 .top-badge{background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
 .top-title{font-weight:700;font-size:15px}
+.top-hub{display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.65);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:6px;transition:all .15s}
+.top-hub:hover{color:#fff;border-color:rgba(255,255,255,.5)}
 .container{max-width:900px;margin:32px auto;padding:0 16px}
 .card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:24px;margin-bottom:20px}
 .card-title{font-weight:700;font-size:15px;margin-bottom:16px;color:var(--navy)}
@@ -65,11 +67,12 @@ body{background:var(--bg);font-family:'Pretendard','Apple SD Gothic Neo',sans-se
   <span class="top-badge">관리자</span>
   <span class="top-title">일괄 PDF 출력</span>
   <span style="margin-left:auto;font-size:12px;opacity:.7" id="adminName"></span>
+  <a href="portal_survey.html" class="top-hub">⌂ 데이터허브</a>
 </div>
 
 <div id="accessDenied" style="display:none;text-align:center;padding:80px 20px;color:#e55">
   <p style="font-size:18px;font-weight:700">⛔ 관리자 계정으로 로그인 후 이용하세요.</p>
-  <a href="index.html" style="margin-top:16px;display:inline-block;color:var(--accent)">← 메인으로</a>
+  <a href="portal_survey.html" style="margin-top:16px;display:inline-block;color:var(--accent)">← 데이터허브로</a>
 </div>
 
 <div class="container" id="mainContent" style="display:none">
