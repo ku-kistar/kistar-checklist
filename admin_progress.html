@@ -190,7 +190,25 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .nodata{font-size:12.5px;color:var(--text3);padding:10px 0;line-height:1.7}
 .ct .tag{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:600;padding:1px 6px;
   border-radius:4px;background:#eef4ff;color:#1d4ed8;border:1px solid #d6e4ff;white-space:nowrap}
-.leg{font-size:11px;color:var(--text3);margin:-4px 0 8px;line-height:1.7}
+.leg{font-size:11px;color:var(--text3);margin:-4px 0 8px;line-height:1.7}/* ── 확인 메모 (2026-08-13) ── */
+.act.done{opacity:.72}
+.act.done .sev{opacity:.4}
+.memo-tag{margin-top:5px;font-size:11.5px;color:var(--text2);line-height:1.5}
+.memo-tag .ck{display:inline-block;background:#e8f4ea;color:#1a7f37;border-radius:4px;
+  padding:1px 6px;font-size:10.5px;font-weight:700;margin-right:6px;vertical-align:1px}
+.memo-log{background:#f6f8fb;border:1px solid var(--border);border-radius:8px;padding:10px 12px;
+  font-size:12.5px;line-height:1.75;margin-bottom:8px}
+.memo-none{font-size:12.5px;color:var(--text3);margin-bottom:8px}
+.memo-in{width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid var(--border);
+  border-radius:8px;font:inherit;font-size:12.5px;resize:vertical;outline:none}
+.memo-in:focus{border-color:var(--navy)}
+.memo-act{display:flex;align-items:center;gap:10px;margin-top:8px}
+.memo-btn{padding:8px 16px;border:none;border-radius:8px;background:var(--navy);color:#fff;
+  font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.memo-btn:disabled{opacity:.5;cursor:default}
+.memo-msg{font-size:12px;color:var(--text2)}
+.memo-msg.ok{color:var(--ok)}
+.memo-msg.warn{color:var(--dang)}
 </style>
 </head>
 <body>
@@ -227,8 +245,8 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 <div class="wrap" id="wrap" style="display:none">
   <div class="board" id="board"></div>
   <div class="tabs">
-    <button class="tab on" id="t0" onclick="go(0)">조치 필요 <span class="c" id="c0"></span></button>
-    <button class="tab" id="t1" onclick="go(1)">전체 명단 <span class="c" id="c1"></span></button>
+    <button class="tab on" id="t1" onclick="go(1)">전체 명단 <span class="c" id="c1"></span></button>
+    <button class="tab" id="t0" onclick="go(0)">조치 필요 <span class="c" id="c0"></span></button>
   </div>
   <div class="panel">
     <div class="jump">
@@ -314,7 +332,7 @@ function shape(r){
     ai:r.required==='이수', nw:wish.length, w26,
     dk:DK[r.dept]||'mseng', tk,
     crs:(r.semesters||[]).map(x => { const [c,s]=x.split(':'); return {c, s, n:c, ym:''}; }),
-    source:r.source, updated:r.updated, memo:r.memo,
+    source:r.source, updated:r.updated, memo:r.memo||'',
     en:r.enroll||null
   };
 }
@@ -348,7 +366,7 @@ const OPEN=[['KISE302','AI반도체개론'],['KISE404','고급AI반도체소자'
 const AREAS=[['트랙',12,'[1] 전공트랙'],['공동',6,'[2] 공동운영'],['산학',6,'[3] 산학연계'],
              ['자유',6,'[4] 자유이수'],['학부',6,'[5] 학부인정']];
 const INACT=['휴학','수강유예','미수강유예','수료','졸업','융전포기'];
-let tab=0, sel=null;
+let tab=1, sel=null;   // 1 = 전체 명단 (기본) · 0 = 조치 필요
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // ── 학생별 조치 사유 산출 ──
@@ -388,7 +406,7 @@ function rows(){
     (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
     (ss==='_all'?true: ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
     (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
-  L.sort((a,b)=> tab===0 ? (a.dg.sev-b.dg.sev)||(b.yr-a.yr)||(a.tot-b.tot)
+  L.sort((a,b)=> tab===0 ? ((a.memo?1:0)-(b.memo?1:0))||(a.dg.sev-b.dg.sev)||(b.yr-a.yr)||(a.tot-b.tot)
                          : (parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1])));
   return L;
 }
@@ -460,12 +478,15 @@ function render(){
   if(!L.length){body.innerHTML='<div class="empty">해당하는 학생이 없습니다.</div>';return;}
   body.innerHTML = tab===0 ? L.map(actRow).join('') : tblHtml(L);
 }
-const actRow=d=>`<div class="act s${d.dg.sev}" onclick="open_('${d.sid}')">
+const memoLast=s=>{const a=String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  return a.length?a[a.length-1]:'';};
+const actRow=d=>`<div class="act s${d.dg.sev}${d.memo?' done':''}" onclick="open_('${d.sid}')">
   <div class="sev"></div>
   <div class="who"><div class="nm"><span class="seq">${esc(d.seq)}</span>${esc(d.name)}</div>
     <div class="sub">${d.sid} · ${esc(d.dept)} · ${d.yr}학년</div></div>
   <div class="why"><div class="rsn">${d.dg.rsn}</div>
-    ${d.dg.hint?`<div class="hint">${esc(d.dg.hint)}</div>`:''}</div>
+    ${d.dg.hint?`<div class="hint">${esc(d.dg.hint)}</div>`:''}
+    ${d.memo?`<div class="memo-tag"><span class="ck">✔ 확인함</span>${esc(memoLast(d.memo))}</div>`:''}</div>
   <div class="prog"><div class="p1">${d.tot}<span class="p2"> / 36</span></div>
     <div class="p2">희망등록 ${d.nw}건</div></div></div>`;
 
@@ -502,6 +523,7 @@ function open_(sid){
     if(!g){g={k,area:c.area,grp:c.grp,items:[]};groups.push(g);} g.items.push(c);});
 
   dB.innerHTML=`
+  ${memoHtml(d)}
   ${enrollHtml(d)}
   <div class="sec">이수 요약</div>
   <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:12px">
@@ -548,6 +570,42 @@ function open_(sid){
 `;
   dw.classList.add('on'); ovl.classList.add('on');
 }
+function memoHtml(d){
+  return `<div class="sec">확인 메모</div>
+  ${d.memo ? `<div class="memo-log">${esc(d.memo).replace(/\n/g,'<br>')}</div>`
+           : `<div class="memo-none">아직 기록이 없습니다. 유선·면담으로 확인한 내용을 남겨 두면
+              조치 필요 목록에서 <b>✔ 확인함</b> 으로 표시되고 순서가 뒤로 밀립니다.</div>`}
+  <textarea id="memoIn" class="memo-in" rows="2"
+    placeholder="예: 소자·공정 트랙 — 인공지능물리학·반도체프로세스로 충족 예정 (유선 확인)"></textarea>
+  <div class="memo-act">
+    <button class="memo-btn" id="memoBtn" onclick="saveMemo_()">확인 메모 추가</button>
+    <span class="memo-msg" id="memoMsg"></span>
+  </div>`;
+}
+
+// 메모는 AA열 한 칸만 쓴다. 데이터출처·갱신일시는 건드리지 않는다.
+async function saveMemo_(){
+  const el=document.getElementById('memoIn');
+  const msg=document.getElementById('memoMsg');
+  const btn=document.getElementById('memoBtn');
+  const txt=(el.value||'').trim();
+  if(!txt){ msg.textContent='내용을 입력하세요.'; msg.className='memo-msg warn'; return; }
+  btn.disabled=true; msg.textContent='저장 중...'; msg.className='memo-msg';
+  try{
+    const r=await jsonp({action:'saveProgressMemo', adminId:AUTH.studentId,
+                         studentId:sel, memo:txt});
+    if(r.status!=='ok') throw new Error(r.message||'저장에 실패했습니다.');
+    const d=DATA.find(x=>x.sid===sel);
+    if(d) d.memo=r.memo||'';
+    open_(sel); render();                       // 상세·목록 함께 갱신
+    const m2=document.getElementById('memoMsg');
+    if(m2){ m2.textContent='저장했습니다.'; m2.className='memo-msg ok'; }
+  }catch(e){
+    msg.textContent='저장 실패 — '+e.message; msg.className='memo-msg warn';
+    btn.disabled=false;
+  }
+}
+
 function enrollHtml(d){
   const e=d.en;
   if(!e) return `<div class="sec">재적 정보</div>
