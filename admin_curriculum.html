@@ -41,15 +41,14 @@ color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
 .stamp b{color:var(--text);font-weight:700}
 .stale{background:var(--warnbg);color:var(--warn);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700}
 
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border)}
-.tab{padding:11px 20px;border:none;background:none;cursor:pointer;font:inherit;font-size:13.5px;
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tab{padding:11px 18px;border:none;background:none;cursor:pointer;font:inherit;font-size:13.5px;
 font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px}
 .tab.on{color:var(--navy);border-bottom-color:var(--navy)}
 .tab .c{font-size:11px;background:var(--bg);border-radius:20px;padding:1px 7px;margin-left:6px;color:var(--text2)}
 .tab.on .c{background:var(--navy);color:#fff}
 .panel{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:18px}
 
-/* 과목 카드 */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 .crs{border:1px solid var(--border);border-radius:10px;overflow:hidden}
@@ -61,13 +60,10 @@ font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bo
 .tag.sel{background:var(--bg);color:var(--text2)}
 .crs .b{padding:13px 16px;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:13px}
 .crs .b dt{color:var(--text3);font-size:12px;white-space:nowrap}
-.crs .b dd{color:var(--text)}
 .ta{font-size:12.5px;line-height:1.6}
 .ta .cx{color:var(--text2);font-size:11.5px}
 .note{margin:0 16px 13px;padding:8px 11px;background:var(--warnbg);color:var(--warn);
   border-radius:6px;font-size:11.5px;line-height:1.5}
-
-/* 신청 막대 */
 .enr{margin:0 16px 15px}
 .bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--line);margin-bottom:7px}
 .bar i{display:block}
@@ -78,7 +74,6 @@ font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bo
 .d1{background:var(--accent)} .d2{background:var(--inje)} .d3{background:var(--dang)}
 .gr{margin-left:auto;color:var(--text3)}
 
-/* 타과생 표 */
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;font-size:11.5px;font-weight:700;color:var(--text2);padding:9px 10px;
   border-bottom:1px solid var(--border);white-space:nowrap;background:#fbfcfe}
@@ -94,9 +89,37 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
 .btn:hover{background:var(--bg)}
 .btn.p{background:var(--navy);border-color:var(--navy);color:#fff}
 .btn.p:hover{background:var(--navy2)}
+.btn:disabled{opacity:.5;cursor:default}
 .empty{padding:44px 20px;text-align:center;color:var(--text3);font-size:13px}
 .saved{font-size:11.5px;color:var(--ok);font-weight:700}
 .hint{font-size:11.5px;color:var(--text3);margin-top:12px;line-height:1.7}
+
+/* 업로드 */
+.up{max-width:720px}
+.uprow{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.uprow label{font-size:12.5px;font-weight:600;color:var(--text2)}
+#dz{border:1.5px dashed var(--border);border-radius:10px;padding:26px 16px;text-align:center;
+  cursor:pointer;transition:.15s;background:#fbfcfe}
+#dz .ic{font-size:24px;line-height:1;margin-bottom:8px}
+#dzt{font-size:13.5px;font-weight:600;color:var(--text2)}
+#dzs{font-size:11.5px;color:var(--text3);margin-top:5px}
+.pv{margin-top:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none}
+.pv .ph{padding:11px 14px;background:#fbfcfe;border-bottom:1px solid var(--line);
+  font-size:12.5px;font-weight:700;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pv .pb{padding:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--bg);color:var(--text2)}
+.chip b{color:var(--text)}
+.chip.f{background:#eaf1fe;color:#1d4ed8} .chip.j{background:var(--injebg);color:var(--inje)}
+.chip.o{background:var(--dangbg);color:var(--dang)}
+.prog{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:10px;display:none}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+
+/* 연차 */
+.yr{border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.yr .yh{padding:11px 15px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;
+  display:flex;gap:10px;align-items:center}
+.yr .yh .sm{margin-left:auto;font-weight:400;opacity:.75;font-size:11.5px}
 </style>
 </head>
 <body>
@@ -104,18 +127,9 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
 <div class="top"><span class="badge">관리자</span><h1>개설 교과목 · 차세대반도체 융합전공</h1>
 <span class="meta" id="meta"></span>
 <nav class="topnav">
-  <a href="admin_progress.html" class="tnav">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9V5m3 4V2.5M8 9V6.5M10.5 9h-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    이수 현황
-  </a>
-  <a href="admin.html" class="tnav">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="1.5" width="9" height="9" rx="1.8" stroke="currentColor" stroke-width="1.4"/><path d="M6 3.5v5M3.5 6h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    성적 입력
-  </a>
-  <a href="portal_survey.html" class="tnav hub">
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 5.5L6 2l4 3.5V10a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 2 10z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-    데이터허브
-  </a>
+  <a href="admin_progress.html" class="tnav">이수 현황</a>
+  <a href="admin.html" class="tnav">성적 입력</a>
+  <a href="portal_survey.html" class="tnav hub">데이터허브</a>
 </nav></div>
 
 <div id="gate" style="max-width:420px;margin:80px auto;padding:34px 30px;background:#fff;
@@ -142,26 +156,32 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
   <div class="tabs">
     <button class="tab on" id="t1" onclick="go(1)">과목 정보 <span class="c" id="c1"></span></button>
     <button class="tab" id="t2" onclick="go(2)">타과생 조정 <span class="c" id="c2"></span></button>
+    <button class="tab" id="t3" onclick="go(3)">자료 올리기</button>
+    <button class="tab" id="t4" onclick="go(4)">연차별 누적</button>
   </div>
   <div class="panel">
     <div id="p1"></div>
     <div id="p2" style="display:none"></div>
+    <div id="p3" style="display:none"></div>
+    <div id="p4" style="display:none"></div>
   </div>
 </div>
 
 <script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
-const SEM = '2026-2';
+const SEM  = '2026-2';
+const TERMS = ['2024-2','2025-1','2025-2','2026-1','2026-2'];
+const CHUNK = 50;
 
-// 관리자 인증은 서버에서 다시 검증한다. localStorage 는 화면 전환용일 뿐이다.
 const AUTH = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+const CRED = () => ({adminId: AUTH.studentId, adminBirth: AUTH.birth || AUTH.birthday || ''});
 
-let INFO = null, STAT = null;
+let INFO = null, STAT = null, ROSTER = null, PARSED = null;
 
 function jsonp(params){
   return new Promise((resolve, reject) => {
     const cb = 'cb_' + Math.random().toString(36).slice(2);
-    const t = setTimeout(() => { cleanup(); reject(new Error('응답 시간 초과')); }, 30000);
+    const t = setTimeout(() => { cleanup(); reject(new Error('응답 시간 초과')); }, 40000);
     function cleanup(){ clearTimeout(t); delete window[cb]; if(sc.parentNode) sc.remove(); }
     window[cb] = d => { cleanup(); resolve(d); };
     const q = Object.entries({...params, callback: cb})
@@ -183,15 +203,14 @@ const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c =>
 
 async function boot(){
   if(!AUTH || !AUTH.studentId){ gate('로그인이 필요합니다.'); return; }
-  const cred = {adminId: AUTH.studentId, adminBirth: AUTH.birth || AUTH.birthday || ''};
   try{
-    INFO = await jsonp({action:'getCurriculum', semester:SEM, ...cred});
+    INFO = await jsonp({action:'getCurriculum', semester:SEM, ...CRED()});
     if(!INFO.ok){ gate(INFO.error || '조회에 실패했습니다.'); return; }
     if(!INFO.admin){ gate('관리자 계정으로 로그인해 주세요.'); return; }
-    STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...cred});
+    STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
     if(!STAT.ok){ gate(STAT.error || '집계에 실패했습니다.'); return; }
     loading.style.display='none'; wrap.style.display='block';
-    render();
+    render(); renderUpload();
   }catch(e){ gate(e.message); }
 }
 
@@ -209,7 +228,7 @@ function render(){
       <div class="l">타 전공 신청자</div>
       <div class="s">${t.인제대교류생 ? '인제대 교류생 ' + t.인제대교류생 + '명 별도' : '조정 대상'}</div></div>`;
 
-  const at = STAT.snapshotAt || INFO.snapshotAt;
+  const at = STAT.snapshotAt;
   let stale = '';
   if(at){
     const d = (Date.now() - new Date(at.replace(' ','T')).getTime()) / 36e5;
@@ -217,7 +236,7 @@ function render(){
   }
   document.getElementById('stamp').innerHTML =
     at ? `수강신청 자료 기준 <b>${esc(at)}</b> ${stale}`
-       : '<span class="stale">추출 시점 미기록 — stampApplySnapshot 실행 필요</span>';
+       : '<span class="stale">신청 자료 없음 — 「자료 올리기」에서 xlsx를 넣어주세요</span>';
 
   document.getElementById('c1').textContent = INFO.courses.length;
   document.getElementById('c2').textContent = STAT.outsiders.length;
@@ -253,13 +272,12 @@ function courseCards(){
           <span class="gr">${esc(gr)}</span>
         </div></div>`;
     }
-
     return `<div class="crs">
       <div class="h">
         <span class="code">${esc(c.code)}</span>
         <span class="nm">${esc(c.name)}</span>
         <span class="tag ${c.type==='전공필수'?'req':'sel'}">${esc(c.type)}</span>
-        <span class="gr" style="margin-left:auto;font-size:12px;color:var(--text3)">${esc(c.credit)}</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--text3)">${esc(c.credit)}</span>
       </div>
       <dl class="b">
         <dt>담당 교원</dt><dd>${esc(c.professor)}</dd>
@@ -274,65 +292,311 @@ function courseCards(){
 }
 
 function outsiderTable(){
-  if(!STAT.outsiders.length){
-    return '<div class="empty">타 전공 신청자가 없습니다.</div>';
-  }
+  if(!STAT.outsiders.length) return '<div class="empty">타 전공 신청자가 없습니다.</div>';
   const rows = STAT.outsiders.map(s => {
-    const codes = s.courses.join(' · ');
     const key = s.courses[0] + '|' + s.sid;
     const a = STAT.adjust[key] || {};
     const opts = ['','안내발송','재안내','취소완료','유지','보류']
       .map(v => `<option value="${v}"${a.result===v?' selected':''}>${v||'— 선택 —'}</option>`).join('');
     return `<tr data-sid="${esc(s.sid)}" data-code="${esc(s.courses[0])}" data-name="${esc(s.name)}">
-      <td class="sid">${esc(s.sid)}</td>
-      <td><b>${esc(s.name)}</b></td>
-      <td>${esc(s.dept)}</td>
-      <td style="text-align:center">${esc(s.grade)}</td>
-      <td class="cs">${esc(codes)}</td>
+      <td class="sid">${esc(s.sid)}</td><td><b>${esc(s.name)}</b></td>
+      <td>${esc(s.dept)}</td><td style="text-align:center">${esc(s.grade)}</td>
+      <td class="cs">${esc(s.courses.join(' · '))}</td>
       <td><select class="rs">${opts}</select></td>
       <td><input type="text" class="nt" placeholder="메모" value="${esc(a.note||'')}" style="width:100%"></td>
       <td style="white-space:nowrap"><button class="btn p" onclick="save(this)">저장</button>
         <span class="saved" style="display:${a.date?'inline':'none'}">${esc(a.date||'')}</span></td>
     </tr>`;
   }).join('');
-
-  return `<table>
-    <thead><tr><th>학번</th><th>성명</th><th>학과</th><th>학년</th><th>신청 과목</th>
+  return `<table><thead><tr><th>학번</th><th>성명</th><th>학과</th><th>학년</th><th>신청 과목</th>
     <th style="width:120px">조치</th><th style="width:200px">메모</th><th style="width:130px"></th></tr></thead>
     <tbody>${rows}</tbody></table>
-    <div class="hint">
-      판별은 <b>이수현황 155명 학번 대조</b>입니다. 포털 다중전공 열은 쓰지 않습니다 —
-      3기는 9월 1일자로 학적이 반영되므로 그 열로 거르면 타과생으로 잘못 분류됩니다.<br>
-      조치 내용은 <b>타과생조치</b> 탭에 누적 저장되며, 수강신청 자료를 새로 올려도 지워지지 않습니다.
-    </div>`;
+    <div class="hint">판별은 <b>이수현황 155명 학번 대조</b>입니다. 포털 다중전공 열은 쓰지 않습니다 —
+    3기는 9월 1일자로 학적이 반영되므로 그 열로 거르면 타과생으로 잘못 분류됩니다.<br>
+    조치 내용은 <b>타과생조치</b> 탭에 누적됩니다. 신청 자료를 새로 올려도 지워지지 않습니다.</div>`;
 }
 
 async function save(btn){
-  const tr = btn.closest('tr');
-  const el = tr.querySelector('.saved');
+  const tr = btn.closest('tr'), el = tr.querySelector('.saved');
   btn.disabled = true; btn.textContent = '저장 중';
   try{
-    const r = await jsonp({
-      action:'saveCurriculumAdjust',
-      adminId: AUTH.studentId, adminBirth: AUTH.birth || AUTH.birthday || '',
+    const r = await jsonp({action:'saveCurriculumAdjust', ...CRED(),
       code: tr.dataset.code, sid: tr.dataset.sid, name: tr.dataset.name,
-      result: tr.querySelector('.rs').value, note: tr.querySelector('.nt').value
-    });
-    if(r.ok){
-      el.textContent = new Date().toISOString().slice(0,10);
-      el.style.display = 'inline';
-    } else {
-      alert(r.error || '저장하지 못했습니다.');
-    }
+      result: tr.querySelector('.rs').value, note: tr.querySelector('.nt').value});
+    if(r.ok){ el.textContent = new Date().toISOString().slice(0,10); el.style.display='inline'; }
+    else alert(r.error || '저장하지 못했습니다.');
   }catch(e){ alert(e.message); }
   btn.disabled = false; btn.textContent = '저장';
 }
 
+/* ── 자료 올리기 ─────────────────────────────── */
+
+function renderUpload(){
+  document.getElementById('p3').innerHTML = `
+    <div class="up">
+      <div class="uprow">
+        <label for="upSem">학기</label>
+        <select id="upSem">${TERMS.map(t =>
+          `<option value="${t}"${t===SEM?' selected':''}>${t}학기</option>`).join('')}</select>
+        <span class="hint" style="margin:0">KUPID → 수강신청 → 수강 신청자 명단에서 받은 xlsx</span>
+      </div>
+      <div id="dz">
+        <div class="ic">📄</div>
+        <div id="dzt">수강 신청자 명단 파일을 끌어다 놓거나 클릭해서 선택</div>
+        <div id="dzs">xlsx 원본 그대로 — CSV 변환 없이 바로 읽습니다</div>
+        <input type="file" id="upFile" accept=".xlsx,.xls" style="display:none">
+      </div>
+      <div class="prog" id="prog"><i></i></div>
+      <div class="pv" id="pv">
+        <div class="ph"><span id="pvT"></span>
+          <button class="btn p" id="pvSave" style="margin-left:auto" onclick="commit()">이 내용으로 저장</button></div>
+        <div class="pb">
+          <div class="chips" id="pvC"></div>
+          <table id="pvTbl"></table>
+        </div>
+      </div>
+      <div class="hint">
+        저장하면 해당 학기 자료가 <b>통째로 교체</b>됩니다. 다른 학기는 그대로 남습니다.<br>
+        폐강·정정이 끝난 뒤 「연차별 누적」에서 <b>학기 확정</b>을 눌러야 사업지표 수치로 기록됩니다.
+      </div>
+    </div>`;
+  bindDrop();
+}
+
+function bindDrop(){
+  const dz = document.getElementById('dz'), fi = document.getElementById('upFile');
+  dz.onclick = () => fi.click();
+  fi.onchange = () => { handleFile(fi.files[0]); fi.value=''; };
+  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => {
+    e.preventDefault(); dz.style.borderColor='var(--accent)'; dz.style.background='#eef4ff'; }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
+    e.preventDefault(); dz.style.borderColor='var(--border)'; dz.style.background='#fbfcfe'; }));
+  dz.addEventListener('drop', e => {
+    if(e.dataTransfer && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+}
+
+function dzMsg(t, color){
+  const el = document.getElementById('dzt');
+  el.textContent = t; el.style.color = color || 'var(--text2)';
+}
+
+function loadSheetJS(){
+  if(window.XLSX) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = res;
+    s.onerror = () => rej(new Error('엑셀 판독기를 불러오지 못했습니다.'));
+    document.head.appendChild(s);
+  });
+}
+
+/**
+ * KUPID 수강 신청자 명단 파싱.
+ *  · 상단 조회조건 · 빈 행 · 중간 반복 헤더는 버린다
+ *  · 학수번호 · 과목명은 과목 블록 첫 행에만 있다 → 앞으로 채운다
+ *  · P열(15) 학번 / S열(18) 학생 성명 — L열 성명은 담당교수다
+ */
+function parseRows(aoa){
+  let code='', cname='';
+  const out = [];
+  aoa.forEach(r => {
+    const a = String(r[0]==null?'':r[0]).trim();
+    if(a){
+      if(a === '학수번호') return;
+      code = a; cname = String(r[4]==null?'':r[4]).trim();
+    }
+    const sid = String(r[15]==null?'':r[15]).trim().replace(/\.0$/,'');
+    if(!/^\d{6,}$/.test(sid)) return;
+    const nm = String(r[18]==null?'':r[18]).trim();
+    if(!nm) return;
+    out.push({code, cname, sid, name: nm,
+      dept: String(r[14]==null?'':r[14]).trim(),
+      grade: String(r[19]==null?'':r[19]).replace(/[^0-9]/g,'')});
+  });
+  return out;
+}
+
+async function handleFile(file){
+  if(!file) return;
+  document.getElementById('pv').style.display='none';
+  dzMsg('읽는 중… ' + file.name);
+  try{
+    await loadSheetJS();
+    if(!ROSTER){
+      const r = await jsonp({action:'getCurriculumRoster', ...CRED()});
+      if(!r.ok) throw new Error(r.error);
+      ROSTER = r;
+    }
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(new Uint8Array(buf), {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''});
+    const rows = parseRows(aoa);
+    if(!rows.length) throw new Error('신청 행을 찾지 못했습니다. 다른 파일인지 확인해 주세요.');
+    PARSED = {file: file.name, rows};
+    dzMsg('✓ ' + file.name, 'var(--ok)');
+    preview();
+  }catch(e){ dzMsg('⚠ ' + e.message, 'var(--dang)'); }
+}
+
+function classify(r){
+  if(Object.prototype.hasOwnProperty.call(ROSTER.fusion, r.sid)) return '융합전공';
+  if(ROSTER.inje.indexOf(r.sid) >= 0 || r.dept.indexOf('인제') >= 0) return '인제대교류생';
+  return '타과생';
+}
+
+function preview(){
+  const rows = PARSED.rows;
+  const seen = {}, byCode = {}, cnt = {융합전공:0, 인제대교류생:0, 타과생:0};
+  const people = {};
+  rows.forEach(r => {
+    r.g = classify(r);
+    cnt[r.g]++;
+    if(!byCode[r.code]) byCode[r.code] = {name:r.cname, 총계:0, 융합전공:0, 인제대교류생:0, 타과생:0};
+    byCode[r.code].총계++; byCode[r.code][r.g]++;
+    if(!people[r.sid]) people[r.sid] = r.g;
+  });
+  const heads = Object.keys(people).length;
+
+  document.getElementById('pvT').textContent =
+    `${PARSED.file} — ${rows.length}건 / ${heads}명`;
+  document.getElementById('pvC').innerHTML = `
+    <span class="chip f">융합전공 <b>${cnt.융합전공}</b>건</span>
+    <span class="chip j">인제대 교류생 <b>${cnt.인제대교류생}</b>건</span>
+    <span class="chip o">타과생 <b>${cnt.타과생}</b>건</span>
+    <span class="chip">과목 <b>${Object.keys(byCode).length}</b>개</span>`;
+  document.getElementById('pvTbl').innerHTML =
+    '<thead><tr><th>학수번호</th><th>과목명</th><th style="text-align:right">총계</th>' +
+    '<th style="text-align:right">융합전공</th><th style="text-align:right">인제대</th>' +
+    '<th style="text-align:right">타과생</th></tr></thead><tbody>' +
+    Object.keys(byCode).sort().map(k => {
+      const c = byCode[k];
+      return `<tr><td><b>${esc(k)}</b></td><td>${esc(c.name)}</td>
+        <td style="text-align:right">${c.총계}</td>
+        <td style="text-align:right">${c.융합전공}</td>
+        <td style="text-align:right;color:var(--inje)">${c.인제대교류생 || '—'}</td>
+        <td style="text-align:right;color:${c.타과생?'var(--dang)':'var(--text3)'}">${c.타과생 || '—'}</td></tr>`;
+    }).join('') + '</tbody>';
+  document.getElementById('pv').style.display='block';
+}
+
+async function commit(){
+  if(!PARSED) return;
+  const sem = document.getElementById('upSem').value;
+  const btn = document.getElementById('pvSave');
+  const pg = document.getElementById('prog'), pi = pg.querySelector('i');
+  const rows = PARSED.rows;
+  const packs = [];
+  for(let i=0; i<rows.length; i+=CHUNK){
+    packs.push(rows.slice(i, i+CHUNK).map(r =>
+      [r.code, r.cname, r.sid, r.name, r.dept, r.grade].join('|')).join(';;'));
+  }
+  btn.disabled = true; btn.textContent = '저장 중';
+  pg.style.display='block'; pi.style.width='0';
+  try{
+    for(let i=0; i<packs.length; i++){
+      const r = await jsonp({action:'saveCurriculumApply', ...CRED(),
+        semester: sem, seq: i, last: (i===packs.length-1) ? 1 : 0, rows: packs[i]});
+      if(!r.ok) throw new Error(r.error);
+      pi.style.width = ((i+1)/packs.length*100) + '%';
+    }
+    btn.textContent = '저장 완료';
+    if(sem === SEM){
+      STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
+      render();
+    }
+    setTimeout(() => { pg.style.display='none'; btn.disabled=false;
+      btn.textContent='이 내용으로 저장'; }, 1200);
+  }catch(e){
+    alert('저장 중 오류: ' + e.message + '\n일부만 저장됐을 수 있습니다. 다시 올려주세요.');
+    btn.disabled=false; btn.textContent='이 내용으로 저장'; pg.style.display='none';
+  }
+}
+
+/* ── 연차별 누적 ─────────────────────────────── */
+
+async function loadYears(){
+  const el = document.getElementById('p4');
+  el.innerHTML = '<div class="empty">불러오는 중…</div>';
+  try{
+    const r = await jsonp({action:'getCurriculumYears', ...CRED()});
+    if(!r.ok) throw new Error(r.error);
+    el.innerHTML = yearsHtml(r.terms);
+  }catch(e){ el.innerHTML = '<div class="empty">' + esc(e.message) + '</div>'; }
+}
+
+function yearsHtml(terms){
+  const fyName = {1:'1차년도 (24.3~25.2)', 2:'2차년도 (25.3~26.2)',
+                  3:'3차년도 (26.3~27.2)', 4:'4차년도 (27.3~28.2)'};
+  const byFy = {};
+  terms.forEach(t => { (byFy[t.fiscalYear] = byFy[t.fiscalYear] || []).push(t); });
+
+  const confirmBar = `<div class="uprow" style="margin-bottom:16px">
+    <label for="cfSem">학기 확정</label>
+    <select id="cfSem">${TERMS.map(t =>
+      `<option value="${t}"${t===SEM?' selected':''}>${t}학기</option>`).join('')}</select>
+    <button class="btn p" onclick="confirmTerm(this)">이 학기 수치를 확정</button>
+    <span class="hint" style="margin:0">폐강·정정이 끝난 뒤 누르세요. 다시 누르면 갱신됩니다.</span>
+  </div>`;
+
+  if(!terms.length){
+    return confirmBar + '<div class="empty">확정된 학기가 없습니다. 자료를 올린 뒤 학기를 확정해 주세요.</div>';
+  }
+
+  const blocks = [1,2,3,4].filter(f => byFy[f]).map(f => {
+    const ts = byFy[f];
+    const sum = ts.reduce((a,t) => ({
+      총계:a.총계+t.총계, 융합전공:a.융합전공+t.융합전공,
+      인제대교류생:a.인제대교류생+t.인제대교류생, 타과생:a.타과생+t.타과생,
+      과목:a.과목+t.courses.length}), {총계:0,융합전공:0,인제대교류생:0,타과생:0,과목:0});
+    return `<div class="yr">
+      <div class="yh">${fyName[f] || f + '차년도'}
+        <span class="sm">${ts.map(t => t.semester).join(' · ')}</span></div>
+      <div style="padding:12px 15px">
+        <div class="chips">
+          <span class="chip">운영 교과목 <b>${sum.과목}</b>건</span>
+          <span class="chip">수강 <b>${sum.총계}</b>건</span>
+          <span class="chip f">융합전공 <b>${sum.융합전공}</b></span>
+          <span class="chip j">인제대 교류생 <b>${sum.인제대교류생}</b></span>
+          <span class="chip o">타과생 <b>${sum.타과생}</b></span>
+        </div>
+        <table><thead><tr><th>학기</th><th>학수번호</th><th>과목명</th>
+          <th style="text-align:right">총계</th><th style="text-align:right">융합전공</th>
+          <th style="text-align:right">인제대</th><th style="text-align:right">타과생</th></tr></thead>
+        <tbody>${ts.map(t => t.courses.map(c => `<tr>
+          <td class="sid">${esc(t.semester)}</td><td><b>${esc(c.code)}</b></td>
+          <td>${esc(c.name)}</td>
+          <td style="text-align:right">${c.총계}</td>
+          <td style="text-align:right">${c.융합전공}</td>
+          <td style="text-align:right;color:var(--inje)">${c.인제대교류생 || '—'}</td>
+          <td style="text-align:right;color:${c.타과생?'var(--dang)':'var(--text3)'}">${c.타과생 || '—'}</td>
+        </tr>`).join('')).join('')}</tbody></table>
+      </div></div>`;
+  }).join('');
+
+  return confirmBar + blocks + `<div class="hint">
+    1차년도에 2024-2학기 한 학기만 있는 것은 정상입니다 — 공식 사업기간은 2024.3.1부터이나
+    고려대는 선정이 늦어 <b>2024년 9월부터 실제 운영</b>했습니다.</div>`;
+}
+
+async function confirmTerm(btn){
+  const sem = document.getElementById('cfSem').value;
+  if(!confirm(sem + '학기 수치를 확정합니다.\n기존 확정치가 있으면 덮어씁니다.')) return;
+  btn.disabled = true; btn.textContent = '확정 중';
+  try{
+    const r = await jsonp({action:'confirmCurriculumTerm', semester:sem, ...CRED()});
+    if(!r.ok) throw new Error(r.error);
+    await loadYears();
+  }catch(e){ alert(e.message); btn.disabled=false; btn.textContent='이 학기 수치를 확정'; }
+}
+
 function go(n){
-  [1,2].forEach(i => {
+  [1,2,3,4].forEach(i => {
     document.getElementById('t'+i).classList.toggle('on', i===n);
     document.getElementById('p'+i).style.display = i===n ? 'block' : 'none';
   });
+  if(n===4) loadYears();
 }
 
 boot();
