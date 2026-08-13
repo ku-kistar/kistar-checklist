@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개설 교과목 — 차세대반도체 융합전공</title>
+<style>
+:root{--navy:#0b1f3a;--navy2:#122440;--accent:#2563eb;--gold:#c9a84c;--bg:#f4f6f9;--card:#fff;
+--text:#1a2535;--text2:#5a6a7e;--text3:#8b98a9;--border:#dde3ec;--line:#eef1f6;
+--ok:#15803d;--okbg:#e8f5ec;--warn:#b45309;--warnbg:#fdf4e3;--dang:#b91c1c;--dangbg:#fbeaea;
+--inje:#6d28d9;--injebg:#f1ebfd}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Pretendard','Apple SD Gothic Neo',-apple-system,sans-serif;
+color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+.top{background:var(--navy);color:#fff;padding:13px 26px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:60}
+.top .badge{background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
+.top h1{font-weight:700;font-size:15px}
+.top .meta{margin-left:auto;font-size:12px;opacity:.7}
+.topnav{display:flex;gap:7px;flex-shrink:0}
+.tnav{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;font-size:12px;
+  text-decoration:none;white-space:nowrap;border:1px solid rgba(255,255,255,.28);
+  color:rgba(255,255,255,.85);transition:all .15s}
+.tnav:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.5);color:#fff}
+.tnav.hub{border-color:var(--gold);color:var(--gold)}
+.tnav.hub:hover{background:var(--gold);border-color:var(--gold);color:#fff}
+@media(max-width:820px){.top .meta{display:none}.topnav{margin-left:auto}}
+.wrap{max-width:1240px;margin:24px auto 80px;padding:0 20px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:15px 17px}
+.kpi .n{font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+.kpi .l{font-size:12.5px;font-weight:600;color:var(--text2);margin-top:5px}
+.kpi .s{font-size:11px;color:var(--text3);margin-top:3px}
+.kpi.b{border-left:3px solid var(--accent)}
+.kpi.c{border-left:3px solid var(--ok)} .kpi.c .n{color:var(--ok)}
+.kpi.a{border-left:3px solid var(--dang)} .kpi.a .n{color:var(--dang)}
+.kpi.d{border-left:3px solid #b6bfcc} .kpi.d .n{color:var(--text3)}
+@media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+.stamp{font-size:12px;color:var(--text2);margin:0 2px 20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stamp b{color:var(--text);font-weight:700}
+.stale{background:var(--warnbg);color:var(--warn);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border)}
+.tab{padding:11px 20px;border:none;background:none;cursor:pointer;font:inherit;font-size:13.5px;
+font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+.tab .c{font-size:11px;background:var(--bg);border-radius:20px;padding:1px 7px;margin-left:6px;color:var(--text2)}
+.tab.on .c{background:var(--navy);color:#fff}
+.panel{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px;padding:18px}
+
+/* 과목 카드 */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.crs{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.crs .h{padding:13px 16px;background:#fbfcfe;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:baseline;flex-wrap:wrap}
+.crs .code{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.3px}
+.crs .nm{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.tag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:4px}
+.tag.req{background:var(--dangbg);color:var(--dang)}
+.tag.sel{background:var(--bg);color:var(--text2)}
+.crs .b{padding:13px 16px;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:13px}
+.crs .b dt{color:var(--text3);font-size:12px;white-space:nowrap}
+.crs .b dd{color:var(--text)}
+.ta{font-size:12.5px;line-height:1.6}
+.ta .cx{color:var(--text2);font-size:11.5px}
+.note{margin:0 16px 13px;padding:8px 11px;background:var(--warnbg);color:var(--warn);
+  border-radius:6px;font-size:11.5px;line-height:1.5}
+
+/* 신청 막대 */
+.enr{margin:0 16px 15px}
+.bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--line);margin-bottom:7px}
+.bar i{display:block}
+.bar .f{background:var(--accent)} .bar .j{background:var(--inje)} .bar .o{background:var(--dang)}
+.lg{display:flex;gap:12px;font-size:11.5px;color:var(--text2);flex-wrap:wrap;align-items:center}
+.lg b{color:var(--text);font-weight:700}
+.dot{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:4px;vertical-align:middle}
+.d1{background:var(--accent)} .d2{background:var(--inje)} .d3{background:var(--dang)}
+.gr{margin-left:auto;color:var(--text3)}
+
+/* 타과생 표 */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11.5px;font-weight:700;color:var(--text2);padding:9px 10px;
+  border-bottom:1px solid var(--border);white-space:nowrap;background:#fbfcfe}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.sid{font-variant-numeric:tabular-nums;color:var(--text2)}
+.cs{font-size:11.5px;color:var(--text2);line-height:1.6}
+select,.q,input[type=text]{padding:6px 9px;border:1px solid var(--border);border-radius:6px;
+  font:inherit;font-size:12.5px;background:#fff;color:var(--text);outline:none}
+select:focus,.q:focus,input:focus{border-color:var(--accent)}
+.btn{padding:6px 12px;border:1px solid var(--border);background:#fff;border-radius:6px;font:inherit;
+font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
+.btn:hover{background:var(--bg)}
+.btn.p{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.p:hover{background:var(--navy2)}
+.empty{padding:44px 20px;text-align:center;color:var(--text3);font-size:13px}
+.saved{font-size:11.5px;color:var(--ok);font-weight:700}
+.hint{font-size:11.5px;color:var(--text3);margin-top:12px;line-height:1.7}
+</style>
+</head>
+<body>
+
+<div class="top"><span class="badge">관리자</span><h1>개설 교과목 · 차세대반도체 융합전공</h1>
+<span class="meta" id="meta"></span>
+<nav class="topnav">
+  <a href="admin_progress.html" class="tnav">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9V5m3 4V2.5M8 9V6.5M10.5 9h-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    이수 현황
+  </a>
+  <a href="admin.html" class="tnav">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="1.5" width="9" height="9" rx="1.8" stroke="currentColor" stroke-width="1.4"/><path d="M6 3.5v5M3.5 6h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    성적 입력
+  </a>
+  <a href="portal_survey.html" class="tnav hub">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 5.5L6 2l4 3.5V10a.5.5 0 0 1-.5.5h-7A.5.5 0 0 1 2 10z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    데이터허브
+  </a>
+</nav></div>
+
+<div id="gate" style="max-width:420px;margin:80px auto;padding:34px 30px;background:#fff;
+border:1px solid var(--border);border-radius:14px;text-align:center;display:none">
+  <div style="font-size:30px;margin-bottom:12px">🔒</div>
+  <h2 style="font-size:17px;font-weight:700;color:var(--navy)">관리자 권한이 필요합니다</h2>
+  <p style="font-size:13px;color:var(--text2);margin-top:8px;line-height:1.7" id="gateMsg">
+    데이터허브에 관리자 계정으로 로그인한 뒤 이용하세요.</p>
+  <a href="portal_survey.html" style="display:inline-block;margin-top:18px;padding:9px 20px;
+    background:var(--navy);color:#fff;text-decoration:none;border-radius:8px;font-size:13px">데이터허브로 이동</a>
+</div>
+
+<div id="loading" style="max-width:420px;margin:100px auto;text-align:center;color:var(--text2)">
+  <div style="width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--accent);
+    border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 14px"></div>
+  <div style="font-size:13px">개설 교과목을 불러오는 중...</div>
+</div>
+<style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+
+<div class="wrap" id="wrap" style="display:none">
+  <div class="kpis" id="kpis"></div>
+  <div class="stamp" id="stamp"></div>
+
+  <div class="tabs">
+    <button class="tab on" id="t1" onclick="go(1)">과목 정보 <span class="c" id="c1"></span></button>
+    <button class="tab" id="t2" onclick="go(2)">타과생 조정 <span class="c" id="c2"></span></button>
+  </div>
+  <div class="panel">
+    <div id="p1"></div>
+    <div id="p2" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const SEM = '2026-2';
+
+// 관리자 인증은 서버에서 다시 검증한다. localStorage 는 화면 전환용일 뿐이다.
+const AUTH = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+
+let INFO = null, STAT = null;
+
+function jsonp(params){
+  return new Promise((resolve, reject) => {
+    const cb = 'cb_' + Math.random().toString(36).slice(2);
+    const t = setTimeout(() => { cleanup(); reject(new Error('응답 시간 초과')); }, 30000);
+    function cleanup(){ clearTimeout(t); delete window[cb]; if(sc.parentNode) sc.remove(); }
+    window[cb] = d => { cleanup(); resolve(d); };
+    const q = Object.entries({...params, callback: cb})
+      .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+    const sc = document.createElement('script');
+    sc.src = EXEC_URL + '?' + q;
+    sc.onerror = () => { cleanup(); reject(new Error('네트워크 오류')); };
+    document.head.appendChild(sc);
+  });
+}
+
+const gate = msg => {
+  loading.style.display='none'; wrap.style.display='none';
+  document.getElementById('gate').style.display='block';
+  if(msg) document.getElementById('gateMsg').textContent = msg;
+};
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function boot(){
+  if(!AUTH || !AUTH.studentId){ gate('로그인이 필요합니다.'); return; }
+  const cred = {adminId: AUTH.studentId, adminBirth: AUTH.birth || AUTH.birthday || ''};
+  try{
+    INFO = await jsonp({action:'getCurriculum', semester:SEM, ...cred});
+    if(!INFO.ok){ gate(INFO.error || '조회에 실패했습니다.'); return; }
+    if(!INFO.admin){ gate('관리자 계정으로 로그인해 주세요.'); return; }
+    STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...cred});
+    if(!STAT.ok){ gate(STAT.error || '집계에 실패했습니다.'); return; }
+    loading.style.display='none'; wrap.style.display='block';
+    render();
+  }catch(e){ gate(e.message); }
+}
+
+function render(){
+  const t = STAT.total;
+  document.getElementById('meta').textContent = SEM + '학기';
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi b"><div class="n">${INFO.courses.length}</div>
+      <div class="l">개설 과목</div><div class="s">${SEM}학기</div></div>
+    <div class="kpi"><div class="n">${t.신청건수}</div>
+      <div class="l">신청 건수</div><div class="s">${t.인원}명</div></div>
+    <div class="kpi c"><div class="n">${t.융합전공}</div>
+      <div class="l">융합전공 이수학생</div><div class="s">이수현황 155명 대조</div></div>
+    <div class="kpi ${t.타과생 ? 'a' : 'd'}"><div class="n">${t.타과생}</div>
+      <div class="l">타 전공 신청자</div>
+      <div class="s">${t.인제대교류생 ? '인제대 교류생 ' + t.인제대교류생 + '명 별도' : '조정 대상'}</div></div>`;
+
+  const at = STAT.snapshotAt || INFO.snapshotAt;
+  let stale = '';
+  if(at){
+    const d = (Date.now() - new Date(at.replace(' ','T')).getTime()) / 36e5;
+    if(d > 24) stale = '<span class="stale">' + Math.floor(d/24) + '일 지남 — 재추출 권장</span>';
+  }
+  document.getElementById('stamp').innerHTML =
+    at ? `수강신청 자료 기준 <b>${esc(at)}</b> ${stale}`
+       : '<span class="stale">추출 시점 미기록 — stampApplySnapshot 실행 필요</span>';
+
+  document.getElementById('c1').textContent = INFO.courses.length;
+  document.getElementById('c2').textContent = STAT.outsiders.length;
+  document.getElementById('p1').innerHTML = courseCards();
+  document.getElementById('p2').innerHTML = outsiderTable();
+}
+
+function courseCards(){
+  const map = {};
+  STAT.courses.forEach(c => map[c.code] = c);
+  return '<div class="grid">' + INFO.courses.map(c => {
+    const s = map[c.code];
+    const tas = (c.taList && c.taList.length ? c.taList : [{name:c.ta, phone:c.taPhone, mail:c.taMail}])
+      .filter(x => x.name)
+      .map(x => `<div>${esc(x.name)}${c.taProf ? ' <span class="cx">(' + esc(c.taProf) + ' 교수)</span>' : ''}` +
+        (x.phone || x.mail ? `<div class="cx">${esc(x.phone)}${x.phone && x.mail ? ' · ' : ''}${esc(x.mail)}</div>` : '') +
+        `</div>`).join('') || '<span class="cx">미배정</span>';
+
+    let enr = '<div class="enr"><div class="lg"><span class="cx">신청 자료 없음</span></div></div>';
+    if(s && s.총계){
+      const p = n => (n / s.총계 * 100).toFixed(1) + '%';
+      const gr = Object.keys(s.grade).sort().map(g => g + '학년 ' + s.grade[g]).join(' · ');
+      enr = `<div class="enr">
+        <div class="bar">
+          <i class="f" style="width:${p(s.융합전공)}"></i>
+          <i class="j" style="width:${p(s.인제대교류생)}"></i>
+          <i class="o" style="width:${p(s.타과생)}"></i>
+        </div>
+        <div class="lg">
+          <span><span class="dot d1"></span>융합전공 <b>${s.융합전공}</b></span>
+          ${s.인제대교류생 ? `<span><span class="dot d2"></span>인제대 <b>${s.인제대교류생}</b></span>` : ''}
+          ${s.타과생 ? `<span><span class="dot d3"></span>타과생 <b>${s.타과생}</b></span>` : ''}
+          <span class="gr">${esc(gr)}</span>
+        </div></div>`;
+    }
+
+    return `<div class="crs">
+      <div class="h">
+        <span class="code">${esc(c.code)}</span>
+        <span class="nm">${esc(c.name)}</span>
+        <span class="tag ${c.type==='전공필수'?'req':'sel'}">${esc(c.type)}</span>
+        <span class="gr" style="margin-left:auto;font-size:12px;color:var(--text3)">${esc(c.credit)}</span>
+      </div>
+      <dl class="b">
+        <dt>담당 교원</dt><dd>${esc(c.professor)}</dd>
+        <dt>수업 시간</dt><dd>${esc(c.time)}</dd>
+        <dt>강의실</dt><dd>${esc(c.room)}</dd>
+        <dt>담당 조교</dt><dd class="ta">${tas}</dd>
+      </dl>
+      ${c.note ? `<div class="note">${esc(c.note)}</div>` : ''}
+      ${enr}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function outsiderTable(){
+  if(!STAT.outsiders.length){
+    return '<div class="empty">타 전공 신청자가 없습니다.</div>';
+  }
+  const rows = STAT.outsiders.map(s => {
+    const codes = s.courses.join(' · ');
+    const key = s.courses[0] + '|' + s.sid;
+    const a = STAT.adjust[key] || {};
+    const opts = ['','안내발송','재안내','취소완료','유지','보류']
+      .map(v => `<option value="${v}"${a.result===v?' selected':''}>${v||'— 선택 —'}</option>`).join('');
+    return `<tr data-sid="${esc(s.sid)}" data-code="${esc(s.courses[0])}" data-name="${esc(s.name)}">
+      <td class="sid">${esc(s.sid)}</td>
+      <td><b>${esc(s.name)}</b></td>
+      <td>${esc(s.dept)}</td>
+      <td style="text-align:center">${esc(s.grade)}</td>
+      <td class="cs">${esc(codes)}</td>
+      <td><select class="rs">${opts}</select></td>
+      <td><input type="text" class="nt" placeholder="메모" value="${esc(a.note||'')}" style="width:100%"></td>
+      <td style="white-space:nowrap"><button class="btn p" onclick="save(this)">저장</button>
+        <span class="saved" style="display:${a.date?'inline':'none'}">${esc(a.date||'')}</span></td>
+    </tr>`;
+  }).join('');
+
+  return `<table>
+    <thead><tr><th>학번</th><th>성명</th><th>학과</th><th>학년</th><th>신청 과목</th>
+    <th style="width:120px">조치</th><th style="width:200px">메모</th><th style="width:130px"></th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <div class="hint">
+      판별은 <b>이수현황 155명 학번 대조</b>입니다. 포털 다중전공 열은 쓰지 않습니다 —
+      3기는 9월 1일자로 학적이 반영되므로 그 열로 거르면 타과생으로 잘못 분류됩니다.<br>
+      조치 내용은 <b>타과생조치</b> 탭에 누적 저장되며, 수강신청 자료를 새로 올려도 지워지지 않습니다.
+    </div>`;
+}
+
+async function save(btn){
+  const tr = btn.closest('tr');
+  const el = tr.querySelector('.saved');
+  btn.disabled = true; btn.textContent = '저장 중';
+  try{
+    const r = await jsonp({
+      action:'saveCurriculumAdjust',
+      adminId: AUTH.studentId, adminBirth: AUTH.birth || AUTH.birthday || '',
+      code: tr.dataset.code, sid: tr.dataset.sid, name: tr.dataset.name,
+      result: tr.querySelector('.rs').value, note: tr.querySelector('.nt').value
+    });
+    if(r.ok){
+      el.textContent = new Date().toISOString().slice(0,10);
+      el.style.display = 'inline';
+    } else {
+      alert(r.error || '저장하지 못했습니다.');
+    }
+  }catch(e){ alert(e.message); }
+  btn.disabled = false; btn.textContent = '저장';
+}
+
+function go(n){
+  [1,2].forEach(i => {
+    document.getElementById('t'+i).classList.toggle('on', i===n);
+    document.getElementById('p'+i).style.display = i===n ? 'block' : 'none';
+  });
+}
+
+boot();
+</script>
+</body>
+</html>
