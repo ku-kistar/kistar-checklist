@@ -1385,7 +1385,13 @@ function showUserBar() {
     document.getElementById('adminMileageToggle').style.display = 'flex';
     const _apb = document.getElementById('admPrevBar');
     if (_apb) _apb.classList.add('show');
-    loadTodoStrip();
+    // 🔴 setTimeout 0 을 빼지 말 것.
+    //   loadTodoStrip 은 TODO_CUR_SEM(const)·_todoLoading(let)을 쓰는데,
+    //   이 둘은 초기화 IIFE보다 아래에 선언돼 있다. 즉시 호출하면 TDZ
+    //   ReferenceError 가 나고 스크립트 평가가 그 자리에서 멈춰,
+    //   아래쪽 mileageData 등이 초기화되지 않아 마일리지 화면이 통째로 죽는다.
+    //   (관리자 경로에서만 발생 — 학생은 이 블록에 들어오지 않는다)
+    setTimeout(function () { loadTodoStrip(); }, 0);
   }
   // 학점교류생 배너
   const existingBanner = document.getElementById('exchange-banner');
