@@ -390,7 +390,13 @@ function autoAbbr(name){
   if (!s) s = '프로그램';
   return att ? s + ' 출석' : s;
 }
-function shortName(id, name){
+/* 약칭 3단 폴백
+     ① 프로그램 탭 M열(약칭) 값  ← 시트에서 바로 제어. 신규 행사는 여기만 채우면 된다
+     ② 아래 ABBR 고정표          ← 기존 26-1 프로그램용. 손대지 않는다
+     ③ autoAbbr 자동 축약        ← 둘 다 없을 때
+   ★ admin_board.html 도 같은 3단 구조다. 한쪽만 고치면 두 화면 열 이름이 갈라진다. */
+function shortName(id, name, abbr){
+  if (abbr) return abbr;
   var key = String(id || '').replace(/-\d{2}-\d$/, '');
   return ABBR[key] || autoAbbr(name);
 }
@@ -516,7 +522,7 @@ function render(){
     if (OFF[SEGS[i].name]) { h += '<th class="ph"></th>'; continue; }
     for (var j = SEGS[i].from; j <= SEGS[i].to; j++){
       h += '<th class="pt" data-p="' + j + '" tabindex="0">' +
-           esc(shortName(P[j].id, P[j].name)) + '</th>';
+           esc(shortName(P[j].id, P[j].name, P[j].abbr)) + '</th>';
     }
   }
   h += '</tr></thead><tbody>';
