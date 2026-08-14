@@ -181,6 +181,49 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admin-card-foot b{color:rgba(255,255,255,.45);font-weight:600}
 @media(max-width:520px){.admin-cards{grid-template-columns:1fr}}
 
+/* ── 카드 계통 색 (2026-08-14) ──
+   배경을 채우지 않고 왼쪽 세로 막대로만 구분한다.
+   배경을 채우면 「지금 할 일」의 크림슨이 묻힌다. */
+.admin-card{position:relative;padding-left:14px}
+.admin-card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:var(--hue,rgba(200,57,43,.5))}
+.admin-card[data-hue="mileage"]{--hue:#10b981}
+.admin-card[data-hue="course"]{--hue:#0ea5e9}
+.admin-card[data-hue="doc"]{--hue:#f59e0b}
+.admin-card[data-hue="survey"]{--hue:#a78bfa}
+.admin-card[data-hue="cal"]{--hue:#64748b}
+.admin-card[data-hue] .admin-card-head svg{color:var(--hue)}
+
+/* ── ★ 지금 할 일 띠 (2026-08-14) ──
+   관리자에게만 보인다. 할 일이 0이면 통째로 사라진다.
+   빈 상자를 남기면 배경이 되고, 배경이 되면 아무도 안 본다. */
+#todo-strip{display:none;width:100%;max-width:680px;padding:0 2rem;margin:1.2rem 0 .4rem}
+#todo-strip.show{display:block}
+.todo-box{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);border-radius:13px;padding:12px 14px 13px}
+.todo-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.todo-head-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.86);letter-spacing:.01em}
+.todo-head-count{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:rgba(200,57,43,.26);color:#ffb3aa}
+.todo-head-line{flex:1;height:1px;background:rgba(255,255,255,.10)}
+.todo-head-refresh{font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;background:none;border:none;font-family:inherit;padding:2px 4px}
+.todo-head-refresh:hover{color:rgba(255,255,255,.6)}
+.todo-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
+.todo-item + .todo-item{border-top:1px dashed rgba(255,255,255,.08)}
+.todo-dday{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;font-weight:800;min-width:44px;text-align:right;padding-top:1px;flex-shrink:0}
+.todo-body{flex:1;min-width:0}
+.todo-title{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.84);line-height:1.45}
+.todo-title a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.18)}
+.todo-title a:hover{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
+.todo-sub{font-size:10.5px;color:rgba(255,255,255,.34);margin-top:2px;line-height:1.5}
+.todo-todo{flex-shrink:0;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.30);border:1px dashed rgba(255,255,255,.16);border-radius:6px;padding:3px 7px;white-space:nowrap;align-self:center}
+.todo-lv-red   .todo-dday{color:#ff6b5a}
+.todo-lv-amber .todo-dday{color:#f0a04b}
+.todo-lv-gray  .todo-dday{color:rgba(255,255,255,.42)}
+.todo-foot{margin-top:9px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.28);line-height:1.6}
+@media(max-width:520px){
+  #todo-strip{padding:0 1.1rem}
+  .todo-todo{display:none}
+  .todo-dday{min-width:38px}
+}
+
 /* ── 통합 공지 팝업 ── */
 #notice-popup{display:none!important}
 #notice-popup.show{display:none!important}
@@ -567,6 +610,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </ul>
   </div>
 
+  <!-- ★ 지금 할 일 (관리자 전용 · 할 일 0이면 미표시) -->
+  <div id="todo-strip"></div>
+
   <!-- ★ 공지사항 아코디언 -->
   <div class="notice-section">
     <div class="notice-section-header">
@@ -700,7 +746,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="admin-cards">
 
         <!-- ① 마일리지 -->
-        <div class="admin-card">
+        <div class="admin-card" data-hue="mileage">
           <div class="admin-card-head">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1l1.4 2.9 3.1.4-2.3 2.2.6 3.2-2.8-1.5-2.8 1.5.6-3.2-2.3-2.2 3.1-.4z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <span class="admin-card-title">마일리지</span>
@@ -727,7 +773,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         </div>
 
         <!-- ② 이수현황 · 성적 -->
-        <div class="admin-card">
+        <div class="admin-card" data-hue="course">
           <div class="admin-card-head">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="1.5" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 8.5V6M6.5 8.5V4M9 8.5V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             <span class="admin-card-title">교과 · 이수현황</span>
@@ -750,7 +796,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         </div>
 
         <!-- ③ 학생 제출 서류 -->
-        <div class="admin-card">
+        <div class="admin-card" data-hue="doc">
           <div class="admin-card-head">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="1" width="9" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4 4h5M4 6.5h5M4 9h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
             <span class="admin-card-title">학생 제출 서류</span>
@@ -773,7 +819,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         </div>
 
         <!-- ④ 설문 · 조사 -->
-        <div class="admin-card">
+        <div class="admin-card" data-hue="survey">
           <div class="admin-card-head">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 5h10M5 5v6" stroke="currentColor" stroke-width="1.2"/></svg>
             <span class="admin-card-title">설문 · 조사</span>
@@ -796,7 +842,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         </div>
 
         <!-- ⑤ 일정 · 도구 -->
-        <div class="admin-card">
+        <div class="admin-card" data-hue="cal">
           <div class="admin-card-head">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="2.5" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 5.5h10M4 1.5v2M9 1.5v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             <span class="admin-card-title">일정 · 도구</span>
@@ -1004,6 +1050,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 const EXEC_URL   = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec'; // URL2 통일 v14
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
 const EXT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec'; // 폼 응답 시트 GAS
+// ⚠ 캘린더는 별도 GAS 프로젝트다(마스터 §8-1). 화면이 읽기만 하며 데이터허브 doGet은 건드리지 않는다.
+const CAL_GAS_URL = 'https://script.google.com/macros/s/AKfycbyvrnTLb3yBw5wu-qYHeEQsHeLEe9lv45ODT6Lt3Yih9SGh03VLtBbU6awGYqsdXfC-/exec';
 // ⚠ URL 상수는 반드시 이 위치에 둘 것. 초기화 IIFE가 스크립트 중간에서 동기 실행되므로,
 //   그보다 아래에서 선언하면 호출 시점에 undefined가 되어 조회가 조용히 실패한다.
 const AUTH_KEY   = 'kistar_auth_url2';
@@ -1228,6 +1276,7 @@ function doAuth() {
       showMsg('success', result.name + '님, 환영합니다!');
       localStorage.setItem(AUTH_KEY, JSON.stringify({
         name: result.name, dept: result.dept, studentId: sid,
+        birth: birth,                       // ★ 관리자 조회(getCurriculumStats)에 필요
         role: result.role || '', isAdmin: result.isAdmin || false,
         isStaff: result.isStaff || false, loginTime: Date.now(),
         affiliation: result.affiliation || 'korea'
@@ -1258,6 +1307,8 @@ function showMsg(type, text) {
 
 function doLogout() {
   localStorage.removeItem(AUTH_KEY);
+  const _ts = document.getElementById('todo-strip');
+  if (_ts) { _ts.classList.remove('show'); _ts.innerHTML = ''; }
   document.getElementById('auth-overlay').classList.remove('hidden');
   document.getElementById('user-bar').style.display = 'none';
   document.getElementById('notice-banner').classList.remove('show');
@@ -1290,6 +1341,7 @@ function showUserBar() {
   if (auth.isAdmin) {
     document.getElementById('admin-section').classList.add('show');
     document.getElementById('adminMileageToggle').style.display = 'flex';
+    loadTodoStrip();
   }
   // 학점교류생 배너
   const existingBanner = document.getElementById('exchange-banner');
@@ -1567,9 +1619,258 @@ window.addEventListener('pageshow', function(e) {
     } else {
       document.getElementById('auth-overlay').classList.remove('hidden');
       document.getElementById('admin-section').classList.remove('show');
+      const _ts2 = document.getElementById('todo-strip');
+      if (_ts2) { _ts2.classList.remove('show'); _ts2.innerHTML = ''; }
     }
   }
 });
+
+/* ══════════════════════════════════════════════════════════════
+   ★ 지금 할 일 (2026-08-14)
+   관리자에게만 표시. 마감이 있고 지나면 손해가 확정되는 것만 올린다.
+   ① 캘린더 마감  담당 사업단·학사팀요청 · 미완료 · D-7 이내
+   ② 타과생 미조치  개설 교과목 조정 탭에 조치결과가 빈 건
+   ③ 학기 확정 대기  자료는 올렸는데 확정을 안 누른 학기
+   숫자 현황판은 넣지 않는다. 대시보드가 되는 순간 할 일이 묻힌다.
+   ══════════════════════════════════════════════════════════════ */
+const TODO_AHEAD_DAYS = 7;      // 캘린더 마감을 앞으로 몇 일까지 볼지
+const TODO_OVER_DAYS  = 3;      // 지난 마감을 며칠까지 남겨둘지
+const TODO_CUR_SEM    = '2026-2';
+
+function _todoJsonp(url, cb, timeoutMs) {
+  const name = '__todoCb_' + Math.random().toString(36).slice(2);
+  const s = document.createElement('script');
+  let done = false;
+  const finish = (data) => {
+    if (done) return; done = true;
+    clearTimeout(to);
+    try { delete window[name]; } catch (e) { window[name] = undefined; }
+    if (s.parentNode) s.parentNode.removeChild(s);
+    cb(data);
+  };
+  const to = setTimeout(() => finish(null), timeoutMs || 12000);
+  window[name] = finish;
+  s.onerror = () => finish(null);
+  s.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'callback=' + name;
+  document.body.appendChild(s);
+}
+
+function _todoToday() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+
+function _todoParseDate(v) {
+  if (!v) return null;
+  const m = String(v).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2] - 1, +m[3]);
+  d.setHours(0,0,0,0);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function _todoDiffDays(d) {
+  return Math.round((d - _todoToday()) / 86400000);
+}
+
+function _todoDdayLabel(n) {
+  if (n === 0) return '오늘';
+  if (n < 0)   return 'D+' + Math.abs(n);
+  return 'D-' + n;
+}
+
+function _todoEsc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/** ① 캘린더 마감
+    캘린더는 별도 프로젝트라 응답 키 이름이 바뀔 수 있다.
+    키를 못 찾으면 값의 생김새로 찾아 조용히 넘어간다 — 이 줄만 빠지고 나머지는 뜬다. */
+const _TODO_OWN_MINE  = ['biz','req','사업단','학사팀요청'];
+const _TODO_OWN_ALL   = _TODO_OWN_MINE.concat(['stu','ref','학생','참고']);
+
+function _todoPick(row, keys) {
+  for (let i = 0; i < keys.length; i++) {
+    if (row[keys[i]] !== undefined && row[keys[i]] !== null && row[keys[i]] !== '') return row[keys[i]];
+  }
+  return '';
+}
+
+function _todoOwnerOf(row) {
+  const direct = String(_todoPick(row, ['owner','담당','own','charge','resp'])).trim();
+  if (direct) return direct;
+  for (const k in row) {                       // 키를 못 찾으면 값으로 찾는다
+    const v = String(row[k] || '').trim();
+    if (_TODO_OWN_ALL.indexOf(v) >= 0) return v;
+  }
+  return '';
+}
+
+function _todoRowsOf(d) {
+  if (Array.isArray(d)) return d;
+  const keys = ['events','items','rows','data','list','calendar','schedule'];
+  for (let i = 0; i < keys.length; i++) {
+    if (Array.isArray(d[keys[i]])) return d[keys[i]];
+  }
+  for (const k in d) { if (Array.isArray(d[k]) && d[k].length && typeof d[k][0] === 'object') return d[k]; }
+  return [];
+}
+
+function _todoFromCalendar(payload) {
+  const rows = _todoRowsOf(payload || {});
+  if (!rows.length) return [];
+  const out = [];
+
+  rows.forEach(function (r) {
+    if (!r || typeof r !== 'object') return;
+
+    const owner = _todoOwnerOf(r);
+    if (_TODO_OWN_MINE.indexOf(owner) < 0) return;                 // 내 일만
+    if (String(_todoPick(r, ['show','표시','visible']) || 'ON').toUpperCase() === 'OFF') return;
+    if (String(_todoPick(r, ['done','완료일','doneDate','completed'])).trim()) return;
+
+    let end = _todoParseDate(_todoPick(r, ['end','종료일','endDate','to']));
+    if (!end) end = _todoParseDate(_todoPick(r, ['start','시작일','startDate','from','date']));
+    if (!end) return;
+
+    const n = _todoDiffDays(end);
+    if (n > TODO_AHEAD_DAYS || n < -TODO_OVER_DAYS) return;
+
+    const title = String(_todoPick(r, ['title','제목','name','subject','text'])).trim();
+    if (!title) return;
+
+    const isReq = (owner === 'req' || owner === '학사팀요청');
+    out.push({
+      dday: n,
+      level: n <= 1 ? 'red' : (n <= 3 ? 'amber' : 'gray'),
+      title: title,
+      sub: n < 0 ? '마감이 지났습니다 · 캘린더에서 완료 표시하세요'
+                 : (isReq ? '학사팀 요청' : '사업단'),
+      href: 'calendar.html',
+      todo: true
+    });
+  });
+  return out;
+}
+
+/** ②③ 개설 교과목 — 타과생 미조치 · 학기 확정 대기 */
+function _todoFromCurriculum(st) {
+  if (!st || !st.ok) return [];
+  const out = [];
+  const adjust = st.adjust || {};
+
+  // ② 타과생 미조치 — 과목별 명단에서 조치결과가 빈 건을 센다
+  const pending = {};
+  (st.courses || []).forEach(function (c) {
+    (c.outsiders || []).forEach(function (o) {
+      const rec = adjust[c.code + '|' + o.sid];
+      if (!rec || !String(rec.result || '').trim()) pending[o.sid] = true;
+    });
+  });
+  const nPending = Object.keys(pending).length;
+  if (nPending > 0) {
+    out.push({
+      dday: null,
+      level: 'amber',
+      title: '타과생 ' + nPending + '명 조치 미기록',
+      sub: '개설 교과목 → 타과생 조정 탭 · 1차 폐강 전에 정리',
+      href: 'admin_curriculum.html',
+      todo: true
+    });
+  }
+
+  // ③ 학기 확정 대기 — 자료는 올렸는데 확정 스냅샷이 없다
+  const hasData = (st.courses || []).length > 0;
+  if (hasData && !String(st.snapshotAt || '').trim()) {
+    out.push({
+      dday: null,
+      level: 'gray',
+      title: st.semester + ' 학기 확정 대기',
+      sub: '확정하지 않으면 사업지표 누적에 잡히지 않습니다',
+      href: 'admin_curriculum.html',
+      todo: false
+    });
+  }
+  return out;
+}
+
+function _todoRender(items) {
+  const wrap = document.getElementById('todo-strip');
+  if (!wrap) return;
+  if (!items.length) { wrap.classList.remove('show'); wrap.innerHTML = ''; return; }
+
+  // 마감 있는 것 먼저, 그 안에서 급한 순
+  items.sort(function (a, b) {
+    if (a.dday === null && b.dday === null) return 0;
+    if (a.dday === null) return 1;
+    if (b.dday === null) return -1;
+    return a.dday - b.dday;
+  });
+
+  const rows = items.map(function (it) {
+    const dd = it.dday === null ? '·' : _todoDdayLabel(it.dday);
+    const title = it.href
+      ? '<a href="' + _todoEsc(it.href) + '">' + _todoEsc(it.title) + '</a>'
+      : _todoEsc(it.title);
+    return '' +
+      '<div class="todo-item todo-lv-' + it.level + '">' +
+        '<div class="todo-dday">' + _todoEsc(dd) + '</div>' +
+        '<div class="todo-body">' +
+          '<div class="todo-title">' + title + '</div>' +
+          '<div class="todo-sub">' + _todoEsc(it.sub) + '</div>' +
+        '</div>' +
+        (it.todo ? '<div class="todo-todo">투두에 입력</div>' : '') +
+      '</div>';
+  }).join('');
+
+  wrap.innerHTML = '' +
+    '<div class="todo-box">' +
+      '<div class="todo-head">' +
+        '<span class="todo-head-title">지금 할 일</span>' +
+        '<span class="todo-head-count">' + items.length + '</span>' +
+        '<div class="todo-head-line"></div>' +
+        '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>' +
+      '</div>' +
+      rows +
+      '<div class="todo-foot">「투두에 입력」 표시가 있는 것은 Microsoft To Do에 옮겨 적어 두세요 — 알림은 그쪽이 확실합니다.</div>' +
+    '</div>';
+  wrap.classList.add('show');
+}
+
+let _todoLoading = false;
+function loadTodoStrip(force) {
+  const auth = checkAuth();
+  if (!auth || !auth.isAdmin) {
+    const w = document.getElementById('todo-strip');
+    if (w) { w.classList.remove('show'); w.innerHTML = ''; }
+    return;
+  }
+  if (_todoLoading && !force) return;
+  _todoLoading = true;
+
+  let items = [], pending = 2;
+  const step = function () {
+    if (--pending > 0) return;
+    _todoLoading = false;
+    _todoRender(items);
+  };
+
+  // ① 캘린더 — 별도 프로젝트. 죽어도 이 줄만 조용히 빠진다
+  _todoJsonp(CAL_GAS_URL + '?action=getCalendar', function (d) {
+    try {
+      if (d && (d.status === 'ok' || d.ok)) {
+        items = items.concat(_todoFromCalendar(d.events || d.items || d.rows || d.data || []));
+      }
+    } catch (e) {}
+    step();
+  });
+
+  // ②③ 개설 교과목 — 데이터허브
+  _todoJsonp(EXEC_URL + '?action=getCurriculumStats&semester=' + encodeURIComponent(TODO_CUR_SEM) +
+             '&adminId=' + encodeURIComponent(auth.studentId || '') +
+             '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
+    try { items = items.concat(_todoFromCurriculum(d)); } catch (e) {}
+    step();
+  });
+}
 
 let mileageData = null;
 let currentFilter = 'all';
