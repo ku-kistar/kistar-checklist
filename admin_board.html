@@ -940,7 +940,13 @@ var ABBR = {
 
 /* 헤더 라벨 — 고정표 우선, 없으면 프로그램명에서 날짜를 떼고 길이를 줄인다.
  * 전체 이름과 참석 인원은 칸에 마우스를 올리면 나온다. */
-function shortName(id,n){
+/* 약칭 3단 폴백
+     ① 프로그램 탭 M열(약칭) 값  ← 시트에서 바로 제어. 신규 행사는 여기만 채우면 된다
+     ② 아래 ABBR 고정표          ← 기존 26-1 프로그램용. 손대지 않는다
+     ③ 날짜 제거 + 14자 축약     ← 둘 다 없을 때
+   ★ mileage_board.html 도 같은 3단 구조다. 한쪽만 고치면 두 화면 열 이름이 갈라진다. */
+function shortName(id,n,abbr){
+  if(abbr) return abbr;
   var key=String(id||"").replace(/-\d{2}-\d$/,"");
   if(ABBR[key]) return ABBR[key];
   var s=String(n||"").trim();
@@ -1054,7 +1060,7 @@ function renderGrid(){
      '<th style="width:34px"><span class="vt">기수</span></th>';
   P.forEach(function(p,j){
     h+='<th class="pcol gp-'+GK[j]+'" data-j="'+j+'" title="누르면 전체 이름이 표 위에 표시됩니다"><span class="vt">'+
-       esc(shortName(p.id,p.name))+'</span></th>';
+       esc(shortName(p.id,p.name,p.abbr))+'</span></th>';
   });
   h+='<th style="width:34px"><span class="vt">노쇼</span></th></tr></thead><tbody>';
 
@@ -1089,7 +1095,7 @@ function renderGrid(){
      '<td class="fx c3">'+sumTot+'</td>'+
      '<td class="lb" style="text-align:left;padding:0 7px">합계</td><td></td><td></td>';
   for(var j2=0;j2<P.length;j2++){
-    h+='<td class="pcol gp-'+GK[j2]+'" title="'+esc(shortName(P[j2].id,P[j2].name))+' — 화면 표시 대상 중 '+
+    h+='<td class="pcol gp-'+GK[j2]+'" title="'+esc(shortName(P[j2].id,P[j2].name,P[j2].abbr))+' — 화면 표시 대상 중 '+
        colN[j2]+'명 참여">'+(colN[j2]||"·")+'</td>';
   }
   h+='<td class="nsn">'+(sumNs||"")+'</td></tr></tfoot></table>';
