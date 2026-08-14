@@ -420,6 +420,28 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .ext-loading{text-align:center;padding:1.5rem;color:rgba(255,255,255,.3);font-size:12px}
 .ext-empty{text-align:center;padding:1.5rem;color:rgba(255,255,255,.25);font-size:12px}
 .ext-error{text-align:center;padding:1.2rem;color:#ff8a80;font-size:12px;background:rgba(200,57,43,.08);border:1px solid rgba(200,57,43,.25);border-radius:10px}
+
+/* ── 관리자 전용: 학생 화면 미리보기 바 ─────────────────────────
+   기본 display:none. showUserBar()의 auth.isAdmin 블록에서만 노출된다.
+   학생 계정에서는 이 요소가 DOM에는 있으나 절대 보이지 않는다. */
+#admPrevBar{display:none;margin:0 0 12px;padding:10px 12px;border-radius:10px;
+  background:rgba(200,57,43,.08);border:1px solid rgba(200,57,43,.28)}
+#admPrevBar.show{display:block}
+.admprev-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.admprev-tag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.1em;
+  color:#ff9b90;background:rgba(200,57,43,.2);padding:3px 7px;border-radius:4px;white-space:nowrap}
+.admprev-input{flex:1;min-width:120px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  border-radius:7px;padding:7px 10px;font-size:13px;color:#fff;font-family:inherit;outline:none}
+.admprev-input:focus{border-color:rgba(200,57,43,.5)}
+.admprev-btn{padding:7px 14px;border-radius:7px;border:none;background:rgba(200,57,43,.85);color:#fff;
+  font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}
+.admprev-btn:hover{background:rgba(200,57,43,1)}
+.admprev-exit{display:none;padding:7px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.2);
+  background:transparent;color:rgba(255,255,255,.6);font-size:12.5px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.admprev-exit:hover{color:#fff;border-color:rgba(255,255,255,.45)}
+.admprev-msg{font-size:11.5px;line-height:1.6;margin-top:7px;color:rgba(255,255,255,.55)}
+.admprev-msg.on{color:#ffd0a0}
+.admprev-msg.err{color:#ff8a80}
 </style>
 </head>
 <body>
@@ -929,6 +951,18 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="admin-section-label" style="margin-bottom:0">🎖 사업단 마일리지</div>
       <button class="admin-mileage-btn" id="adminMileageToggle" style="display:none" onclick="toggleAdminMileage()">+ 마일리지 입력</button>
     </div>
+
+    <!-- 관리자 전용 · 학생 화면 미리보기 (기본 숨김) -->
+    <div id="admPrevBar">
+      <div class="admprev-row">
+        <span class="admprev-tag">ADMIN 미리보기</span>
+        <input class="admprev-input" id="admPrevInput" type="text" inputmode="numeric"
+               placeholder="학번 입력" onkeydown="if(event.key==='Enter')admPreviewGo()">
+        <button class="admprev-btn" onclick="admPreviewGo()">조회</button>
+        <button class="admprev-exit" id="admPrevExit" onclick="admPreviewExit()">내 화면으로</button>
+      </div>
+      <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+    </div>
     <div class="mileage-admin-panel" id="adminMileagePanel">
       <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;font-weight:600">참여자 일괄 마일리지 적립</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
@@ -1058,6 +1092,13 @@ const CAL_GAS_URL = 'https://script.google.com/macros/s/AKfycbyvrnTLb3yBw5wu-qYH
 const AUTH_KEY   = 'kistar_auth_url2';
 const EXPIRE_MS  = 8 * 60 * 60 * 1000;
 const NOTICE_DISMISS_KEY = 'kistar_notice_2026_1_v1';
+
+// ── 관리자 미리보기 상태 ────────────────────────────────────────
+//  _admPrevSid 가 비어 있으면(=평상시·학생 전원) _admViewSid()는
+//  auth.studentId 를 그대로 돌려준다. 즉 기존 동작과 완전히 동일하다.
+//  URL 상수와 같은 이유로 초기화 IIFE보다 위에 선언한다.
+var _admPrevSid = '';
+function _admViewSid(auth) { return _admPrevSid || (auth ? auth.studentId : ''); }
 
 // ── 공지사항 아코디언 ──
 // ── 학점교류생 접근 제한 토스트 ──
@@ -1342,6 +1383,8 @@ function showUserBar() {
   if (auth.isAdmin) {
     document.getElementById('admin-section').classList.add('show');
     document.getElementById('adminMileageToggle').style.display = 'flex';
+    const _apb = document.getElementById('admPrevBar');
+    if (_apb) _apb.classList.add('show');
     loadTodoStrip();
   }
   // 학점교류생 배너
@@ -1370,7 +1413,9 @@ function showUserBar() {
 
 
   if (auth.studentId) {
-    loadMileage(auth.studentId); loadExtMileage(auth.studentId);
+    // 미리보기 중이면 그 학번을, 아니면 본인 학번을 쓴다.
+    // _admPrevSid 가 비어 있는 평상시에는 auth.studentId 와 동일하다.
+    loadMileage(_admViewSid(auth)); loadExtMileage(_admViewSid(auth));
   }
 }
 
@@ -1492,7 +1537,7 @@ function reloadForms() {
   btn.classList.add('spinning');
   setTimeout(()=>btn.classList.remove('spinning'),700);
   loadForms();
-  const auth=checkAuth(); if(auth&&auth.studentId) loadSurveys(auth.studentId);
+  const auth=checkAuth(); if(auth&&auth.studentId) loadSurveys(_admViewSid(auth));
 }
 
 // ── 수강후기 설문 로드 ──
@@ -1607,7 +1652,7 @@ function escHtml(str) {
     loadForms();
     checkNoticePopup();
     // loadMileage/loadExtMileage는 위 showUserBar()에서 이미 호출됨 (JSONP 경합 방지)
-    if (auth.studentId) { loadSurveys(auth.studentId); }
+    if (auth.studentId) { loadSurveys(_admViewSid(auth)); }
   }
 })();
 
@@ -1876,6 +1921,51 @@ function loadTodoStrip(force) {
 let mileageData = null;
 let currentFilter = 'all';
 
+
+// ═══════════════════════════════════════════════════════════
+//  관리자 전용 · 학생 화면 미리보기
+//  ───────────────────────────────────────────────────────────
+//  왜 접속기록이 안 남나 — 접속기록은 GAS의 _verifyAndLog(action=verify)
+//  에서만 기록된다. 여기서는 verify 를 호출하지 않고 조회 엔드포인트
+//  (getMileage · getEnrolledCourses)만 학번을 바꿔 호출하므로
+//  '접속기록' 탭에 아무 행도 생기지 않는다.
+//
+//  localStorage(AUTH_KEY)는 건드리지 않는다. 로그인 상태는 관리자
+//  본인 그대로이고, 새로고침하면 미리보기는 자연히 해제된다.
+// ═══════════════════════════════════════════════════════════
+function _admPrevMsg(text, cls) {
+  const el = document.getElementById('admPrevMsg');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'admprev-msg' + (cls ? ' ' + cls : '');
+}
+
+function admPreviewGo() {
+  const auth = checkAuth();
+  if (!auth || !auth.isAdmin) return;           // 이중 방어. 관리자가 아니면 아무 일도 하지 않는다
+  const inp = document.getElementById('admPrevInput');
+  const sid = (inp ? inp.value : '').trim();
+  if (!/^\d{7,}$/.test(sid)) { _admPrevMsg('학번을 숫자로만 입력하세요.', 'err'); return; }
+
+  _admPrevSid = sid;
+  const ex = document.getElementById('admPrevExit');
+  if (ex) ex.style.display = 'inline-flex';
+  _admPrevMsg('▶ ' + sid + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
+
+  loadMileage(sid); loadExtMileage(sid); loadSurveys(sid);
+}
+
+function admPreviewExit() {
+  const auth = checkAuth();
+  if (!auth) return;
+  _admPrevSid = '';
+  const ex = document.getElementById('admPrevExit');
+  if (ex) ex.style.display = 'none';
+  const inp = document.getElementById('admPrevInput');
+  if (inp) inp.value = '';
+  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
+  if (auth.studentId) { loadMileage(auth.studentId); loadExtMileage(auth.studentId); loadSurveys(auth.studentId); }
+}
 
 function loadMileage(studentId) {
   const section = document.getElementById('mileage-section');
