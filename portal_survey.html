@@ -362,6 +362,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .cat-extra{background:rgba(139,92,246,.2);color:#bda6f8}
 .cat-ext{background:rgba(16,185,129,.18);color:#5ec8a0}
 .cat-pen{background:rgba(200,57,43,.25);color:#ff8a80}
+.cat-doc{background:rgba(245,158,11,.18);color:#e8b464}
 .m-name-text{display:block;font-size:13px;color:#fff;font-weight:500;line-height:1.55;word-break:keep-all;overflow-wrap:break-word}
 .m-inline-date{display:none;font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
 .m-date{font-size:11px;color:rgba(255,255,255,.4)}
@@ -413,6 +414,23 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .ext-item-msg.msg-alert{color:rgba(255,255,255,.88);font-size:12.5px;font-weight:500;background:rgba(255,255,255,.05);border-radius:6px;padding:7px 9px;margin-top:6px;border-top:none}
 .msg-label{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;padding:1px 6px;border-radius:4px;background:rgba(245,158,11,.25);color:#fbbf24;margin-right:6px;vertical-align:1px}
 .status-rej .msg-label{background:rgba(200,57,43,.3);color:#ff8a80}
+/* 점수 칸 — 뱃지·점수를 고정폭으로 두어야 카드마다 세로로 맞는다 */
+.ext-item-top .ext-status-badge{width:92px;text-align:center}
+.ext-item-top .ext-item-pts{width:46px;text-align:right}
+.ext-item-pts.pts-none{color:rgba(255,255,255,.22);font-weight:400}
+.ext-fold-bar{display:flex;align-items:center;gap:8px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:9px 13px;cursor:pointer;user-select:none}
+.ext-fold-bar:hover{background:rgba(16,185,129,.1)}
+.ext-fold-sum{font-size:12px;color:#34d399;flex:1}
+.ext-fold-sum b{font-weight:700}
+.ext-fold-label{font-size:10px;color:rgba(255,255,255,.45)}
+.ext-fold-body{display:flex;flex-direction:column;gap:6px}
+/* 모바일 — 이름이 한 줄을 다 쓰고 뱃지·점수는 아랫줄로. 좁은 폭에서 제목이 잘게 쪼개지는 것을 막는다 */
+@media(max-width:600px){
+  .ext-item-top{flex-wrap:wrap;align-items:center}
+  .ext-item-name{flex:1 0 100%;margin-bottom:7px}
+  .ext-item-top .ext-status-badge{width:auto;padding:2px 8px}
+  .ext-item-top .ext-item-pts{margin-left:auto}
+}
 .ext-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
 .ext-item-name{font-size:13px;font-weight:500;color:#fff;line-height:1.35;flex:1}
 .ext-status-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
@@ -2125,9 +2143,9 @@ function filterMileage(semester, btn) {
     .trim();
   const isAttend_ = r => /출석\s*\)\s*$/.test(String(r['프로그램명'] || ''));
   recs.sort((a, b) => {
-    const catOrder = {'교과':0,'비교과':1,'외부활동':2,'패널티':3};
-    const ca = a['상태'] === '패널티' ? 3 : (catOrder[a['카테고리']] ?? 1);
-    const cb = b['상태'] === '패널티' ? 3 : (catOrder[b['카테고리']] ?? 1);
+    const catOrder = {'교과':0,'비교과':1,'서류':2,'외부활동':3,'패널티':4};
+    const ca = a['상태'] === '패널티' ? 4 : (catOrder[a['카테고리']] ?? 1);
+    const cb = b['상태'] === '패널티' ? 4 : (catOrder[b['카테고리']] ?? 1);
     if (ca !== cb) return ca - cb;
     const da = (a['날짜'] || ''), db = (b['날짜'] || '');
     if (da !== db) return da.localeCompare(db);
@@ -2151,7 +2169,7 @@ function filterMileage(semester, btn) {
     document.getElementById('mileageListCount').textContent = recs.length + '건 · ' + totalPts + '점';
   }
 
-  const CAT_CLS = {'교과':'cat-edu','비교과':'cat-extra','외부활동':'cat-ext'};
+  const CAT_CLS = {'교과':'cat-edu','비교과':'cat-extra','서류':'cat-doc','외부활동':'cat-ext'};
   const table = document.createElement('div');
   table.className = 'm-table';
   table.innerHTML =
@@ -2268,7 +2286,7 @@ function renderExtMileage(records) {
   // 판정상태 매핑
   const statusMap = {
     '확정':   { cls:'status-ok',   badge:'ext-status-ok',   label:'✅ 인정' },
-    '조정':   { cls:'status-adj',  badge:'ext-status-adj',  label:'🔶 점수조정 인정' },
+    '조정':   { cls:'status-adj',  badge:'ext-status-adj',  label:'🔶 조정 인정' },
     '보류':   { cls:'status-hold', badge:'ext-status-hold', label:'⚠️ 확인 필요' },
     '반려':   { cls:'status-rej',  badge:'ext-status-rej',  label:'❌ 반려' },
     '제외':   { cls:'status-none', badge:'ext-status-none', label:'— 제외' },
@@ -2280,34 +2298,83 @@ function renderExtMileage(records) {
   const visible = records.filter(r => r['판정상태'] !== '제외');
   if(!visible.length) { renderExtEmpty(); return; }
 
-  // 정렬: 반려 > 보류/미판정 > 조정 > 확정
-  const order = {'반려':0,'보류':1,'미판정':1,'':1,'조정':2,'확정':3,'제외':4};
-  visible.sort((a,b) => (order[a['판정상태']]??1) - (order[b['판정상태']]??1));
+  // 인정(확정·조정)은 학생이 다시 볼 일이 적다 — 접어서 아래로 모은다.
+  // 조치가 필요한 건(반려·보류·미판정)만 위에 남긴다.
+  const DONE = {'확정':1,'조정':1};
+  const acting = visible.filter(r => !DONE[r['판정상태']]);
+  const done   = visible.filter(r =>  DONE[r['판정상태']]);
 
-  listEl.innerHTML = '';
-  visible.forEach(r => {
+  const order = {'반려':0,'보류':1,'미판정':1,'':1};
+  acting.sort((a,b) => (order[a['판정상태']]??1) - (order[b['판정상태']]??1));
+  // 인정 건은 제출일순
+  done.sort((a,b) => String(a['제출일시']||'').localeCompare(String(b['제출일시']||'')));
+
+  function extCard(r) {
     const st = r['판정상태'] || '';
     const map = statusMap[st] || statusMap['미판정'];
-    const studentMsg = r['학생안내메모'] || '';
     const progName = r['프로그램명'] || '';
     const date = (r['제출일시'] || '').slice(0,10);
-
-    const div = document.createElement('div');
     // 보류·반려는 학생이 조치해야 하는 건 — 안내메모를 사유 박스로 강조한다
     const needAction = (st === '보류' || st === '반려');
+    // 확정·조정의 안내메모는 숨긴다. 뱃지·점수와 같은 말을 두 번 하게 된다.
+    const studentMsg = needAction ? (r['학생안내메모'] || '') : '';
+    // 점수는 확정·조정에만. 보류 건의 판정점수는 판정 중 임시값이라 노출하면 오해가 된다.
+    const ptsRaw = DONE[st] ? parseInt(r['판정점수']) : NaN;
+    const pts = isNaN(ptsRaw) ? '' : ptsRaw;
+
+    const div = document.createElement('div');
     div.className = 'ext-item ' + map.cls;
     div.innerHTML =
       '<div class="ext-item-top">' +
         '<div class="ext-item-name">' + progName + '</div>' +
         '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
+        '<span class="ext-item-pts' + (pts === '' ? ' pts-none' : '') + '">' +
+          (pts === '' ? '—' : '+' + pts) + '</span>' +
       '</div>' +
-      (studentMsg ? '<div class="ext-item-msg' + (needAction ? ' msg-alert' : '') + '">' +
-        (needAction ? '<span class="msg-label">사유</span>' : '') + studentMsg + '</div>' : '') +
+      (studentMsg ? '<div class="ext-item-msg msg-alert">' +
+        '<span class="msg-label">사유</span>' + studentMsg + '</div>' : '') +
       (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
-    listEl.appendChild(div);
-  });
+    return div;
+  }
+
+  listEl.innerHTML = '';
+  acting.forEach(r => listEl.appendChild(extCard(r)));
+
+  if(done.length) {
+    const donePts = done.reduce((s,r) => s + (parseInt(r['판정점수']) || 0), 0);
+    const bar = document.createElement('div');
+    bar.className = 'ext-fold-bar';
+    bar.setAttribute('role','button');
+    bar.setAttribute('tabindex','0');
+    // '외부활동'을 명시한다. 상단 요약(전체 학기 총점)과 다른 숫자라 그냥 두면 오해가 된다.
+    bar.innerHTML =
+      '<span class="ext-fold-sum">✅ 외부활동 인정 <b>' + done.length + '건</b> · <b>' + donePts + '점</b></span>' +
+      '<span class="ext-fold-label" id="extFoldLabel">펼치기 ▾</span>';
+    listEl.appendChild(bar);
+
+    const body = document.createElement('div');
+    body.className = 'ext-fold-body';
+    body.id = 'extFoldBody';
+    body.style.display = 'none';
+    done.forEach(r => body.appendChild(extCard(r)));
+    listEl.appendChild(body);
+
+    bar.addEventListener('click', toggleExtFold);
+    bar.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExtFold(); }
+    });
+  }
 
   if(section) section.style.display = 'block';
+}
+
+function toggleExtFold() {
+  const body = document.getElementById('extFoldBody');
+  const label = document.getElementById('extFoldLabel');
+  if(!body) return;
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'flex' : 'none';
+  if(label) label.textContent = open ? '접기 ▴' : '펼치기 ▾';
 }
 
 function renderExtEmpty() {
