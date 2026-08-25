@@ -184,14 +184,22 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .aist b{display:block;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
 .aist i{font-style:normal;font-size:10.5px;color:var(--text3);margin-left:4px;font-weight:400}
 .aist em{font-style:normal;display:block;font-size:10.5px;color:var(--text3)}
-.aist.g b{color:var(--ok)} .aist.o b{color:#b45309} .aist.r b{color:var(--dang)}
-.aist.r{border-color:#f0cccc;background:#fef8f8}
-.aist.cl{cursor:pointer} .aist.cl:hover{background:#eef4ff;border-color:#c9d9f2}
+.aist.q b{color:var(--text2)} .aist.r b{color:var(--dang)}
+.aist.r{border-color:#e8b4b4;background:#fdf5f5}
+.aist.cl{cursor:pointer} .aist.cl:hover{background:#fbeaea;border-color:#dc9a9a}
+.aist.hi{background:var(--dang);border-color:var(--dang)}
+.aist.hi b{color:#fff} .aist.hi em{color:#ffd9d9}
+.aist.hi.cl:hover{background:#a8302f;border-color:#a8302f}
 .aitg{padding:7px 12px;border:1px solid var(--border);border-radius:7px;background:#fff;
   cursor:pointer;font-size:12px;color:var(--text2);white-space:nowrap}
 .aitg:hover{background:#f2f6fc}
 .aipb{display:flex;height:7px;margin:0 16px 14px;border-radius:4px;overflow:hidden;background:var(--line)}
 .aipb i{display:block}
+.tbl tbody tr.ybrk td{background:#f4f7fb;border-top:1px solid var(--border);
+  border-bottom:1px solid var(--line);padding:6px 14px;text-align:left;
+  font-size:11.5px;font-weight:700;color:var(--navy);cursor:default}
+.tbl tbody tr.ybrk td span{font-weight:400;color:var(--text3);margin-left:6px}
+.tbl tbody tr.ybrk:hover td{background:#f4f7fb}
 .bd tbody tr.all td{background:var(--navy);color:#fff;border-bottom:none}
 .bd tbody tr.all td.g{color:#8fe3ad} .bd tbody tr.all td.z{color:#7f8ea3}
 .bd tbody tr.all .hintx{color:#9fb0c4}
@@ -432,14 +440,17 @@ function rows(){
     (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
     (ss==='_all'?true: ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
     (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
-  L.sort((a,b)=> tab===0 ? ((a.memo?1:0)-(b.memo?1:0))||(a.dg.sev-b.dg.sev)||(b.yr-a.yr)||(a.tot-b.tot)
-                         : (parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1])));
+  const bySeq=(a,b)=>parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1]);
+  // 미이수 드릴다운은 높은 학년이 급하다. 4학년 → 3 → 2, 그 안에서 신전화기물.
+  L.sort((a,b)=> drill_==='ai' ? (Number(b.yr)-Number(a.yr))||(deptRank(a.dept)-deptRank(b.dept))||bySeq(a,b)
+               : tab===0 ? ((a.memo?1:0)-(b.memo?1:0))||(a.dg.sev-b.dg.sev)||(b.yr-a.yr)||(a.tot-b.tot)
+               : bySeq(a,b));
   return L;
 }
 function init(){
   meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · 수강신청 기준`
     + (ENR_N ? ` · 재적정보 ${ENR_N}명 연결` : ' · 재적정보 미연결');
-  [...new Set(DATA.map(d=>d.dept))].forEach(v=>fD.insertAdjacentHTML('beforeend',`<option>${esc(v)}</option>`));
+  deptSort([...new Set(DATA.map(d=>d.dept))]).forEach(v=>fD.insertAdjacentHTML('beforeend',`<option>${esc(v)}</option>`));
   [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${v}학년</option>`));
   [fD,fY].forEach(e=>e.onchange=()=>{drill_=null;render();}); fS.onchange=()=>{drill_=null;render();drawBoard();}; fQ.oninput=()=>{drill_=null;render();};
 
@@ -486,6 +497,11 @@ function drawBoard(){
 // AI반도체개론(전공필수) 3구간 판정.
 // 이수 여부는 이수현황 J열(전공필수)이 기준이다. KISE302·KMSE330 두 학수번호를
 // 모두 포함하므로, 코드 배열을 직접 보면 KMSE330 이수자가 누락된다.
+// 학과 표기 순서 고정 — 신전화기물. 화면 전체가 이 순서를 따른다.
+const DEPT_ORDER=['신소재공학부','전기전자공학부','화공생명공학과','기계공학부','물리학과'];
+const deptRank=v=>{const i=DEPT_ORDER.indexOf(v);return i<0?99:i;};
+const deptSort=a=>[...a].sort((x,y)=>deptRank(x)-deptRank(y)||String(x).localeCompare(String(y),'ko'));
+const deptShort=v=>String(v).replace(/(공학부|공학과|학부|학과)$/,'');
 const AI_ST=[['기이수','g'],['2026-2 신청','o'],['미이수·미신청','r']];
 function aiState(d){
   if(d.ai) return '기이수';
@@ -497,48 +513,49 @@ function aiBase(){ return DATA.filter(d=>!['졸업','융전포기'].includes(d.s
 function drawAI(){
   const B=aiBase();
   if(!B.length){ aiBoard.innerHTML=''; return; }
-  const YS=[...new Set(B.map(d=>d.yr))].sort((a,b)=>Number(a)-Number(b));
-  const DS=[...new Set(B.map(d=>d.dept))].sort();
+  const YS=[...new Set(B.map(d=>d.yr))].sort((x,y)=>Number(y)-Number(x)); // 4학년부터
+  const DS=deptSort([...new Set(B.map(d=>d.dept))]);
   const n=f=>B.filter(f).length;
   const pct=v=>Math.round(v/B.length*100);
+  // 미이수만 색을 남긴다. 기이수·신청은 회색 — 조치가 필요한 건 미이수뿐이다.
   const cell=(v,c,dp,y,bold)=>{
-    const clickable = c==='r' && v>0;
-    const t = bold ? `<b>${v||'—'}</b>` : (v||'—');
-    return `<td class="${v?c:'z'}${clickable?' kx':''}"${clickable
+    const hot = c==='r' && v>0;
+    const t = bold?`<b>${v||'—'}</b>`:(v||'—');
+    return `<td class="${hot?'r kx':'z'}"${hot
       ?` onclick="drillAI('${esc(dp)}','${y}')"`:''}>${t}</td>`;
   };
-  // 한눈 요약 — 학과·학년 무관, 129명 전체 3구간
   const stat=AI_ST.map(([s2,c])=>{
-    const v=n(d=>aiState(d)===s2), cl=(c==='r'&&v)?' cl':'';
-    return `<div class="aist ${c}${cl}"${cl?` onclick="drillAI('','')"`:''}>
-      <b>${v}<i>${pct(v)}%</i></b><em>${s2}</em></div>`;}).join('');
+    const v=n(d=>aiState(d)===s2), hot=c==='r';
+    return `<div class="aist ${hot?'r cl':'q'}"${hot?` onclick="drillAI('','')"`:''}>
+      <b>${v}<i>${pct(v)}%</i></b><em>${s2}${hot?' &rsaquo;':''}</em></div>`;}).join('')
+    // 졸업 임박 최고학년 미이수 — 정정기간 학년 비율 조정의 근거라 따로 뽑는다.
+    + (()=>{ const top=YS[0];
+        const v=n(d=>d.yr===top&&aiState(d)==='미이수·미신청');
+        return `<div class="aist r hi${v?' cl':''}"${v?` onclick="drillAI('','${top}')"`:''}>
+          <b>${v}</b><em>${top}학년 미이수${v?' &rsaquo;':''}</em></div>`;})();
   const bar=AI_ST.map(([s2,c])=>{
     const v=n(d=>aiState(d)===s2);
-    const col=c==='g'?'var(--ok)':c==='o'?'#d99a2b':'var(--dang)';
+    const col=c==='g'?'#b7dcc4':c==='o'?'#e8cf9c':'var(--dang)';
     return v?`<i style="width:${v/B.length*100}%;background:${col}"></i>`:'';}).join('');
-  const body=DS.map(dp=>AI_ST.map(([s2,c],i)=>`<tr class="nc${i===0?' gtop':''}">
-    ${i===0?`<td class="l" rowspan="3"><b>${esc(dp)}</b>
-      <span class="hintx">${n(d=>d.dept===dp)}명</span></td>`:''}
+  // yKey 는 드릴다운에 넘길 학년값. 합계 행은 빈 문자열이어야 전 학년이 잡힌다.
+  const rowsFor=(label,hint,cls,f,yKey)=>AI_ST.map(([s2,c],i)=>`<tr class="nc${i===0?' gtop':''}${cls}">
+    ${i===0?`<td class="l" rowspan="3"><b>${label}</b><span class="hintx">${hint}</span></td>`:''}
     <td class="s">${s2}</td>
-    ${YS.map(y=>cell(n(d=>d.dept===dp&&d.yr===y&&aiState(d)===s2),c,dp,y)).join('')}
-    ${cell(n(d=>d.dept===dp&&aiState(d)===s2),c,dp,'',1)}</tr>`).join('')).join('');
-  const foot=AI_ST.map(([s2,c],i)=>`<tr class="nc sm${i===0?' gtop':''}">
-    ${i===0?`<td class="l" rowspan="3"><b>합계</b>
-      <span class="hintx">${B.length}명</span></td>`:''}
-    <td class="s">${s2}</td>
-    ${YS.map(y=>cell(n(d=>d.yr===y&&aiState(d)===s2),c,'',y)).join('')}
-    ${cell(n(d=>aiState(d)===s2),c,'','',1)}</tr>`).join('');
-  const open = (()=>{ try{ return localStorage.getItem('kistar_ai_open')==='1'; }catch(e){ return false; } })();
+    ${DS.map(dp=>cell(n(d=>f(d)&&d.dept===dp&&aiState(d)===s2),c,dp,yKey)).join('')}
+    ${cell(n(d=>f(d)&&aiState(d)===s2),c,'',yKey,1)}</tr>`).join('');
+  const body=YS.map(y=>rowsFor(y+'학년',n(d=>d.yr===y)+'명','',d=>d.yr===y,y)).join('');
+  const foot=rowsFor('합계',B.length+'명',' sm',()=>true,'');
+  const open=(()=>{ try{ return localStorage.getItem('kistar_ai_open')==='1'; }catch(e){ return false; } })();
   aiBoard.innerHTML=`<div class="aihd">
      <div class="aitt">AI반도체개론<span>전공필수 · 졸업·포기 제외 ${B.length}명</span></div>
      <div class="aistat">${stat}</div>
-     <button class="aitg" id="aiTg" onclick="toggleAI()">학과 × 학년 ${open?'▴':'▾'}</button>
+     <button class="aitg" id="aiTg" onclick="toggleAI()">학년 × 학과 ${open?'▴':'▾'}</button>
    </div>
    <div class="aipb">${bar}</div>
    <div id="aiDetail" style="display:${open?'block':'none'}">
    <table class="bd">
-   <thead><tr><th class="l">학과</th><th class="l">구분</th>
-     ${YS.map(y=>`<th>${y}학년</th>`).join('')}<th>계</th></tr></thead>
+   <thead><tr><th class="l">학년</th><th class="l">구분</th>
+     ${DS.map(dp=>`<th>${esc(deptShort(dp))}</th>`).join('')}<th>계</th></tr></thead>
    <tbody>${body}${foot}</tbody></table>
    <div class="bdcap" style="border-bottom:none;border-top:1px solid var(--line);
      background:#fff;font-weight:400;font-size:11.5px;color:var(--text3)">
@@ -601,9 +618,13 @@ function tblHtml(L){
     <th class="div">이수 학점</th>
     ${AREAS.map((a,i)=>`<th class="${i===0?'div':''}">${a[0]}</th>`).join('')}
     <th class="div">2026-2 신청</th><th>추가 필요</th></tr></thead><tbody>
-    ${L.map(d=>{const p=Math.round(d.tot/36*100);
+    ${L.map((d,idx)=>{const p=Math.round(d.tot/36*100);
       const st=d.tot>=36?['ok','충족']:!d.dg.active?['no',d.st]:d.dg.sev?['go','조치 필요']:['no','진행 중'];
-      return `<tr onclick="open_('${d.sid}')">
+      // 미이수 드릴다운은 학년이 바뀌는 지점에 구분줄을 넣는다. 55명이면 경계가 안 보인다.
+      const brk = drill_==='ai' && (idx===0 || L[idx-1].yr!==d.yr)
+        ? `<tr class="ybrk"><td colspan="${4+AREAS.length+2}">${d.yr}학년
+             <span>${L.filter(x=>x.yr===d.yr).length}명</span></td></tr>` : '';
+      return brk+`<tr onclick="open_('${d.sid}')">
       <td class="l"><span class="seq">${esc(d.seq)}</span><b>${esc(d.name)}</b>
         <span style="color:var(--text3)"> ${d.sid} · ${esc(d.dept)}</span></td>
       <td>${d.yr}</td><td><span class="st ${st[0]}">${esc(st[1])}</span></td>
