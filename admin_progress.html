@@ -168,6 +168,13 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .bd td.kx{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
 .bd td.kx:hover{background:#eef4ff!important}
 .hintx{font-size:11px;color:var(--text3);font-weight:400;margin-left:6px}
+.bd tbody td.s{text-align:left;font-weight:400;color:var(--text2);font-size:12px;padding-left:12px}
+.bd tbody tr.gtop td{border-top:1px solid var(--border)}
+.bd tbody tr.gtop td.l{vertical-align:middle}
+.bd tbody tr.nc{cursor:default}
+.bdcap{padding:11px 14px;border-bottom:1px solid var(--line);font-size:12.5px;
+  font-weight:600;color:var(--text);background:#f7f9fc}
+.bdcap span{font-size:11px;color:var(--text3);font-weight:400;margin-left:8px}
 .bd tbody tr.all td{background:var(--navy);color:#fff;border-bottom:none}
 .bd tbody tr.all td.g{color:#8fe3ad} .bd tbody tr.all td.z{color:#7f8ea3}
 .bd tbody tr.all .hintx{color:#9fb0c4}
@@ -244,6 +251,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 
 <div class="wrap" id="wrap" style="display:none">
   <div class="board" id="board"></div>
+  <div class="board" id="aiBoard"></div>
   <div class="tabs">
     <button class="tab on" id="t1" onclick="go(1)">전체 명단 <span class="c" id="c1"></span></button>
     <button class="tab" id="t0" onclick="go(0)">조치 필요 <span class="c" id="c0"></span></button>
@@ -402,6 +410,7 @@ function rows(){
   if(drill_==='urg') base=DATA.filter(d=>d.dg.sev===1);
   else if(drill_==='act') base=actList();
   else if(drill_==='ok')  base=DATA.filter(d=>d.tot>=36);
+  else if(drill_==='ai')  base=aiBase().filter(d=>aiState(d)==='미이수·미신청');
   let L=base.filter(d=>
     (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
     (ss==='_all'?true: ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
@@ -417,7 +426,7 @@ function init(){
   [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${v}학년</option>`));
   [fD,fY].forEach(e=>e.onchange=()=>{drill_=null;render();}); fS.onchange=()=>{drill_=null;render();drawBoard();}; fQ.oninput=()=>{drill_=null;render();};
 
-  drawBoard();
+  drawBoard(); drawAI();
   c0.textContent=actList().length; c1.textContent=DATA.length;
   render();
 }
@@ -457,6 +466,60 @@ function drawBoard(){
      <td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>
    </tbody></table>`;
 }
+// AI반도체개론(전공필수) 3구간 판정.
+// 이수 여부는 이수현황 J열(전공필수)이 기준이다. KISE302·KMSE330 두 학수번호를
+// 모두 포함하므로, 코드 배열을 직접 보면 KMSE330 이수자가 누락된다.
+const AI_ST=[['기이수','g'],['2026-2 신청','o'],['미이수·미신청','r']];
+function aiState(d){
+  if(d.ai) return '기이수';
+  // '신청'으로 판정하면 '미이수·미신청'까지 걸린다. 반드시 '신청함'으로 볼 것.
+  return String((d.w26||{}).KISE302||'').includes('신청함') ? '2026-2 신청' : '미이수·미신청';
+}
+// 크로스표는 상단 필터와 연동하지 않는다. 항상 졸업·포기 제외 전원 고정.
+function aiBase(){ return DATA.filter(d=>!['졸업','융전포기'].includes(d.st)); }
+function drawAI(){
+  const B=aiBase();
+  if(!B.length){ aiBoard.innerHTML=''; return; }
+  const YS=[...new Set(B.map(d=>d.yr))].sort((a,b)=>Number(a)-Number(b));
+  const DS=[...new Set(B.map(d=>d.dept))].sort();
+  const n=f=>B.filter(f).length;
+  const cell=(v,c,dp,y,bold)=>{
+    const clickable = c==='r' && v>0;
+    const t = bold ? `<b>${v||'—'}</b>` : (v||'—');
+    return `<td class="${v?c:'z'}${clickable?' kx':''}"${clickable
+      ?` onclick="drillAI('${esc(dp)}','${y}')"`:''}>${t}</td>`;
+  };
+  const body=DS.map(dp=>AI_ST.map(([s,c],i)=>`<tr class="nc${i===0?' gtop':''}">
+    ${i===0?`<td class="l" rowspan="3"><b>${esc(dp)}</b>
+      <span class="hintx">${n(d=>d.dept===dp)}명</span></td>`:''}
+    <td class="s">${s}</td>
+    ${YS.map(y=>cell(n(d=>d.dept===dp&&d.yr===y&&aiState(d)===s),c,dp,y)).join('')}
+    ${cell(n(d=>d.dept===dp&&aiState(d)===s),c,dp,'',1)}</tr>`).join('')).join('');
+  const foot=AI_ST.map(([s,c],i)=>`<tr class="nc sm${i===0?' gtop':''}">
+    ${i===0?`<td class="l" rowspan="3"><b>합계</b>
+      <span class="hintx">${B.length}명</span></td>`:''}
+    <td class="s">${s}</td>
+    ${YS.map(y=>cell(n(d=>d.yr===y&&aiState(d)===s),c,'',y)).join('')}
+    ${cell(n(d=>aiState(d)===s),c,'','',1)}</tr>`).join('');
+  aiBoard.innerHTML=`<div class="bdcap">AI반도체개론 이수 현황 · 학과 × 학년
+    <span>전공필수 · 졸업·포기 제외 ${B.length}명 · 상단 필터와 무관하게 항상 전원 기준</span></div>
+   <table class="bd">
+   <thead><tr><th class="l">학과</th><th class="l">구분</th>
+     ${YS.map(y=>`<th>${y}학년</th>`).join('')}<th>계</th></tr></thead>
+   <tbody>${body}${foot}</tbody></table>
+   <div class="bdcap" style="border-bottom:none;border-top:1px solid var(--line);
+     background:#fff;font-weight:400;font-size:11.5px;color:var(--text3)">
+     기이수 = 이수현황 전공필수(KISE302 · KMSE330 포함) ·
+     2026-2 신청 = 수강신청명단 업로드 시점 기준이라 KUPID 실시간 인원과 다를 수 있음 ·
+     붉은 숫자를 누르면 해당 명단이 열립니다</div>`;
+}
+function drillAI(dept,yr){
+  drill_='ai'; fS.value=''; fQ.value='';
+  fD.value=dept||''; fY.value=yr?yr+'학년':'';
+  tab=1; t0.classList.remove('on'); t1.classList.add('on');
+  render(); drawBoard();
+  document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
+}
 let drill_=null;
 function pickStatus(v){drill_=null;fS.value=v; render(); drawBoard();}
 function drill(kind, st){
@@ -473,7 +536,8 @@ function render(){
   const L=rows();
   const DN={urg:'긴급 — AI반도체개론(전공필수) 미이수 · 이번 학기 미신청',
             act:'조치 필요 — 연락·안내가 필요한 학생',
-            ok:'요건 충족 — 36학점 전부 이수'};
+            ok:'요건 충족 — 36학점 전부 이수',
+            ai:'AI반도체개론 미이수 · 2026-2 미신청'};
   cnt.innerHTML = drill_ ? `<b style="color:var(--navy)">${DN[drill_]}</b> · ${L.length}명` : `${L.length}명`;
   if(!L.length){body.innerHTML='<div class="empty">해당하는 학생이 없습니다.</div>';return;}
   body.innerHTML = tab===0 ? L.map(actRow).join('') : tblHtml(L);
@@ -660,9 +724,9 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')close_();});
 
 function csv(){
   const L=rows();
-  const h=['순번','학번','이름','학과','학년','학적상태','총학점','졸업요건',
+  const h=['순번','학번','이름','학과','학년','학적상태','AI반도체개론','총학점','졸업요건',
     ...AREAS.map(a=>a[2]),'2026-2 신청건수','추가 필요 과목수','조치 사유'];
-  const b=L.map(d=>[d.seq,d.sid,d.name,d.dept,d.yr,d.st,d.tot,d.tot>=36?'충족':'미충족',
+  const b=L.map(d=>[d.seq,d.sid,d.name,d.dept,d.yr,d.st,aiState(d),d.tot,d.tot>=36?'충족':'미충족',
     ...AREAS.map(a=>d.ar[a[0]]),d.nw,d.dg.need.length,d.dg.rsn.replace(/<[^>]+>/g,'')]);
   const t=[h,...b].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');
