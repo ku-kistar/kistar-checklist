@@ -175,6 +175,23 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .bdcap{padding:11px 14px;border-bottom:1px solid var(--line);font-size:12.5px;
   font-weight:600;color:var(--text);background:#f7f9fc}
 .bdcap span{font-size:11px;color:var(--text3);font-weight:400;margin-left:8px}
+.aihd{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 16px}
+.aitt{font-size:13px;font-weight:700;color:var(--text)}
+.aitt span{font-size:11px;color:var(--text3);font-weight:400;margin-left:6px}
+.aistat{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.aist{min-width:106px;padding:7px 13px;border:1px solid var(--border);border-radius:8px;
+  background:#fff;text-align:center;line-height:1.3}
+.aist b{display:block;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.aist i{font-style:normal;font-size:10.5px;color:var(--text3);margin-left:4px;font-weight:400}
+.aist em{font-style:normal;display:block;font-size:10.5px;color:var(--text3)}
+.aist.g b{color:var(--ok)} .aist.o b{color:#b45309} .aist.r b{color:var(--dang)}
+.aist.r{border-color:#f0cccc;background:#fef8f8}
+.aist.cl{cursor:pointer} .aist.cl:hover{background:#eef4ff;border-color:#c9d9f2}
+.aitg{padding:7px 12px;border:1px solid var(--border);border-radius:7px;background:#fff;
+  cursor:pointer;font-size:12px;color:var(--text2);white-space:nowrap}
+.aitg:hover{background:#f2f6fc}
+.aipb{display:flex;height:7px;margin:0 16px 14px;border-radius:4px;overflow:hidden;background:var(--line)}
+.aipb i{display:block}
 .bd tbody tr.all td{background:var(--navy);color:#fff;border-bottom:none}
 .bd tbody tr.all td.g{color:#8fe3ad} .bd tbody tr.all td.z{color:#7f8ea3}
 .bd tbody tr.all .hintx{color:#9fb0c4}
@@ -483,26 +500,42 @@ function drawAI(){
   const YS=[...new Set(B.map(d=>d.yr))].sort((a,b)=>Number(a)-Number(b));
   const DS=[...new Set(B.map(d=>d.dept))].sort();
   const n=f=>B.filter(f).length;
+  const pct=v=>Math.round(v/B.length*100);
   const cell=(v,c,dp,y,bold)=>{
     const clickable = c==='r' && v>0;
     const t = bold ? `<b>${v||'—'}</b>` : (v||'—');
     return `<td class="${v?c:'z'}${clickable?' kx':''}"${clickable
       ?` onclick="drillAI('${esc(dp)}','${y}')"`:''}>${t}</td>`;
   };
-  const body=DS.map(dp=>AI_ST.map(([s,c],i)=>`<tr class="nc${i===0?' gtop':''}">
+  // 한눈 요약 — 학과·학년 무관, 129명 전체 3구간
+  const stat=AI_ST.map(([s2,c])=>{
+    const v=n(d=>aiState(d)===s2), cl=(c==='r'&&v)?' cl':'';
+    return `<div class="aist ${c}${cl}"${cl?` onclick="drillAI('','')"`:''}>
+      <b>${v}<i>${pct(v)}%</i></b><em>${s2}</em></div>`;}).join('');
+  const bar=AI_ST.map(([s2,c])=>{
+    const v=n(d=>aiState(d)===s2);
+    const col=c==='g'?'var(--ok)':c==='o'?'#d99a2b':'var(--dang)';
+    return v?`<i style="width:${v/B.length*100}%;background:${col}"></i>`:'';}).join('');
+  const body=DS.map(dp=>AI_ST.map(([s2,c],i)=>`<tr class="nc${i===0?' gtop':''}">
     ${i===0?`<td class="l" rowspan="3"><b>${esc(dp)}</b>
       <span class="hintx">${n(d=>d.dept===dp)}명</span></td>`:''}
-    <td class="s">${s}</td>
-    ${YS.map(y=>cell(n(d=>d.dept===dp&&d.yr===y&&aiState(d)===s),c,dp,y)).join('')}
-    ${cell(n(d=>d.dept===dp&&aiState(d)===s),c,dp,'',1)}</tr>`).join('')).join('');
-  const foot=AI_ST.map(([s,c],i)=>`<tr class="nc sm${i===0?' gtop':''}">
+    <td class="s">${s2}</td>
+    ${YS.map(y=>cell(n(d=>d.dept===dp&&d.yr===y&&aiState(d)===s2),c,dp,y)).join('')}
+    ${cell(n(d=>d.dept===dp&&aiState(d)===s2),c,dp,'',1)}</tr>`).join('')).join('');
+  const foot=AI_ST.map(([s2,c],i)=>`<tr class="nc sm${i===0?' gtop':''}">
     ${i===0?`<td class="l" rowspan="3"><b>합계</b>
       <span class="hintx">${B.length}명</span></td>`:''}
-    <td class="s">${s}</td>
-    ${YS.map(y=>cell(n(d=>d.yr===y&&aiState(d)===s),c,'',y)).join('')}
-    ${cell(n(d=>aiState(d)===s),c,'','',1)}</tr>`).join('');
-  aiBoard.innerHTML=`<div class="bdcap">AI반도체개론 이수 현황 · 학과 × 학년
-    <span>전공필수 · 졸업·포기 제외 ${B.length}명 · 상단 필터와 무관하게 항상 전원 기준</span></div>
+    <td class="s">${s2}</td>
+    ${YS.map(y=>cell(n(d=>d.yr===y&&aiState(d)===s2),c,'',y)).join('')}
+    ${cell(n(d=>aiState(d)===s2),c,'','',1)}</tr>`).join('');
+  const open = (()=>{ try{ return localStorage.getItem('kistar_ai_open')==='1'; }catch(e){ return false; } })();
+  aiBoard.innerHTML=`<div class="aihd">
+     <div class="aitt">AI반도체개론<span>전공필수 · 졸업·포기 제외 ${B.length}명</span></div>
+     <div class="aistat">${stat}</div>
+     <button class="aitg" id="aiTg" onclick="toggleAI()">학과 × 학년 ${open?'▴':'▾'}</button>
+   </div>
+   <div class="aipb">${bar}</div>
+   <div id="aiDetail" style="display:${open?'block':'none'}">
    <table class="bd">
    <thead><tr><th class="l">학과</th><th class="l">구분</th>
      ${YS.map(y=>`<th>${y}학년</th>`).join('')}<th>계</th></tr></thead>
@@ -511,7 +544,15 @@ function drawAI(){
      background:#fff;font-weight:400;font-size:11.5px;color:var(--text3)">
      기이수 = 이수현황 전공필수(KISE302 · KMSE330 포함) ·
      2026-2 신청 = 수강신청명단 업로드 시점 기준이라 KUPID 실시간 인원과 다를 수 있음 ·
-     붉은 숫자를 누르면 해당 명단이 열립니다</div>`;
+     붉은 숫자를 누르면 해당 명단이 열립니다</div></div>`;
+}
+function toggleAI(){
+  const el=document.getElementById('aiDetail'), b=document.getElementById('aiTg');
+  if(!el||!b) return;
+  const open = el.style.display==='none';
+  el.style.display = open?'block':'none';
+  b.textContent = '학과 × 학년 ' + (open?'▴':'▾');
+  try{ localStorage.setItem('kistar_ai_open', open?'1':'0'); }catch(e){}
 }
 function drillAI(dept,yr){
   drill_='ai'; fS.value=''; fQ.value='';
