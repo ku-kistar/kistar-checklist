@@ -2317,7 +2317,11 @@ function renderExtMileage(records) {
     // 보류·반려는 학생이 조치해야 하는 건 — 안내메모를 사유 박스로 강조한다
     const needAction = (st === '보류' || st === '반려');
     // 확정·조정의 안내메모는 숨긴다. 뱃지·점수와 같은 말을 두 번 하게 된다.
-    const studentMsg = needAction ? (r['학생안내메모'] || '') : '';
+    // 단 신청 점수와 판정 점수가 다르면 메모가 유일한 설명이므로 보여준다.
+    const claimPt  = parseInt(r['학생신청점수']);
+    const judgedPt = parseInt(r['판정점수']);
+    const scoreChanged = !isNaN(claimPt) && !isNaN(judgedPt) && claimPt !== judgedPt;
+    const studentMsg = (needAction || scoreChanged) ? (r['학생안내메모'] || '') : '';
     // 점수는 확정·조정에만. 보류 건의 판정점수는 판정 중 임시값이라 노출하면 오해가 된다.
     const ptsRaw = DONE[st] ? parseInt(r['판정점수']) : NaN;
     const pts = isNaN(ptsRaw) ? '' : ptsRaw;
@@ -2332,7 +2336,8 @@ function renderExtMileage(records) {
           (pts === '' ? '—' : '+' + pts) + '</span>' +
       '</div>' +
       (studentMsg ? '<div class="ext-item-msg msg-alert">' +
-        '<span class="msg-label">사유</span>' + studentMsg + '</div>' : '') +
+        '<span class="msg-label">' + (needAction ? '사유' : '안내') + '</span>' +
+        studentMsg + '</div>' : '') +
       (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
     return div;
   }
