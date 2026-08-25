@@ -195,6 +195,20 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .aitg:hover{background:#f2f6fc}
 .aipb{display:flex;height:7px;margin:0 16px 14px;border-radius:4px;overflow:hidden;background:var(--line)}
 .aipb i{display:block}
+.ptabs{display:flex;gap:6px;padding:0 16px 11px;border-bottom:1px solid var(--line)}
+.ptab{padding:6px 13px;border:1px solid var(--border);border-radius:7px;background:#fff;
+  cursor:pointer;font-size:12px;color:var(--text2)}
+.ptab:hover{background:#f2f6fc}
+.ptab.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+.pscope{display:flex;gap:6px;padding:11px 16px 0}
+.psc{padding:5px 11px;border:1px solid var(--border);border-radius:6px;background:#fff;
+  cursor:pointer;font-size:11.5px;color:var(--text2)}
+.psc span{color:var(--text3);margin-left:5px}
+.psc:hover{background:#f2f6fc}
+.psc.on{background:#eef4ff;border-color:#9fbdf0;color:var(--navy);font-weight:600}
+.psc.on span{color:#5a7fbf}
+.bd tbody td i.hi{font-style:normal;font-size:11px;color:var(--dang);font-weight:600;margin-left:1px}
+.bd tbody td i.lo{font-style:normal;font-size:11px;color:var(--text3);font-weight:400;margin-left:1px}
 .tbl tbody tr.ybrk td{background:#f4f7fb;border-top:1px solid var(--border);
   border-bottom:1px solid var(--line);padding:6px 14px;text-align:left;
   font-size:11.5px;font-weight:700;color:var(--navy);cursor:default}
@@ -435,14 +449,15 @@ function rows(){
   if(drill_==='urg') base=DATA.filter(d=>d.dg.sev===1);
   else if(drill_==='act') base=actList();
   else if(drill_==='ok')  base=DATA.filter(d=>d.tot>=36);
-  else if(drill_==='ai')  base=aiBase().filter(d=>aiState(d)==='미이수·미신청');
+  else if(String(drill_).startsWith('ai:')){
+    const w=String(drill_).slice(3); base=aiBase().filter(d=>aiState(d)===w); }
   let L=base.filter(d=>
     (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
     (ss==='_all'?true: ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
     (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
   const bySeq=(a,b)=>parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1]);
   // 미이수 드릴다운은 높은 학년이 급하다. 4학년 → 3 → 2, 그 안에서 신전화기물.
-  L.sort((a,b)=> drill_==='ai' ? (Number(b.yr)-Number(a.yr))||(deptRank(a.dept)-deptRank(b.dept))||bySeq(a,b)
+  L.sort((a,b)=> String(drill_).startsWith('ai:') ? (Number(b.yr)-Number(a.yr))||(deptRank(a.dept)-deptRank(b.dept))||bySeq(a,b)
                : tab===0 ? ((a.memo?1:0)-(b.memo?1:0))||(a.dg.sev-b.dg.sev)||(b.yr-a.yr)||(a.tot-b.tot)
                : bySeq(a,b));
   return L;
@@ -471,7 +486,28 @@ function drawBoard(){
   const R=STATUS.map(row), T=R.filter(r=>r.n);
   const enrolled=['재학','휴학','수강유예','미수강유예','수료'];
   const sum=k=>T.filter(r=>enrolled.includes(r.st)).reduce((a,r)=>a+r[k],0);
-  board.innerHTML=`<table class="bd">
+  const open=LS('kistar_pop_open','1')==='1';
+  const head=`<div class="aihd">
+     <div class="aitt">인원 현황<span>차세대반도체 융합전공</span></div>
+     <div class="aistat">
+       <div class="aist q cl" onclick="pickStatus('_all')"><b>${DATA.length}</b>
+         <em>전체 양성인원 &rsaquo;</em></div>
+       <div class="aist q cl" onclick="pickStatus('')"><b>${sum('n')}</b>
+         <em>관리 대상 &rsaquo;</em></div>
+       <div class="aist q${sum('ac')?' cl':''}"${sum('ac')?` onclick="drill('act')"`:''}>
+         <b>${sum('ac')}</b><em>조치 필요${sum('ac')?' &rsaquo;':''}</em></div>
+       <div class="aist r${sum('ur')?' cl':''}"${sum('ur')?` onclick="drill('urg')"`:''}>
+         <b>${sum('ur')}</b><em>긴급${sum('ur')?' &rsaquo;':''}</em></div>
+     </div>
+     <button class="aitg" id="popTg" onclick="togglePop()">상세 ${open?'▴':'▾'}</button>
+   </div>
+   <div id="popDetail" style="display:${open?'block':'none'}">
+   <div class="ptabs">
+     <button class="ptab ${POPTAB===0?'on':''}" onclick="setPopTab(0)">학적상태</button>
+     <button class="ptab ${POPTAB===1?'on':''}" onclick="setPopTab(1)">학년 × 학과</button>
+   </div>`;
+  if(POPTAB===1){ board.innerHTML=head+popHtml()+`</div>`; return; }
+  board.innerHTML=head+`<table class="bd">
    <thead><tr><th class="l">학적상태</th><th>인원</th><th>요건 충족</th><th>이수 중</th>
      <th>조치 필요</th><th>그중 긴급</th></tr></thead><tbody>
    ${T.map(r=>{const off=['졸업','융전포기'].includes(r.st);
@@ -492,7 +528,75 @@ function drawBoard(){
        <span class="hintx">졸업·포기 포함</span></td>
      <td>${DATA.length}</td><td class="g">${DATA.filter(d=>d.tot>=36).length}</td>
      <td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>
-   </tbody></table>`;
+   </tbody></table></div>`;
+}
+// 2학년 이하 미이수는 잔여 여석 신청 대상이라 색을 뺀다. 수강 자체는 가능하다.
+const lowYr=y=>{ const v=Number(y); return !!v && v<=2; };
+const LS=(k,dv)=>{ try{ const v=localStorage.getItem(k); return v==null?dv:v; }catch(e){ return dv; } };
+const LSet=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
+let POPTAB=Number(LS('kistar_pop_tab','0'))||0;
+let POPSCOPE=LS('kistar_pop_scope','mng');   // mng = 졸업·포기 제외 · all = 전체
+function togglePop(){
+  const el=document.getElementById('popDetail'), b=document.getElementById('popTg');
+  if(!el||!b) return;
+  const open = el.style.display==='none';
+  el.style.display = open?'block':'none';
+  b.textContent = '상세 ' + (open?'▴':'▾');
+  LSet('kistar_pop_open', open?'1':'0');
+}
+function setPopTab(i){ POPTAB=i; LSet('kistar_pop_tab',i); drawBoard(); }
+function setScope(v){ POPSCOPE=v; LSet('kistar_pop_scope',v); drawBoard(); }
+// 학년 × 학과 인원 분포. 모수는 전체 / 졸업·포기 제외 두 가지로 전환된다.
+function popHtml(){
+  const all = POPSCOPE==='all';
+  const B = all ? DATA : DATA.filter(d=>!['졸업','융전포기'].includes(d.st));
+  const yk = d => (d.yr===''||d.yr==null) ? '미상' : String(d.yr);
+  const YS = [...new Set(B.map(yk))].sort((x,y)=>
+    (x==='미상')-(y==='미상') || Number(y)-Number(x));
+  const DS = deptSort([...new Set(B.map(d=>d.dept))]);
+  const n = f => B.filter(f).length;
+  // 총원 옆에 미이수를 괄호로 병기한다. 어디에 몰려 있는지 표 하나로 끝난다.
+  const miss=f=>B.filter(d=>f(d)&&aiState(d)==='미이수·미신청').length;
+  // 계 행은 학년이 섞인다. 2학년을 합쳐 붉게 칠하면 급한 인원이 부풀려진다.
+  const missHi=f=>B.filter(d=>f(d)&&!lowYr(yk(d))&&aiState(d)==='미이수·미신청').length;
+  const cell=(v,m,dp,y,bold)=>{
+    const on=v>0 && y!=='미상';
+    const t=bold?`<b>${v||'—'}</b>`:(v||'—');
+    const sub=m>0?` <i class="${y!=='' && lowYr(y)?'lo':'hi'}">${m}</i>`:'';
+    return `<td class="${v?'':'z'}${on?' kx':''}"${on
+      ?` onclick="setPop('${esc(dp)}','${y}')"`:''}>${t}${sub}</td>`;
+  };
+  return `<div class="pscope">
+     <button class="psc ${all?'':'on'}" onclick="setScope('mng')">졸업·포기 제외
+       <span>${DATA.filter(d=>!['졸업','융전포기'].includes(d.st)).length}명</span></button>
+     <button class="psc ${all?'on':''}" onclick="setScope('all')">전체
+       <span>${DATA.length}명</span></button>
+   </div>
+   <table class="bd"><thead><tr><th class="l">학년</th>
+     ${DS.map(dp=>`<th>${esc(deptShort(dp))}</th>`).join('')}<th>계</th></tr></thead>
+   <tbody>
+   ${YS.map(y=>`<tr class="nc"><td class="l"><b>${y==='미상'?'학년 미상':y+'학년'}</b></td>
+     ${DS.map(dp=>cell(n(d=>yk(d)===y&&d.dept===dp),miss(d=>yk(d)===y&&d.dept===dp),dp,y)).join('')}
+     ${cell(n(d=>yk(d)===y),miss(d=>yk(d)===y),'',y,1)}</tr>`).join('')}
+   <tr class="nc sm"><td class="l"><b>계</b></td>
+     ${DS.map(dp=>cell(n(d=>d.dept===dp),missHi(d=>d.dept===dp),dp,'',1)).join('')}
+     ${cell(B.length,missHi(()=>true),'','',1)}</tr>
+   </tbody></table>
+   <div class="bdcap" style="border-bottom:none;border-top:1px solid var(--line);
+     background:#fff;font-weight:400;font-size:11.5px;color:var(--text3)">
+     큰 숫자 = 인원 · 작은 숫자 = AI반도체개론 미이수 ·
+     <b style="color:var(--dang);font-weight:600">붉은 것</b>은 3·4학년,
+     회색은 2학년(수강은 가능하나 잔여 여석 대상이라 아직 급하지 않음) ·
+     <b style="font-weight:600">계 행의 붉은 숫자는 3·4학년만 센 값</b>이라 위 칸 합과 다릅니다 ·
+     숫자를 누르면 그 학년·학과 명단이 열립니다</div>`;
+}
+function setPop(dept,yr){
+  drill_=null; fQ.value='';
+  fS.value = POPSCOPE==='all' ? '_all' : '';
+  fD.value = dept||''; fY.value = yr?yr+'학년':'';
+  tab=1; t0.classList.remove('on'); t1.classList.add('on');
+  render();
+  document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
 }
 // AI반도체개론(전공필수) 3구간 판정.
 // 이수 여부는 이수현황 J열(전공필수)이 기준이다. KISE302·KMSE330 두 학수번호를
@@ -517,21 +621,22 @@ function drawAI(){
   const DS=deptSort([...new Set(B.map(d=>d.dept))]);
   const n=f=>B.filter(f).length;
   const pct=v=>Math.round(v/B.length*100);
-  // 미이수만 색을 남긴다. 기이수·신청은 회색 — 조치가 필요한 건 미이수뿐이다.
-  const cell=(v,c,dp,y,bold)=>{
-    const hot = c==='r' && v>0;
+  // 색은 미이수만 남긴다(조치 대상). 다만 클릭은 세 갈래 모두 열어 둔다.
+  const cell=(v,c,dp,y,bold,st)=>{
+    // 2학년 미이수는 잔여 여석 대상이라 붉게 칠하지 않는다. 클릭은 살린다.
+    const on = v>0, hot = c==='r' && on && !lowYr(y);
     const t = bold?`<b>${v||'—'}</b>`:(v||'—');
-    return `<td class="${hot?'r kx':'z'}"${hot
-      ?` onclick="drillAI('${esc(dp)}','${y}')"`:''}>${t}</td>`;
+    return `<td class="${hot?'r':'z'}${on?' kx':''}"${on
+      ?` onclick="drillAI('${esc(dp)}','${y}','${st}')"`:''}>${t}</td>`;
   };
   const stat=AI_ST.map(([s2,c])=>{
-    const v=n(d=>aiState(d)===s2), hot=c==='r';
-    return `<div class="aist ${hot?'r cl':'q'}"${hot?` onclick="drillAI('','')"`:''}>
-      <b>${v}<i>${pct(v)}%</i></b><em>${s2}${hot?' &rsaquo;':''}</em></div>`;}).join('')
+    const v=n(d=>aiState(d)===s2), hot=c==='r', on=v>0;
+    return `<div class="aist ${hot?'r':'q'}${on?' cl':''}"${on?` onclick="drillAI('','','${s2}')"`:''}>
+      <b>${v}<i>${pct(v)}%</i></b><em>${s2}${on?' &rsaquo;':''}</em></div>`;}).join('')
     // 졸업 임박 최고학년 미이수 — 정정기간 학년 비율 조정의 근거라 따로 뽑는다.
     + (()=>{ const top=YS[0];
         const v=n(d=>d.yr===top&&aiState(d)==='미이수·미신청');
-        return `<div class="aist r hi${v?' cl':''}"${v?` onclick="drillAI('','${top}')"`:''}>
+        return `<div class="aist r hi${v?' cl':''}"${v?` onclick="drillAI('','${top}','미이수·미신청')"`:''}>
           <b>${v}</b><em>${top}학년 미이수${v?' &rsaquo;':''}</em></div>`;})();
   const bar=AI_ST.map(([s2,c])=>{
     const v=n(d=>aiState(d)===s2);
@@ -541,8 +646,8 @@ function drawAI(){
   const rowsFor=(label,hint,cls,f,yKey)=>AI_ST.map(([s2,c],i)=>`<tr class="nc${i===0?' gtop':''}${cls}">
     ${i===0?`<td class="l" rowspan="3"><b>${label}</b><span class="hintx">${hint}</span></td>`:''}
     <td class="s">${s2}</td>
-    ${DS.map(dp=>cell(n(d=>f(d)&&d.dept===dp&&aiState(d)===s2),c,dp,yKey)).join('')}
-    ${cell(n(d=>f(d)&&aiState(d)===s2),c,'',yKey,1)}</tr>`).join('');
+    ${DS.map(dp=>cell(n(d=>f(d)&&d.dept===dp&&aiState(d)===s2),c,dp,yKey,0,s2)).join('')}
+    ${cell(n(d=>f(d)&&aiState(d)===s2),c,'',yKey,1,s2)}</tr>`).join('');
   const body=YS.map(y=>rowsFor(y+'학년',n(d=>d.yr===y)+'명','',d=>d.yr===y,y)).join('');
   const foot=rowsFor('합계',B.length+'명',' sm',()=>true,'');
   const open=(()=>{ try{ return localStorage.getItem('kistar_ai_open')==='1'; }catch(e){ return false; } })();
@@ -561,7 +666,8 @@ function drawAI(){
      background:#fff;font-weight:400;font-size:11.5px;color:var(--text3)">
      기이수 = 이수현황 전공필수(KISE302 · KMSE330 포함) ·
      2026-2 신청 = 수강신청명단 업로드 시점 기준이라 KUPID 실시간 인원과 다를 수 있음 ·
-     붉은 숫자를 누르면 해당 명단이 열립니다</div></div>`;
+     2학년 미이수는 수강 가능하나 잔여 여석 대상이라 회색으로 뒀습니다 ·
+     모든 숫자를 누르면 해당 명단이 열립니다</div></div>`;
 }
 function toggleAI(){
   const el=document.getElementById('aiDetail'), b=document.getElementById('aiTg');
@@ -571,8 +677,8 @@ function toggleAI(){
   b.textContent = '학과 × 학년 ' + (open?'▴':'▾');
   try{ localStorage.setItem('kistar_ai_open', open?'1':'0'); }catch(e){}
 }
-function drillAI(dept,yr){
-  drill_='ai'; fS.value=''; fQ.value='';
+function drillAI(dept,yr,state){
+  drill_='ai:'+(state||'미이수·미신청'); fS.value=''; fQ.value='';
   fD.value=dept||''; fY.value=yr?yr+'학년':'';
   tab=1; t0.classList.remove('on'); t1.classList.add('on');
   render(); drawBoard();
@@ -594,9 +700,10 @@ function render(){
   const L=rows();
   const DN={urg:'긴급 — AI반도체개론(전공필수) 미이수 · 이번 학기 미신청',
             act:'조치 필요 — 연락·안내가 필요한 학생',
-            ok:'요건 충족 — 36학점 전부 이수',
-            ai:'AI반도체개론 미이수 · 2026-2 미신청'};
-  cnt.innerHTML = drill_ ? `<b style="color:var(--navy)">${DN[drill_]}</b> · ${L.length}명` : `${L.length}명`;
+            ok:'요건 충족 — 36학점 전부 이수'};
+  const lb = String(drill_).startsWith('ai:')
+    ? `AI반도체개론 — ${String(drill_).slice(3)}` : DN[drill_];
+  cnt.innerHTML = drill_ ? `<b style="color:var(--navy)">${lb}</b> · ${L.length}명` : `${L.length}명`;
   if(!L.length){body.innerHTML='<div class="empty">해당하는 학생이 없습니다.</div>';return;}
   body.innerHTML = tab===0 ? L.map(actRow).join('') : tblHtml(L);
 }
@@ -621,7 +728,7 @@ function tblHtml(L){
     ${L.map((d,idx)=>{const p=Math.round(d.tot/36*100);
       const st=d.tot>=36?['ok','충족']:!d.dg.active?['no',d.st]:d.dg.sev?['go','조치 필요']:['no','진행 중'];
       // 미이수 드릴다운은 학년이 바뀌는 지점에 구분줄을 넣는다. 55명이면 경계가 안 보인다.
-      const brk = drill_==='ai' && (idx===0 || L[idx-1].yr!==d.yr)
+      const brk = String(drill_).startsWith('ai:') && (idx===0 || L[idx-1].yr!==d.yr)
         ? `<tr class="ybrk"><td colspan="${4+AREAS.length+2}">${d.yr}학년
              <span>${L.filter(x=>x.yr===d.yr).length}명</span></td></tr>` : '';
       return brk+`<tr onclick="open_('${d.sid}')">
