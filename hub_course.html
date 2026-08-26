@@ -31,8 +31,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .top-btn.on{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.5);color:var(--green2)}
 
 /* ── 헤더 (학생 포털과 동일 수치) ── */
-.header{width:100%;max-width:680px;padding:2.4rem 2rem 0;display:flex;align-items:center;gap:22px}
-.chip-wrap{flex-shrink:0;animation:chipFloat 4s ease-in-out infinite}
+.header{width:100%;max-width:680px;padding:2.4rem 2rem 0;display:flex;align-items:flex-start;gap:22px}
+.chip-wrap{flex-shrink:0;margin-top:2px;animation:chipFloat 4s ease-in-out infinite}
 @keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @media(prefers-reduced-motion:reduce){.chip-wrap{animation:none}}
 .header-text{display:flex;flex-direction:column;gap:5px}
@@ -159,6 +159,13 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .memo textarea{width:100%;min-height:110px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#fff;line-height:1.7;outline:none;resize:vertical}
 .memo textarea:focus{border-color:rgba(16,185,129,.5)}
 
+.by{font-size:11px;color:rgba(255,255,255,.3);margin-top:7px}
+.add-sec{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.add-sec input{flex:1;min-width:200px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.16);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#fff;outline:none}
+.add-sec input:focus{border-color:rgba(16,185,129,.5);border-style:solid}
+.add-sec button{background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);color:var(--green2);border-radius:8px;font-size:13px;font-family:inherit;padding:0 18px;cursor:pointer}
+.add-sec button:disabled{opacity:.5;cursor:default}
+a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
 .empty{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:2.5rem 1.5rem;text-align:center;font-size:13px;color:rgba(255,255,255,.3);line-height:1.7}
 .footer{width:100%;padding:1.4rem 1.5rem;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 16px;font-size:11px;color:rgba(255,255,255,.35);margin-top:2rem}
 
@@ -218,6 +225,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </div>
     <div class="topbar-r">
       <span class="top-who" id="topWho"></span>
+      <a class="top-btn" id="btnHub" href="portal_survey.html" hidden>데이터 허브</a>
       <button class="top-btn" id="btnEdit" type="button" hidden>편집 모드</button>
       <button class="top-btn" id="btnOut" type="button">로그아웃</button>
     </div>
@@ -273,6 +281,7 @@ var EXPIRE_MS = 1000 * 60 * 60 * 24 * 120;
 
 var auth = null, role = 'ta', courses = [], cur = null;
 var curKind = 'week', editMode = false, timers = {}, summary = null, forms = [];
+var cache = {};
 
 var CHIP = '<svg width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">'
 + '<rect x="13" y="13" width="46" height="46" rx="8" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="2"/>'
@@ -393,6 +402,7 @@ function start(d){
   if (d.semester) $('authSub').textContent = d.semester + ' · 교직원 · 조교 전용 화면입니다';
 
   if (role === 'admin'){
+    $('btnHub').hidden = false;
     $('btnEdit').hidden = false;
     $('btnEdit').onclick = function(){
       editMode = !editMode;
@@ -420,9 +430,9 @@ function start(d){
 function selectCourse(c){
   if (!c){ $('view').innerHTML = '<div class="empty">담당 과목이 없습니다.</div>'; return; }
   cur = c;
-  $('cCode').textContent = c.code;
+  $('cCode').textContent = '3학점 · ' + c.code;
   $('cName').textContent = c.name;
-  $('cSub').textContent = [c.room, c.time, c.prof ? c.prof + ' 교수' : ''].filter(Boolean).join(' · ');
+  $('cSub').textContent = [c.prof ? c.prof + ' 교수' : '', c.time, c.room].filter(Boolean).join(' · ');
   var me = $('topWho').dataset.who || '';
   $('topWho').textContent = (role === 'admin')
     ? [me, courses.length + '과목'].filter(Boolean).join(' · ')
@@ -443,8 +453,10 @@ function selectCourse(c){
     var b = e.target.closest('button'); if (!b) return;
     openKind(b.dataset.k);
   };
+  cache = {};
   loadNow();
   openKind('week');
+  prefetch(c);
 }
 
 /* ── 이번 주 ── */
@@ -506,16 +518,37 @@ function openKind(kind){
   return job.catch(function(e){ $('bar').innerHTML = ''; showErr(e.message); });
 }
 
+function prefetch(c){
+  ['speaker','extra'].forEach(function(k){
+    if (!c.tabs[k]) return;
+    call(withAuth({ action:'getTaGrid', code:c.code, kind:k })).then(function(d){
+      if (d && d.ok) cache[c.code + '|' + k] = d;
+    }).catch(function(){});
+  });
+  if (c.tabs.memo){
+    call(withAuth({ action:'getTaMemo', code:c.code })).then(function(d){
+      if (d && d.ok) cache[c.code + '|memo'] = d;
+    }).catch(function(){});
+  }
+}
+
 function loadGrid(kind){
+  var hit = cache[cur.code + '|' + kind];
+  if (hit){ paintGrid(hit); return Promise.resolve(); }
   return call(withAuth({ action:'getTaGrid', code:cur.code, kind:kind })).then(function(d){
     if (!d || !d.ok) throw new Error((d && d.error) || '불러오지 못했습니다.');
-    if (d.empty || !d.rows.length){
-      $('bar').innerHTML = '';
-      $('view').innerHTML = '<div class="empty">아직 등록된 줄이 없습니다.<br>사업단에서 내용을 채우면 여기에 나타납니다.</div>';
-      return;
-    }
-    renderGrid(d);
+    cache[cur.code + '|' + kind] = d;
+    paintGrid(d);
   });
+}
+
+function paintGrid(d){
+  if (d.empty || !d.rows.length){
+    $('bar').innerHTML = '';
+    $('view').innerHTML = '<div class="empty">아직 등록된 줄이 없습니다.<br>사업단에서 내용을 채우면 여기에 나타납니다.</div>';
+    return;
+  }
+  renderGrid(d);
 }
 
 function renderGrid(d){
@@ -617,7 +650,7 @@ function formBlock(){
       + esc(f.name) + '</a>';
   }).join('');
   var extra = (curKind === 'speaker')
-    ? '<span class="dl-note">④ 이력서 · ⑤ 통장사본 · ⑥ 강의자료는 연사에게 직접 받습니다</span>' : '';
+    ? '<span class="dl-note">④ 이력서 · ⑤ 통장사본 · ⑥ 강의자료는 지정 양식이 없습니다</span>' : '';
   return '<div class="forms">'
     + (links ? '<span class="dl-label">양식 받기</span>' + links + extra : '')
     + '<button type="button" class="submit-btn" disabled title="구글폼 준비 중입니다">서류 제출 · 준비 중</button>'
@@ -630,6 +663,9 @@ function saveCell(row, col, value, el){
     .then(function(d){
       if (!d || !d.ok) throw new Error((d && d.error) || '저장하지 못했습니다.');
       showErr('');
+      var g = cache[cur.code + '|' + curKind];
+      if (g && g.rows) g.rows.forEach(function(r){ if (+r.row === +row) r.v[col] = d.value; });
+      if (d.synced) delete cache[cur.code + '|week'];
       flagSaved(d.at + (d.synced ? ' · ' + d.synced : ''));
       refreshCount();
       loadNow();
@@ -663,8 +699,16 @@ function refreshCount(){
 
 /* ── 메모 ── */
 function loadMemo(){
+  var hit = cache[cur.code + '|memo'];
+  if (hit){ paintMemo(hit); return Promise.resolve(); }
   return call(withAuth({ action:'getTaMemo', code:cur.code })).then(function(d){
     if (!d || !d.ok) throw new Error((d && d.error) || '불러오지 못했습니다.');
+    cache[cur.code + '|memo'] = d;
+    paintMemo(d);
+  });
+}
+
+function paintMemo(d){
     var secs = d.sections || [], ro = !d.canEdit;
     $('bar').innerHTML = (ro ? '<span class="chip">보기 전용</span>' : '')
       + '<span class="chip mute">학기 중에 그때그때 적어 두세요</span>'
@@ -677,8 +721,25 @@ function loadMemo(){
       return '<section class="memo"><h3>' + esc(s.title) + '</h3>'
         + (s.hint ? '<p class="hint">' + esc(s.hint) + '</p>' : '')
         + '<textarea data-row="' + s.row + '"' + (ro ? ' disabled' : '')
-        + ' placeholder="여기에 적으세요">' + esc(s.body) + '</textarea></section>';
-    }).join('');
+        + ' placeholder="여기에 적으세요">' + esc(s.body) + '</textarea>'
+        + (s.by ? '<p class="by">마지막 수정 · ' + esc(s.by) + '</p>' : '')
+        + '</section>';
+    }).join('')
+    + (ro ? '' : '<div class="add-sec"><input type="text" id="newSec" maxlength="60"'
+        + ' placeholder="새 항목 이름 (예: 실습실 열쇠 · 장비 담당자)">'
+        + '<button type="button" id="addSec">항목 추가</button></div>');
+    if (!ro){
+      $('addSec').onclick = function(){
+        var t = $('newSec').value.trim();
+        if (!t) return;
+        this.disabled = true;
+        call(withAuth({ action:'addTaMemoSec', code:cur.code, title:t })).then(function(r){
+          if (!r || !r.ok) throw new Error((r && r.error) || '추가하지 못했습니다.');
+          delete cache[cur.code + '|memo'];
+          openKind('memo');
+        }).catch(function(e){ showErr(e.message); $('addSec').disabled = false; });
+      };
+    }
     var v = $('view');
     v.onchange = null;
     v.oninput = function(e){
@@ -688,12 +749,13 @@ function loadMemo(){
       clearTimeout(timers[key]);
       timers[key] = setTimeout(function(){ saveMemo(t.dataset.row, t.value); }, 2000);
     };
-  });
 }
+
 function saveMemo(row, value){
   return call(withAuth({ action:'saveTaMemo', code:cur.code, row:row, value:value }))
     .then(function(d){
       if (!d || !d.ok) throw new Error((d && d.error) || '저장하지 못했습니다.');
+      delete cache[cur.code + '|memo'];
       showErr(''); flagSaved(d.at);
     })
     .catch(function(e){ showErr(e.message); });
