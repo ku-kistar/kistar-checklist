@@ -475,6 +475,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="1" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 5.5l1.5 1.5L8 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     이수 체크리스트
   </a>
+  <a id="hub-link" href="hub_course.html" class="checklist-nav-btn" style="display:none">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1.5" y="1.5" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 4h4M3.5 6h2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+    교과목 허브
+  </a>
   <span class="user-badge" id="user-name-badge"></span>
   <button class="logout-btn" onclick="doLogout()">
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2M7 8l3-3-3-3M10 5.5H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -834,10 +838,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
             <a href="admin_progress.html" class="admin-link">
               <div class="admin-link-name">이수 현황</div>
               <div class="admin-link-desc">155명 이수 요건 · 조치 필요 목록</div>
-            </a>
-            <a href="hub_course.html" class="admin-link">
-              <div class="admin-link-name">교과목 허브</div>
-              <div class="admin-link-desc">주차별 준비 · 연사 서류 · 인수인계</div>
             </a>
             <a href="admin.html" class="admin-link relogin">
               <div class="admin-link-name">성적 입력 · 이수 판정</div>
@@ -1410,6 +1410,8 @@ function showUserBar() {
   document.querySelector('.page').style.paddingTop = '44px';
   document.getElementById('mileage-section').classList.add('show');
   if (auth.isAdmin) {
+    const hubBtn = document.getElementById('hub-link');
+    if (hubBtn) hubBtn.style.display = 'flex';
     document.getElementById('admin-section').classList.add('show');
     document.getElementById('adminMileageToggle').style.display = 'flex';
     const _apb = document.getElementById('admPrevBar');
