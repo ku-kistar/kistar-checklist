@@ -147,7 +147,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .auto.got{background:rgba(16,185,129,.14);color:var(--green2)}
 .auto-note{font-size:11px;color:rgba(255,255,255,.25)}
 
-.forms{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:11px;padding-top:11px;border-top:1px dashed rgba(255,255,255,.1)}
+.forms{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:11px;padding:10px 13px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px}
 .dl-label{font-size:11px;color:rgba(255,255,255,.35);margin-right:2px}
 .dl{font-size:11px;color:var(--green2);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:5px;padding:3px 9px;text-decoration:none}
 .dl:hover{background:rgba(16,185,129,.2)}
@@ -600,9 +600,9 @@ function renderGrid(d){
       body += '<div class="autos">' + autos.map(function(c){
         var got = String(r.v[c.col] || '').trim();
         return '<span class="auto' + (got ? ' got' : '') + '">' + esc(c.label) + (got ? ' ' + esc(got) : '') + '</span>';
-      }).join('') + '<span class="auto-note">제출하면 자동으로 채워집니다</span></div>';
+      }).join('') + '<span class="auto-note">제출하면 자동으로 채워집니다</span>'
+        + '<button type="button" class="submit-btn" disabled title="준비 중입니다">서류 제출</button></div>';
     }
-    body += formBlock();
     body += '</div>';
     return '<div class="row" data-r="' + r.row + '">' + head + body + '</div>';
   }).join('');
@@ -611,7 +611,7 @@ function renderGrid(d){
     (ro ? '<span class="chip">보기 전용</span>' : '')
     + (checks.length ? '<span class="chip mute">미완료 ' + left + '</span>' : '')
     + '<span class="saved" id="saved"></span>';
-  $('view').innerHTML = '<div class="grid">' + html + '</div>';
+  $('view').innerHTML = formBlock() + '<div class="grid">' + html + '</div>';
 
   var view = $('view');
   Array.prototype.forEach.call(view.querySelectorAll('.row:not(.off)'), function(el){
@@ -643,20 +643,18 @@ function renderGrid(d){
 }
 
 function formBlock(){
+  if (curKind !== 'week' && curKind !== 'speaker') return '';
   var mine = forms.filter(function(f){
     return curKind === 'speaker' ? !!f.mark : !f.mark;
   });
-  if (!mine.length && curKind !== 'speaker' && curKind !== 'week') return '';
+  if (!mine.length) return '';
   var links = mine.map(function(f){
     return '<a class="dl" href="' + esc(f.url) + '" target="_blank" rel="noopener">'
       + esc(f.name) + '</a>';
   }).join('');
   var extra = (curKind === 'speaker')
     ? '<span class="dl-note">④ 이력서 · ⑤ 통장사본 · ⑥ 강의자료는 지정 양식이 없습니다</span>' : '';
-  return '<div class="forms">'
-    + (links ? '<span class="dl-label">양식 받기</span>' + links + extra : '')
-    + '<button type="button" class="submit-btn" disabled title="구글폼 준비 중입니다">서류 제출 · 준비 중</button>'
-    + '</div>';
+  return '<div class="forms"><span class="dl-label">양식 받기</span>' + links + extra + '</div>';
 }
 
 function saveCell(row, col, value, el){
