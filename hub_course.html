@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>융합전공 개설 · 교과목 허브 | KI-STAR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"></noscript>
+<style>
+:root{--green:#10b981;--green2:#34d399;--deep:#071a15;--red:#c8392b;--amber:#f5c563}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--deep);min-height:100vh;overflow-x:hidden;word-break:keep-all}
+.bg-wrap{position:fixed;inset:0;z-index:0;background:linear-gradient(170deg,#08221b 0%,#071a15 40%,#04100c 100%)}
+.bg-grid{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(90deg,#10b981 1px,transparent 1px),linear-gradient(0deg,#10b981 1px,transparent 1px);background-size:48px 48px}
+.bg-g1{position:absolute;top:-20%;left:-10%;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.08) 0%,transparent 60%);pointer-events:none}
+.bg-g2{position:absolute;bottom:-15%;right:-8%;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,57,43,.05) 0%,transparent 60%);pointer-events:none}
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding-bottom:2rem}
+
+/* ── 상단 바 ── */
+.topbar{width:100%;background:rgba(4,12,10,.72);border-bottom:1px solid rgba(255,255,255,.07);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:80;backdrop-filter:blur(6px)}
+.topbar-l{display:flex;align-items:center;gap:10px;min-width:0}
+.top-badge{font-size:10px;font-weight:700;letter-spacing:.1em;background:rgba(16,185,129,.15);color:var(--green);padding:3px 8px;border-radius:4px;white-space:nowrap}
+.top-title{font-size:13px;font-weight:700;color:#fff;white-space:nowrap}
+.topbar-r{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.top-who{font-size:12px;color:rgba(255,255,255,.45)}
+.top-btn{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.4);font-size:11px;font-family:inherit;padding:4px 10px;cursor:pointer;white-space:nowrap}
+.top-btn:hover{color:#fff;border-color:rgba(255,255,255,.45)}
+.top-btn.on{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.5);color:var(--green2)}
+
+/* ── 헤더 (학생 포털과 동일 수치) ── */
+.header{width:100%;max-width:680px;padding:2.4rem 2rem 0;display:flex;align-items:center;gap:22px}
+.chip-wrap{flex-shrink:0;animation:chipFloat 4s ease-in-out infinite}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media(prefers-reduced-motion:reduce){.chip-wrap{animation:none}}
+.header-text{display:flex;flex-direction:column;gap:5px}
+.header-org{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(16,185,129,.65);white-space:nowrap}
+.header-title{font-size:clamp(20px,4.8vw,42px);font-weight:900;color:#fff;line-height:1.1;letter-spacing:-.03em}
+.header-title .line1{display:block;font-size:.55em;font-weight:700;color:rgba(255,255,255,.55);letter-spacing:-.01em;margin-bottom:.15em}
+.header-title .accent{color:var(--green)}
+.main-msg{width:100%;max-width:680px;padding:1.8rem 2rem .2rem}
+.msg-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.msg-list li{display:flex;align-items:flex-start;gap:8px;line-height:1.45}
+.msg-main{font-size:clamp(11px,1.7vw,13px);color:rgba(255,255,255,.7)}
+.msg-main .dot{color:var(--green);font-size:1.1em;font-weight:900;flex-shrink:0;margin-top:.15em}
+
+/* ── 로그인 ── */
+#auth{position:fixed;inset:0;z-index:200;background:var(--deep);display:none;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto}
+#auth.show{display:flex}
+.auth-inner{width:100%;max-width:400px}
+.auth-card{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(16,185,129,.2);border-radius:16px;padding:2rem 1.8rem}
+.auth-logo{text-align:center;margin-bottom:1.5rem}
+.auth-logo svg{width:48px;height:48px}
+.auth-title{font-size:17px;font-weight:700;color:#fff;text-align:center;margin-bottom:.4rem}
+.auth-sub{font-size:12px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:1.6rem;line-height:1.6}
+.auth-field{margin-bottom:1rem}
+.auth-field label{display:block;font-size:11px;font-weight:600;color:rgba(16,185,129,.85);margin-bottom:.4rem;letter-spacing:.05em}
+.auth-field input{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:14px;font-family:inherit;outline:none}
+.auth-field input:focus{border-color:rgba(16,185,129,.6)}
+.auth-field input::placeholder{color:rgba(255,255,255,.25)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:6px}
+.auth-hint{font-size:11px;color:rgba(255,255,255,.28);margin:-.4rem 0 1.3rem}
+.auth-btn{width:100%;padding:12px;background:var(--green);border:none;border-radius:8px;color:#04241b;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.auth-btn:hover{opacity:.9}
+.auth-btn:disabled{opacity:.5;cursor:default}
+.auth-msg{margin-top:.9rem;font-size:12px;text-align:center;min-height:18px}
+.auth-msg.error{color:#f08070}
+.auth-msg.loading{color:rgba(255,255,255,.45)}
+
+/* ── 본문 ── */
+.wrap{width:100%;max-width:680px;padding:1.4rem 2rem 0}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:.85rem;color:rgba(16,185,129,.6)}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(16,185,129,.15)}
+
+.now{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.25);border-radius:11px;padding:13px 15px;margin-bottom:1.5rem}
+.now.done{background:rgba(16,185,129,.16);border:1.5px solid var(--green)}
+.now.off{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1)}
+.now-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.now-week{font-size:15px;font-weight:700;color:#fff}
+.now-who{font-size:13px;color:rgba(255,255,255,.6)}
+.badges{display:flex;gap:7px;flex-wrap:wrap}
+.badge{font-size:11px;padding:4px 10px;border-radius:5px;border:none;font-family:inherit;cursor:pointer}
+.badge.warn{background:rgba(245,197,99,.14);color:var(--amber)}
+.badge.danger{background:rgba(224,80,64,.14);color:#f08070}
+.badge.mute{background:rgba(255,255,255,.05);color:rgba(255,255,255,.4)}
+.badge:hover{filter:brightness(1.25)}
+.now-done{display:flex;align-items:center;gap:10px}
+.now-done-ic{width:26px;height:26px;border-radius:50%;background:var(--green);color:#04241b;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;font-weight:900}
+.now-done-t{font-size:14px;font-weight:700;color:var(--green2)}
+.now-done-s{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+
+.pick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.pick button{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);border-radius:99px;font-size:12px;font-family:inherit;padding:5px 13px;cursor:pointer;color:rgba(255,255,255,.5)}
+.pick button[aria-pressed="true"]{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.5);color:var(--green2)}
+
+.course{padding-bottom:11px;border-bottom:1px solid rgba(255,255,255,.08)}
+.course-code{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:rgba(16,185,129,.7)}
+.course-name{font-size:19px;font-weight:700;color:#fff;margin-top:3px}
+.course-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px}
+
+.tabs{display:flex;gap:18px;margin:14px 0 12px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{background:none;border:none;font-size:13px;font-family:inherit;color:rgba(255,255,255,.35);padding:0 0 7px;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:#fff;border-bottom-color:var(--green)}
+
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:11px;min-height:20px}
+.chip{font-size:11px;padding:3px 10px;border-radius:5px;background:rgba(16,185,129,.14);color:var(--green2)}
+.chip.mute{background:transparent;color:rgba(255,255,255,.3);padding-left:0}
+.saved{margin-left:auto;font-size:11px;color:var(--green2);opacity:0;transition:opacity .3s}
+.saved.on{opacity:1}
+.err{display:none;background:rgba(200,57,43,.08);border:1px solid rgba(200,57,43,.25);border-radius:8px;padding:10px 13px;font-size:12px;color:#f08070;line-height:1.6;margin-bottom:11px}
+.err.show{display:block}
+
+.grid{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden}
+.row{border-bottom:1px solid rgba(255,255,255,.06)}
+.row:last-child{border-bottom:none}
+.row.open{background:rgba(16,185,129,.05)}
+.row.off{background:rgba(255,255,255,.02)}
+.row.flash{animation:flash 1.4s ease-out}
+@keyframes flash{0%{box-shadow:inset 0 0 0 2px var(--green)}100%{box-shadow:inset 0 0 0 2px transparent}}
+.row-head{display:flex;align-items:center;gap:11px;padding:11px 14px;cursor:pointer}
+.row.off .row-head{cursor:default}
+.row-idx{font-size:12px;color:rgba(255,255,255,.35);flex-shrink:0;min-width:74px}
+.row-who{font-size:13px;flex:1;min-width:0;color:rgba(255,255,255,.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row.open .row-who{color:#fff}
+.row.off .row-idx,.row.off .row-who{color:rgba(255,255,255,.22)}
+.tag{font-size:10px;background:rgba(16,185,129,.16);color:var(--green2);padding:2px 7px;border-radius:4px;margin-left:5px}
+.cnt{font-size:11px;flex-shrink:0}
+.cnt.ok{color:var(--green2)}.cnt.part{color:var(--amber)}.cnt.no{color:rgba(255,255,255,.3)}
+.row-body{padding:0 14px 13px}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px 16px;margin-bottom:13px}
+.checks label{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.8);cursor:pointer}
+.checks input{width:14px;height:14px;accent-color:var(--green);flex-shrink:0;cursor:pointer}
+.checks input:disabled{cursor:default}
+.checks label.dim{color:rgba(255,255,255,.5)}
+.texts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.texts label{display:block;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px}
+.texts input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;font-size:12px;font-family:inherit;color:#fff;outline:none}
+.texts input:focus{border-color:rgba(16,185,129,.5)}
+.texts input:disabled{color:rgba(255,255,255,.4)}
+.autos{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding-top:11px;border-top:1px dashed rgba(255,255,255,.1)}
+.auto{font-size:11px;padding:3px 9px;border-radius:5px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.3)}
+.auto.got{background:rgba(16,185,129,.14);color:var(--green2)}
+.auto-note{font-size:11px;color:rgba(255,255,255,.25)}
+
+.memo{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 18px;margin-bottom:11px}
+.memo h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
+.memo .hint{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:9px;line-height:1.6}
+.memo textarea{width:100%;min-height:110px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:#fff;line-height:1.7;outline:none;resize:vertical}
+.memo textarea:focus{border-color:rgba(16,185,129,.5)}
+
+.empty{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:2.5rem 1.5rem;text-align:center;font-size:13px;color:rgba(255,255,255,.3);line-height:1.7}
+.footer{width:100%;padding:1.4rem 1.5rem;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px 16px;font-size:11px;color:rgba(255,255,255,.35);margin-top:2rem}
+
+@media(max-width:820px){
+  .header{padding:2rem 1.4rem 0;gap:16px}
+  .main-msg,.wrap{padding-left:1.4rem;padding-right:1.4rem}
+}
+@media(max-width:600px){
+  .header{padding:1.6rem 1rem 0;gap:13px}
+  .chip-wrap svg{width:54px;height:54px}
+  .main-msg,.wrap{padding-left:1rem;padding-right:1rem}
+  .topbar{padding:9px 14px}
+  .topbar-r{width:100%;justify-content:space-between}
+  .checks{grid-template-columns:1fr}
+  .texts{grid-template-columns:1fr}
+  .row-idx{min-width:62px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-wrap"><div class="bg-grid"></div><div class="bg-g1"></div><div class="bg-g2"></div></div>
+
+<!-- 로그인 -->
+<div id="auth">
+  <div class="auth-inner">
+    <div class="auth-card">
+      <div class="auth-logo" id="authChip"></div>
+      <div class="auth-title">KI-STAR 융합전공 교과목 허브</div>
+      <div class="auth-sub" id="authSub">교직원 · 조교 전용 화면입니다<br>학번(교번)과 생년월일을 입력해주세요</div>
+      <div class="auth-field">
+        <label for="aid">학번 / 교번</label>
+        <input type="text" id="aid" placeholder="학번 또는 교번 입력" maxlength="20" autocomplete="off">
+      </div>
+      <div class="auth-field">
+        <label for="apw">생년월일 8자리</label>
+        <div class="pw-wrap">
+          <input type="password" id="apw" placeholder="예: 20010315" maxlength="20" autocomplete="off">
+          <button class="pw-toggle" type="button" id="pwBtn" aria-label="비밀번호 보기">
+            <svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M1 9C2.5 5.5 5.5 3 9 3s6.5 2.5 8 6c-1.5 3.5-4.5 6-8 6S2.5 12.5 1 9z" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="auth-hint">사업단에서 따로 안내한 정보를 넣으세요</p>
+      <button class="auth-btn" id="authBtn" type="button">확인</button>
+      <div class="auth-msg" id="authMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 본문 -->
+<div class="page" id="page" hidden>
+  <div class="topbar">
+    <div class="topbar-l">
+      <span class="top-badge" id="topRole">TA</span>
+      <span class="top-title">교과목 허브</span>
+    </div>
+    <div class="topbar-r">
+      <span class="top-who" id="topWho"></span>
+      <button class="top-btn" id="btnEdit" type="button" hidden>편집 모드</button>
+      <button class="top-btn" id="btnOut" type="button">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="chip-wrap" id="mainChip"></div>
+    <div class="header-text">
+      <div class="header-org">KOREA UNIVERSITY · KI-STAR CENTER</div>
+      <div class="header-title"><span class="line1">차세대반도체 융합전공</span>융합전공 개설 · <span class="accent">교과목 허브</span></div>
+    </div>
+  </div>
+
+  <div class="main-msg">
+    <ul class="msg-list msg-main">
+      <li><span class="dot">·</span>주차별 수업 준비 점검</li>
+      <li><span class="dot">·</span>연사 초청 서류 회수 현황</li>
+      <li><span class="dot">·</span>조교 인수인계 기록</li>
+    </ul>
+  </div>
+
+  <div class="wrap">
+    <div id="nowWrap" hidden>
+      <div class="sec-label" id="nowLabel">이번 주</div>
+      <div id="now"></div>
+    </div>
+
+    <div class="pick" id="pick" hidden></div>
+
+    <div class="course">
+      <div class="course-code" id="cCode"></div>
+      <div class="course-name" id="cName"></div>
+      <div class="course-sub" id="cSub"></div>
+    </div>
+
+    <nav class="tabs" id="tabs" role="tablist"></nav>
+    <div class="err" id="err"></div>
+    <div class="bar" id="bar"></div>
+    <div id="view"></div>
+  </div>
+
+  <div class="footer">
+    <span>차세대AI반도체특성화대학사업단</span>
+    <span>이지연 선임 · 02-3290-4988</span>
+  </div>
+</div>
+
+<script>
+'use strict';
+var GAS = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+var AUTH_KEY = 'kistar_auth_hub';
+var EXPIRE_MS = 1000 * 60 * 60 * 24 * 120;
+
+var auth = null, role = 'ta', courses = [], cur = null;
+var curKind = 'week', editMode = false, timers = {}, summary = null;
+
+var CHIP = '<svg width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">'
++ '<rect x="13" y="13" width="46" height="46" rx="8" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="2"/>'
++ '<g stroke="#10b981" stroke-width="1.8" stroke-linecap="round">'
++ '<line x1="24" y1="13" x2="24" y2="6"/><line x1="36" y1="13" x2="36" y2="6"/><line x1="48" y1="13" x2="48" y2="6"/>'
++ '<line x1="24" y1="59" x2="24" y2="66"/><line x1="36" y1="59" x2="36" y2="66"/><line x1="48" y1="59" x2="48" y2="66"/>'
++ '<line x1="13" y1="24" x2="6" y2="24"/><line x1="13" y1="36" x2="6" y2="36"/><line x1="13" y1="48" x2="6" y2="48"/>'
++ '<line x1="59" y1="24" x2="66" y2="24"/><line x1="59" y1="36" x2="66" y2="36"/><line x1="59" y1="48" x2="66" y2="48"/></g>'
++ '<rect x="22" y="22" width="28" height="28" rx="5" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="1"/>'
++ '<circle cx="28" cy="28" r="2" fill="#10b981" opacity=".45"/><circle cx="44" cy="28" r="2" fill="#10b981" opacity=".45"/>'
++ '<circle cx="28" cy="44" r="2" fill="#10b981" opacity=".45"/><circle cx="44" cy="44" r="2" fill="#10b981" opacity=".45"/>'
++ '<circle cx="36" cy="36" r="7" fill="rgba(200,57,43,0.2)" stroke="#c8392b" stroke-width="1"/>'
++ '<text x="36" y="39.5" text-anchor="middle" font-size="8" font-weight="900" fill="#e05040" font-family="Arial,sans-serif">KU</text></svg>';
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function call(params){
+  return new Promise(function(res, rej){
+    var cb = 'hub_' + Math.random().toString(36).slice(2);
+    var s = document.createElement('script');
+    var t = setTimeout(function(){ done(); rej(new Error('응답이 없습니다. 잠시 뒤 다시 시도하세요.')); }, 25000);
+    function done(){ clearTimeout(t); try{ delete window[cb]; }catch(e){ window[cb] = undefined; }
+      if (s.parentNode) s.parentNode.removeChild(s); }
+    window[cb] = function(d){ done(); res(d); };
+    s.onerror = function(){ done(); rej(new Error('연결에 실패했습니다.')); };
+    var q = [];
+    for (var k in params){
+      if (!params.hasOwnProperty(k)) continue;
+      var v = params[k] == null ? '' : params[k];
+      q.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+    }
+    q.push('callback=' + cb);
+    s.src = GAS + '?' + q.join('&');
+    document.body.appendChild(s);
+  });
+}
+function withAuth(o){
+  o.userId = auth.id; o.userPw = auth.pw;
+  if (role === 'admin' && editMode) o.edit = '1';
+  return o;
+}
+function showErr(t){ var e = $('err'); e.textContent = t || ''; e.className = 'err' + (t ? ' show' : ''); }
+var savedT = null;
+function flagSaved(at){
+  var el = $('saved'); if (!el) return;
+  el.textContent = '저장됨 ' + (at || '');
+  el.classList.add('on');
+  clearTimeout(savedT);
+  savedT = setTimeout(function(){ el.classList.remove('on'); }, 2500);
+}
+
+/* ── 로그인 ── */
+$('authChip').innerHTML = CHIP;
+$('mainChip').innerHTML = CHIP;
+
+function readAuth(){
+  try {
+    var v = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    if (!v || !v.id || !v.pw) return null;
+    if (v.at && Date.now() - v.at > EXPIRE_MS){ localStorage.removeItem(AUTH_KEY); return null; }
+    return v;
+  } catch(e){ return null; }
+}
+function openAuth(){ $('auth').classList.add('show'); $('page').hidden = true; }
+
+$('pwBtn').addEventListener('click', function(){
+  var i = $('apw');
+  i.type = i.type === 'password' ? 'text' : 'password';
+});
+$('authBtn').addEventListener('click', doAuth);
+$('apw').addEventListener('keydown', function(e){ if (e.key === 'Enter') doAuth(); });
+$('aid').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('apw').focus(); });
+
+function doAuth(){
+  var id = $('aid').value.trim();
+  var pw = $('apw').value.trim();
+  var m = $('authMsg');
+  if (!id || !pw){ m.className = 'auth-msg error'; m.textContent = '학번과 생년월일을 모두 넣으세요.'; return; }
+  m.className = 'auth-msg loading'; m.textContent = '확인 중…';
+  $('authBtn').disabled = true;
+  login(id, pw).catch(function(e){
+    m.className = 'auth-msg error'; m.textContent = e.message;
+  }).then(function(){ $('authBtn').disabled = false; });
+}
+
+function login(id, pw, silent){
+  return call({ action:'hubLogin', userId:id, userPw:pw, ua:navigator.userAgent })
+    .then(function(d){
+      if (!d || !d.ok) throw new Error((d && d.error) || '로그인하지 못했습니다.');
+      auth = { id:id, pw:pw, at:Date.now() };
+      try { localStorage.setItem(AUTH_KEY, JSON.stringify(auth)); } catch(e){}
+      role = d.role; courses = d.courses || [];
+      start(d);
+    }).catch(function(e){
+      if (silent){ try{ localStorage.removeItem(AUTH_KEY); }catch(x){} openAuth(); }
+      throw e;
+    });
+}
+
+$('btnOut').addEventListener('click', function(){
+  try{ localStorage.removeItem(AUTH_KEY); }catch(e){}
+  auth = null; courses = []; cur = null; editMode = false;
+  $('apw').value = '';
+  $('authMsg').textContent = '';
+  openAuth();
+});
+
+/* ── 시작 ── */
+var LABEL = { ta:'TA', prof:'교수', admin:'ADMIN' };
+
+function start(d){
+  $('auth').classList.remove('show');
+  $('page').hidden = false;
+  $('topRole').textContent = LABEL[role] || 'TA';
+  $('topWho').dataset.who = d.who || '';
+  if (d.semester) $('authSub').textContent = d.semester + ' · 교직원 · 조교 전용 화면입니다';
+
+  if (role === 'admin'){
+    $('btnEdit').hidden = false;
+    $('btnEdit').onclick = function(){
+      editMode = !editMode;
+      this.classList.toggle('on', editMode);
+      this.textContent = editMode ? '편집 중' : '편집 모드';
+      openKind(curKind);
+    };
+  }
+  if (courses.length > 1){
+    var p = $('pick');
+    p.innerHTML = courses.map(function(c, i){
+      return '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0) + '">' + esc(c.name) + '</button>';
+    }).join('');
+    p.hidden = false;
+    p.onclick = function(e){
+      var b = e.target.closest('button'); if (!b) return;
+      Array.prototype.forEach.call(p.children, function(x){ x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      selectCourse(courses[+b.dataset.i]);
+    };
+  }
+  selectCourse(courses[0]);
+}
+
+function selectCourse(c){
+  if (!c){ $('view').innerHTML = '<div class="empty">담당 과목이 없습니다.</div>'; return; }
+  cur = c;
+  $('cCode').textContent = c.code;
+  $('cName').textContent = c.name;
+  $('cSub').textContent = [c.room, c.time, c.prof ? c.prof + ' 교수' : ''].filter(Boolean).join(' · ');
+  $('topWho').textContent = [$('topWho').dataset.who || '', c.name, c.prof ? c.prof + ' 교수' : '']
+    .filter(Boolean).join(' · ');
+
+  var list = [{ k:'week', t:'주차별 준비' }];
+  if (c.tabs.speaker) list.push({ k:'speaker', t:'연사 서류' });
+  if (c.tabs.extra){
+    var sfx = (c.tabs.extra.split('_')[1] || '부가');
+    list.push({ k:'extra', t: sfx === '안전' ? '실습 안전' : sfx === '팀' ? '팀 관리' : sfx });
+  }
+  if (c.tabs.memo) list.push({ k:'memo', t:'인수인계 메모' });
+
+  $('tabs').innerHTML = list.map(function(x){
+    return '<button type="button" role="tab" data-k="' + x.k + '" aria-selected="false">' + esc(x.t) + '</button>';
+  }).join('');
+  $('tabs').onclick = function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    openKind(b.dataset.k);
+  };
+  loadNow();
+  openKind('week');
+}
+
+/* ── 이번 주 ── */
+function loadNow(){
+  $('nowWrap').hidden = true;
+  return call(withAuth({ action:'getTaSummary', code:cur.code })).then(function(d){
+    if (!d || !d.ok || d.empty) return;
+    summary = d;
+    var box = $('now');
+    var head = '<div class="now-head"><span class="now-week">' + esc(d.week + ' ' + d.date) + '</span>'
+             + '<span class="now-who">' + esc([d.who, d.speaker, d.org].filter(Boolean).join(' · ')) + '</span></div>';
+    if (d.off){
+      box.className = 'now off';
+      box.innerHTML = head + '<div class="badges"><span class="badge mute">휴강 주간입니다</span></div>';
+    } else if (d.done){
+      box.className = 'now done';
+      box.innerHTML = head
+        + '<div class="now-done"><span class="now-done-ic">✓</span><div>'
+        + '<div class="now-done-t">이번 주 준비 완료</div>'
+        + '<div class="now-done-s">수업 준비와 제출 서류를 모두 끝냈습니다</div></div></div>';
+    } else {
+      box.className = 'now';
+      box.innerHTML = head + '<div class="badges">' + d.badges.map(function(b){
+        return '<button type="button" class="badge ' + b.tone + '" data-go="' + b.kind + '">' + esc(b.text) + '</button>';
+      }).join('') + '</div>';
+      box.onclick = function(e){
+        var b = e.target.closest('.badge[data-go]'); if (!b) return;
+        goTo(b.dataset.go);
+      };
+    }
+    $('nowWrap').hidden = false;
+  }).catch(function(){});
+}
+
+function goTo(kind){
+  var target = kind === 'speaker' ? summary.speakerRow : summary.row;
+  openKind(kind).then(function(){
+    var el = $('view').querySelector('.row[data-r="' + target + '"]');
+    if (!el) return;
+    var body = el.querySelector('.row-body');
+    if (body && body.hidden){ body.hidden = false; el.classList.add('open'); }
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+  });
+}
+
+/* ── 탭 ── */
+function openKind(kind){
+  curKind = kind;
+  Array.prototype.forEach.call($('tabs').children, function(b){
+    b.setAttribute('aria-selected', String(b.dataset.k === kind));
+  });
+  showErr('');
+  $('bar').innerHTML = '<span class="chip mute">불러오는 중…</span>';
+  $('view').innerHTML = '';
+  var job = (kind === 'memo') ? loadMemo() : loadGrid(kind);
+  return job.catch(function(e){ $('bar').innerHTML = ''; showErr(e.message); });
+}
+
+function loadGrid(kind){
+  return call(withAuth({ action:'getTaGrid', code:cur.code, kind:kind })).then(function(d){
+    if (!d || !d.ok) throw new Error((d && d.error) || '불러오지 못했습니다.');
+    if (d.empty || !d.rows.length){
+      $('bar').innerHTML = '';
+      $('view').innerHTML = '<div class="empty">아직 등록된 줄이 없습니다.<br>사업단에서 내용을 채우면 여기에 나타납니다.</div>';
+      return;
+    }
+    renderGrid(d);
+  });
+}
+
+function renderGrid(d){
+  var cols = d.cols, rows = d.rows, ro = !d.canEdit;
+  var fixed = cols.filter(function(c){ return c.role === 'fixed'; });
+  var checks = cols.filter(function(c){ return c.role === 'check'; });
+  var texts = cols.filter(function(c){ return c.role === 'text'; });
+  var autos = cols.filter(function(c){ return c.role === 'auto'; });
+  var nowRow = (summary && !summary.empty)
+    ? (curKind === 'speaker' ? summary.speakerRow : summary.row) : -1;
+
+  var left = 0;
+  var html = rows.map(function(r){
+    var vals = fixed.map(function(c){ return String(r.v[c.col] || ''); });
+    var off = vals.join(' ').indexOf('휴강') >= 0;
+    var done = 0;
+    checks.forEach(function(c){ if (String(r.v[c.col] || '').trim()) done++; });
+    if (!off && checks.length && done < checks.length) left++;
+
+    var head = '<div class="row-head">'
+      + '<span class="row-idx">' + esc(vals.slice(0, 2).join(' ')) + '</span>'
+      + '<span class="row-who">' + esc(vals.slice(2).join(' ') || '—')
+      + (r.row === nowRow && !off ? '<span class="tag">이번 주</span>' : '') + '</span>'
+      + (off ? '<span class="cnt no">휴강</span>'
+             : checks.length ? '<span class="cnt ' + (done === checks.length ? 'ok' : done ? 'part' : 'no') + '">'
+                 + done + '/' + checks.length + '</span>' : '')
+      + '</div>';
+    if (off) return '<div class="row off" data-r="' + r.row + '">' + head + '</div>';
+
+    var body = '<div class="row-body" hidden>';
+    if (checks.length){
+      body += '<div class="checks">' + checks.map(function(c){
+        var on = String(r.v[c.col] || '').trim() ? ' checked' : '';
+        return '<label' + (on ? '' : ' class="dim"') + '><input type="checkbox" data-row="' + r.row
+          + '" data-col="' + c.col + '"' + on + (ro ? ' disabled' : '') + '>' + esc(c.label) + '</label>';
+      }).join('') + '</div>';
+    }
+    if (texts.length){
+      body += '<div class="texts">' + texts.map(function(c){
+        var id = 't' + r.row + '_' + c.col;
+        return '<div><label for="' + id + '">' + esc(c.label) + '</label>'
+          + '<input id="' + id + '" type="text" value="' + esc(r.v[c.col] || '')
+          + '" data-row="' + r.row + '" data-col="' + c.col + '"' + (ro ? ' disabled' : '') + '></div>';
+      }).join('') + '</div>';
+    }
+    if (autos.length){
+      body += '<div class="autos">' + autos.map(function(c){
+        var got = String(r.v[c.col] || '').trim();
+        return '<span class="auto' + (got ? ' got' : '') + '">' + esc(c.label) + (got ? ' ' + esc(got) : '') + '</span>';
+      }).join('') + '<span class="auto-note">제출하면 자동으로 채워집니다</span></div>';
+    }
+    body += '</div>';
+    return '<div class="row" data-r="' + r.row + '">' + head + body + '</div>';
+  }).join('');
+
+  $('bar').innerHTML =
+    (ro ? '<span class="chip">보기 전용</span>' : '')
+    + (checks.length ? '<span class="chip mute">미완료 ' + left + '</span>' : '')
+    + '<span class="saved" id="saved"></span>';
+  $('view').innerHTML = '<div class="grid">' + html + '</div>';
+
+  var view = $('view');
+  Array.prototype.forEach.call(view.querySelectorAll('.row:not(.off)'), function(el){
+    el.querySelector('.row-head').addEventListener('click', function(){
+      var b = el.querySelector('.row-body');
+      if (!b) return;
+      b.hidden = !b.hidden;
+      el.classList.toggle('open', !b.hidden);
+    });
+    if (+el.dataset.r === nowRow){
+      var b = el.querySelector('.row-body');
+      if (b){ b.hidden = false; el.classList.add('open'); }
+    }
+  });
+
+  view.onchange = function(e){
+    var t = e.target;
+    if (t.type !== 'checkbox') return;
+    t.closest('label').classList.toggle('dim', !t.checked);
+    saveCell(t.dataset.row, t.dataset.col, t.checked ? 'O' : '', t);
+  };
+  view.oninput = function(e){
+    var t = e.target;
+    if (t.type !== 'text') return;
+    var key = t.dataset.row + '_' + t.dataset.col;
+    clearTimeout(timers[key]);
+    timers[key] = setTimeout(function(){ saveCell(t.dataset.row, t.dataset.col, t.value, t); }, 2000);
+  };
+}
+
+function saveCell(row, col, value, el){
+  return call(withAuth({ action:'saveTaCell', code:cur.code, kind:curKind,
+                         row:row, col:col, value:value }))
+    .then(function(d){
+      if (!d || !d.ok) throw new Error((d && d.error) || '저장하지 못했습니다.');
+      showErr('');
+      flagSaved(d.at + (d.synced ? ' · ' + d.synced : ''));
+      refreshCount();
+      loadNow();
+    })
+    .catch(function(e){
+      showErr(e.message + ' 화면을 새로 고친 뒤 다시 시도하세요.');
+      if (el && el.type === 'checkbox'){
+        el.checked = !el.checked;
+        el.closest('label').classList.toggle('dim', !el.checked);
+      }
+    });
+}
+
+function refreshCount(){
+  var left = 0;
+  Array.prototype.forEach.call($('view').querySelectorAll('.row:not(.off)'), function(el){
+    var boxes = el.querySelectorAll('.checks input');
+    if (!boxes.length) return;
+    var done = 0;
+    Array.prototype.forEach.call(boxes, function(b){ if (b.checked) done++; });
+    var c = el.querySelector('.cnt');
+    if (c){
+      c.textContent = done + '/' + boxes.length;
+      c.className = 'cnt ' + (done === boxes.length ? 'ok' : done ? 'part' : 'no');
+    }
+    if (done < boxes.length) left++;
+  });
+  var chip = $('bar').querySelector('.chip.mute');
+  if (chip) chip.textContent = '미완료 ' + left;
+}
+
+/* ── 메모 ── */
+function loadMemo(){
+  return call(withAuth({ action:'getTaMemo', code:cur.code })).then(function(d){
+    if (!d || !d.ok) throw new Error((d && d.error) || '불러오지 못했습니다.');
+    var secs = d.sections || [], ro = !d.canEdit;
+    $('bar').innerHTML = (ro ? '<span class="chip">보기 전용</span>' : '')
+      + '<span class="chip mute">학기 중에 그때그때 적어 두세요</span>'
+      + '<span class="saved" id="saved"></span>';
+    if (!secs.length){
+      $('view').innerHTML = '<div class="empty">메모 항목이 없습니다.</div>';
+      return;
+    }
+    $('view').innerHTML = secs.map(function(s){
+      return '<section class="memo"><h3>' + esc(s.title) + '</h3>'
+        + (s.hint ? '<p class="hint">' + esc(s.hint) + '</p>' : '')
+        + '<textarea data-row="' + s.row + '"' + (ro ? ' disabled' : '')
+        + ' placeholder="여기에 적으세요">' + esc(s.body) + '</textarea></section>';
+    }).join('');
+    var v = $('view');
+    v.onchange = null;
+    v.oninput = function(e){
+      var t = e.target;
+      if (t.tagName !== 'TEXTAREA') return;
+      var key = 'memo' + t.dataset.row;
+      clearTimeout(timers[key]);
+      timers[key] = setTimeout(function(){ saveMemo(t.dataset.row, t.value); }, 2000);
+    };
+  });
+}
+function saveMemo(row, value){
+  return call(withAuth({ action:'saveTaMemo', code:cur.code, row:row, value:value }))
+    .then(function(d){
+      if (!d || !d.ok) throw new Error((d && d.error) || '저장하지 못했습니다.');
+      showErr(''); flagSaved(d.at);
+    })
+    .catch(function(e){ showErr(e.message); });
+}
+
+/* ── 진입 ── */
+(function init(){
+  var s = readAuth();
+  if (s) login(s.id, s.pw, true).catch(function(){});
+  else openAuth();
+})();
+</script>
+</body>
+</html>
