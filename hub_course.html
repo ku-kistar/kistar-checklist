@@ -160,6 +160,8 @@ button.auto{font-family:inherit;border:1px dashed rgba(16,185,129,.3);background
 button.auto:hover{background:rgba(16,185,129,.16);border-style:solid}
 button.auto:disabled{opacity:.6;cursor:default}
 .plus{opacity:.6;margin-left:2px}
+.up-btn.busy,button.auto.busy{background:rgba(245,197,99,.16);border-color:rgba(245,197,99,.45);color:#f5c563;border-style:solid}
+.up-btn.done,button.auto.done{background:rgba(16,185,129,.28);border-color:var(--green);color:#d1fae5;border-style:solid}
 .memo{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 18px;margin-bottom:11px}
 .memo h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
 .memo .hint{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:9px;line-height:1.6}
@@ -703,8 +705,8 @@ function upload(file, kind, row, col, onStep){
           chain = chain.then(function(){
             return file.slice(seq * CHUNK, (seq + 1) * CHUNK).arrayBuffer();
           }).then(function(buf){
-            return post({ action:'taUpPart', userId:auth.id, userPw:auth.pw,
-                          code:cur.code, uploadId:uploadId, seq:seq, data:b64(buf) });
+            return post(withAuth({ action:'taUpPart', code:cur.code,
+                                   uploadId:uploadId, seq:seq, data:b64(buf) }));
           }).then(function(r){
             if (!r || !r.ok) throw new Error((r && r.error) || '전송이 끊겼습니다.');
             if (onStep) onStep(seq + 1, parts);
@@ -735,19 +737,24 @@ function pickAndUpload(kind, row, col, label, btn){
     var i = 0;
     (function next(){
       if (i >= files.length){
-        btn.textContent = '제출됨';
+        btn.classList.remove('busy');
+        btn.classList.add('done');
+        btn.textContent = '제출됨 ✓';
         delete cache[cur.code + '|' + kind];
         showErr('');
         flagSaved('업로드 완료');
-        openKind(kind);
-        loadNow();
+        setTimeout(function(){ openKind(kind); loadNow(); }, 900);
         return;
       }
       var f = files[i++];
-      btn.textContent = f.name.slice(0, 12) + '… 0%';
+      btn.classList.add('busy');
+      btn.textContent = '보내는 중… ' + (files.length > 1 ? i + '/' + files.length : '');
       upload(f, kind, row, col, function(done, all){
-        btn.textContent = f.name.slice(0, 12) + '… ' + Math.round(done / all * 100) + '%';
+        btn.textContent = (all > 1)
+          ? '보내는 중… ' + Math.round(done / all * 100) + '%'
+          : '보내는 중…';
       }).then(next).catch(function(e){
+        btn.classList.remove('busy');
         showErr(e.message);
         btn.disabled = false;
         btn.textContent = label;
