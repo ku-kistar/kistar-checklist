@@ -153,6 +153,13 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .dl:hover{background:rgba(16,185,129,.2)}
 .dl-note{font-size:11px;color:rgba(255,255,255,.25);width:100%}
 .submit-btn{margin-left:auto;font-size:11px;font-family:inherit;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.35);border-radius:6px;padding:5px 12px;cursor:default}
+.up-btn{margin-left:auto;font-size:11px;font-family:inherit;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);color:var(--green2);border-radius:6px;padding:5px 12px;cursor:pointer}
+.up-btn:hover{background:rgba(16,185,129,.24)}
+.up-btn:disabled{opacity:.6;cursor:default}
+button.auto{font-family:inherit;border:1px dashed rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green2);cursor:pointer}
+button.auto:hover{background:rgba(16,185,129,.16);border-style:solid}
+button.auto:disabled{opacity:.6;cursor:default}
+.plus{opacity:.6;margin-left:2px}
 .memo{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 18px;margin-bottom:11px}
 .memo h3{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px}
 .memo .hint{font-size:11px;color:rgba(255,255,255,.35);margin-bottom:9px;line-height:1.6}
@@ -320,6 +327,16 @@ function call(params){
     document.body.appendChild(s);
   });
 }
+function post(params){
+  // form_plan.html 의 서명 업로드와 같은 방식 (URLSearchParams POST)
+  var body = new URLSearchParams();
+  for (var k in params){
+    if (!params.hasOwnProperty(k)) continue;
+    body.append(k, params[k] == null ? '' : params[k]);
+  }
+  return fetch(GAS, { method:'POST', body: body }).then(function(r){ return r.json(); });
+}
+
 function withAuth(o){
   o.userId = auth.id; o.userPw = auth.pw;
   if (role === 'admin' && editMode) o.edit = '1';
@@ -599,9 +616,19 @@ function renderGrid(d){
     if (autos.length){
       body += '<div class="autos">' + autos.map(function(c){
         var got = String(r.v[c.col] || '').trim();
+        if (curKind === 'speaker' && !ro && !got){
+          return '<button type="button" class="auto up-one" data-row="' + r.row
+            + '" data-col="' + c.col + '" data-label="' + esc(c.label) + '">'
+            + esc(c.label) + ' <span class="plus">+</span></button>';
+        }
         return '<span class="auto' + (got ? ' got' : '') + '">' + esc(c.label) + (got ? ' ' + esc(got) : '') + '</span>';
-      }).join('') + '<span class="auto-note">제출하면 자동으로 채워집니다</span>'
-        + '<button type="button" class="submit-btn" disabled title="준비 중입니다">서류 제출</button></div>';
+      }).join('')
+        + (ro ? '<span class="auto-note">제출하면 자동으로 채워집니다</span>'
+              : '<button type="button" class="up-btn" data-row="' + r.row
+                + '" data-col="' + (curKind === 'speaker' ? 0 : (autos[0] ? autos[0].col : 0))
+                + '">' + (curKind === 'speaker' ? '파일 올리기' : '파일 올리기 (여러 개)')
+                + '</button>')
+        + '</div>';
     }
     body += '</div>';
     return '<div class="row" data-r="' + r.row + '">' + head + body + '</div>';
@@ -615,7 +642,8 @@ function renderGrid(d){
 
   var view = $('view');
   Array.prototype.forEach.call(view.querySelectorAll('.row:not(.off)'), function(el){
-    el.querySelector('.row-head').addEventListener('click', function(){
+    el.querySelector('.row-head').addEventListener('click', function(ev){
+      if (ev.target.closest('button')) return;
       var b = el.querySelector('.row-body');
       if (!b) return;
       b.hidden = !b.hidden;
@@ -627,6 +655,17 @@ function renderGrid(d){
     }
   });
 
+  view.onclick = function(e){
+    var one = e.target.closest('.up-one');
+    if (one){
+      pickAndUpload(curKind, +one.dataset.row, +one.dataset.col, one.dataset.label, one);
+      return;
+    }
+    var many = e.target.closest('.up-btn');
+    if (many){
+      pickAndUpload(curKind, +many.dataset.row, +many.dataset.col, many.textContent, many);
+    }
+  };
   view.onchange = function(e){
     var t = e.target;
     if (t.type !== 'checkbox') return;
@@ -640,6 +679,82 @@ function renderGrid(d){
     clearTimeout(timers[key]);
     timers[key] = setTimeout(function(){ saveCell(t.dataset.row, t.dataset.col, t.value, t); }, 2000);
   };
+}
+
+var CHUNK = 2 * 1024 * 1024;   // 2MB 씩 나눠 보낸다
+
+function b64(buf){
+  var bin = '', a = new Uint8Array(buf), step = 0x8000;
+  for (var i = 0; i < a.length; i += step){
+    bin += String.fromCharCode.apply(null, a.subarray(i, i + step));
+  }
+  return btoa(bin);
+}
+
+function upload(file, kind, row, col, onStep){
+  var uploadId = null, parts = Math.max(1, Math.ceil(file.size / CHUNK));
+  return post(withAuth({ action:'taUpStart', code:cur.code, size:file.size }))
+    .then(function(d){
+      if (!d || !d.ok) throw new Error((d && d.error) || '업로드를 시작하지 못했습니다.');
+      uploadId = d.uploadId;
+      var chain = Promise.resolve();
+      for (var i = 0; i < parts; i++){
+        (function(seq){
+          chain = chain.then(function(){
+            return file.slice(seq * CHUNK, (seq + 1) * CHUNK).arrayBuffer();
+          }).then(function(buf){
+            return post({ action:'taUpPart', userId:auth.id, userPw:auth.pw,
+                          code:cur.code, uploadId:uploadId, seq:seq, data:b64(buf) });
+          }).then(function(r){
+            if (!r || !r.ok) throw new Error((r && r.error) || '전송이 끊겼습니다.');
+            if (onStep) onStep(seq + 1, parts);
+          });
+        })(i);
+      }
+      return chain;
+    })
+    .then(function(){
+      return post(withAuth({ action:'taUpFinish', code:cur.code, uploadId:uploadId,
+                             parts:parts, kind:kind, row:row, col:col,
+                             filename:file.name, mime:file.type || 'application/octet-stream' }));
+    })
+    .then(function(d){
+      if (!d || !d.ok) throw new Error((d && d.error) || '저장하지 못했습니다.');
+      return d;
+    });
+}
+
+function pickAndUpload(kind, row, col, label, btn){
+  var inp = document.createElement('input');
+  inp.type = 'file';
+  inp.multiple = (kind === 'week');
+  inp.onchange = function(){
+    var files = Array.prototype.slice.call(inp.files || []);
+    if (!files.length) return;
+    btn.disabled = true;
+    var i = 0;
+    (function next(){
+      if (i >= files.length){
+        btn.textContent = '제출됨';
+        delete cache[cur.code + '|' + kind];
+        showErr('');
+        flagSaved('업로드 완료');
+        openKind(kind);
+        loadNow();
+        return;
+      }
+      var f = files[i++];
+      btn.textContent = f.name.slice(0, 12) + '… 0%';
+      upload(f, kind, row, col, function(done, all){
+        btn.textContent = f.name.slice(0, 12) + '… ' + Math.round(done / all * 100) + '%';
+      }).then(next).catch(function(e){
+        showErr(e.message);
+        btn.disabled = false;
+        btn.textContent = label;
+      });
+    })();
+  };
+  inp.click();
 }
 
 function formBlock(){
