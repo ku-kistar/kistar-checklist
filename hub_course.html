@@ -156,6 +156,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .guide b{color:var(--green2);font-weight:600}
 .guide span{font-size:11.5px;line-height:1.65;color:rgba(255,255,255,.45)}
 .guide span b{color:rgba(255,255,255,.7);font-weight:600}
+.guide-files{display:flex;flex-wrap:wrap;gap:6px;margin:1px 0 2px}
+.gf{font-size:11px;padding:3px 9px;border-radius:5px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.5)}
+.gf b{color:var(--green2);font-weight:700;margin-right:3px}
+.guide code{font-family:inherit;font-size:11px;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.6)}
 .submit-btn{margin-left:auto;font-size:11px;font-family:inherit;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.35);border-radius:6px;padding:5px 12px;cursor:default}
 .up-btn{margin-left:auto;font-size:11px;font-family:inherit;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);color:var(--green2);border-radius:6px;padding:5px 12px;cursor:pointer}
 .up-btn:hover{background:rgba(16,185,129,.24)}
@@ -297,6 +301,7 @@ var EXPIRE_MS = 1000 * 60 * 60 * 24 * 120;
 
 var auth = null, role = 'ta', courses = [], cur = null;
 var curKind = 'week', editMode = false, timers = {}, summary = null, forms = [];
+var keepOpen = {};   // '연사|12' → true. 목록을 다시 그려도 펼침을 유지한다
 var cache = {};
 
 var CHIP = '<svg width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">'
@@ -457,6 +462,7 @@ function start(d){
 
 function selectCourse(c){
   if (!c){ $('view').innerHTML = '<div class="empty">담당 과목이 없습니다.</div>'; return; }
+  if (!cur || cur.code !== c.code) keepOpen = {};   // 과목마다 행 번호가 다르다
   cur = c;
   $('cCode').textContent = '3학점 · ' + c.code;
   $('cName').textContent = c.name;
@@ -649,8 +655,10 @@ function renderGrid(d){
       if (!b) return;
       b.hidden = !b.hidden;
       el.classList.toggle('open', !b.hidden);
+      // 「제출 확인」 뒤 목록을 다시 그려도 열어둔 줄이 닫히지 않게 기억한다
+      keepOpen[curKind + '|' + el.dataset.r] = !b.hidden;
     });
-    if (+el.dataset.r === nowRow){
+    if (+el.dataset.r === nowRow || keepOpen[curKind + '|' + el.dataset.r]){
       var b = el.querySelector('.row-body');
       if (b){ b.hidden = false; el.classList.add('open'); }
     }
@@ -712,6 +720,8 @@ function scanFolder(kind, row, btn){
   btn.disabled = true;
   var back = btn.textContent;
   btn.textContent = '확인 중…';
+  keepOpen[kind + '|' + row] = true;      // 확인한 줄은 다시 그려도 열어둔다
+  var y = window.scrollY;
   call(withAuth({ action:'scanTaFolder', code:cur.code, kind:kind, row:row }))
     .then(function(d){
       btn.disabled = false; btn.textContent = back;
@@ -722,7 +732,10 @@ function scanFolder(kind, row, btn){
       showErr('');
       flagSaved(d.found ? '서류 ' + d.found + '건 확인' : '폴더가 비어 있습니다');
       delete cache[cur.code + '|' + kind];
-      setTimeout(function(){ openKind(kind); loadNow(); }, 600);
+      openKind(kind).then(function(){
+        window.scrollTo(0, y);            // 화면이 맨 위로 튀지 않게 되돌린다
+        loadNow();
+      });
     })
     .catch(function(e){
       btn.disabled = false; btn.textContent = back;
@@ -733,28 +746,56 @@ function scanFolder(kind, row, btn){
 function formBlock(){
   if (curKind !== 'week' && curKind !== 'speaker') return '';
   var mine = forms.filter(function(f){
-    return curKind === 'speaker' ? !!f.mark : !f.mark;
+    return curKind === 'speaker' ? f.no > 0 : !f.no;
   });
-  if (!mine.length) return '';
-  var links = mine.map(function(f){
+  var has = mine.filter(function(f){ return !!f.url; });
+  if (!has.length) return '';
+  var links = has.map(function(f){
     return '<a class="dl" href="' + esc(f.url) + '" target="_blank" rel="noopener">'
-      + esc(f.name) + '</a>';
+      + (f.mark ? esc(f.mark) + ' ' : '') + esc(f.name) + '</a>';
   }).join('');
-  var extra = (curKind === 'speaker')
-    ? '<span class="dl-note">④ 이력서 · ⑤ 통장사본 · ⑥ 강의자료는 지정 양식이 없습니다</span>' : '';
+  // 지정 양식이 없는 서류는 _양식 탭에서 링크가 빈 줄로 관리한다
+  var none = mine.filter(function(f){ return !f.url; });
+  var extra = none.length
+    ? '<span class="dl-note">' + none.map(function(f){
+        return (f.mark ? f.mark + ' ' : '') + esc(f.name);
+      }).join(' · ') + '는 지정 양식이 없습니다</span>'
+    : '';
   return '<div class="forms"><span class="dl-label">양식 받기</span>' + links + extra + '</div>';
 }
 
-/** 처음 여는 사람을 위한 안내 — 권한 요청은 한 번뿐이라는 걸 알려준다 */
+/** 처음 여는 사람을 위한 안내 — 무엇을 어떤 이름으로 내야 하는지 */
 function guideBlock(){
   if (curKind !== 'week' && curKind !== 'speaker') return '';
+
+  // 연사 서류는 번호가 붙은 것, 주차 준비물은 번호가 없는 것
+  var mine = forms.filter(function(f){
+    return curKind === 'speaker' ? f.no > 0 : !f.no;
+  });
+
+  var names = '';
+  if (curKind === 'speaker' && mine.length){
+    names = '<div class="guide-files">' + mine.map(function(f){
+      return '<span class="gf"><b>' + f.no + '.</b> ' + esc(f.name) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  var sample = (curKind === 'speaker' && mine[0])
+    ? mine[0].no + '. ' + mine[0].name + '_전준현.hwp' : '';
+
   return '<div class="guide">'
     + '<b>서류는 구글 드라이브 폴더에 직접 올립니다.</b>'
     + '<span>「폴더 열기」를 처음 누르면 권한 요청 화면이 뜹니다. 요청하시면 사업단에서 '
     + '확인 후 수락해 드립니다. 한 번 수락되면 그 뒤로는 같은 과목 폴더 안의 주차별 폴더에 '
     + '바로 올리시면 됩니다.</span>'
-    + '<span>파일 이름은 <b>1. 지급계획서</b> 처럼 앞에 번호를 붙여 주세요. 다 올리신 뒤 '
-    + '「제출 확인」을 누르면 아래 목록에 제출일이 표시됩니다.</span>'
+    + (names
+        ? '<span><b>파일 이름 앞에 번호를 붙여 주세요.</b> 번호로 어느 서류인지 가려냅니다.</span>'
+          + names
+          + (sample ? '<span>뒤에 이름이나 날짜를 덧붙이셔도 됩니다 — <code>'
+                      + esc(sample) + '</code></span>' : '')
+        : '')
+    + '<span>다 올리신 뒤 <b>「제출 확인」</b>을 누르면 아래 목록에 제출일이 바로 표시됩니다. '
+    + '누르지 않으셔도 하루에 한 번 자동으로 반영됩니다.</span>'
     + '</div>';
 }
 
