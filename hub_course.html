@@ -24,7 +24,14 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .topbar-l{display:flex;align-items:center;gap:10px;min-width:0}
 .top-badge{font-size:10px;font-weight:700;letter-spacing:.1em;background:rgba(16,185,129,.15);color:var(--green);padding:3px 8px;border-radius:4px;white-space:nowrap}
 .top-title{font-size:13px;font-weight:700;color:#fff;white-space:nowrap}
-.topbar-r{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.topbar-r{display:flex;align-items:center;gap:9px;flex-wrap:wrap;position:relative}
+.top-badge.as{background:rgba(245,197,99,.18);color:var(--amber);letter-spacing:0}
+.as-box{position:absolute;top:calc(100% + 7px);right:0;z-index:60;min-width:180px;padding:7px;background:#0e2a22;border:1px solid rgba(16,185,129,.28);border-radius:10px;display:flex;flex-direction:column;gap:2px;box-shadow:0 10px 28px rgba(0,0,0,.45)}
+.as-t{font-size:10.5px;color:rgba(255,255,255,.35);padding:5px 9px 6px}
+.as-box button{text-align:left;font-family:inherit;font-size:12px;padding:7px 10px;border-radius:6px;background:none;border:none;color:rgba(255,255,255,.72);cursor:pointer}
+.as-box button:hover{background:rgba(16,185,129,.14);color:#fff}
+.as-box button.on{background:rgba(16,185,129,.18);color:var(--green2)}
+.as-box .as-off{margin-top:4px;border-top:1px solid rgba(255,255,255,.09);border-radius:0 0 6px 6px;color:var(--amber);font-size:11.5px}
 .top-who{font-size:12px;color:rgba(255,255,255,.45)}
 .top-btn{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;color:rgba(255,255,255,.4);font-size:11px;font-family:inherit;padding:4px 10px;cursor:pointer;white-space:nowrap}
 .top-btn:hover{color:#fff;border-color:rgba(255,255,255,.45)}
@@ -63,7 +70,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .pw-wrap{position:relative}
 .pw-wrap input{padding-right:44px}
 .pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;padding:6px}
-.auth-hint{font-size:11px;color:rgba(255,255,255,.28);margin:-.4rem 0 1.3rem}
 .auth-btn{width:100%;padding:12px;background:var(--green);border:none;border-radius:8px;color:#04241b;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
 .auth-btn:hover{opacity:.9}
 .auth-btn:disabled{opacity:.5;cursor:default}
@@ -245,7 +251,6 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
           </button>
         </div>
       </div>
-      <p class="auth-hint">사업단에서 따로 안내한 정보를 넣으세요</p>
       <button class="auth-btn" id="authBtn" type="button">확인</button>
       <div class="auth-msg" id="authMsg"></div>
     </div>
@@ -262,6 +267,7 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
     <div class="topbar-r">
       <span class="top-who" id="topWho"></span>
       <a class="top-btn" id="btnHub" href="portal_survey.html" hidden>데이터 허브</a>
+      <button class="top-btn" id="btnAs" type="button" hidden>조교 시점</button>
       <button class="top-btn" id="btnEdit" type="button" hidden>편집 모드</button>
       <button class="top-btn" id="btnOut" type="button">로그아웃</button>
     </div>
@@ -318,6 +324,7 @@ var EXPIRE_MS = 1000 * 60 * 60 * 24 * 120;
 var auth = null, role = 'ta', courses = [], cur = null;
 var curKind = 'week', editMode = false, timers = {}, summary = null, forms = [];
 var keepOpen = {};   // '연사|12' → true. 목록을 다시 그려도 펼침을 유지한다
+var viewAs = '', tas = [], isAdmin = false;   // 조교 시점 보기
 var cache = {};
 
 var CHIP = '<svg width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">'
@@ -369,7 +376,8 @@ function post(params){
 
 function withAuth(o){
   o.userId = auth.id; o.userPw = auth.pw;
-  if (role === 'admin' && editMode) o.edit = '1';
+  if (viewAs) o.viewAs = viewAs;              // 조교 시점 보기 (관리자만)
+  else if (role === 'admin' && editMode) o.edit = '1';
   return o;
 }
 function showErr(t){ var e = $('err'); e.textContent = t || ''; e.className = 'err' + (t ? ' show' : ''); }
@@ -417,12 +425,15 @@ function doAuth(){
 }
 
 function login(id, pw, silent){
-  return call({ action:'hubLogin', userId:id, userPw:pw, ua:navigator.userAgent })
+  return call({ action:'hubLogin', userId:id, userPw:pw, viewAs:viewAs,
+                ua:navigator.userAgent })
     .then(function(d){
       if (!d || !d.ok) throw new Error((d && d.error) || '로그인하지 못했습니다.');
       auth = { id:id, pw:pw, at:Date.now() };
       try { localStorage.setItem(AUTH_KEY, JSON.stringify(auth)); } catch(e){}
       role = d.role; courses = d.courses || []; forms = d.forms || [];
+      if (d.tas) tas = d.tas;
+      isAdmin = (d.role === 'admin' || !!d.admin);
       start(d);
     }).catch(function(e){
       if (silent){ try{ localStorage.removeItem(AUTH_KEY); }catch(x){} openAuth(); }
@@ -430,9 +441,44 @@ function login(id, pw, silent){
     });
 }
 
+/* ══ 조교 시점 보기 ═══════════════════════════════
+   관리자가 특정 조교의 화면을 그대로 본다. 편집은 막혀 있다.
+   서버에서 관리자 인증을 다시 확인하므로 화면만 바꿔치기할 수 없다. */
+
+function setViewAs(id){
+  viewAs = id || '';
+  cache = {}; keepOpen = {}; cur = null; editMode = false;
+  $('pick').hidden = true; $('pick').innerHTML = '';
+  $('btnEdit').classList.remove('on');
+  $('btnEdit').textContent = '편집 모드';
+  login(auth.id, auth.pw).catch(function(e){ showErr(e.message); });
+}
+
+function askViewAs(){
+  var box = $('asBox');
+  if (box){ box.remove(); return; }
+  box = document.createElement('div');
+  box.id = 'asBox';
+  box.className = 'as-box';
+  box.innerHTML = '<div class="as-t">어느 조교 화면으로 볼까요</div>'
+    + tas.map(function(t){
+        return '<button type="button" data-id="' + esc(t.id) + '"'
+          + (t.id === viewAs ? ' class="on"' : '') + '>' + esc(t.who) + '</button>';
+      }).join('')
+    + (viewAs ? '<button type="button" class="as-off" data-id="">관리자 화면으로 돌아가기</button>' : '');
+  box.onclick = function(e){
+    var b = e.target.closest('button[data-id]'); if (!b) return;
+    box.remove();
+    setViewAs(b.dataset.id);
+  };
+  $('btnAs').parentNode.appendChild(box);
+}
+
 $('btnOut').addEventListener('click', function(){
   try{ localStorage.removeItem(AUTH_KEY); }catch(e){}
   auth = null; courses = []; cur = null; editMode = false;
+  viewAs = ''; tas = []; isAdmin = false;
+  $('btnAs').hidden = true; $('btnEdit').hidden = true;
   $('apw').value = '';
   $('authMsg').textContent = '';
   openAuth();
@@ -444,12 +490,19 @@ var LABEL = { ta:'TA', prof:'교수', admin:'ADMIN' };
 function start(d){
   $('auth').classList.remove('show');
   $('page').hidden = false;
-  $('topRole').textContent = LABEL[role] || 'TA';
+  $('topRole').textContent = viewAs ? '조교 시점' : (LABEL[role] || 'TA');
+  $('topRole').classList.toggle('as', !!viewAs);
   $('topWho').dataset.who = d.who || '';
   if (d.semester) $('authSub').textContent = d.semester + ' · 교직원 · 조교 전용 화면입니다';
 
-  if (role === 'admin'){
+  if (isAdmin){
     $('btnHub').hidden = false;
+    $('btnAs').hidden = false;
+    $('btnAs').onclick = askViewAs;
+    $('btnAs').classList.toggle('on', !!viewAs);
+    $('btnAs').textContent = viewAs ? '시점 해제' : '조교 시점';
+  }
+  if (role === 'admin' && !viewAs){
     $('btnEdit').hidden = false;
     $('btnEdit').onclick = function(){
       editMode = !editMode;
@@ -459,6 +512,8 @@ function start(d){
       openKind(curKind);
       prefetch(cur);
     };
+  } else {
+    $('btnEdit').hidden = true;
   }
   if (courses.length > 1){
     var p = $('pick');
