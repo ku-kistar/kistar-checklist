@@ -152,10 +152,17 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .dl{font-size:11px;color:var(--green2);background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:5px;padding:3px 9px;text-decoration:none}
 .dl:hover{background:rgba(16,185,129,.2)}
 .dl-note{font-size:11px;color:rgba(255,255,255,.25);width:100%}
+.guide{margin-bottom:11px;padding:11px 14px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:10px;display:flex;flex-direction:column;gap:5px}
+.guide b{color:var(--green2);font-weight:600}
+.guide span{font-size:11.5px;line-height:1.65;color:rgba(255,255,255,.45)}
+.guide span b{color:rgba(255,255,255,.7);font-weight:600}
 .submit-btn{margin-left:auto;font-size:11px;font-family:inherit;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.35);border-radius:6px;padding:5px 12px;cursor:default}
 .up-btn{margin-left:auto;font-size:11px;font-family:inherit;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);color:var(--green2);border-radius:6px;padding:5px 12px;cursor:pointer}
 .up-btn:hover{background:rgba(16,185,129,.24)}
 .up-btn:disabled{opacity:.6;cursor:default}
+.fd-btn{margin-left:auto}
+.sc-btn{margin-left:0;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.5)}
+.sc-btn:hover{background:rgba(255,255,255,.12)}
 button.auto{font-family:inherit;border:1px dashed rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green2);cursor:pointer}
 button.auto:hover{background:rgba(16,185,129,.16);border-style:solid}
 button.auto:disabled{opacity:.6;cursor:default}
@@ -618,18 +625,10 @@ function renderGrid(d){
     if (autos.length){
       body += '<div class="autos">' + autos.map(function(c){
         var got = String(r.v[c.col] || '').trim();
-        if (curKind === 'speaker' && !ro && !got){
-          return '<button type="button" class="auto up-one" data-row="' + r.row
-            + '" data-col="' + c.col + '" data-label="' + esc(c.label) + '">'
-            + esc(c.label) + ' <span class="plus">+</span></button>';
-        }
         return '<span class="auto' + (got ? ' got' : '') + '">' + esc(c.label) + (got ? ' ' + esc(got) : '') + '</span>';
       }).join('')
-        + (ro ? '<span class="auto-note">제출하면 자동으로 채워집니다</span>'
-              : '<button type="button" class="up-btn" data-row="' + r.row
-                + '" data-col="' + (curKind === 'speaker' ? 0 : (autos[0] ? autos[0].col : 0))
-                + '">' + (curKind === 'speaker' ? '파일 올리기' : '파일 올리기 (여러 개)')
-                + '</button>')
+        + '<button type="button" class="up-btn fd-btn" data-row="' + r.row + '">폴더 열기</button>'
+        + '<button type="button" class="up-btn sc-btn" data-row="' + r.row + '">제출 확인</button>'
         + '</div>';
     }
     body += '</div>';
@@ -640,7 +639,7 @@ function renderGrid(d){
     (ro ? '<span class="chip">보기 전용</span>' : '')
     + (checks.length ? '<span class="chip mute">미완료 ' + left + '</span>' : '')
     + '<span class="saved" id="saved"></span>';
-  $('view').innerHTML = formBlock() + '<div class="grid">' + html + '</div>';
+  $('view').innerHTML = formBlock() + guideBlock() + '<div class="grid">' + html + '</div>';
 
   var view = $('view');
   Array.prototype.forEach.call(view.querySelectorAll('.row:not(.off)'), function(el){
@@ -658,15 +657,10 @@ function renderGrid(d){
   });
 
   view.onclick = function(e){
-    var one = e.target.closest('.up-one');
-    if (one){
-      pickAndUpload(curKind, +one.dataset.row, +one.dataset.col, one.dataset.label, one);
-      return;
-    }
-    var many = e.target.closest('.up-btn');
-    if (many){
-      pickAndUpload(curKind, +many.dataset.row, +many.dataset.col, many.textContent, many);
-    }
+    var fd = e.target.closest('.fd-btn');
+    if (fd){ openFolder(curKind, +fd.dataset.row, fd); return; }
+    var sc = e.target.closest('.sc-btn');
+    if (sc){ scanFolder(curKind, +sc.dataset.row, sc); return; }
   };
   view.onchange = function(e){
     var t = e.target;
@@ -683,89 +677,57 @@ function renderGrid(d){
   };
 }
 
-// 6MB 씩 나눠 보낸다.
-// 6291456 은 3으로 나누어떨어진다 — 조각별 base64 에 패딩(=)이 생기지 않아
-// 서버(_taUpFinish)에서 문자열을 그대로 이어붙일 수 있다.
-// 🔴 이 값을 바꿀 때는 반드시 3의 배수로 할 것. 아니면 파일이 깨진다.
-var CHUNK = 6 * 1024 * 1024;
+/* ══ 제출 서류 — 구글 드라이브 폴더 ══════════════════════════
+   파일을 GAS로 보내지 않는다. 조교가 폴더를 열어 직접 끌어다 놓는다.
+   GAS 를 거치면 base64 로 부풀려 두 번 이동해야 해서 13MB 에 1분이 걸렸다.
+   폴더 방식은 구글 드라이브 속도 그대로다.
+   시트 표시는 「제출 확인」 버튼으로 폴더를 훑어 채운다.        */
 
-function b64(buf){
-  var bin = '', a = new Uint8Array(buf), step = 0x8000;
-  for (var i = 0; i < a.length; i += step){
-    bin += String.fromCharCode.apply(null, a.subarray(i, i + step));
-  }
-  return btoa(bin);
-}
-
-function upload(file, kind, row, col, onStep){
-  var uploadId = null, parts = Math.max(1, Math.ceil(file.size / CHUNK));
-  return post(withAuth({ action:'taUpStart', code:cur.code, size:file.size }))
+function openFolder(kind, row, btn){
+  // 팝업 차단을 피하려면 빈 탭을 먼저 열고 주소를 나중에 넣어야 한다
+  var w = window.open('', '_blank');
+  btn.disabled = true;
+  var back = btn.textContent;
+  btn.textContent = '여는 중…';
+  call(withAuth({ action:'getTaFolder', code:cur.code, kind:kind, row:row }))
     .then(function(d){
-      if (!d || !d.ok) throw new Error((d && d.error) || '업로드를 시작하지 못했습니다.');
-      uploadId = d.uploadId;
-      var chain = Promise.resolve();
-      for (var i = 0; i < parts; i++){
-        (function(seq){
-          chain = chain.then(function(){
-            return file.slice(seq * CHUNK, (seq + 1) * CHUNK).arrayBuffer();
-          }).then(function(buf){
-            return post(withAuth({ action:'taUpPart', code:cur.code,
-                                   uploadId:uploadId, seq:seq, data:b64(buf) }));
-          }).then(function(r){
-            if (!r || !r.ok) throw new Error((r && r.error) || '전송이 끊겼습니다.');
-            if (onStep) onStep(seq + 1, parts);
-          });
-        })(i);
+      btn.disabled = false; btn.textContent = back;
+      if (!d || !d.ok){
+        if (w) w.close();
+        showErr((d && d.error) || '폴더를 열지 못했습니다.');
+        return;
       }
-      return chain;
+      showErr('');
+      if (w) w.location.href = d.url;
+      else location.href = d.url;
     })
-    .then(function(){
-      return post(withAuth({ action:'taUpFinish', code:cur.code, uploadId:uploadId,
-                             parts:parts, kind:kind, row:row, col:col,
-                             filename:file.name, mime:file.type || 'application/octet-stream' }));
-    })
-    .then(function(d){
-      if (!d || !d.ok) throw new Error((d && d.error) || '저장하지 못했습니다.');
-      return d;
+    .catch(function(e){
+      btn.disabled = false; btn.textContent = back;
+      if (w) w.close();
+      showErr(e.message);
     });
 }
 
-function pickAndUpload(kind, row, col, label, btn){
-  var inp = document.createElement('input');
-  inp.type = 'file';
-  inp.multiple = (kind === 'week');
-  inp.onchange = function(){
-    var files = Array.prototype.slice.call(inp.files || []);
-    if (!files.length) return;
-    btn.disabled = true;
-    var i = 0;
-    (function next(){
-      if (i >= files.length){
-        btn.classList.remove('busy');
-        btn.classList.add('done');
-        btn.textContent = '제출됨 ✓';
-        delete cache[cur.code + '|' + kind];
-        showErr('');
-        flagSaved('업로드 완료');
-        setTimeout(function(){ openKind(kind); loadNow(); }, 900);
+function scanFolder(kind, row, btn){
+  btn.disabled = true;
+  var back = btn.textContent;
+  btn.textContent = '확인 중…';
+  call(withAuth({ action:'scanTaFolder', code:cur.code, kind:kind, row:row }))
+    .then(function(d){
+      btn.disabled = false; btn.textContent = back;
+      if (!d || !d.ok){
+        showErr((d && d.error) || '확인하지 못했습니다.');
         return;
       }
-      var f = files[i++];
-      btn.classList.add('busy');
-      btn.textContent = '보내는 중… ' + (files.length > 1 ? i + '/' + files.length : '');
-      upload(f, kind, row, col, function(done, all){
-        btn.textContent = (all > 1)
-          ? '보내는 중… ' + Math.round(done / all * 100) + '%'
-          : '보내는 중…';
-      }).then(next).catch(function(e){
-        btn.classList.remove('busy');
-        showErr(e.message);
-        btn.disabled = false;
-        btn.textContent = label;
-      });
-    })();
-  };
-  inp.click();
+      showErr('');
+      flagSaved(d.found ? '서류 ' + d.found + '건 확인' : '폴더가 비어 있습니다');
+      delete cache[cur.code + '|' + kind];
+      setTimeout(function(){ openKind(kind); loadNow(); }, 600);
+    })
+    .catch(function(e){
+      btn.disabled = false; btn.textContent = back;
+      showErr(e.message);
+    });
 }
 
 function formBlock(){
@@ -781,6 +743,19 @@ function formBlock(){
   var extra = (curKind === 'speaker')
     ? '<span class="dl-note">④ 이력서 · ⑤ 통장사본 · ⑥ 강의자료는 지정 양식이 없습니다</span>' : '';
   return '<div class="forms"><span class="dl-label">양식 받기</span>' + links + extra + '</div>';
+}
+
+/** 처음 여는 사람을 위한 안내 — 권한 요청은 한 번뿐이라는 걸 알려준다 */
+function guideBlock(){
+  if (curKind !== 'week' && curKind !== 'speaker') return '';
+  return '<div class="guide">'
+    + '<b>서류는 구글 드라이브 폴더에 직접 올립니다.</b>'
+    + '<span>「폴더 열기」를 처음 누르면 권한 요청 화면이 뜹니다. 요청하시면 사업단에서 '
+    + '확인 후 수락해 드립니다. 한 번 수락되면 그 뒤로는 같은 과목 폴더 안의 주차별 폴더에 '
+    + '바로 올리시면 됩니다.</span>'
+    + '<span>파일 이름은 <b>1. 지급계획서</b> 처럼 앞에 번호를 붙여 주세요. 다 올리신 뒤 '
+    + '「제출 확인」을 누르면 아래 목록에 제출일이 표시됩니다.</span>'
+    + '</div>';
 }
 
 function saveCell(row, col, value, el){
