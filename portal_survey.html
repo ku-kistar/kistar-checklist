@@ -467,6 +467,38 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admprev-msg{font-size:11.5px;line-height:1.6;margin-top:7px;color:rgba(255,255,255,.55)}
 .admprev-msg.on{color:#ffd0a0}
 .admprev-msg.err{color:#ff8a80}
+
+/* ══ 인제대 LMS 접속 안내 카드 (2026-08-31 신설) ══
+   반도체머신러닝 수강 확정자에게만 보인다. 서버(_getInjeId)가
+   학번+생년월일+수강확정 3중 확인 후에만 값을 내려주므로,
+   화면 소스에는 학생 데이터가 전혀 들어 있지 않다 (마스터 §11-10). */
+#injeCard{display:none;background:linear-gradient(135deg,rgba(14,165,233,.09),rgba(14,165,233,.03));border:1px solid rgba(14,165,233,.28);border-radius:12px;padding:15px 17px;margin-bottom:1.3rem}
+.inje-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.inje-tag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.08em;background:rgba(14,165,233,.18);color:#7dd3fc;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.inje-title{font-size:13.5px;font-weight:700;color:rgba(255,255,255,.92)}
+.inje-sub{font-size:11px;color:rgba(255,255,255,.4);width:100%;margin-top:-2px}
+.inje-prev{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;background:rgba(251,191,36,.18);color:#fbbf24;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.inje-idbox{background:rgba(0,0,0,.25);border:1px solid rgba(14,165,233,.2);border-radius:9px;padding:11px 14px;margin-bottom:11px}
+.inje-idlabel{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.06em;margin-bottom:3px}
+.inje-idval{font-family:'JetBrains Mono',monospace;font-size:23px;font-weight:700;color:#38bdf8;letter-spacing:.06em;line-height:1.2}
+.inje-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.inje-row{display:flex;align-items:baseline;gap:10px;font-size:12px}
+.inje-row .k{color:rgba(255,255,255,.42);width:34px;flex-shrink:0;font-weight:600}
+.inje-row .v{color:rgba(255,255,255,.85)}
+.inje-btns{display:flex;gap:8px;flex-wrap:wrap}
+.inje-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid transparent;transition:all .15s;min-height:38px;box-sizing:border-box}
+.inje-btn-main{background:rgba(14,165,233,.9);color:#04202e}
+.inje-btn-main:hover{background:#0ea5e9}
+.inje-btn-sub{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.72)}
+.inje-btn-sub:hover{border-color:rgba(14,165,233,.5);color:#7dd3fc}
+.inje-note{font-size:11px;color:rgba(251,191,36,.75);background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.16);border-radius:7px;padding:8px 11px;margin-top:11px;line-height:1.6}
+.inje-wait{font-size:12px;color:rgba(255,255,255,.6);line-height:1.7}
+.inje-ask{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.inje-ask input{background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16);border-radius:7px;padding:8px 11px;font-size:12.5px;color:#fff;width:130px;outline:none;font-family:inherit}
+.inje-ask input:focus{border-color:rgba(14,165,233,.55)}
+.inje-ask button{background:rgba(14,165,233,.85);color:#04202e;border:none;border-radius:7px;padding:8px 15px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;min-height:36px}
+.inje-err{font-size:11.5px;color:rgba(248,113,113,.85);margin-top:7px}
+@media(max-width:520px){.inje-idval{font-size:20px}.inje-btn{flex:1;justify-content:center}}
 </style>
 </head>
 <body>
@@ -939,6 +971,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 
   <!-- 탭1: 설문·제출 -->
   <div class="tab-content active" id="content-forms">
+
+    <!-- ★ 인제대 LMS 접속 안내 (2026-08-31) · 내용은 loadInjeId()가 그린다 -->
+    <div id="injeCard"></div>
+
     <div class="sec-header">
       <div class="sec-label">진행 중인 설문 &amp; 제출</div>
       <button class="refresh-btn" id="refreshBtn" onclick="reloadForms()">
@@ -990,7 +1026,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         <button class="admprev-btn" onclick="admPreviewGo()">조회</button>
         <button class="admprev-exit" id="admPrevExit" onclick="admPreviewExit()">내 화면으로</button>
       </div>
-      <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+      <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
     </div>
     <div class="mileage-admin-panel" id="adminMileagePanel">
       <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;font-weight:600">참여자 일괄 마일리지 적립</div>
@@ -1409,6 +1445,7 @@ function showUserBar() {
   }
   document.querySelector('.page').style.paddingTop = '44px';
   document.getElementById('mileage-section').classList.add('show');
+  loadInjeId();   // ★ 인제대 LMS 안내 (2026-08-31). 호출부는 여기 한 곳뿐이다 — 중복 호출 시 JSONP 경합
   if (auth.isAdmin) {
     const hubBtn = document.getElementById('hub-link');
     if (hubBtn) hubBtn.style.display = 'flex';
@@ -1635,6 +1672,175 @@ function renderSurveyCards() {
 
   const anno = document.getElementById('surveyAnno');
   if (anno) anno.textContent = '수강 과목이 표시되지 않으면 담당자에게 문의해 주세요.';
+}
+
+/* ══════════════════════════════════════════════════════════════
+   인제대 LMS 접속 안내 카드  (2026-08-31 신설)
+
+   반도체머신러닝(2026-2) 수강 확정자 15명에게만 보인다.
+   판정은 전부 서버(_getInjeId · Course.gs)가 한다.
+     ① 명단 학번 + 생년월일 본인 확인
+     ② 수강신청 탭 상태가 '접수'
+     ③ 인제대학번 탭에 값 있음
+
+   🔴 학번 목록을 이 파일에 하드코딩하지 말 것 (마스터 §11-10).
+      저장소가 Public이라 소스에 학생 데이터가 있으면 그대로 노출된다.
+   🔴 호출은 showUserBar() 한 곳에서만. 두 곳에서 부르면 콜백명이 겹쳐
+      늦게 온 응답의 onerror가 이미 그린 카드를 지운다 (포털 인계 §2-②).
+   ══════════════════════════════════════════════════════════════ */
+
+const INJE_LMS_URL    = 'https://injelms.inje.ac.kr/';
+// 🔴 업로드 전에 브라우저에서 한 번 열어볼 것. 오픈채팅 공지와 같은 폴더여야 한다.
+const INJE_MANUAL_URL = 'https://drive.google.com/drive/folders/1X3UepVLyoBgX9glLQ5at7nv6RltTX42Y';
+
+var _injeSeq = 0;
+
+function loadInjeId(birthOverride) {
+  const box = document.getElementById('injeCard');
+  if (!box) return;
+  const auth = checkAuth();
+  if (!auth || !auth.studentId) return;
+
+  // 조회 대상 — 평상시에는 본인, ADMIN 미리보기 중에는 그 학생.
+  // _admViewSid는 _admPrevSid가 비어 있으면 auth.studentId를 그대로 돌려준다.
+  const target  = _admViewSid(auth);
+  const preview = !!(typeof _admPrevSid !== 'undefined' && _admPrevSid);
+  if (!target) return;
+
+  // 미리보기는 서버가 관리자 3중 확인(_courseAdminAuth_)을 다시 한다.
+  // 관리자가 아닌 사람이 _admPrevSid를 조작해도 서버에서 막힌다.
+  let qs;
+  if (preview) {
+    if (!auth.isAdmin) { box.style.display = 'none'; return; }
+    qs = '&adminId='    + encodeURIComponent(auth.studentId)
+       + '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || '');
+  } else {
+    const birth = (birthOverride || auth.birth || auth.birthDate || '').replace(/[^0-9]/g, '');
+    // 체크리스트 자동로그인(verifyBySid)으로 들어오면 생년월일이 없다.
+    // 이때만 입력칸을 띄운다. 정상 로그인 학생에게는 보이지 않는다.
+    if (birth.length !== 8) { _injeRenderAsk(); return; }
+    qs = '&birthDate=' + encodeURIComponent(birth);
+  }
+
+  const cb = 'cb_inje_' + (++_injeSeq) + '_' + Date.now();
+  const sc = document.createElement('script');
+  let done = false;
+
+  const to = setTimeout(function () {
+    if (done) return;
+    done = true;
+    try { delete window[cb]; } catch (e) {}
+    if (sc.parentNode) sc.parentNode.removeChild(sc);
+    if (preview) _injeRenderPrev(target, '조회 실패 — 응답 없음 (15초)');
+    else box.style.display = 'none';
+    console.warn('[인제대학번] 응답 없음 (15초). 수강 확정자인데 카드가 안 보이면 사업단에 문의.');
+  }, 15000);
+
+  window[cb] = function (res) {
+    if (done) return;
+    done = true;
+    clearTimeout(to);
+    try { delete window[cb]; } catch (e) {}
+    if (sc.parentNode) sc.parentNode.removeChild(sc);
+
+    // 🔴 미리보기 중에는 숨기지 않고 사유를 적는다.
+    //    학생 화면은 조용히 숨기는 게 맞지만, 관리자가 15명을 훑을 때
+    //    "안 보임"과 "조회 실패"가 구분되지 않으면 확인 자체가 성립하지 않는다.
+    if (!res || res.status !== 'ok' || !res.data) {
+      if (preview) _injeRenderPrev(target, '조회 실패 — ' + ((res && res.message) || '응답 형식 오류'));
+      else box.style.display = 'none';
+      return;
+    }
+    const d = res.data;
+    if (!d.eligible) {                                          // 수강 확정자가 아님
+      if (preview) _injeRenderPrev(target, '반도체머신러닝 수강 확정자가 아닙니다. (학생 화면에는 카드가 뜨지 않습니다)');
+      else box.style.display = 'none';
+      return;
+    }
+    if (!d.injeId) { _injeRenderWait(preview ? target : ''); return; }
+    _injeRenderCard(d, preview ? target : '');
+  };
+
+  sc.onerror = function () {
+    if (done) return;
+    done = true;
+    clearTimeout(to);
+    try { delete window[cb]; } catch (e) {}
+    if (preview) _injeRenderPrev(target, '조회 실패 — 네트워크 오류');
+    else box.style.display = 'none';
+  };
+
+  sc.src = EXEC_URL + '?action=getInjeId'
+         + '&studentId=' + encodeURIComponent(target)
+         + qs
+         + '&courseId=ML_26-2'
+         + '&callback=' + cb;
+  document.head.appendChild(sc);
+}
+
+function _injeHead(prevSid) {
+  return '<div class="inje-head">'
+       + '<span class="inje-tag">2026-2</span>'
+       + '<span class="inje-title">인제대학교 LMS 접속 안내</span>'
+       + (prevSid ? '<span class="inje-prev">미리보기 ' + escHtml(prevSid) + '</span>' : '')
+       + '<span class="inje-sub">반도체머신러닝 · 학점교류</span>'
+       + '</div>';
+}
+
+/* 미리보기 전용 — 카드가 안 뜨는 이유를 관리자에게만 적는다. */
+function _injeRenderPrev(sid, msg) {
+  const box = document.getElementById('injeCard');
+  box.innerHTML = _injeHead(sid) + '<div class="inje-wait">' + escHtml(msg) + '</div>';
+  box.style.display = 'block';
+}
+
+function _injeRenderCard(d, prevSid) {
+  const box = document.getElementById('injeCard');
+  box.innerHTML =
+      _injeHead(prevSid)
+    + '<div class="inje-idbox">'
+    +   '<div class="inje-idlabel">내 인제대학교 학번</div>'
+    +   '<div class="inje-idval">' + escHtml(d.injeId) + '</div>'
+    + '</div>'
+    + '<div class="inje-rows">'
+    +   '<div class="inje-row"><span class="k">ID</span><span class="v">인제대학교 학번 ' + escHtml(d.injeId) + '</span></div>'
+    +   '<div class="inje-row"><span class="k">PW</span><span class="v">주민등록번호 뒤 7자리</span></div>'
+    + '</div>'
+    + '<div class="inje-btns">'
+    +   '<a class="inje-btn inje-btn-main" href="' + INJE_LMS_URL + '" target="_blank" rel="noopener">LMS 바로가기 ↗</a>'
+    +   '<a class="inje-btn inje-btn-sub" href="' + INJE_MANUAL_URL + '" target="_blank" rel="noopener">이용 매뉴얼</a>'
+    + '</div>'
+    + '<div class="inje-note">시스템 안정화 작업으로 <strong>9월 1일(화)부터</strong> 실제 접속·이용이 가능합니다. 로그인이 되지 않으면 사업단(02-3290-4988)으로 연락 바랍니다.</div>';
+  box.style.display = 'block';
+}
+
+function _injeRenderWait(prevSid) {
+  const box = document.getElementById('injeCard');
+  box.innerHTML = _injeHead(prevSid)
+    + '<div class="inje-wait">인제대학교 학번이 아직 발급되지 않았습니다.<br>발급되는 대로 이 화면에 표시됩니다. 문의 ☎ 02-3290-4988</div>';
+  box.style.display = 'block';
+}
+
+function _injeRenderAsk() {
+  const box = document.getElementById('injeCard');
+  box.innerHTML = _injeHead()
+    + '<div class="inje-wait" style="margin-bottom:9px">본인 확인을 위해 생년월일 8자리를 입력해 주세요.</div>'
+    + '<div class="inje-ask">'
+    +   '<input id="injeBirthInput" type="password" inputmode="numeric" maxlength="8" placeholder="예: 20010315" '
+    +          'onkeydown="if(event.key===\'Enter\')injeBirthGo()">'
+    +   '<button onclick="injeBirthGo()">확인</button>'
+    + '</div>'
+    + '<div class="inje-err" id="injeAskErr" style="display:none">생년월일 8자리를 정확히 입력해 주세요.</div>';
+  box.style.display = 'block';
+}
+
+function injeBirthGo() {
+  const el  = document.getElementById('injeBirthInput');
+  const err = document.getElementById('injeAskErr');
+  const v   = (el ? el.value : '').replace(/[^0-9]/g, '');
+  if (v.length !== 8) { if (err) err.style.display = 'block'; return; }
+  if (err) err.style.display = 'none';
+  loadInjeId(v);
 }
 
 function loadSurveys(studentId) {
@@ -2022,7 +2228,7 @@ function admPreviewGo() {
   if (ex) ex.style.display = 'inline-flex';
   _admPrevMsg('▶ ' + sid + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
 
-  loadMileage(sid); loadExtMileage(sid); loadSurveys(sid);
+  loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();   // ★ 인제대 카드 포함
 }
 
 function admPreviewExit() {
@@ -2033,8 +2239,8 @@ function admPreviewExit() {
   if (ex) ex.style.display = 'none';
   const inp = document.getElementById('admPrevInput');
   if (inp) inp.value = '';
-  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
-  if (auth.studentId) { loadMileage(auth.studentId); loadExtMileage(auth.studentId); loadSurveys(auth.studentId); }
+  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
+  if (auth.studentId) { loadMileage(auth.studentId); loadExtMileage(auth.studentId); loadSurveys(auth.studentId); loadInjeId(); }
 }
 
 function loadMileage(studentId) {
