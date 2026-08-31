@@ -449,9 +449,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 /* ── 관리자 전용: 학생 화면 미리보기 바 ─────────────────────────
    기본 display:none. showUserBar()의 auth.isAdmin 블록에서만 노출된다.
    학생 계정에서는 이 요소가 DOM에는 있으나 절대 보이지 않는다. */
-#admPrevBar{display:none;margin:0 0 12px;padding:10px 12px;border-radius:10px;
+#admPrevBar,#injeAdmBar{display:none;margin:0 0 12px;padding:10px 12px;border-radius:10px;
   background:rgba(200,57,43,.08);border:1px solid rgba(200,57,43,.28)}
-#admPrevBar.show{display:block}
+#admPrevBar.show,#injeAdmBar.show{display:block}
 .admprev-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .admprev-tag{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.1em;
   color:#ff9b90;background:rgba(200,57,43,.2);padding:3px 7px;border-radius:4px;white-space:nowrap}
@@ -972,6 +972,20 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
   <!-- 탭1: 설문·제출 -->
   <div class="tab-content active" id="content-forms">
 
+    <!-- ★ ADMIN 미리보기 (설문·제출 탭 입구) — 2026-08-31
+         내 마일리지 탭의 admPrevBar와 _admPrevSid 상태를 공유한다.
+         어느 쪽에서 조회하든 두 바가 함께 갱신된다. 관리자에게만 보인다. -->
+    <div id="injeAdmBar">
+      <div class="admprev-row">
+        <span class="admprev-tag">ADMIN 미리보기</span>
+        <input class="admprev-input" id="injeAdmInput" type="text" inputmode="numeric"
+               placeholder="학번 입력" onkeydown="if(event.key==='Enter')injeAdmGo()">
+        <button class="admprev-btn" onclick="injeAdmGo()">조회</button>
+        <button class="admprev-exit" id="injeAdmExit" onclick="injeAdmExit()">내 화면으로</button>
+      </div>
+      <div class="admprev-msg" id="injeAdmMsg">학번을 입력하면 그 학생에게 보이는 설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+    </div>
+
     <!-- ★ 인제대 LMS 접속 안내 (2026-08-31) · 내용은 loadInjeId()가 그린다 -->
     <div id="injeCard"></div>
 
@@ -1453,6 +1467,8 @@ function showUserBar() {
     document.getElementById('adminMileageToggle').style.display = 'flex';
     const _apb = document.getElementById('admPrevBar');
     if (_apb) _apb.classList.add('show');
+    const _iab = document.getElementById('injeAdmBar');
+    if (_iab) _iab.classList.add('show');
     // 🔴 setTimeout 0 을 빼지 말 것.
     //   loadTodoStrip 은 TODO_CUR_SEM(const)·_todoLoading(let)을 쓰는데,
     //   이 둘은 초기화 IIFE보다 아래에 선언돼 있다. 즉시 호출하면 TDZ
@@ -2210,10 +2226,62 @@ let currentFilter = 'all';
 //  본인 그대로이고, 새로고침하면 미리보기는 자연히 해제된다.
 // ═══════════════════════════════════════════════════════════
 function _admPrevMsg(text, cls) {
-  const el = document.getElementById('admPrevMsg');
-  if (!el) return;
-  el.textContent = text;
-  el.className = 'admprev-msg' + (cls ? ' ' + cls : '');
+  ['admPrevMsg', 'injeAdmMsg'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'admprev-msg' + (cls ? ' ' + cls : '');
+  });
+}
+
+/* ── 미리보기 상태 적용 · 해제 (2026-08-31) ──────────────────
+   조회 입구가 두 곳(내 마일리지 탭 · 설문·제출 탭)이 됐다.
+   🔴 상태는 _admPrevSid 하나뿐이다. 입구별로 따로 두지 말 것 —
+      마일리지는 A학생, 인제대 카드는 B학생이 뜨는 상황이 생긴다.
+   두 바의 입력칸·안내문·「내 화면으로」 버튼을 항상 같이 맞춘다.        */
+function _admPrevSync(sid) {
+  ['admPrevInput', 'injeAdmInput'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.value = sid;
+  });
+  ['admPrevExit', 'injeAdmExit'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = sid ? 'inline-flex' : 'none';
+  });
+}
+
+function _admPrevApply(sid) {
+  _admPrevSid = sid;
+  _admPrevSync(sid);
+  _admPrevMsg('▶ ' + sid + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
+  loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();
+}
+
+function _admPrevClear() {
+  const auth = checkAuth();
+  _admPrevSid = '';
+  _admPrevSync('');
+  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
+  if (auth && auth.studentId) {
+    loadMileage(auth.studentId); loadExtMileage(auth.studentId);
+    loadSurveys(auth.studentId); loadInjeId();
+  }
+}
+
+/* 설문·제출 탭 입구 */
+function injeAdmGo() {
+  const auth = checkAuth();
+  if (!auth || !auth.isAdmin) return;
+  const inp = document.getElementById('injeAdmInput');
+  const sid = (inp ? inp.value : '').trim();
+  if (!/^\d{7,}$/.test(sid)) { _admPrevMsg('학번을 숫자로만 입력하세요.', 'err'); return; }
+  _admPrevApply(sid);
+}
+
+function injeAdmExit() {
+  const auth = checkAuth();
+  if (!auth) return;
+  _admPrevClear();
 }
 
 function admPreviewGo() {
@@ -2223,24 +2291,13 @@ function admPreviewGo() {
   const sid = (inp ? inp.value : '').trim();
   if (!/^\d{7,}$/.test(sid)) { _admPrevMsg('학번을 숫자로만 입력하세요.', 'err'); return; }
 
-  _admPrevSid = sid;
-  const ex = document.getElementById('admPrevExit');
-  if (ex) ex.style.display = 'inline-flex';
-  _admPrevMsg('▶ ' + sid + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
-
-  loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();   // ★ 인제대 카드 포함
+  _admPrevApply(sid);
 }
 
 function admPreviewExit() {
   const auth = checkAuth();
   if (!auth) return;
-  _admPrevSid = '';
-  const ex = document.getElementById('admPrevExit');
-  if (ex) ex.style.display = 'none';
-  const inp = document.getElementById('admPrevInput');
-  if (inp) inp.value = '';
-  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
-  if (auth.studentId) { loadMileage(auth.studentId); loadExtMileage(auth.studentId); loadSurveys(auth.studentId); loadInjeId(); }
+  _admPrevClear();
 }
 
 function loadMileage(studentId) {
