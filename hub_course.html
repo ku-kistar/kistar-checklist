@@ -683,7 +683,11 @@ function renderGrid(d){
   };
 }
 
-var CHUNK = 2 * 1024 * 1024;   // 2MB 씩 나눠 보낸다
+// 6MB 씩 나눠 보낸다.
+// 6291456 은 3으로 나누어떨어진다 — 조각별 base64 에 패딩(=)이 생기지 않아
+// 서버(_taUpFinish)에서 문자열을 그대로 이어붙일 수 있다.
+// 🔴 이 값을 바꿀 때는 반드시 3의 배수로 할 것. 아니면 파일이 깨진다.
+var CHUNK = 6 * 1024 * 1024;
 
 function b64(buf){
   var bin = '', a = new Uint8Array(buf), step = 0x8000;
