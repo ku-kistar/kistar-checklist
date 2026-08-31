@@ -150,6 +150,13 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .gchip.warn{background:rgba(245,197,99,.14);color:var(--amber)}
 .gchip.ok{background:rgba(16,185,129,.16);color:var(--green2)}
 .gbody{margin-top:9px;padding-top:4px;border-top:1px solid rgba(255,255,255,.08)}
+.add-wk{margin-top:10px}
+.aw-btn{font-family:inherit;font-size:12px;padding:9px 16px;width:100%;border-radius:9px;background:rgba(16,185,129,.07);border:1px dashed rgba(16,185,129,.32);color:var(--green2);cursor:pointer}
+.aw-btn:hover{background:rgba(16,185,129,.15);border-style:solid}
+.aw-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.aw-list button{font-family:inherit;font-size:11.5px;padding:6px 12px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.7);cursor:pointer}
+.aw-list button:hover{background:rgba(16,185,129,.16);border-color:rgba(16,185,129,.4);color:#fff}
+.aw-list button:disabled{opacity:.5;cursor:default}
 .row-body{padding:0 14px 13px}
 .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px 16px;margin-bottom:13px}
 .checks label{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.8);cursor:pointer}
@@ -651,11 +658,73 @@ function loadGrid(kind){
 
 function paintGrid(d){
   if (d.empty || !d.rows.length){
-    $('bar').innerHTML = '';
-    $('view').innerHTML = '<div class="empty">아직 등록된 줄이 없습니다.<br>사업단에서 내용을 채우면 여기에 나타납니다.</div>';
+    $('bar').innerHTML = '<span class="saved" id="saved"></span>';
+    $('view').innerHTML = guideBlock(!d.canEdit, -1) + formBlock()
+      + '<div class="empty">아직 등록된 줄이 없습니다.'
+      + (d.kind === 'speaker' && d.canEdit
+          ? '<br>연사 초청이 잡히면 아래에서 주차를 더하세요.'
+          : '<br>사업단에서 내용을 채우면 여기에 나타납니다.')
+      + '</div>'
+      + addSpeakerBlock(d);
+    bindGuide();
+    bindAddSpeaker(d);
     return;
   }
   renderGrid(d);
+}
+
+/** 연사 주차 추가 — 주차 탭에 있고 연사 탭에 없는 강의일만 고르게 한다 */
+function addSpeakerBlock(d){
+  if (d.kind !== 'speaker' || !d.canEdit) return '';
+  var list = d.addable || [];
+  if (!list.length) return '';
+  return '<div class="add-wk">'
+    + '<button type="button" class="aw-btn">＋ 연사 주차 추가</button>'
+    + '<div class="aw-list" hidden>' + list.map(function(x){
+        return '<button type="button" data-w="' + esc(x.week) + '" data-d="' + esc(x.date) + '">'
+          + esc(x.week + ' ' + x.date) + '</button>';
+      }).join('') + '</div></div>';
+}
+
+function bindAddSpeaker(d){
+  var box = $('view').querySelector('.add-wk');
+  if (!box) return;
+  box.onclick = function(e){
+    var open = e.target.closest('.aw-btn');
+    if (open){
+      var l = box.querySelector('.aw-list');
+      l.hidden = !l.hidden;
+      open.textContent = l.hidden ? '＋ 연사 주차 추가' : '취소';
+      return;
+    }
+    var pick = e.target.closest('.aw-list button');
+    if (!pick) return;
+    pick.disabled = true;
+    call(withAuth({ action:'addTaSpeaker', code:cur.code,
+                    week:pick.dataset.w, date:pick.dataset.d }))
+      .then(function(r){
+        if (!r || !r.ok) throw new Error((r && r.error) || '추가하지 못했습니다.');
+        showErr('');
+        flagSaved(r.week + ' 추가');
+        delete cache[cur.code + '|speaker'];
+        keepOpen['speaker|' + r.row] = true;
+        openKind('speaker');
+      })
+      .catch(function(err){ pick.disabled = false; showErr(err.message); });
+  };
+}
+
+/** 안내 상자 접기 — 격자가 없는 화면에서도 눌리게 한다 */
+function bindGuide(){
+  var v = $('view');
+  var gt = v.querySelector('.gtoggle');
+  if (!gt) return;
+  gt.onclick = function(){
+    guideOpen = !guideOpen;
+    var body = v.querySelector('.gbody');
+    if (body) body.hidden = !guideOpen;
+    gt.textContent = guideOpen ? '접기' : '자세히';
+  };
 }
 
 function renderGrid(d){
@@ -722,7 +791,9 @@ function renderGrid(d){
 
   $('bar').innerHTML = '<span class="saved" id="saved"></span>';
   $('view').innerHTML = guideBlock(ro, checks.length ? left : -1)
-    + formBlock() + '<div class="grid">' + html + '</div>';
+    + formBlock() + '<div class="grid">' + html + '</div>'
+    + addSpeakerBlock(d);
+  bindAddSpeaker(d);
 
   var view = $('view');
   Array.prototype.forEach.call(view.querySelectorAll('.row:not(.off)'), function(el){
