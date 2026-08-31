@@ -198,6 +198,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .sc-btn:hover{background:rgba(255,255,255,.12)}
 .rs-btn{margin-left:0;background:rgba(226,75,74,.12);border-color:rgba(226,75,74,.35);color:#f09595}
 .rs-btn:hover{background:rgba(226,75,74,.22)}
+.rs-btn.all{background:rgba(226,75,74,.22);border-color:rgba(226,75,74,.55);color:#f7c1c1}
+.rs-btn.all:hover{background:rgba(226,75,74,.34)}
 button.auto{font-family:inherit;border:1px dashed rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green2);cursor:pointer}
 button.auto:hover{background:rgba(16,185,129,.16);border-style:solid}
 button.auto:disabled{opacity:.6;cursor:default}
@@ -717,25 +719,36 @@ function bindAddSpeaker(d){
   };
 }
 
-/** 제출 초기화 — 관리자 편집 모드 전용. 파일은 휴지통으로 간다 */
-function resetRow(kind, row, btn){
+/**
+ * 제출 초기화 — 관리자 편집 모드 전용.
+ *   서류 초기화   올린 파일과 제출 표시만
+ *   전체 되돌리기 체크·입력칸까지 (되살릴 수 없다)
+ * 파일은 어느 쪽이든 드라이브 휴지통으로 간다.
+ */
+function resetRow(kind, row, btn, all){
   var el = btn.closest('.row');
   var who = el ? el.querySelector('.row-idx').textContent.trim()
                  + ' ' + el.querySelector('.row-who').textContent.trim() : '이 주차';
-  if (!confirm(who + '\n\n올린 파일과 제출 표시를 모두 지웁니다.\n'
-               + '파일은 드라이브 휴지통으로 가므로 되살릴 수 있습니다.\n\n계속할까요?')) return;
+  var msg = all
+    ? who + '\n\n체크·입력칸·제출 표시를 모두 비우고 올린 파일도 지웁니다.\n'
+      + '파일은 휴지통에서 되살릴 수 있지만 체크와 메모는 되살릴 수 없습니다.\n\n계속할까요?'
+    : who + '\n\n올린 파일과 제출 표시를 지웁니다. 체크와 입력칸은 그대로 둡니다.\n'
+      + '파일은 드라이브 휴지통으로 가므로 되살릴 수 있습니다.\n\n계속할까요?';
+  if (!confirm(msg)) return;
 
   btn.disabled = true;
   var back = btn.textContent;
   btn.textContent = '지우는 중…';
   keepOpen[kind + '|' + row] = true;
   var y = window.scrollY;
-  call(withAuth({ action:'resetTaRow', code:cur.code, kind:kind, row:row }))
+  call(withAuth({ action:'resetTaRow', code:cur.code, kind:kind, row:row,
+                  scope: all ? 'all' : '' }))
     .then(function(d){
       btn.disabled = false; btn.textContent = back;
       if (!d || !d.ok){ showErr((d && d.error) || '초기화하지 못했습니다.'); return; }
       showErr('');
-      flagSaved('파일 ' + d.files + '개 · 표시 ' + d.cleared + '건 지움');
+      flagSaved('파일 ' + d.files + '개 · 표시 ' + d.cleared + '건'
+                + (d.wiped ? ' · 입력 ' + d.wiped + '건' : '') + ' 지움');
       delete cache[cur.code + '|' + kind];
       openKind(kind).then(function(){ window.scrollTo(0, y); loadNow(); });
     })
@@ -815,7 +828,8 @@ function renderGrid(d){
         + '<button type="button" class="up-btn fd-btn" data-row="' + r.row + '">폴더 열기</button>'
         + '<button type="button" class="up-btn sc-btn" data-row="' + r.row + '">제출 확인</button>'
         + (role === 'admin' && !viewAs && editMode
-            ? '<button type="button" class="up-btn rs-btn" data-row="' + r.row + '">초기화</button>'
+            ? '<button type="button" class="up-btn rs-btn" data-row="' + r.row + '">서류 초기화</button>'
+              + '<button type="button" class="up-btn rs-btn all" data-row="' + r.row + '">전체 되돌리기</button>'
             : '')
         + '</div>';
     }
@@ -860,7 +874,7 @@ function renderGrid(d){
     var sc = e.target.closest('.sc-btn');
     if (sc){ scanFolder(curKind, +sc.dataset.row, sc); return; }
     var rs = e.target.closest('.rs-btn');
-    if (rs){ resetRow(curKind, +rs.dataset.row, rs); return; }
+    if (rs){ resetRow(curKind, +rs.dataset.row, rs, rs.classList.contains('all')); return; }
   };
   view.onchange = function(e){
     var t = e.target;
