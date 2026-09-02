@@ -678,30 +678,58 @@ function paintGrid(d){
   renderGrid(d);
 }
 
-/** 연사 주차 추가 — 주차 탭에 있고 연사 탭에 없는 강의일만 고르게 한다 */
+/** 연사 주차 추가 — 후보는 버튼을 누른 뒤에 받아온다 (탭 로딩을 가볍게) */
 function addSpeakerBlock(d){
   if (d.kind !== 'speaker' || !d.canEdit) return '';
-  var list = d.addable || [];
-  if (!list.length) return '';
   return '<div class="add-wk">'
     + '<button type="button" class="aw-btn">＋ 연사 주차 추가</button>'
-    + '<div class="aw-list" hidden>' + list.map(function(x){
-        return '<button type="button" data-w="' + esc(x.week) + '" data-d="' + esc(x.date) + '">'
-          + esc(x.week + ' ' + x.date) + '</button>';
-      }).join('') + '</div></div>';
+    + '<div class="aw-list" hidden></div></div>';
 }
 
 function bindAddSpeaker(d){
   var box = $('view').querySelector('.add-wk');
   if (!box) return;
+  var loaded = false;
+
   box.onclick = function(e){
     var open = e.target.closest('.aw-btn');
     if (open){
       var l = box.querySelector('.aw-list');
-      l.hidden = !l.hidden;
-      open.textContent = l.hidden ? '＋ 연사 주차 추가' : '취소';
+      if (!l.hidden){
+        l.hidden = true;
+        open.textContent = '＋ 연사 주차 추가';
+        return;
+      }
+      if (loaded){ l.hidden = false; open.textContent = '취소'; return; }
+      open.disabled = true;
+      open.textContent = '주차 불러오는 중…';
+      call(withAuth({ action:'getTaSpeakerAdd', code:cur.code }))
+        .then(function(r){
+          open.disabled = false;
+          if (!r || !r.ok) throw new Error((r && r.error) || '불러오지 못했습니다.');
+          var list = r.addable || [];
+          if (!list.length){
+            open.textContent = '＋ 연사 주차 추가';
+            showErr('더할 수 있는 주차가 없습니다. 주차별 준비 탭의 강의일을 확인하세요.');
+            return;
+          }
+          l.innerHTML = list.map(function(x){
+            return '<button type="button" data-w="' + esc(x.week) + '" data-d="' + esc(x.date) + '">'
+              + esc(x.week + ' ' + x.date) + '</button>';
+          }).join('');
+          l.hidden = false;
+          loaded = true;
+          open.textContent = '취소';
+          showErr('');
+        })
+        .catch(function(err){
+          open.disabled = false;
+          open.textContent = '＋ 연사 주차 추가';
+          showErr(err.message);
+        });
       return;
     }
+
     var pick = e.target.closest('.aw-list button');
     if (!pick) return;
     pick.disabled = true;
