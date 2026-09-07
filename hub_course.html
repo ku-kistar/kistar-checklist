@@ -236,6 +236,30 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
   .texts{grid-template-columns:1fr}
   .row-idx{min-width:62px}
 }
+.ov-sec{margin-bottom:1.7rem}
+.ov-list{display:flex;flex-direction:column;gap:6px}
+.ov-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font-family:inherit;font-size:12.5px;padding:9px 12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);border-radius:8px;cursor:pointer;color:rgba(255,255,255,.55)}
+.ov-row:hover{border-color:rgba(16,185,129,.45)}
+.ov-row.warn{background:rgba(200,57,43,.07);border-color:rgba(200,57,43,.24)}
+.ov-row.off{opacity:.4;cursor:default}
+.ov-nm{flex:1;min-width:0;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ov-meta{font-size:11.5px;white-space:nowrap;color:rgba(255,255,255,.35)}
+.ov-ok{color:#9FE1CB}
+.ov-no{color:#f08070}
+.ov-wrap{overflow-x:auto;scrollbar-width:thin}
+.ov-tbl{border-collapse:collapse;font-size:11px;min-width:100%}
+.ov-tbl th{font-family:'JetBrains Mono',monospace;font-weight:400;font-size:10px;color:rgba(255,255,255,.26);padding:0 0 7px;text-align:center;width:27px}
+.ov-tbl td.ov-h{font-size:12px;color:rgba(255,255,255,.72);padding:3px 10px 3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:118px}
+.ov-tbl td{padding:0;text-align:center}
+.ov-c{width:25px;height:25px;padding:0;border:1px solid transparent;background:none;border-radius:5px;cursor:pointer;font-family:inherit;font-size:11px;color:rgba(255,255,255,.16);line-height:1}
+.ov-c:hover{border-color:rgba(16,185,129,.45)}
+.ov-c.ok{color:#10b981}
+.ov-c.no{color:#e05040;background:rgba(200,57,43,.1)}
+.ov-c.now{border-color:rgba(16,185,129,.5)}
+.ov-c.off{color:rgba(255,255,255,.14);cursor:default;font-size:10px}
+.ov-c.prep{box-shadow:inset 0 -2px 0 rgba(234,179,8,.65)}
+.ov-key{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:rgba(255,255,255,.34);margin-top:11px;padding-top:9px;border-top:1px solid rgba(255,255,255,.07)}
+.ov-note{font-size:11.5px;color:rgba(255,255,255,.3);line-height:1.7;margin-top:8px}
 </style>
 </head>
 <body>
@@ -279,6 +303,7 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
       <span class="top-who" id="topWho"></span>
       <a class="top-btn" id="btnHub" href="portal_survey.html" hidden>데이터 허브</a>
       <button class="top-btn" id="btnAs" type="button" hidden>조교 시점</button>
+      <button class="top-btn" id="btnAll" type="button" hidden>전체 현황</button>
       <button class="top-btn" id="btnEdit" type="button" hidden>편집 모드</button>
       <button class="top-btn" id="btnOut" type="button">로그아웃</button>
     </div>
@@ -307,6 +332,8 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
     </div>
 
     <div class="pick" id="pick" hidden></div>
+
+    <div id="allWrap" hidden></div>
 
     <div class="course">
       <div class="course-code" id="cCode"></div>
@@ -527,6 +554,12 @@ function start(d){
   } else {
     $('btnEdit').hidden = true;
   }
+  if (role === 'admin' && !viewAs){
+    $('btnAll').hidden = false;
+    $('btnAll').onclick = function(){ if (ovOn) ovShow(false); else ovLoad(); };
+  } else {
+    $('btnAll').hidden = true;
+  }
   if (courses.length > 1){
     var p = $('pick');
     p.innerHTML = courses.map(function(c, i){
@@ -614,6 +647,165 @@ function goTo(kind){
   var target = kind === 'speaker' ? summary.speakerRow : summary.row;
   openKind(kind).then(function(){
     var el = $('view').querySelector('.row[data-r="' + target + '"]');
+    if (!el) return;
+    var body = el.querySelector('.row-body');
+    if (body && body.hidden){ body.hidden = false; el.classList.add('open'); }
+    el.scrollIntoView({ behavior:'smooth', block:'center' });
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+  });
+}
+
+
+/* ── 전체 현황 (관리자 전용) ──────────────────────
+   7과목 × 주차를 한 화면에 모은다. 과목 탭을 하나씩 여는 대신 여기서 본다.
+   주차와 연사를 따로 부른다 — 한 요청에 몰면 25초 제한에 걸린다.        */
+
+var ovOn = false, ovPrev = {};
+var OV_HIDE = ['nowWrap', 'pick', 'tabs', 'err', 'view', 'bar'];
+
+function ovShow(on){
+  ovOn = on;
+  var cs = document.querySelector('.course');
+  if (on){
+    OV_HIDE.forEach(function(id){ var e = $(id); if (!e) return; ovPrev[id] = e.hidden; e.hidden = true; });
+    if (cs) cs.style.display = 'none';
+  } else {
+    OV_HIDE.forEach(function(id){ var e = $(id); if (!e) return; e.hidden = !!ovPrev[id]; });
+    if (cs) cs.style.display = '';
+  }
+  $('allWrap').hidden = !on;
+  $('btnAll').classList.toggle('on', on);
+  $('btnAll').textContent = on ? '과목별 보기' : '전체 현황';
+}
+
+function ovLoad(){
+  ovShow(true);
+  $('allWrap').innerHTML = '<div class="empty">불러오는 중…</div>';
+  call(withAuth({ action:'getTaOverview' })).then(function(d){
+    if (!d || !d.ok) throw new Error((d && d.error) || '불러오지 못했습니다.');
+    ovPaint(d);
+    return call(withAuth({ action:'getTaSpeakerOverview' })).catch(function(){ return null; });
+  }).then(function(s){
+    if (s && s.ok) ovPaintSpk(s);
+    else { var b = $('ovSpk'); if (b) b.innerHTML = '<div class="ov-note">연사 현황을 불러오지 못했습니다.</div>'; }
+  }).catch(function(e){
+    $('allWrap').innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+  });
+}
+
+function ovPaint(d){
+  var now = [], maxW = 0;
+  d.courses.forEach(function(c){
+    if (c.weeks.length > maxW) maxW = c.weeks.length;
+    if (c.now) now.push(c);
+  });
+
+  var h = '';
+
+  h += '<div class="ov-sec"><div class="sec-label">이번 주</div><div class="ov-list">';
+  if (!now.length){
+    h += '<div class="ov-note">이번 주에 해당하는 주차가 없습니다.</div>';
+  } else {
+    now.forEach(function(c){
+      var n = c.now;
+      if (n.off){
+        h += '<div class="ov-row off"><span class="ov-nm">' + esc(c.name) + '</span>'
+           + '<span class="ov-meta">' + esc(n.week + ' ' + n.date) + '</span>'
+           + '<span class="ov-meta">휴강</span></div>';
+        return;
+      }
+      var prepOk = (n.total && n.done >= n.total);
+      var warn = (!n.sub || !prepOk);
+      h += '<button type="button" class="ov-row' + (warn ? ' warn' : '') + '"'
+         + ' data-c="' + esc(c.code) + '" data-r="' + n.row + '" data-k="week">'
+         + '<span class="ov-nm">' + esc(c.name) + '</span>'
+         + '<span class="ov-meta">' + esc(n.week + ' ' + n.date) + '</span>'
+         + '<span class="ov-meta ' + (prepOk ? 'ov-ok' : 'ov-no') + '">준비 ' + n.done + '/' + n.total + '</span>'
+         + '<span class="ov-meta ' + (n.sub ? 'ov-ok' : 'ov-no') + '">' + (n.sub ? '제출 완료' : '미제출') + '</span>'
+         + '</button>';
+    });
+  }
+  h += '</div></div>';
+
+  h += '<div class="ov-sec"><div class="sec-label">주차별 제출</div><div class="ov-wrap"><table class="ov-tbl"><tr><th style="width:auto"></th>';
+  for (var i = 1; i <= maxW; i++) h += '<th>' + i + '</th>';
+  h += '</tr>';
+
+  d.courses.forEach(function(c){
+    h += '<tr><td class="ov-h" title="' + esc(c.name) + '">' + esc(c.name) + '</td>';
+    for (var i = 0; i < maxW; i++){
+      var w = c.weeks[i];
+      if (!w){ h += '<td></td>'; continue; }
+      if (w.off){ h += '<td><span class="ov-c off">휴</span></td>'; continue; }
+      var cls = w.sub ? 'ok' : (w.past ? 'no' : '');
+      if (w.now) cls += ' now';
+      if (w.total && w.done < w.total) cls += ' prep';
+      var mark = w.sub ? '✓' : (w.past ? '✕' : '·');
+      var tip = w.week + ' ' + w.date + ' · 준비 ' + w.done + '/' + w.total
+              + ' · ' + (w.sub ? '제출 완료' : '미제출');
+      h += '<td><button type="button" class="ov-c ' + cls + '" title="' + esc(tip) + '"'
+         + ' data-c="' + esc(c.code) + '" data-r="' + w.row + '" data-k="week">' + mark + '</button></td>';
+    }
+    h += '</tr>';
+  });
+
+  h += '</table></div>'
+     + '<div class="ov-key"><span class="ov-ok">✓ 제출</span><span class="ov-no">✕ 미제출</span>'
+     + '<span>· 예정</span><span>휴 휴강</span>'
+     + '<span style="box-shadow:inset 0 -2px 0 rgba(234,179,8,.65)">밑줄 = 수업 준비 미완료</span></div></div>';
+
+  h += '<div id="ovSpk"></div>';
+
+  $('allWrap').innerHTML = h;
+  $('allWrap').onclick = function(e){
+    var b = e.target.closest('[data-c][data-r]'); if (!b) return;
+    ovGo(b.dataset.c, +b.dataset.r, b.dataset.k || 'week');
+  };
+}
+
+function ovPaintSpk(s){
+  var box = $('ovSpk'); if (!box) return;
+  var any = s.courses.some(function(c){ return c.rows && c.rows.length; });
+  if (!any){ box.innerHTML = ''; return; }
+
+  var h = '<div class="ov-sec"><div class="sec-label">연사 서류</div><div class="ov-list">';
+  s.courses.forEach(function(c){
+    (c.rows || []).forEach(function(r){
+      if (!r.who && !r.date) return;
+      var ok = (r.total && r.done >= r.total);
+      var warn = !ok && r.past;
+      h += '<button type="button" class="ov-row' + (warn ? ' warn' : '') + '"'
+         + ' data-c="' + esc(c.code) + '" data-r="' + r.row + '" data-k="speaker">'
+         + '<span class="ov-nm">' + esc(r.who || '(연사 미정)') + '</span>'
+         + '<span class="ov-meta">' + esc(c.name) + '</span>'
+         + '<span class="ov-meta">' + esc([r.week, r.date].filter(Boolean).join(' ')) + '</span>'
+         + '<span class="ov-meta ' + (ok ? 'ov-ok' : 'ov-no') + '">서류 ' + r.done + '/' + r.total + '</span>'
+         + '</button>';
+    });
+  });
+  h += '</div><div class="ov-note">연사 초청 주차만 나옵니다. 지난 주차인데 서류가 덜 모인 줄은 붉게 표시됩니다.</div></div>';
+  box.innerHTML = h;
+}
+
+function ovGo(code, row, kind){
+  var c = null;
+  courses.forEach(function(x){ if (x.code === code) c = x; });
+  if (!c) return;
+  ovShow(false);
+
+  var p = $('pick');
+  if (p && !p.hidden){
+    Array.prototype.forEach.call(p.children, function(b){
+      b.setAttribute('aria-pressed', String(courses[+b.dataset.i].code === code));
+    });
+  }
+
+  var same = (cur && cur.code === code);
+  if (!same) selectCourse(c);
+  openKind(kind).then(function(){
+    var el = $('view').querySelector('.row[data-r="' + row + '"]');
     if (!el) return;
     var body = el.querySelector('.row-body');
     if (body && body.hidden){ body.hidden = false; el.classList.add('open'); }
