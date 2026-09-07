@@ -251,14 +251,14 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
 .ov-tbl th{font-family:'JetBrains Mono',monospace;font-weight:400;font-size:10px;color:rgba(255,255,255,.3);padding:0 0 2px;text-align:center;width:28px}
 .ov-tbl th.ov-hh{width:auto;min-width:120px}
 .ov-tbl td.ov-h{font-size:12px;color:rgba(255,255,255,.75);text-align:right;padding-right:6px;white-space:nowrap}
-.ov-tbl td{padding:0;text-align:center}
-.ov-c{position:relative;display:block;width:28px;height:28px;padding:0;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;line-height:26px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:rgba(255,255,255,.22)}
+.ov-tbl td{padding:0;text-align:center;vertical-align:middle}
+.ov-c{position:relative;display:block;margin:0 auto;width:28px;height:28px;padding:0;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;line-height:26px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);color:rgba(255,255,255,.22)}
 .ov-c:hover{border-color:rgba(16,185,129,.55)}
 .ov-c.ok{background:rgba(16,185,129,.17);border-color:rgba(16,185,129,.42);color:#6ee7b7}
 .ov-c.no{background:rgba(200,57,43,.15);border-color:rgba(200,57,43,.42);color:#f08070}
 .ov-c.off{background:none;border-style:dashed;border-color:rgba(255,255,255,.09);color:rgba(255,255,255,.2);cursor:default;font-size:10px}
 .ov-c.now{box-shadow:0 0 0 2px rgba(16,185,129,.35)}
-.ov-c .pd{position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#eab308;border:1.5px solid #0a1a14}
+.ov-c .pd{position:absolute;top:2px;right:2px;width:6px;height:6px;border-radius:50%;background:#eab308}
 .ov-key{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:11.5px;color:rgba(255,255,255,.4);margin-top:14px;padding-top:11px;border-top:1px solid rgba(255,255,255,.07)}
 .ov-key i{display:inline-block;width:17px;height:17px;border-radius:5px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);vertical-align:-4px;margin-right:5px;font-style:normal;font-size:10px;line-height:15px;text-align:center;color:rgba(255,255,255,.22)}
 .ov-key i.ok{background:rgba(16,185,129,.17);border-color:rgba(16,185,129,.42);color:#6ee7b7}
@@ -582,8 +582,8 @@ function start(d){
   selectCourse(courses[0]);
 }
 
-function selectCourse(c){
-  if (!c){ $('view').innerHTML = '<div class="empty">담당 과목이 없습니다.</div>'; return; }
+function selectCourse(c, initKind){
+  if (!c){ $('view').innerHTML = '<div class="empty">담당 과목이 없습니다.</div>'; return Promise.resolve(); }
   if (!cur || cur.code !== c.code) keepOpen = {};   // 과목마다 행 번호가 다르다
   cur = c;
   $('cCode').textContent = '3학점 · ' + c.code;
@@ -613,8 +613,9 @@ function selectCourse(c){
   };
   cache = {};
   loadNow();
-  openKind('week');
+  var job = openKind(initKind || 'week');
   prefetch(c);
+  return job;
 }
 
 /* ── 이번 주 ── */
@@ -816,9 +817,11 @@ function ovGo(code, row, kind){
     });
   }
 
+  // selectCourse 는 안에서 탭을 연다. 어느 탭을 열지 함께 넘겨야
+  // 연사 칸을 눌렀을 때 주차 탭이 뒤늦게 덮어쓰지 않는다.
   var same = (cur && cur.code === code);
-  if (!same) selectCourse(c);
-  openKind(kind).then(function(){
+  var job = same ? openKind(kind) : selectCourse(c, kind);
+  job.then(function(){
     var el = $('view').querySelector('.row[data-r="' + row + '"]');
     if (!el) return;
     var body = el.querySelector('.row-body');
