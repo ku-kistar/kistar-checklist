@@ -880,6 +880,9 @@ function paintGrid(d){
           : '<br>사업단에서 내용을 채우면 여기에 나타납니다.')
       + '</div>'
       + addSpeakerBlock(d);
+    // 줄이 있는 탭에서 걸어 둔 위임 처리를 지운다. 남겨 두면 아래 bindGuide 의
+    // 처리와 함께 두 번 돌아 「자세히」가 눌려도 곧바로 되돌아간다.
+    $('view').onclick = null;
     bindGuide();
     bindAddSpeaker(d);
     return;
