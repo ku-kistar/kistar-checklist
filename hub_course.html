@@ -1244,7 +1244,7 @@ function formBlock(){
    한 줄 요약은 늘 보이고, 자세한 절차는 접어 둔다.        */
 
 var TAB_GUIDE = {
-  week:    '수업 준비 사항 체크 · 대학원생 활용일지와 수업사진 제출',
+  week:    '수업 준비 사항 체크 · 대학원생 활용일지 제출 (수업사진 포함)',
   speaker: '연사 관련 서류 7가지 제출 (연사 초청 주차만)',
   extra:   '과목별 부가 항목 기록',
   memo:    '다음 조교에게 남길 내용 · 수시로 작성'
@@ -1285,15 +1285,15 @@ function guideBlock(ro, left){
   });
   var sp = (curKind === 'speaker' && mine.length);
 
-  // 주차 탭은 전 과목 공통 두 가지 — 활용일지와 수업사진
-  var files = sp ? mine
-    : [{ no:1, name:'대학원생 활용일지' }, { no:2, name:'수업사진 (3~5장)' }];
+  // 2026-09-08 — 수업사진을 따로 받지 않는다. 활용일지 양식 안에 4컷이 들어간다.
+  var files = sp ? mine : [{ no:1, name:'대학원생 활용일지 (수업사진 포함)' }];
 
   var list = '<div class="guide-files">' + files.map(function(f){
       return '<span class="gf"><b>' + f.no + '.</b> ' + esc(f.name) + '</span>';
     }).join('') + '</div>'
-    + (sp ? '' : '<span class="gs-sub">수업사진은 전체 학생이 나오도록 1컷, '
-                 + '교수(또는 연사)가 나오도록 1컷을 반드시 넣어 주세요.</span>');
+    + (sp ? '' : '<span class="gs-sub">활용일지 양식 뒤쪽에 수업사진 자리가 있습니다. '
+                 + '① 교수자(연사) 강의 모습 · ② 수강생 전체 · ③④ 교수자(연사)와 수강생이 함께 '
+                 + '— 네 컷을 붙여 넣고 파일 하나로 제출해 주세요.</span>');
 
   function step(n, head, sub, extra){
     return '<div class="gstep"><span class="gn">' + n + '</span>'
