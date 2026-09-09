@@ -112,6 +112,10 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
   font-size:12.5px;font-weight:700;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .pv .pb{padding:14px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pvw{margin:0 0 12px;padding:9px 12px;background:var(--warnbg);color:var(--warn);
+  border-radius:7px;font-size:12px;line-height:1.6}
+.pvw b{font-weight:700}
+.pvw .x{display:block;margin-top:3px;color:var(--text3);font-size:11px}
 .chip{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--bg);color:var(--text2)}
 .chip b{color:var(--text)}
 .chip.f{background:#eaf1fe;color:#1d4ed8} .chip.j{background:var(--injebg);color:var(--inje)}
@@ -357,6 +361,7 @@ function renderUpload(){
           <button class="btn p" id="pvSave" style="margin-left:auto" onclick="commit()">이 내용으로 저장</button></div>
         <div class="pb">
           <div class="chips" id="pvC"></div>
+          <div class="pvw" id="pvW" hidden></div>
           <table id="pvTbl"></table>
         </div>
       </div>
@@ -412,7 +417,8 @@ function parseRows(aoa){
       code = a; cname = String(r[4]==null?'':r[4]).trim();
     }
     const sid = String(r[15]==null?'':r[15]).trim().replace(/\.0$/,'');
-    if(!/^\d{6,}$/.test(sid)) return;
+    // 인제대 교류생 학번에는 KU 가 섞여 있다. 숫자만 받으면 행째로 버려진다.
+    if(!/^[A-Za-z0-9-]+$/.test(sid) || sid.replace(/\D/g,'').length < 6) return;
     const nm = String(r[18]==null?'':r[18]).trim();
     if(!nm) return;
     out.push({code, cname, sid, name: nm,
@@ -445,7 +451,14 @@ async function handleFile(file){
   }catch(e){ dzMsg('⚠ ' + e.message, 'var(--dang)'); }
 }
 
+/* 인제대 교류생이 신청할 것으로 보는 과목. 바뀌면 이 줄만 고치면 된다.
+   판정에는 쓰지 않는다 — 아래 preview() 의 확인 장치에만 쓴다.        */
+const INJE_COURSES = ['KISE302', 'KISE301'];   // AI반도체개론 · 반도체공정실습
+
+/* 학번에 KU 가 들어가면 언제나 인제대 교류생이다.
+   명단·학기·과목과 무관하게 참이므로 가장 먼저 본다.                  */
 function classify(r){
+  if(/KU/i.test(r.sid)) return '인제대교류생';
   if(Object.prototype.hasOwnProperty.call(ROSTER.fusion, r.sid)) return '융합전공';
   if(ROSTER.inje.indexOf(r.sid) >= 0 || r.dept.indexOf('인제') >= 0) return '인제대교류생';
   return '타과생';
@@ -466,6 +479,25 @@ function preview(){
 
   document.getElementById('pvT').textContent =
     `${PARSED.file} — ${rows.length}건 / ${heads}명`;
+  // 확인 장치 — 전제가 깨지면 저장 전에 눈에 띄게 한다
+  const off = {};
+  rows.forEach(r => {
+    if(r.g !== '인제대교류생') return;
+    if(INJE_COURSES.indexOf(r.code) >= 0) return;
+    off[r.code] = (off[r.code] || 0) + 1;
+  });
+  const offList = Object.keys(off).sort();
+  const w = document.getElementById('pvW');
+  if(offList.length){
+    w.hidden = false;
+    w.innerHTML = `⚠ 인제대 교류생이 <b>예상 과목 밖</b>에 있습니다 — `
+      + offList.map(k => `${esc(k)} ${off[k]}건`).join(' · ')
+      + `<span class="x">예상 과목: ${INJE_COURSES.join(' · ')}. `
+      + `교류 과목이 늘었으면 화면의 INJE_COURSES 를 고치면 됩니다.</span>`;
+  } else {
+    w.hidden = true; w.innerHTML = '';
+  }
+
   document.getElementById('pvC').innerHTML = `
     <span class="chip f">융합전공 <b>${cnt.융합전공}</b>건</span>
     <span class="chip j">인제대 교류생 <b>${cnt.인제대교류생}</b>건</span>
