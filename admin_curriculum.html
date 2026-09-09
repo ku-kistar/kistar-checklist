@@ -116,6 +116,13 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
   border-radius:7px;font-size:12px;line-height:1.6}
 .pvw b{font-weight:700}
 .pvw .x{display:block;margin-top:3px;color:var(--text3);font-size:11px}
+.pvd{margin:0 0 12px;padding:9px 12px;background:var(--bg);border-radius:7px;
+  font-size:12px;line-height:1.7;color:var(--text2)}
+.pvd .h{color:var(--text);font-weight:700}
+.pvd .r{display:block}
+.pvd .up{color:var(--accent);font-weight:700}
+.pvd .dn{color:var(--dang);font-weight:700}
+.pvd .sm{color:var(--text3)}
 .chip{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--bg);color:var(--text2)}
 .chip b{color:var(--text)}
 .chip.f{background:#eaf1fe;color:#1d4ed8} .chip.j{background:var(--injebg);color:var(--inje)}
@@ -362,6 +369,7 @@ function renderUpload(){
         <div class="pb">
           <div class="chips" id="pvC"></div>
           <div class="pvw" id="pvW" hidden></div>
+          <div class="pvd" id="pvD" hidden></div>
           <table id="pvTbl"></table>
         </div>
       </div>
@@ -503,6 +511,8 @@ function preview(){
     <span class="chip j">인제대 교류생 <b>${cnt.인제대교류생}</b>건</span>
     <span class="chip o">타과생 <b>${cnt.타과생}</b>건</span>
     <span class="chip">과목 <b>${Object.keys(byCode).length}</b>개</span>`;
+  paintDiff(rows.length, heads, cnt, byCode);
+
   document.getElementById('pvTbl').innerHTML =
     '<thead><tr><th>학수번호</th><th>과목명</th><th style="text-align:right">총계</th>' +
     '<th style="text-align:right">융합전공</th><th style="text-align:right">인제대</th>' +
@@ -516,6 +526,66 @@ function preview(){
         <td style="text-align:right;color:${c.타과생?'var(--dang)':'var(--text3)'}">${c.타과생 || '—'}</td></tr>`;
     }).join('') + '</tbody>';
   document.getElementById('pv').style.display='block';
+}
+
+/* 직전 저장분과의 차이 ─────────────────────────
+   저장은 학기 자료를 통째로 갈아 끼우므로, 올리기 전에 무엇이 달라지는지
+   보여야 판단이 된다. STAT(이미 받아 둔 저장분 집계)과 비교하므로
+   추가 통신은 없다. 화면에 열린 학기와 올리는 학기가 다르면 건너뛴다.  */
+function paintDiff(cntRows, cntHeads, cnt, byCode){
+  const d = document.getElementById('pvD');
+  const upSem = document.getElementById('upSem').value;
+  const has = STAT && STAT.total && STAT.courses && STAT.courses.length;
+
+  if(!has){ d.hidden = true; d.innerHTML = ''; return; }
+  if(upSem !== SEM){
+    d.hidden = false;
+    d.innerHTML = `<span class="sm">화면에 열린 학기(${esc(SEM)})와 올리는 학기가 달라 `
+      + `직전 자료와 비교하지 않습니다.</span>`;
+    return;
+  }
+
+  // 저장분 건수 — total 의 구분값은 인원 기준이므로 과목 표에서 다시 센다
+  const sv = {총계:0, 융합전공:0, 인제대교류생:0, 타과생:0};
+  const svCode = {};
+  STAT.courses.forEach(c => {
+    sv.총계 += c.총계; sv.융합전공 += c.융합전공;
+    sv.인제대교류생 += c.인제대교류생; sv.타과생 += c.타과생;
+    svCode[c.code] = c.총계;
+  });
+
+  const sg = n => (n > 0 ? '+' : '') + n;
+  const cl = n => n > 0 ? 'up' : (n < 0 ? 'dn' : 'sm');
+  const tag = (label, n) => `<span class="${cl(n)}">${label} ${sg(n)}</span>`;
+
+  const dRows = cntRows - sv.총계;
+  const dHeads = cntHeads - (STAT.total.인원 || 0);
+  const dG = {융합전공: cnt.융합전공 - sv.융합전공,
+              인제대교류생: cnt.인제대교류생 - sv.인제대교류생,
+              타과생: cnt.타과생 - sv.타과생};
+
+  const codes = {};
+  Object.keys(svCode).forEach(k => codes[k] = 1);
+  Object.keys(byCode).forEach(k => codes[k] = 1);
+  const byC = Object.keys(codes).sort().map(k => {
+    const n = (byCode[k] ? byCode[k].총계 : 0) - (svCode[k] || 0);
+    return n ? tag(esc(k), n) : '';
+  }).filter(Boolean);
+
+  const when = STAT.snapshotAt ? `직전 저장(${esc(STAT.snapshotAt)}) 대비` : '직전 저장분 대비';
+  const same = !dRows && !dHeads && !dG.융합전공 && !dG.인제대교류생 && !dG.타과생 && !byC.length;
+
+  d.hidden = false;
+  if(same){
+    d.innerHTML = `<span class="h">${when}</span> — 달라진 내용이 없습니다.`;
+    return;
+  }
+  d.innerHTML = `<span class="r"><span class="h">${when}</span> &nbsp; `
+      + tag('건', dRows) + ' · ' + tag('명', dHeads) + `</span>`
+    + `<span class="r sm">구분 &nbsp; `
+      + [tag('융합전공', dG.융합전공), tag('인제대', dG.인제대교류생),
+         tag('타과생', dG.타과생)].join(' · ') + `</span>`
+    + (byC.length ? `<span class="r sm">과목 &nbsp; ${byC.join(' · ')}</span>` : '');
 }
 
 async function commit(){
@@ -617,9 +687,34 @@ function yearsHtml(terms){
     고려대는 선정이 늦어 <b>2024년 9월부터 실제 운영</b>했습니다.</div>`;
 }
 
+/* 확정은 사업지표로 굳는 단계다. 누르기 전에 무엇을 확정하는지 보여준다.
+   화면에 열린 학기일 때만 상세를 낼 수 있다 (STAT 이 그 학기 것이므로).  */
+function confirmSummary(sem){
+  const L = [sem + '학기 수치를 사업지표로 확정합니다.', ''];
+  if(sem !== SEM || !STAT || !STAT.total || !STAT.courses || !STAT.courses.length){
+    L.push('  ※ 화면에 열린 학기가 아니어서 내역을 미리 보여드릴 수 없습니다.');
+    L.push('     상단 학기를 ' + sem + '로 바꾸면 확인하실 수 있습니다.');
+  } else {
+    let inje = 0;
+    STAT.courses.forEach(c => { inje += c.인제대교류생; });
+    const todo = STAT.outsiders.filter(o => {
+      const a = STAT.adjust[o.courses[0] + '|' + o.sid];
+      return !a || !a.result;
+    }).length;
+    L.push('  자료 시점      ' + (STAT.snapshotAt || '(기록 없음)'));
+    L.push('  신청           ' + STAT.total.신청건수 + '건 / ' + STAT.total.인원 + '명');
+    L.push('  과목           ' + STAT.courses.length + '개');
+    L.push('  인제대 교류생  ' + (inje ? inje + '건' : '없음'));
+    L.push('  타과생 조치    ' + (todo ? '미처리 ' + todo + '건  ⚠' : '모두 처리됨'));
+  }
+  L.push('');
+  L.push('기존 확정치가 있으면 덮어씁니다. 계속하시겠습니까?');
+  return L.join('\n');
+}
+
 async function confirmTerm(btn){
   const sem = document.getElementById('cfSem').value;
-  if(!confirm(sem + '학기 수치를 확정합니다.\n기존 확정치가 있으면 덮어씁니다.')) return;
+  if(!confirm(confirmSummary(sem))) return;
   btn.disabled = true; btn.textContent = '확정 중';
   try{
     const r = await jsonp({action:'confirmCurriculumTerm', semester:sem, ...CRED()});
