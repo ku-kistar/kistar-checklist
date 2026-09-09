@@ -15,7 +15,10 @@ color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
 .top{background:var(--navy);color:#fff;padding:13px 26px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:60}
 .top .badge{background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
 .top h1{font-weight:700;font-size:15px}
-.top .meta{margin-left:auto;font-size:12px;opacity:.7}
+.top .meta{margin-left:auto;font-size:12px;font-family:inherit;color:#fff;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  border-radius:7px;padding:5px 9px;cursor:pointer}
+.top .meta option{color:var(--text);background:#fff}
 .topnav{display:flex;gap:7px;flex-shrink:0}
 .tnav{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;font-size:12px;
   text-decoration:none;white-space:nowrap;border:1px solid rgba(255,255,255,.28);
@@ -151,7 +154,7 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
 <body>
 
 <div class="top"><span class="badge">관리자</span><h1>개설 교과목 · 차세대반도체 융합전공</h1>
-<span class="meta" id="meta"></span>
+<select class="meta" id="meta" onchange="switchSem(this.value)"></select>
 <nav class="topnav">
   <a href="admin_progress.html" class="tnav">이수 현황</a>
   <a href="admin.html" class="tnav">성적 입력</a>
@@ -195,7 +198,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 
 <script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
-const SEM  = '2026-2';
+let SEM = '2026-2';
 const TERMS = ['2024-2','2025-1','2025-2','2026-1','2026-2'];
 const CHUNK = 50;
 
@@ -242,7 +245,8 @@ async function boot(){
 
 function render(){
   const t = STAT.total;
-  document.getElementById('meta').textContent = SEM + '학기';
+  document.getElementById('meta').innerHTML = TERMS.map(t =>
+    `<option value="${t}"${t===SEM?' selected':''}>${t}학기</option>`).join('');
   document.getElementById('kpis').innerHTML = `
     <div class="kpi b"><div class="n">${INFO.courses.length}</div>
       <div class="l">개설 과목</div><div class="s">${SEM}학기</div></div>
@@ -863,7 +867,8 @@ function yearsHtml(terms){
     <select id="cfSem">${TERMS.map(t =>
       `<option value="${t}"${t===SEM?' selected':''}>${t}학기</option>`).join('')}</select>
     <button class="btn p" onclick="confirmTerm(this)">이 학기 수치를 확정</button>
-    <span class="hint" style="margin:0">폐강·정정이 끝난 뒤 누르세요. 다시 누르면 갱신됩니다.</span>
+    <span class="hint" style="margin:0">폐강·정정이 끝난 뒤 누르세요. 다시 누르면 갱신됩니다.<br>
+      이 드롭다운은 <b>확정할 학기를 고르는 곳</b>입니다. 아래 표에는 확정한 학기만 나타납니다.</span>
   </div>`;
 
   if(!terms.length){
@@ -940,6 +945,30 @@ async function confirmTerm(btn){
     if(!r.ok) throw new Error(r.error);
     await loadYears();
   }catch(e){ alert(e.message); btn.disabled=false; btn.textContent='이 학기 수치를 확정'; }
+}
+
+/* 상단 학기를 바꾸면 과목·집계를 다시 받아 화면 전체를 갈아 끼운다.
+   자료 올리기 탭도 함께 다시 그린다 (교류생 반영 상태가 학기별이므로).  */
+async function switchSem(v){
+  if(v === SEM) return;
+  const sel = document.getElementById('meta');
+  sel.disabled = true;
+  const prev = SEM;
+  SEM = v;
+  try{
+    INFO = await jsonp({action:'getCurriculum', semester:SEM, ...CRED()});
+    if(!INFO.ok) throw new Error(INFO.error || '조회에 실패했습니다.');
+    STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
+    if(!STAT.ok) throw new Error(STAT.error || '집계에 실패했습니다.');
+    PARSED = null; PARSED_EX = null;
+    render(); renderUpload();
+    if(document.getElementById('t4').classList.contains('on')) loadYears();
+  }catch(e){
+    SEM = prev;
+    alert(e.message);
+    sel.value = prev;
+  }
+  sel.disabled = false;
 }
 
 function go(n){
