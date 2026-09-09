@@ -102,12 +102,17 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
 .up{max-width:720px}
 .uprow{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
 .uprow label{font-size:12.5px;font-weight:600;color:var(--text2)}
-#dz{border:1.5px dashed var(--border);border-radius:10px;padding:26px 16px;text-align:center;
+#dz,#dz2{border:1.5px dashed var(--border);border-radius:10px;padding:26px 16px;text-align:center;
   cursor:pointer;transition:.15s;background:#fbfcfe}
-#dz .ic{font-size:24px;line-height:1;margin-bottom:8px}
-#dzt{font-size:13.5px;font-weight:600;color:var(--text2)}
-#dzs{font-size:11.5px;color:var(--text3);margin-top:5px}
+#dz .ic,#dz2 .ic{font-size:24px;line-height:1;margin-bottom:8px}
+#dzt,#dzt2{font-size:13.5px;font-weight:600;color:var(--text2)}
+#dzs,#dzs2{font-size:11.5px;color:var(--text3);margin-top:5px}
+.sec2{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.exst{font-size:12px;color:var(--text2);margin:10px 0 0}
+.exst b{color:var(--text)}
+.exst .no{color:var(--text3)}
 .pv{margin-top:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none}
+.pv2 .ph{background:var(--injebg)}
 .pv .ph{padding:11px 14px;background:#fbfcfe;border-bottom:1px solid var(--line);
   font-size:12.5px;font-weight:700;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .pv .pb{padding:14px}
@@ -191,7 +196,7 @@ const CHUNK = 50;
 const AUTH = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
 const CRED = () => ({adminId: AUTH.studentId, adminBirth: AUTH.birth || AUTH.birthday || ''});
 
-let INFO = null, STAT = null, ROSTER = null, PARSED = null;
+let INFO = null, STAT = null, ROSTER = null, PARSED = null, PARSED_EX = null;
 
 function jsonp(params){
   return new Promise((resolve, reject) => {
@@ -377,20 +382,68 @@ function renderUpload(){
         저장하면 해당 학기 자료가 <b>통째로 교체</b>됩니다. 다른 학기는 그대로 남습니다.<br>
         폐강·정정이 끝난 뒤 「연차별 누적」에서 <b>학기 확정</b>을 눌러야 사업지표 수치로 기록됩니다.
       </div>
+
+      <div class="sec2">
+        <div class="uprow">
+          <label>인제대 교류생 명단</label>
+          <span class="hint" style="margin:0">학번 생성 때 받는 xlsx —
+            <b>학번 · 성명 · 학과 · 학년</b> 네 칸만 읽습니다</span>
+        </div>
+        <div id="dz2">
+          <div class="ic">🎓</div>
+          <div id="dzt2">인제대 교류생 명단 파일을 끌어다 놓거나 클릭해서 선택</div>
+          <div id="dzs2">주민등록번호 · 연락처 · 이메일은 읽지 않습니다</div>
+          <input type="file" id="exFile" accept=".xlsx,.xls" style="display:none">
+        </div>
+        <div class="exst" id="exSt"></div>
+        <div class="prog" id="prog2"><i></i></div>
+        <div class="pv pv2" id="pv2">
+          <div class="ph"><span id="pv2T"></span>
+            <button class="btn p" id="pv2Save" style="margin-left:auto" onclick="commitExch()">이 명단으로 저장</button></div>
+          <div class="pb">
+            <div class="chips" id="pv2C"></div>
+            <div class="pvw" id="pv2W" hidden></div>
+            <table id="pv2Tbl"></table>
+          </div>
+        </div>
+        <div class="hint">
+          수강신청 명단에는 교류생의 학년·학과가 비어 있습니다. 이 명단을 올려 두면
+          <b>카드와 집계에서 자동으로 채워집니다.</b> 학기당 한 번만 올리면 됩니다.
+        </div>
+      </div>
     </div>`;
   bindDrop();
 }
 
 function bindDrop(){
-  const dz = document.getElementById('dz'), fi = document.getElementById('upFile');
+  bindOne('dz', 'upFile', handleFile, 'var(--accent)', '#eef4ff');
+  bindOne('dz2', 'exFile', handleExchFile, 'var(--inje)', '#f6f1fe');
+  paintExchState();
+}
+
+function bindOne(dzId, fileId, handler, color, bg){
+  const dz = document.getElementById(dzId), fi = document.getElementById(fileId);
   dz.onclick = () => fi.click();
-  fi.onchange = () => { handleFile(fi.files[0]); fi.value=''; };
+  fi.onchange = () => { handler(fi.files[0]); fi.value=''; };
   ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => {
-    e.preventDefault(); dz.style.borderColor='var(--accent)'; dz.style.background='#eef4ff'; }));
+    e.preventDefault(); dz.style.borderColor=color; dz.style.background=bg; }));
   ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
     e.preventDefault(); dz.style.borderColor='var(--border)'; dz.style.background='#fbfcfe'; }));
   dz.addEventListener('drop', e => {
-    if(e.dataTransfer && e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+    if(e.dataTransfer && e.dataTransfer.files.length) handler(e.dataTransfer.files[0]); });
+}
+
+/* 지금 학기에 교류생 명단이 반영돼 있는지 한 줄로 보여준다 */
+function paintExchState(){
+  const el = document.getElementById('exSt');
+  if(!el) return;
+  const ex = STAT && STAT.exchange;
+  if(ex && ex.count){
+    el.innerHTML = `${esc(SEM)}학기 · <b>${ex.count}명</b> 반영됨`
+      + (ex.at ? ` <span class="no">(${esc(ex.at)})</span>` : '');
+  } else {
+    el.innerHTML = `<span class="no">${esc(SEM)}학기 교류생 명단이 아직 없습니다.</span>`;
+  }
 }
 
 function dzMsg(t, color){
@@ -465,6 +518,125 @@ const INJE_COURSES = ['KISE302', 'KISE301'];   // AI반도체개론 · 반도체
 
 /* 학번에 KU 가 들어가면 언제나 인제대 교류생이다.
    명단·학기·과목과 무관하게 참이므로 가장 먼저 본다.                  */
+/**
+ * 인제대 교류생 명단 파싱.
+ *  · 머리글은 「학년」과 「학부(과)」가 함께 있는 행으로 찾는다 (열 위치 변동 대비)
+ *  · 학번은 행 안에서 `####KU####` 꼴을 찾는다 — 원소속 학번과 헷갈리지 않는다
+ *  · 읽는 값은 학번 · 성명 · 학과 · 학년 네 개뿐이다
+ */
+function parseExch(aoa){
+  let h = -1, cGrade = -1, cDept = -1, cName = -1;
+  for(let i=0; i<Math.min(aoa.length, 30); i++){
+    const r = (aoa[i]||[]).map(v => String(v==null?'':v).trim());
+    const g = r.findIndex(v => v === '학년');
+    const d = r.findIndex(v => v.indexOf('학부') >= 0 || v === '학과');
+    if(g >= 0 && d >= 0){
+      h = i; cGrade = g; cDept = d;
+      cName = r.findIndex(v => v.indexOf('성명') >= 0 && v.indexOf('영문') < 0);
+      break;
+    }
+  }
+  if(h < 0) throw new Error('머리글(학년 · 학부(과))을 찾지 못했습니다. 다른 파일인지 확인해 주세요.');
+
+  const out = [];
+  for(let i=h+1; i<aoa.length; i++){
+    const r = (aoa[i]||[]).map(v => String(v==null?'':v).trim());
+    let sid = '';
+    for(const v of r){ if(/^\d{4}KU\d{2,}$/i.test(v)){ sid = v.toUpperCase(); break; } }
+    if(!sid) continue;
+    out.push({sid,
+      name:  cName >= 0 ? (r[cName]||'') : '',
+      dept:  r[cDept] || '',
+      grade: (r[cGrade]||'').replace(/[^0-9]/g,'')});
+  }
+  return out;
+}
+
+async function handleExchFile(file){
+  if(!file) return;
+  document.getElementById('pv2').style.display='none';
+  dzMsg2('읽는 중… ' + file.name);
+  try{
+    await loadSheetJS();
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(new Uint8Array(buf), {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:''});
+    const rows = parseExch(aoa);
+    if(!rows.length) throw new Error('KU 학번이 있는 행을 찾지 못했습니다.');
+    PARSED_EX = {file: file.name, rows};
+    dzMsg2('✓ ' + file.name, 'var(--ok)');
+    previewExch();
+  }catch(e){ dzMsg2('⚠ ' + e.message, 'var(--dang)'); }
+}
+
+function dzMsg2(t, color){
+  const el = document.getElementById('dzt2');
+  el.textContent = t; el.style.color = color || 'var(--text2)';
+}
+
+function previewExch(){
+  const rows = PARSED_EX.rows;
+  const noGrade = rows.filter(r => !r.grade).length;
+  const noDept  = rows.filter(r => !r.dept).length;
+
+  document.getElementById('pv2T').textContent = `${PARSED_EX.file} — ${rows.length}명`;
+  document.getElementById('pv2C').innerHTML = `
+    <span class="chip j">교류생 <b>${rows.length}</b>명</span>
+    <span class="chip">학년 확인 <b>${rows.length - noGrade}</b>명</span>`;
+
+  const w = document.getElementById('pv2W');
+  if(noGrade || noDept){
+    w.hidden = false;
+    w.innerHTML = `⚠ 비어 있는 칸이 있습니다 — `
+      + [noGrade ? `학년 ${noGrade}명` : '', noDept ? `학과 ${noDept}명` : '']
+        .filter(Boolean).join(' · ')
+      + `<span class="x">그 학생은 카드에서 학년이 비어 보입니다. 원본 파일을 확인해 주세요.</span>`;
+  } else { w.hidden = true; w.innerHTML = ''; }
+
+  document.getElementById('pv2Tbl').innerHTML =
+    '<thead><tr><th>고려대 학번</th><th>성명</th><th>원소속 학과</th>' +
+    '<th style="text-align:center">학년</th></tr></thead><tbody>' +
+    rows.map(r => `<tr><td><b>${esc(r.sid)}</b></td><td>${esc(r.name)}</td>
+      <td>${esc(r.dept)}</td>
+      <td style="text-align:center;color:${r.grade?'var(--text)':'var(--dang)'}">${esc(r.grade||'—')}</td></tr>`).join('')
+    + '</tbody>';
+  document.getElementById('pv2').style.display='block';
+}
+
+async function commitExch(){
+  if(!PARSED_EX) return;
+  const sem = document.getElementById('upSem').value;
+  const btn = document.getElementById('pv2Save');
+  const pg = document.getElementById('prog2'), pi = pg.querySelector('i');
+  const rows = PARSED_EX.rows;
+  const packs = [];
+  for(let i=0; i<rows.length; i+=CHUNK){
+    packs.push(rows.slice(i, i+CHUNK).map(r =>
+      [r.sid, r.name, r.dept, r.grade].join('|')).join(';;'));
+  }
+  btn.disabled = true; btn.textContent = '저장 중';
+  pg.style.display='block'; pi.style.width='0';
+  try{
+    for(let i=0; i<packs.length; i++){
+      const r = await jsonp({action:'saveCurriculumExchange', ...CRED(),
+        semester: sem, seq: i, last: (i===packs.length-1) ? 1 : 0, rows: packs[i]});
+      if(!r.ok) throw new Error(r.error);
+      pi.style.width = ((i+1)/packs.length*100) + '%';
+    }
+    btn.textContent = '저장 완료';
+    if(sem === SEM){
+      STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
+      render();
+    }
+    setTimeout(() => { pg.style.display='none'; btn.disabled=false;
+      btn.textContent='이 명단으로 저장'; }, 1200);
+  }catch(e){
+    alert('저장 중 오류: ' + e.message + '\n다시 올려주세요.');
+    btn.disabled=false; btn.textContent='이 명단으로 저장'; pg.style.display='none';
+  }
+}
+
 function classify(r){
   if(/KU/i.test(r.sid)) return '인제대교류생';
   if(Object.prototype.hasOwnProperty.call(ROSTER.fusion, r.sid)) return '융합전공';
