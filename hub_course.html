@@ -246,6 +246,19 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
 .ov-meta{font-size:11.5px;white-space:nowrap;color:rgba(255,255,255,.35)}
 .ov-ok{color:#9FE1CB}
 .ov-no{color:#f08070}
+.nt{margin-bottom:1.5rem;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px}
+.nt-h{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(255,255,255,.45);margin-bottom:11px;letter-spacing:.06em}
+.nt-h svg{flex:none;color:rgba(16,185,129,.75)}
+.nt-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.nt-l li{display:flex;align-items:flex-start;gap:9px;font-size:13px;line-height:1.65;color:rgba(255,255,255,.78)}
+.nt-l li.hot{padding:8px 11px;margin:-3px -4px;border-radius:8px;background:rgba(234,179,8,.09);border:1px solid rgba(234,179,8,.3)}
+.nt-l li.hot .nt-t{color:#fff;font-weight:600}
+.nt-l li.hot .nt-n{background:rgba(234,179,8,.24);color:#fbbf24}
+.nt-n{flex:none;width:17px;height:17px;margin-top:2px;border-radius:5px;background:rgba(16,185,129,.14);color:#6ee7b7;font-size:10px;line-height:17px;text-align:center;font-family:'JetBrains Mono',monospace}
+.nt-t{flex:1;min-width:0}
+.nt-s{display:block;margin-top:3px;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.42);font-weight:400}
+.nt-dl{flex:none;font-family:inherit;font-size:11px;padding:3px 10px;border-radius:6px;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);color:#9FE1CB;text-decoration:none;white-space:nowrap;margin-top:1px}
+.nt-dl:hover{background:rgba(16,185,129,.24)}
 .ov-wrap{overflow-x:auto;scrollbar-width:thin;padding-bottom:4px}
 .ov-tbl{border-collapse:separate;border-spacing:4px 5px;font-size:11px}
 .ov-tbl th{font-family:'JetBrains Mono',monospace;font-weight:400;font-size:10px;color:rgba(255,255,255,.3);padding:0 0 2px;text-align:center;width:28px}
@@ -332,6 +345,8 @@ a.top-btn{text-decoration:none;display:inline-flex;align-items:center}
   </div>
 
   <div class="wrap">
+    <div id="noticeWrap" hidden></div>
+
     <div id="nowWrap" hidden>
       <div class="sec-label" id="nowLabel">이번 주</div>
       <div id="now"></div>
@@ -531,6 +546,45 @@ $('btnOut').addEventListener('click', function(){
 /* ── 시작 ── */
 var LABEL = { ta:'TA', prof:'교수', admin:'ADMIN' };
 
+/* ── 공통 안내 ────────────────────────────────────
+   전 과목 공통 사항. 문구를 고칠 일이 생기면 아래 배열만 손보면 된다.
+     text  한 줄로 짧게
+     sub   길어지는 설명은 여기로 뺀다 (작은 글씨로 아래 붙는다)
+     url   넣으면 그 줄에 「양식 받기」 버튼이 붙는다
+     hot   true 면 그 줄이 눈에 띄게 표시된다                        */
+var NOTICES = [
+  { text: '주차별 준비 내역은 매주 밀리지 않게 입력', hot: true },
+  { text: '연사 초청 주차가 1주라도 있으면 연사 서류 제출 필수' },
+  { text: '연사 초청 수업은 주차권 필요 여부를 미리 확인·준비할 것' },
+  { text: '주차권 수령 시 관리대장 작성 필수',
+    sub:  '구입(일자·수량) · 반출(일자·수량) · 내역 세 칸만 작성. '
+        + '누계·잔량·확인란은 사업단이 채웁니다.',
+    url:  '' }
+];
+
+function paintNotices(){
+  var w = $('noticeWrap');
+  if (!NOTICES.length){ w.hidden = true; w.innerHTML = ''; return; }
+  w.hidden = false;
+  w.innerHTML = '<div class="nt">'
+    + '<div class="nt-h">'
+    + '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">'
+    + '<circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.3"/>'
+    + '<path d="M8 7.2v4M8 4.9v.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'
+    + '</svg><span>공통 안내</span></div>'
+    + '<ul class="nt-l">'
+    + NOTICES.map(function(n, i){
+        return '<li' + (n.hot ? ' class="hot"' : '') + '>'
+          + '<span class="nt-n">' + (i + 1) + '</span>'
+          + '<span class="nt-t">' + esc(n.text)
+          + (n.sub ? '<span class="nt-s">' + esc(n.sub) + '</span>' : '')
+          + '</span>'
+          + (n.url ? '<a class="nt-dl" href="' + esc(n.url) + '" target="_blank" rel="noopener">양식 받기</a>' : '')
+          + '</li>';
+      }).join('')
+    + '</ul></div>';
+}
+
 function start(d){
   $('auth').classList.remove('show');
   $('page').hidden = false;
@@ -538,6 +592,7 @@ function start(d){
   $('topRole').classList.toggle('as', !!viewAs);
   $('topWho').dataset.who = d.who || '';
   if (d.semester) $('authSub').textContent = d.semester + ' · 교직원 · 조교 전용 화면입니다';
+  paintNotices();
 
   if (isAdmin){
     $('btnHub').hidden = false;
@@ -670,7 +725,7 @@ function goTo(kind){
    주차와 연사를 따로 부른다 — 한 요청에 몰면 25초 제한에 걸린다.        */
 
 var ovOn = false, ovPrev = {};
-var OV_HIDE = ['nowWrap', 'pick', 'tabs', 'err', 'view', 'bar'];
+var OV_HIDE = ['noticeWrap', 'nowWrap', 'pick', 'tabs', 'err', 'view', 'bar'];
 
 function ovShow(on){
   ovOn = on;
