@@ -122,6 +122,8 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
 .grp.d .n{background:var(--dangbg);color:var(--dang)}
 .grp2{margin-top:26px}
 .auto{font-size:11.5px;color:var(--text3)}
+.top .meta:disabled{opacity:.55;cursor:progress}
+#wrap.busy{opacity:.45;pointer-events:none;transition:opacity .12s}
 .rollup{margin-bottom:14px}
 .rollup td,.rollup th{font-size:12px}
 .rollup tr.tot td{font-weight:700;color:var(--text);border-top:1.5px solid var(--border)}
@@ -243,10 +245,10 @@ const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c =>
 async function boot(){
   if(!AUTH || !AUTH.studentId){ gate('로그인이 필요합니다.'); return; }
   try{
-    INFO = await jsonp({action:'getCurriculum', semester:SEM, ...CRED()});
+    const got = await fetchSem(SEM);
+    INFO = got.info; STAT = got.stat;
     if(!INFO.ok){ gate(INFO.error || '조회에 실패했습니다.'); return; }
     if(!INFO.admin){ gate('관리자 계정으로 로그인해 주세요.'); return; }
-    STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
     if(!STAT.ok){ gate(STAT.error || '집계에 실패했습니다.'); return; }
     loading.style.display='none'; wrap.style.display='block';
     render(); renderUpload();
@@ -405,7 +407,9 @@ async function save(btn){
     const r = await jsonp({action:'saveCurriculumAdjust', ...CRED(), semester: SEM,
       code: tr.dataset.code, sid: tr.dataset.sid, name: tr.dataset.name,
       result: tr.querySelector('.rs').value, note: tr.querySelector('.nt').value});
-    if(r.ok){ el.textContent = new Date().toISOString().slice(0,10); el.style.display='inline'; }
+    if(r.ok){ el.textContent = new Date().toISOString().slice(0,10); el.style.display='inline';
+      dropSemCache();   // 이탈 목록이 바뀐다
+    }
     else alert(r.error || '저장하지 못했습니다.');
   }catch(e){ alert(e.message); }
   btn.disabled = false; btn.textContent = '저장';
@@ -686,8 +690,10 @@ async function commitExch(){
       pi.style.width = ((i+1)/packs.length*100) + '%';
     }
     btn.textContent = '저장 완료';
+    dropSemCache(sem);
     if(sem === SEM){
       STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
+      if(SEM_CACHE[SEM]) SEM_CACHE[SEM].stat = STAT;
       render();
     }
     setTimeout(() => { pg.style.display='none'; btn.disabled=false;
@@ -842,8 +848,10 @@ async function commit(){
       pi.style.width = ((i+1)/packs.length*100) + '%';
     }
     btn.textContent = '저장 완료';
+    dropSemCache(sem);
     if(sem === SEM){
       STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
+      if(SEM_CACHE[SEM]) SEM_CACHE[SEM].stat = STAT;
       render();
     }
     setTimeout(() => { pg.style.display='none'; btn.disabled=false;
@@ -983,28 +991,47 @@ async function confirmTerm(btn){
   }catch(e){ alert(e.message); btn.disabled=false; btn.textContent='이 학기 수치를 확정'; }
 }
 
+/* 학기 하나를 통째로 받아 온다.
+   과목 정보와 집계는 서로를 기다릴 이유가 없어 동시에 보낸다 —
+   순서대로 기다리면 왕복 시간이 그대로 더해진다.
+   집계 쪽은 시트를 네 개(명단·이수현황·교류생·조치) 읽어 느리다.        */
+const SEM_CACHE = {};
+
+async function fetchSem(sem, fresh){
+  if(!fresh && SEM_CACHE[sem]) return SEM_CACHE[sem];
+  const [info, stat] = await Promise.all([
+    jsonp({action:'getCurriculum',      semester:sem, ...CRED()}),
+    jsonp({action:'getCurriculumStats', semester:sem, ...CRED()})
+  ]);
+  const got = {info, stat};
+  if(info.ok && stat.ok) SEM_CACHE[sem] = got;
+  return got;
+}
+
+/* 저장·조치처럼 값이 바뀌는 동작 뒤에는 보관분을 버린다 */
+function dropSemCache(sem){ delete SEM_CACHE[sem || SEM]; }
+
 /* 상단 학기를 바꾸면 과목·집계를 다시 받아 화면 전체를 갈아 끼운다.
-   자료 올리기 탭도 함께 다시 그린다 (교류생 반영 상태가 학기별이므로).  */
+   자료 올리기 탭도 함께 다시 그린다 (교류생 반영 상태가 학기별이므로).
+   한 번 본 학기는 보관해 두므로 되돌아갈 때는 기다리지 않는다.          */
 async function switchSem(v){
   if(v === SEM) return;
-  const sel = document.getElementById('meta');
-  sel.disabled = true;
+  const sel = document.getElementById('meta'), wp = document.getElementById('wrap');
   const prev = SEM;
-  SEM = v;
+  sel.disabled = true; wp.classList.add('busy');
   try{
-    INFO = await jsonp({action:'getCurriculum', semester:SEM, ...CRED()});
-    if(!INFO.ok) throw new Error(INFO.error || '조회에 실패했습니다.');
-    STAT = await jsonp({action:'getCurriculumStats', semester:SEM, ...CRED()});
-    if(!STAT.ok) throw new Error(STAT.error || '집계에 실패했습니다.');
+    const got = await fetchSem(v);
+    if(!got.info.ok) throw new Error(got.info.error || '조회에 실패했습니다.');
+    if(!got.stat.ok) throw new Error(got.stat.error || '집계에 실패했습니다.');
+    SEM = v; INFO = got.info; STAT = got.stat;
     PARSED = null; PARSED_EX = null;
     render(); renderUpload();
     if(document.getElementById('t4').classList.contains('on')) loadYears();
   }catch(e){
-    SEM = prev;
     alert(e.message);
     sel.value = prev;
   }
-  sel.disabled = false;
+  sel.disabled = false; wp.classList.remove('busy');
 }
 
 function go(n){
