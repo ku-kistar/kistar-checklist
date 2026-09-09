@@ -113,6 +113,12 @@ font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text)}
 .exst .no{color:var(--text3)}
 .pv{margin-top:16px;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none}
 .pv2 .ph{background:var(--injebg)}
+.grp{font-size:12.5px;font-weight:700;color:var(--text);margin:0 0 9px;display:flex;gap:8px;align-items:center}
+.grp .n{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:1px 8px;
+  border-radius:20px;background:var(--bg);color:var(--text2)}
+.grp.d .n{background:var(--dangbg);color:var(--dang)}
+.grp2{margin-top:26px}
+.auto{font-size:11.5px;color:var(--text3)}
 .pv .ph{padding:11px 14px;background:#fbfcfe;border-bottom:1px solid var(--line);
   font-size:12.5px;font-weight:700;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .pv .pb{padding:14px}
@@ -175,7 +181,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 
   <div class="tabs">
     <button class="tab on" id="t1" onclick="go(1)">과목 정보 <span class="c" id="c1"></span></button>
-    <button class="tab" id="t2" onclick="go(2)">타과생 조정 <span class="c" id="c2"></span></button>
+    <button class="tab" id="t2" onclick="go(2)">타과생 현황 <span class="c" id="c2"></span></button>
     <button class="tab" id="t3" onclick="go(3)">자료 올리기</button>
     <button class="tab" id="t4" onclick="go(4)">연차별 누적</button>
   </div>
@@ -312,36 +318,77 @@ function courseCards(){
   }).join('') + '</div>';
 }
 
+/* 조치 선택지 — 정정이 끝난 뒤 기준.
+   비워 두면 「수강 확정」이다. 예외를 남길 때만 고른다.
+   ADJ_PAST 는 예전 기록이 선택 상태를 잃지 않도록 남겨 둔 값이다.       */
+const ADJ_OPTS = ['정정 미복귀', '취소완료', '보류'];
+const ADJ_PAST = ['안내발송', '재안내', '유지'];
+
+function adjOptions(cur, emptyLabel){
+  const list = ADJ_OPTS.concat(ADJ_PAST);
+  if(cur && list.indexOf(cur) < 0) list.push(cur);
+  return `<option value=""${!cur?' selected':''}>${emptyLabel}</option>`
+    + list.map(v => `<option value="${esc(v)}"${cur===v?' selected':''}>${esc(v)}</option>`).join('');
+}
+
+function adjRow(sid, name, dept, grade, code, courses, a, emptyLabel){
+  return `<tr data-sid="${esc(sid)}" data-code="${esc(code)}" data-name="${esc(name)}">
+    <td class="sid">${esc(sid)}</td><td><b>${esc(name)}</b></td>
+    <td>${esc(dept)}</td><td style="text-align:center">${esc(grade)}</td>
+    <td class="cs">${esc(courses)}</td>
+    <td><select class="rs">${adjOptions(a.result, emptyLabel)}</select></td>
+    <td><input type="text" class="nt" placeholder="메모" value="${esc(a.note||'')}" style="width:100%"></td>
+    <td style="white-space:nowrap"><button class="btn p" onclick="save(this)">저장</button>
+      <span class="saved" style="display:${a.date?'inline':'none'}">${esc(a.date||'')}</span></td>
+  </tr>`;
+}
+
+const ADJ_HEAD = `<thead><tr><th>학번</th><th>성명</th><th>학과</th><th>학년</th><th>신청 과목</th>
+    <th style="width:150px">조치</th><th style="width:200px">메모</th><th style="width:130px"></th></tr></thead>`;
+
+/* 정정이 끝나면 최종 명단에 있는 것 자체가 수강 확정이다.
+   26명을 한 명씩 눌러 기록하지 않는다 — 기록이 없으면 확정으로 본다.
+   조치 칸은 예외를 남길 때만 쓰고, 명단에서 빠진 학생은 아래 「이탈」로 모은다. */
 function outsiderTable(){
-  if(!STAT.outsiders.length) return '<div class="empty">타 전공 신청자가 없습니다.</div>';
-  const rows = STAT.outsiders.map(s => {
-    const key = s.courses[0] + '|' + s.sid;
-    const a = STAT.adjust[key] || {};
-    const opts = ['','안내발송','재안내','취소완료','유지','보류']
-      .map(v => `<option value="${v}"${a.result===v?' selected':''}>${v||'— 선택 —'}</option>`).join('');
-    return `<tr data-sid="${esc(s.sid)}" data-code="${esc(s.courses[0])}" data-name="${esc(s.name)}">
-      <td class="sid">${esc(s.sid)}</td><td><b>${esc(s.name)}</b></td>
-      <td>${esc(s.dept)}</td><td style="text-align:center">${esc(s.grade)}</td>
-      <td class="cs">${esc(s.courses.join(' · '))}</td>
-      <td><select class="rs">${opts}</select></td>
-      <td><input type="text" class="nt" placeholder="메모" value="${esc(a.note||'')}" style="width:100%"></td>
-      <td style="white-space:nowrap"><button class="btn p" onclick="save(this)">저장</button>
-        <span class="saved" style="display:${a.date?'inline':'none'}">${esc(a.date||'')}</span></td>
-    </tr>`;
-  }).join('');
-  return `<table><thead><tr><th>학번</th><th>성명</th><th>학과</th><th>학년</th><th>신청 과목</th>
-    <th style="width:120px">조치</th><th style="width:200px">메모</th><th style="width:130px"></th></tr></thead>
-    <tbody>${rows}</tbody></table>
-    <div class="hint">판별은 <b>이수현황 155명 학번 대조</b>입니다. 포털 다중전공 열은 쓰지 않습니다 —
+  const drop = (STAT.dropped || []);
+  if(!STAT.outsiders.length && !drop.length){
+    return '<div class="empty">타 전공 신청자가 없습니다.</div>';
+  }
+
+  let html = '';
+
+  if(STAT.outsiders.length){
+    const rows = STAT.outsiders.map(s => {
+      const a = STAT.adjust[s.courses[0] + '|' + s.sid] || {};
+      return adjRow(s.sid, s.name, s.dept, s.grade, s.courses[0],
+                    s.courses.join(' · '), a, '수강 확정 (자동)');
+    }).join('');
+    html += `<div class="grp">수강 확정 <span class="n">${STAT.outsiders.length}명</span>
+      <span class="auto">최종 명단에 남아 있는 타과생입니다. 그대로 두시면 됩니다.</span></div>
+      <table>${ADJ_HEAD}<tbody>${rows}</tbody></table>`;
+  }
+
+  if(drop.length){
+    const noWhy = drop.filter(d => !d.result).length;
+    const rows = drop.map(d => adjRow(d.sid, d.name, '', '', d.code, d.code,
+      {result:d.result, note:d.note, date:d.date}, '— 사유 선택 —')).join('');
+    html += `<div class="grp d grp2">이탈 <span class="n">${drop.length}명</span>
+      <span class="auto">조치 기록은 있으나 최종 명단에 없습니다.${
+        noWhy ? ' 사유가 없는 건이 ' + noWhy + '건 있습니다.' : ''}</span></div>
+      <table>${ADJ_HEAD}<tbody>${rows}</tbody></table>`;
+  }
+
+  return html + `<div class="hint">판별은 <b>이수현황 155명 학번 대조</b>입니다. 포털 다중전공 열은 쓰지 않습니다 —
     3기는 9월 1일자로 학적이 반영되므로 그 열로 거르면 타과생으로 잘못 분류됩니다.<br>
-    조치 내용은 <b>타과생조치</b> 탭에 누적됩니다. 신청 자료를 새로 올려도 지워지지 않습니다.</div>`;
+    <b>조치를 고르면</b> <b>타과생조치</b> 탭에 학기와 함께 기록됩니다. 신청 자료를 새로 올려도 지워지지 않습니다.<br>
+    빼기를 요청했는데 여석이 없어 못 돌아온 학생은 <b>정정 미복귀</b>로 남겨 주세요. 다음 학기 협의 근거가 됩니다.</div>`;
 }
 
 async function save(btn){
   const tr = btn.closest('tr'), el = tr.querySelector('.saved');
   btn.disabled = true; btn.textContent = '저장 중';
   try{
-    const r = await jsonp({action:'saveCurriculumAdjust', ...CRED(),
+    const r = await jsonp({action:'saveCurriculumAdjust', ...CRED(), semester: SEM,
       code: tr.dataset.code, sid: tr.dataset.sid, name: tr.dataset.name,
       result: tr.querySelector('.rs').value, note: tr.querySelector('.nt').value});
     if(r.ok){ el.textContent = new Date().toISOString().slice(0,10); el.style.display='inline'; }
@@ -869,15 +916,15 @@ function confirmSummary(sem){
   } else {
     let inje = 0;
     STAT.courses.forEach(c => { inje += c.인제대교류생; });
-    const todo = STAT.outsiders.filter(o => {
-      const a = STAT.adjust[o.courses[0] + '|' + o.sid];
-      return !a || !a.result;
-    }).length;
+    const drop = STAT.dropped || [];
+    const noWhy = drop.filter(d => !d.result).length;
     L.push('  자료 시점      ' + (STAT.snapshotAt || '(기록 없음)'));
     L.push('  신청           ' + STAT.total.신청건수 + '건 / ' + STAT.total.인원 + '명');
     L.push('  과목           ' + STAT.courses.length + '개');
     L.push('  인제대 교류생  ' + (inje ? inje + '건' : '없음'));
-    L.push('  타과생 조치    ' + (todo ? '미처리 ' + todo + '건  ⚠' : '모두 처리됨'));
+    L.push('  타과생         수강 확정 ' + STAT.outsiders.length + '명'
+           + (drop.length ? ' · 이탈 ' + drop.length + '명' : ''));
+    if(noWhy) L.push('  이탈 사유      미기재 ' + noWhy + '건  ⚠');
   }
   L.push('');
   L.push('기존 확정치가 있으면 덮어씁니다. 계속하시겠습니까?');
