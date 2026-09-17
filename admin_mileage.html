@@ -328,7 +328,7 @@ async function loadData() {
       });
       // 2026-1 등록 학생이면 ROSTER에도 추가
       // 모든 학생 ROSTER에 추가 (0점 포함)
-        ROSTER_2026_1[sid] = { name: d.name, dept: d.dept, score: (d.bySemester && d.bySemester[currentSem]) || 0, grade: d.grade || '' };
+        ROSTER_2026_1[sid] = { name: d.name, dept: d.dept, score: 0, grade: d.grade || '' };
     });
 
     document.getElementById("loadingState").style.display = "none";
@@ -378,9 +378,9 @@ function renderDash(sem) {
   const allRoster = Object.entries(ROSTER_2026_1);
   const students = [];
 
-     if (sem === currentSem) {
+    if (sem !== "전체") {
     allRoster.forEach(function([sid, d]) {
-        const total = (MILEAGE_DATA[sid] && MILEAGE_DATA[sid][currentSem]) || d.score || 0;
+        const total = (MILEAGE_DATA[sid] && MILEAGE_DATA[sid][sem]) || 0;
       students.push({studentId:sid, name:d.name, dept:d.dept, total:total, grade:d.grade||''});
     });
   } else {
