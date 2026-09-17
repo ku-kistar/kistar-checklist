@@ -328,7 +328,7 @@ async function loadData() {
       });
       // 2026-1 등록 학생이면 ROSTER에도 추가
       // 모든 학생 ROSTER에 추가 (0점 포함)
-        ROSTER_2026_1[sid] = { name: d.name, dept: d.dept, score: d.bySemester && d.bySemester["2026-1"] ? d.bySemester["2026-1"] : 0, grade: d.grade || '' };
+        ROSTER_2026_1[sid] = { name: d.name, dept: d.dept, score: (d.bySemester && d.bySemester[currentSem]) || 0, grade: d.grade || '' };
     });
 
     document.getElementById("loadingState").style.display = "none";
