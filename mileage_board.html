@@ -306,7 +306,7 @@ tbody .ph{border-bottom:1px solid var(--line2)}
 
 <div class="top">
   <div class="eyebrow">Korea University · KI-STAR Center</div>
-  <h1>2026-1학기 사업단 마일리지 현황
+  <h1 id="pageTitle">2026-1학기 사업단 마일리지 현황
     <span class="sub">차세대반도체 융합전공</span>
   </h1>
 
@@ -465,6 +465,8 @@ function load(force){
 
 /* ── 그리기 ───────────────────────────────────── */
 function render(){
+  document.getElementById('pageTitle').firstChild.nodeValue = DATA.semester + '학기 사업단 마일리지 현황\n    ';
+  document.title = DATA.semester + '학기 마일리지 현황 · 차세대반도체 융합전공';
   var P = DATA.programs, S = DATA.students, i;
 
   /* 요약 */
@@ -602,8 +604,7 @@ function renderRanks(){
   h += '</div>' +
        '<p class="rank-note">마일리지가 같으면 같은 순위로 표시됩니다. ' +
        '우수학생 선발 시 누적 마일리지가 동점인 경우 ' +
-       '<b>2026-1학기 성적 평점평균 상위자</b>가 선발됩니다.</p>';
-
+       '<b>' + DATA.semester + '학기 성적 평점평균 상위자</b>가 선발됩니다.</p>';
   document.getElementById('rankBody').innerHTML = h;
 }
 
