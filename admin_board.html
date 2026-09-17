@@ -1158,7 +1158,7 @@ function exportXlsx(){
 
 function buildXlsx(){
   var d=DATA, P=d.programs;
-  var yr="2026", sem=d.semester.split("-")[1];
+  var yr=d.semester.split("-")[0], sem=d.semester.split("-")[1];
   var aoa=[], merges=[];
   var W=10+P.length+3;   // 전체 열 수
 
@@ -1264,7 +1264,7 @@ function dtc(text,w,o){
 }
 
 function buildDocx(){
-  var d=DATA, yr="2026", sem=d.semester.split("-")[1];
+  var d=DATA, yr=d.semester.split("-")[0], sem=d.semester.split("-")[1];
   var CW=[660,1200,2000,1700,700,1500,1200,1078];   // 합 9638 dxa
   var body="";
 
