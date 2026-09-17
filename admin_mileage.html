@@ -265,7 +265,7 @@ const EXEC_URL = "https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31
 const SEM_TOTAL_REG = {"2025-1":96,"2025-2":100,"2026-1":108};
 let SEM_LIST = [];
 let currentSem = "2026-2";
-
+const GOAL = 40;
 function buildSemTabs(cb) {
   const cbName = '__semCb_' + Date.now();
   window[cbName] = function(d) {
