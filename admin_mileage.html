@@ -262,7 +262,7 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
 
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec";
-const SEM_TOTAL_REG = {"2025-1":96,"2025-2":100,"2026-1":108};
+const SEM_TOTAL_REG = {"2025-1":96,"2025-2":100,"2026-1":108,"2026-2":null};
 let SEM_LIST = [];
 let currentSem = "2026-2";
 const GOAL = 40;
@@ -463,7 +463,7 @@ function checkTieAlert(students) {
   const el = document.getElementById("tieAlert");
   const ties = [];
   [2,3,4].forEach(function(grade) {
-    const gs = students.filter(function(s){ return String(s.grade) === String(grade); });
+    const gs = students.filter(function(s){ return String(s.grade) === String(grade) && s.total > 0; });
     if (gs.length < 5) return;
     const cutoff = gs[4].total; // 5위 점수
     const tiedAt5 = gs.filter(function(s){ return s.total === cutoff; });
