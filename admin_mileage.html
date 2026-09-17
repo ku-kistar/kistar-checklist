@@ -146,8 +146,8 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
 
 <div class="container">
 
-  <div class="sem-tabs" id="semTabs" style="display:none">
-    <button class="sem-tab active" data-sem="2026-1" onclick="selectSem('2026-1',this)">2026-1학기</button>
+    <div class="sem-tabs" id="semTabs">
+    <!-- 학기 탭은 buildSemTabs()가 서버에서 받아 그린다 -->
   </div>
 
   <div id="loadingState" class="loading-state">
@@ -263,8 +263,31 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
 <script>
 const EXEC_URL = "https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec";
 const SEM_TOTAL_REG = {"2025-1":96,"2025-2":100,"2026-1":108};
-const GOAL = 40;
-let currentSem = "2026-1";
+let SEM_LIST = [];
+let currentSem = "2026-2";
+
+function buildSemTabs(cb) {
+  const cbName = '__semCb_' + Date.now();
+  window[cbName] = function(d) {
+    delete window[cbName];
+    if (d && d.semesters && d.semesters.length) {
+      SEM_LIST = d.semesters.map(s => s.sem);
+      currentSem = d.live || SEM_LIST[SEM_LIST.length - 1];
+    }
+    const box = document.getElementById('semTabs');
+    if (box) {
+      box.innerHTML = SEM_LIST.map(s =>
+        '<button class="sem-tab' + (s === currentSem ? ' active' : '') +
+        '" data-sem="' + s + '" onclick="selectSem(\'' + s + '\',this)">' + s + '학기</button>'
+      ).join('') +
+      '<button class="sem-tab" data-sem="전체" onclick="selectSem(\'전체\',this)">전체</button>';
+    }
+    if (cb) cb();
+  };
+  const s = document.createElement('script');
+    s.src = EXEC_URL + '?action=getSemesters&callback=' + cbName;
+  document.head.appendChild(s);
+}
 let tableRows = [];
 let visibleRows = [];
 let ROSTER_2026_1 = {};
@@ -333,7 +356,7 @@ window.addEventListener("DOMContentLoaded", function() {
     }).then(function(res) {
       if (res && res.isAdmin) {
         document.getElementById("main-content").style.display="block";
-        loadData();
+        buildSemTabs(loadData);
       } else {
         document.getElementById("access-denied").style.display="block";
       }
@@ -355,16 +378,16 @@ function renderDash(sem) {
   const allRoster = Object.entries(ROSTER_2026_1);
   const students = [];
 
-  if (sem === "2026-1") {
+     if (sem === currentSem) {
     allRoster.forEach(function([sid, d]) {
-      const total = (MILEAGE_DATA[sid] && MILEAGE_DATA[sid]["2026-1"]) || d.score || 0;
+        const total = (MILEAGE_DATA[sid] && MILEAGE_DATA[sid][currentSem]) || d.score || 0;
       students.push({studentId:sid, name:d.name, dept:d.dept, total:total, grade:d.grade||''});
     });
   } else {
     Object.entries(MILEAGE_DATA).forEach(function([sid, d]) {
       let total = 0;
       if (sem === "전체") {
-        total = (d["2025-1"]||0) + (d["2025-2"]||0) + (d["2026-1"]||0);
+        total = SEM_LIST.reduce((a, s2) => a + (d[s2] || 0), 0);
       } else {
         total = d[sem] || 0;
       }
