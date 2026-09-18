@@ -306,7 +306,11 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
     <div class="bar">
       <select id="fD"><option value="">전체 학과</option></select>
       <select id="fY"><option value="">전체 학년</option></select>
-      <select id="fS"><option value="">재학·휴학·유예·수료</option><option value="재학">재학</option>
+      <select id="fS"><option value="">재학·휴학·유예·수료</option>
+      <option value="_nolv">휴학 제외</option>
+      <option value="재학">재학</option>
+      <option value="_elig">재학 — 초과학기 제외</option>
+      <option value="_over">초과학기</option>
       <option value="휴학">휴학</option><option value="수강유예">수강유예</option>
       <option value="미수강유예">미수강유예</option><option value="수료">수료</option>
       <option value="졸업">졸업</option><option value="융전포기">융전포기</option>
@@ -453,7 +457,13 @@ function rows(){
     const w=String(drill_).slice(3); base=aiBase().filter(d=>aiState(d)===w); }
   let L=base.filter(d=>
     (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
-    (ss==='_all'?true: ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
+    // 특수 값 3개는 학적 문자열이 아니라 재적정보(en)로 판정한다.
+    //   _nolv 휴학 제외 · _elig 재학 AND 등록횟수 < 경계 · _over 초과학기
+    (ss==='_all'?true
+     : ss==='_nolv'? !['졸업','융전포기','휴학'].includes(d.st)
+     : ss==='_elig'? !!(d.en && d.en.eligible)
+     : ss==='_over'? !!(d.en && d.en.over)
+     : ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
     (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
   const bySeq=(a,b)=>parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1]);
   // 미이수 드릴다운은 높은 학년이 급하다. 4학년 → 3 → 2, 그 안에서 신전화기물.
@@ -605,7 +615,7 @@ function popHtml(){
 }
 function setPop(dept,yr){
   drill_=null; fQ.value='';
-  fS.value = POPSCOPE==='all' ? '_all' : '';
+  fS.value = {all:'_all', nolv:'_nolv', elig:'_elig'}[POPSCOPE] || '';
   fD.value = dept||''; fY.value = yr?yr+'학년':'';
   tab=1; t0.classList.remove('on'); t1.classList.add('on');
   render();
