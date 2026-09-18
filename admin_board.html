@@ -637,6 +637,12 @@ function renderSemTabs(){
     html+='<span class="sem-lock">확정본 · '+esc((DATA.closedAt||"").slice(0,10))+
           ' 기준 · 값이 바뀌지 않습니다</span>';
   }
+  // 학생이 그 학기에 보던 화면을 그대로 연다. 문의 대응 때 근거로 쓴다.
+  // 열리는 것은 마스킹된 확정본이라 실명·학과·고유번호가 없다.
+  if(cur){
+    html+='<a class="sem-tab" style="text-decoration:none" target="_blank" rel="noopener"'+
+          ' href="mileage_board.html?sem='+encodeURIComponent(cur)+'">학생 화면으로 보기 ↗</a>';
+  }
   box.innerHTML=html;
 }
 function setSem(v){ if(SEM===v) return; SEM=v; loadData(); }
