@@ -51,6 +51,9 @@ h1 .sub{display:block;font-size:13px;font-weight:400;color:var(--ink2);margin-to
 .privacy{
   margin:-4px 0 12px;font-size:12px;line-height:1.6;color:var(--ink2);
 }
+.closed-note{margin:10px 0 0;padding:9px 13px;border-radius:8px;font-size:13px;line-height:1.6;
+  background:rgba(96,165,250,.12);border:1px solid rgba(96,165,250,.35);color:#bfdbfe}
+.closed-note b{color:#e0ecff}
 .privacy b{color:var(--ink);font-weight:500}
 .reload{
   display:inline-flex;align-items:center;gap:6px;
@@ -311,6 +314,7 @@ tbody .ph{border-bottom:1px solid var(--line2)}
   </h1>
 
   <div class="stats" id="stats"></div>
+  <div class="closed-note" id="closedNote" hidden></div>
   <div class="privacy">
     개인정보 보호를 위해 학번 일부가 가려져 있습니다.
     본인 내역은 <b>내 마일리지</b>에서 전체를 확인할 수 있습니다.
@@ -442,13 +446,22 @@ function info(text, opts){
     (opts.count ? '<span class="cnt">' + esc(opts.count) + '</span>' : '');
 }
 
+/* 확정 학기를 다시 보기 위한 통로.
+   화면에 버튼을 두지 않는다 — 관리자 현황판에서만 링크로 연다.
+   열리는 값은 집계확정 스냅샷이고 학번은 그대로 마스킹된다. */
+var VIEW_SEM = (function(){
+  var m = /[?&]sem=([^&]+)/.exec(location.search);
+  return m ? decodeURIComponent(m[1]) : '';
+})();
+
 function load(force){
   var btn = document.getElementById('reload');
   if (btn) btn.classList.add('busy');
   document.getElementById('scroll').innerHTML =
     '<div class="msg"><b>불러오는 중</b>잠시만 기다려 주세요.</div>';
 
-  jsonp('action=getBoardData' + (force ? '&nocache=1' : ''))
+  jsonp('action=getBoardData' + (force ? '&nocache=1' : '') +
+        (VIEW_SEM ? '&sem=' + encodeURIComponent(VIEW_SEM) : ''))
     .then(function(d){
       if (!d || d.status !== 'ok') throw new Error((d && d.message) || '데이터를 받지 못했습니다');
       DATA = d;
@@ -467,6 +480,18 @@ function load(force){
 function render(){
   document.getElementById('pageTitle').firstChild.nodeValue = DATA.semester + '학기 사업단 마일리지 현황\n    ';
   document.title = DATA.semester + '학기 마일리지 현황 · 차세대반도체 융합전공';
+
+  var cn = document.getElementById('closedNote');
+  if (cn) {
+    if (DATA.closed) {
+      cn.innerHTML = '<b>' + esc(DATA.semester) + '학기 확정본입니다.</b> ' +
+        esc((DATA.closedAt || '').slice(0, 10)) + ' 기준으로 집계가 마감되어 값이 바뀌지 않습니다. ' +
+        '이번 학기 현황은 <a href="mileage_board.html" style="color:#93c5fd">여기</a>에서 봅니다.';
+      cn.hidden = false;
+    } else {
+      cn.hidden = true;
+    }
+  }
   var P = DATA.programs, S = DATA.students, i;
 
   /* 요약 */
