@@ -291,6 +291,7 @@ function buildSemTabs(cb) {
 let tableRows = [];
 let visibleRows = [];
 let ROSTER_2026_1 = {};
+let ELIGIBLE = {};
 let MILEAGE_DATA = {};
 
 function callGAS(params) {
@@ -317,6 +318,7 @@ async function loadData() {
     if (!res || res.status !== "ok") throw new Error("데이터 오류");
 
     // res.summary: 배열 [ { studentId, name, dept, total, bySemester: {"2026-1": N, ...}, ... } ]
+    ELIGIBLE = res.eligible || {};   // ★ 학기별 대상자 명단
     MILEAGE_DATA = {};
     ROSTER_2026_1 = {};
     (res.summary || []).forEach(function(d) {
@@ -375,7 +377,13 @@ function selectSem(sem, btn) {
 
 function renderDash(sem) {
   // 전체 명단(ROSTER) 기반으로 0점 학생 포함
-  const allRoster = Object.entries(ROSTER_2026_1);
+  // ★ 그 학기 대상자만 남긴다. closed 학기는 스냅샷 명단, live 는 재적정보 계산.
+  //   명단이 비어 있으면 전체를 그대로 쓴다 (기존 동작 유지)
+  const _el = ELIGIBLE[sem];
+  const allRoster0 = Object.entries(ROSTER_2026_1);
+  const allRoster = (_el && _el.length)
+    ? allRoster0.filter(function([sid]){ return _el.indexOf(String(sid)) >= 0; })
+    : allRoster0;
   const students = [];
 
     if (sem !== "전체") {
@@ -407,7 +415,7 @@ function renderDash(sem) {
     t.classList.toggle("active", t.dataset.grade === "all");
   });
 
-  const totalReg = sem==="전체" ? 108 : (SEM_TOTAL_REG[sem]||null);
+  const totalReg = sem==="전체" ? 108 : ((_el && _el.length) ? _el.length : (SEM_TOTAL_REG[sem]||null));
   const dataCount = students.length;
   const passed = students.filter(function(s){return s.total>=GOAL;}).length;
   const failed = dataCount - passed;
