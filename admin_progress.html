@@ -535,7 +535,19 @@ const lowYr=y=>{ const v=Number(y); return !!v && v<=2; };
 const LS=(k,dv)=>{ try{ const v=localStorage.getItem(k); return v==null?dv:v; }catch(e){ return dv; } };
 const LSet=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
 let POPTAB=Number(LS('kistar_pop_tab','0'))||0;
-let POPSCOPE=LS('kistar_pop_scope','mng');   // mng = 졸업·포기 제외 · all = 전체
+let POPSCOPE=LS('kistar_pop_scope','mng');
+// 모수 4가지. 정의를 한 곳에 모아 둔다 — 버튼과 필터가 갈라지면 숫자 근거가 사라진다.
+//   mng  졸업·포기 제외      재적정보에 행이 있는 학생 (양성인원)
+//   nolv 휴학 제외           위에서 휴학만 뺀 값. 수료·유예·초과학기는 아직 포함
+//   elig 마일리지 대상        재학 AND 등록횟수 < 초과학기 경계. progress.gs 가 계산한 eligible 을 그대로 쓴다
+//   all  전체                졸업·융전포기까지 전부 (KIAT 성과관리 모수)
+const POPSCOPES = {
+  mng:  { label:'졸업·포기 제외', f:d=>!['졸업','융전포기'].includes(d.st) },
+  nolv: { label:'휴학 제외',      f:d=>!['졸업','융전포기','휴학'].includes(d.st) },
+  elig: { label:'마일리지 대상',   f:d=>!!(d.en && d.en.eligible) },
+  all:  { label:'전체',           f:()=>true }
+};
+function popScope(){ return POPSCOPES[POPSCOPE] || POPSCOPES.mng; }
 function togglePop(){
   const el=document.getElementById('popDetail'), b=document.getElementById('popTg');
   if(!el||!b) return;
@@ -549,7 +561,7 @@ function setScope(v){ POPSCOPE=v; LSet('kistar_pop_scope',v); drawBoard(); }
 // 학년 × 학과 인원 분포. 모수는 전체 / 졸업·포기 제외 두 가지로 전환된다.
 function popHtml(){
   const all = POPSCOPE==='all';
-  const B = all ? DATA : DATA.filter(d=>!['졸업','융전포기'].includes(d.st));
+  const B = DATA.filter(popScope().f);
   const yk = d => (d.yr===''||d.yr==null) ? '미상' : String(d.yr);
   const YS = [...new Set(B.map(yk))].sort((x,y)=>
     (x==='미상')-(y==='미상') || Number(y)-Number(x));
@@ -567,10 +579,9 @@ function popHtml(){
       ?` onclick="setPop('${esc(dp)}','${y}')"`:''}>${t}${sub}</td>`;
   };
   return `<div class="pscope">
-     <button class="psc ${all?'':'on'}" onclick="setScope('mng')">졸업·포기 제외
-       <span>${DATA.filter(d=>!['졸업','융전포기'].includes(d.st)).length}명</span></button>
-     <button class="psc ${all?'on':''}" onclick="setScope('all')">전체
-       <span>${DATA.length}명</span></button>
+     ${Object.keys(POPSCOPES).map(k=>`<button class="psc ${POPSCOPE===k?'on':''}"
+       onclick="setScope('${k}')">${POPSCOPES[k].label}
+       <span>${DATA.filter(POPSCOPES[k].f).length}명</span></button>`).join('')}
    </div>
    <table class="bd"><thead><tr><th class="l">학년</th>
      ${DS.map(dp=>`<th>${esc(deptShort(dp))}</th>`).join('')}<th>계</th></tr></thead>
@@ -588,7 +599,9 @@ function popHtml(){
      <b style="color:var(--dang);font-weight:600">붉은 것</b>은 3·4학년,
      회색은 2학년(수강은 가능하나 잔여 여석 대상이라 아직 급하지 않음) ·
      <b style="font-weight:600">계 행의 붉은 숫자는 3·4학년만 센 값</b>이라 위 칸 합과 다릅니다 ·
-     숫자를 누르면 그 학년·학과 명단이 열립니다</div>`;
+     숫자를 누르면 그 학년·학과 명단이 열립니다<br>
+     <b style="font-weight:600">휴학 제외</b> = 졸업·포기 제외 − 휴학 (수료·유예·초과학기는 포함) ·
+     <b style="font-weight:600">마일리지 대상</b> = 재학이면서 등록횟수가 초과학기 경계 미만인 학생</div>`;
 }
 function setPop(dept,yr){
   drill_=null; fQ.value='';
