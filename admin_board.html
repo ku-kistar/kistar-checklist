@@ -139,6 +139,11 @@ td.no,td.lim{cursor:pointer}
 .grade-tab{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;transition:all .15s}
 .grade-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
 .grade-tab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+.semrow{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
+.sem-tab{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer;font-weight:600}
+.sem-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.sem-tab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+.sem-lock{font-size:11px;padding:3px 9px;border-radius:20px;background:#eaf0fb;color:#1d4ed8;font-weight:600}
 .tb-spacer{flex:1}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;font-size:12.5px;font-family:inherit;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s;white-space:nowrap}
 .btn:hover{border-color:var(--navy);color:var(--navy)}
@@ -260,7 +265,7 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   @page{size:A4 landscape;margin:9mm 7mm}
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body{background:#fff!important;padding:0!important}
-  .top-bar,.toolbar,.tie-card,.grid-head,.grid-foot,.toast,#birth-gate,.chips{display:none!important}
+  .top-bar,.toolbar,.tie-card,.grid-head,.grid-foot,.toast,#birth-gate,.chips,.sem-tab{display:none!important}
   .container{max-width:100%!important;padding:0!important}
   .print-head{display:block!important;margin-bottom:6pt;padding-bottom:5pt;border-bottom:1.5pt solid #0b1f3a}
   .print-head h1{font-size:13pt;font-weight:700;color:#0b1f3a}
@@ -356,6 +361,8 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
       <span id="phMeta"></span>
     </div>
   </div>
+
+  <div class="semrow" id="semTabs"></div>
 
   <div class="summary-grid">
     <div class="summary-card">
@@ -497,6 +504,8 @@ var CDN_ZIP  = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js
 
 var AUTH = null;      // {studentId, birthDate}
 var DATA = null;      // 서버 응답
+var SEM  = "";        // 보고 있는 학기. 빈 값이면 서버가 live 학기를 고른다
+var SEMS = null;      // 학기 목록 (최초 1회만 조회)
 var gradeFilter = "";
 var genFilter   = "";   // 기수 필터 (예: "1기")
 var flagFilter  = "";   // "" | "edge" | "zero" | "ns3"  — 인사이트 칩
@@ -582,13 +591,15 @@ function loadData(){
   $("loadingState").style.display="block";
   $("loadingState").textContent="데이터를 불러오는 중입니다… (캐시를 쓰지 않아 5초 정도 걸립니다)";
 
-  callGAS({
+  var q={
     action:"getBoardDataAdmin",
     studentId:AUTH.studentId,
     birthDate:AUTH.birthDate,
     page:"admin_board",
     userAgent:navigator.userAgent
-  }).then(function(res){
+  };
+  if(SEM) q.sem=SEM;      // 확정 학기면 서버가 집계확정 스냅샷을 그대로 읽는다
+  callGAS(q).then(function(res){
     if(!res){ throw new Error("응답 없음"); }
     if(res.status==="denied"){
       $("loadingState").style.display="none";
@@ -611,6 +622,32 @@ function loadData(){
 /* ═══════════════════════════════════════════════════════════
    렌더링
    ═══════════════════════════════════════════════════════════ */
+/* ── 학기 탭 ──────────────────────────────────────────────
+   학기 목록은 서버(학기 탭)가 유일한 출처다. 화면에 학기를 적어 두지 않는다.
+   확정(closed) 학기는 집계확정 스냅샷을 읽으므로 값이 바뀌지 않는다. */
+function renderSemTabs(){
+  var box=$("semTabs");
+  if(!box || !SEMS || !SEMS.length){ if(box) box.innerHTML=""; return; }
+  var cur=DATA && DATA.semester;
+  var html=SEMS.map(function(x){
+    return '<button class="sem-tab'+(x.sem===cur?" active":"")+'" onclick="setSem(\''+x.sem+'\')">'+
+           x.sem+"학기"+(x.status==="closed"?" ✓":"")+"</button>";
+  }).join("");
+  if(DATA && DATA.closed){
+    html+='<span class="sem-lock">확정본 · '+esc((DATA.closedAt||"").slice(0,10))+
+          ' 기준 · 값이 바뀌지 않습니다</span>';
+  }
+  box.innerHTML=html;
+}
+function setSem(v){ if(SEM===v) return; SEM=v; loadData(); }
+function loadSems(){
+  if(SEMS) { renderSemTabs(); return; }
+  callGAS({action:"getSemesters"}).then(function(r){
+    SEMS=(r&&r.semesters)?r.semesters:[];
+    renderSemTabs();
+  }).catch(function(){ SEMS=[]; });
+}
+
 function renderAll(){
   var d=DATA;
   var n=d.stats.students, gc=d.stats.goalCount, miss=n-gc;
@@ -622,6 +659,11 @@ function renderAll(){
   $("sMissSub").textContent=d.goal+"점 미만 · "+(n?Math.round(miss/n*100):0)+"%";
   $("sCol").innerHTML=d.programs.length+'<span class="u">개</span>';
   $("sUpd").textContent=(d.updated||"").slice(5);
+
+  loadSems(); renderSemTabs();
+  // 확정 학기는 평점을 받지 않는다. 스냅샷에 그 시점 평점이 이미 박제돼 있어
+  // 지금 저장해도 순위가 바뀌지 않는다 — 버튼을 남기면 바뀐 줄 안다.
+  var _g=$("btnGpa"); if(_g) _g.style.display = d.closed ? "none" : "";
 
   renderCatStrip();
   renderGradeStat();
