@@ -321,7 +321,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
-<div class="print-header"><div><div class="print-header-logo">차세대AI반도체특성화대학사업단</div><div class="print-header-sub">차세대반도체 융합전공</div></div><div class="print-header-right">2026-1학기 결과보고서 제출</div></div>
+<div class="print-header"><div><div class="print-header-logo">차세대AI반도체특성화대학사업단</div><div class="print-header-sub">차세대반도체 융합전공</div></div><div class="print-header-right">2026-2학기 결과보고서 제출</div></div>
 <!-- 인쇄 전용 하단 푸터 (position:fixed로 매 페이지 표시) -->
 <div class="print-page-footer" id="printPageFooter" style="display:none">
   <span class="print-page-footer-left">© 고려대학교 차세대AI반도체특성화대학사업단</span>
@@ -461,7 +461,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
   <div class="section-title"><div class="section-num">3</div>활동 내용</div>
   <div class="section-body">
     <div class="field">
-      <div class="field-label">① 교과 활동 <span class="field-hint">이번 학기(2026-1학기)에 수강한 융합전공 과목을 선택하고 각 과목별로 작성해주세요</span></div>
+      <div class="field-label">① 교과 활동 <span class="field-hint">이번 학기(2026-2학기)에 수강한 융합전공 과목을 선택하고 각 과목별로 작성해주세요</span></div>
       <div id="courseCards">
         <div class="course-card">
           <div class="course-card-title">
@@ -669,7 +669,7 @@ window.addEventListener('DOMContentLoaded',function(){
       localStorage.removeItem('kistar_auth_url2');
       showAccessDenied('⏱️','로그인 만료','로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.','← 홈으로 돌아가기');return;
     }
-    const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_submitted';
+    const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_2026-2_submitted';
     const prevSubmit=localStorage.getItem(SUBMIT_KEY);
     if(prevSubmit){try{const prev=JSON.parse(prevSubmit);const prevDate=new Date(prev.submittedAt).toLocaleDateString('ko-KR');const el=document.getElementById('submitResult');el.className='submit-result show success';el.innerHTML='⚠️ <strong>'+prevDate+'</strong>에 이미 제출한 이력이 있습니다. 재제출하면 기존 내용을 덮어씁니다.';}catch(e){}}
     document.getElementById('main-content').style.display='block';
@@ -692,7 +692,7 @@ window.addEventListener('DOMContentLoaded',function(){
     document.getElementById('docDate').textContent=today.getFullYear()+'.'+String(today.getMonth()+1).padStart(2,'0')+'.'+String(today.getDate()).padStart(2,'0');
     document.getElementById('docWriter').textContent=auth.name||'';
     const studentId=auth.studentId||'guest';
-    const RESUBMIT_CHECK_KEY='kistar_report_'+studentId+'_submitted';
+    const RESUBMIT_CHECK_KEY='kistar_report_'+studentId+'_2026-2_submitted';
     if(localStorage.getItem(RESUBMIT_CHECK_KEY)){
       fetch(EXEC_URL+'?action=checkResubmit&formType=report&studentId='+encodeURIComponent(studentId))
         .then(r=>r.json())
@@ -708,7 +708,7 @@ window.addEventListener('DOMContentLoaded',function(){
                   fillReportFormWithData(prevData);
                   setTimeout(autoResizeAll,100);
                   if(sr){sr.className='submit-result show success';sr.innerHTML='✅ 재제출이 허용되었습니다. 이전 작성 내용을 불러왔습니다. 수정 후 다시 제출해주세요.';}
-                  localStorage.removeItem('kistar_draft_report_'+studentId);
+                  localStorage.removeItem('kistar_draft_report_'+studentId + '_2026-2');
                 } else {
                   if(sr){sr.className='submit-result show success';sr.innerHTML='✅ 재제출이 허용되었습니다. 내용을 수정 후 다시 제출해주세요.';}
                 }
@@ -834,9 +834,9 @@ function updateCounter(textarea,counterId,minLen){const len=textarea.value.lengt
 
 let draftKey='',draftTimer=null,draftData=null;
 function initDraft(studentId){
-  draftKey='kistar_draft_report_'+studentId;
+  draftKey='kistar_draft_report_'+studentId + '_2026-2';
   const saved=localStorage.getItem(draftKey);
-  const SUBMIT_KEY='kistar_report_'+studentId+'_submitted';
+  const SUBMIT_KEY='kistar_report_'+studentId+'_2026-2_submitted';
   const alreadySubmitted=localStorage.getItem(SUBMIT_KEY);
   if(saved){try{draftData=JSON.parse(saved);
     if(alreadySubmitted){
@@ -859,7 +859,7 @@ function showSubmittedNotice(){
   if(!el)return;
   try{
     const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');
-    const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_submitted';
+    const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_2026-2_submitted';
     const sub=JSON.parse(localStorage.getItem(SUBMIT_KEY)||'{}');
     const ts=sub.submittedAt?new Date(sub.submittedAt).toLocaleString('ko-KR'):'';
     el.className='submit-result show success';
@@ -918,7 +918,7 @@ function showResult(type,msg){
   if(type==='success'&&msg.includes('제출되었습니다')){
     try{
       const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');const now=new Date();const ts=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
-      localStorage.setItem('kistar_report_'+(auth.studentId||'')+'_submitted',JSON.stringify({submittedAt:now.toISOString(),name:auth.name}));
+      localStorage.setItem('kistar_report_'+(auth.studentId||'')+'_2026-2_submitted',JSON.stringify({submittedAt:now.toISOString(),name:auth.name}));
       el.innerHTML='✅ 결과보고서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">'+(auth.name||'')+' · '+(auth.studentId||'')+' · '+ts+'</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 홈으로 돌아가기</a>';
     }catch(e){el.textContent=msg;}
   }else el.textContent=msg;
