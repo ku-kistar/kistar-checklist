@@ -331,7 +331,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     <div class="print-header-logo">차세대AI반도체특성화대학사업단</div>
     <div class="print-header-sub">차세대반도체 융합전공</div>
   </div>
-  <div class="print-header-right">2026-1학기 활동계획서 제출</div>
+  <div class="print-header-right">2026-2학기 활동계획서 제출</div>
 </div>
 
 <div id="access-denied" style="display:none">
@@ -492,7 +492,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     </div>
 
     <div class="field">
-      <div class="field-label">2026-1학기 핵심 목표 <span class="field-hint">※ 이번 학기 달성하고자 하는 구체적 목표 3가지</span></div>
+      <div class="field-label">2026-2학기 핵심 목표 <span class="field-hint">※ 이번 학기 달성하고자 하는 구체적 목표 3가지</span></div>
       <div class="goal-row"><div class="goal-num">1</div><input class="field-input" id="goal1" placeholder="목표 1"></div>
       <div class="goal-row"><div class="goal-num">2</div><input class="field-input" id="goal2" placeholder="목표 2"></div>
       <div class="goal-row"><div class="goal-num">3</div><input class="field-input" id="goal3" placeholder="목표 3"></div>
@@ -519,7 +519,7 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
     </div>
 
     <div class="field">
-      <div class="field-label">교과 및 학업 계획 <span class="field-hint">※ 2026-1학기 신청 교과목</span></div>
+      <div class="field-label">교과 및 학업 계획 <span class="field-hint">※ 2026-2학기 신청 교과목</span></div>
       <div class="course-plan-wrap">
         <table class="course-plan-table" id="coursePlanTable">
           <thead><tr><th style="width:38%">교과목명</th><th style="width:12%">이수학점</th><th>학습목표 및 기대효과</th><th style="width:32px"></th></tr></thead>
@@ -1202,7 +1202,7 @@ window.addEventListener('DOMContentLoaded', function() {
       document.getElementById('access-denied').style.display = 'block';
       return;
     }
-    const SUBMIT_KEY = 'kistar_plan_' + (auth.studentId || '') + '_submitted';
+    const SUBMIT_KEY = 'kistar_plan_' + (auth.studentId || '') + '_2026-2_submitted';
     const prevSubmit = localStorage.getItem(SUBMIT_KEY);
     if (prevSubmit) {
       try {
@@ -1241,7 +1241,7 @@ window.addEventListener('DOMContentLoaded', function() {
     if (isAdmin) document.getElementById('btn-pdf').style.display = 'flex';
     addCourseRow(); addCourseRow(); addCourseRow();
     const _sid = auth.studentId || 'guest';
-    const _RKEY = 'kistar_plan_' + _sid + '_submitted';
+    const _RKEY = 'kistar_plan_' + _sid + '_2026-2_submitted';
     if (localStorage.getItem(_RKEY)) {
       fetch(EXEC_URL + '?action=checkResubmit&formType=plan&studentId=' + encodeURIComponent(_sid))
         .then(r => r.json())
@@ -1258,7 +1258,7 @@ window.addEventListener('DOMContentLoaded', function() {
                   fillFormWithData(prevData);
                   setTimeout(autoResizeAll, 100);
                   if (sr) { sr.className = 'submit-result show success'; sr.innerHTML = '✅ 재제출이 허용되었습니다. 이전 작성 내용을 불러왔습니다. 수정 후 다시 제출해주세요.'; }
-                  localStorage.removeItem('kistar_draft_plan_' + _sid);
+                  localStorage.removeItem('kistar_draft_plan_' + _sid + '_2026-2');
                 } else {
                   if (sr) { sr.className = 'submit-result show success'; sr.innerHTML = '✅ 재제출이 허용되었습니다. 내용을 수정 후 다시 제출해주세요.'; }
                 }
@@ -1395,9 +1395,9 @@ function updateCounter(textarea,counterId,minLen){
 
 let draftKey='',draftTimer=null,draftData=null;
 function initDraft(studentId){
-  draftKey='kistar_draft_plan_'+studentId;
+  draftKey='kistar_draft_plan_'+studentId + '_2026-2';
   const saved=localStorage.getItem(draftKey);
-  const SUBMIT_KEY='kistar_plan_'+studentId+'_submitted';
+  const SUBMIT_KEY='kistar_plan_'+studentId+'_2026-2_submitted';
   const alreadySubmitted=localStorage.getItem(SUBMIT_KEY);
   if(saved){try{draftData=JSON.parse(saved);
     if(alreadySubmitted){
@@ -1416,7 +1416,7 @@ function showSubmittedNotice(){
   if(!el)return;
   try{
     const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');
-    const SUBMIT_KEY='kistar_plan_'+(auth.studentId||'')+'_submitted';
+    const SUBMIT_KEY='kistar_plan_'+(auth.studentId||'')+'_2026-2_submitted';
     const sub=JSON.parse(localStorage.getItem(SUBMIT_KEY)||'{}');
     const ts=sub.submittedAt?new Date(sub.submittedAt).toLocaleString('ko-KR'):'';
     el.className='submit-result show success';
@@ -1567,7 +1567,7 @@ function submitForm(){
 function showResult(type,msg){
   const el=document.getElementById('submitResult');el.className='submit-result show '+type;
   if(type==='success'&&msg.includes('제출되었습니다')){
-    try{const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');const now=new Date();const ts=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');const SUBMIT_KEY='kistar_plan_'+(auth.studentId||'')+'_submitted';localStorage.setItem(SUBMIT_KEY,JSON.stringify({submittedAt:now.toISOString(),name:auth.name}));el.innerHTML='✅ 활동계획서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">'+(auth.name||'')+' · '+(auth.studentId||'')+' · '+ts+'</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 홈으로 돌아가기</a>';}
+    try{const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'{}');const now=new Date();const ts=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');const SUBMIT_KEY='kistar_plan_'+(auth.studentId||'')+'_2026-2_submitted';localStorage.setItem(SUBMIT_KEY,JSON.stringify({submittedAt:now.toISOString(),name:auth.name}));el.innerHTML='✅ 활동계획서가 제출되었습니다!<br><span style="font-size:11px;opacity:.75">'+(auth.name||'')+' · '+(auth.studentId||'')+' · '+ts+'</span><br><a href="portal_survey.html" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:var(--navy);color:#fff;border-radius:7px;text-decoration:none;font-size:12px;font-weight:600">← 홈으로 돌아가기</a>';}
     catch(e){el.textContent=msg;}
   }else el.textContent=msg;
 }
