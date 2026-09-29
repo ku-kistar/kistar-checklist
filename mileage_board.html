@@ -603,7 +603,8 @@ function renderRanks(){
   var R = DATA.ranks || [];
   var total = 0, i, j;
   for (i = 0; i < R.length; i++) total += R[i].rows.length;
-  if (!R.length || !total){ box.hidden = true; return; }   // 구버전 GAS 대비
+  var RULE = DATA.rankRule || null;
+  if (!R.length || (!total && !RULE)){ box.hidden = true; return; }   // 구버전 GAS 대비
   box.hidden = false;
 
   var gl = [];
@@ -626,13 +627,19 @@ function renderRanks(){
     }
     h += '</div>';
   }
-  h += '</div>' +
-       '<p class="rank-note">마일리지가 같으면 같은 순위로 표시됩니다. ' +
-       '<b>2026-2학기부터</b> 우수학생 선발은 외부활동을 제외한 ' +
-       '<b>사업단 주관활동 마일리지 30점 이상</b>인 학생을 대상으로 합니다. ' +
-       '(아래 순위표는 전체 누적 마일리지 기준이며 30점 요건은 반영되어 있지 않습니다.)<br>' +
-       '누적 마일리지가 동점인 경우 ' +
-       '<b>' + DATA.semester + '학기 성적 평점평균 상위자</b>가 선발됩니다.</p>';
+  h += '</div>';
+  if (!total) h += '<p class="rank-note">아직 선발 요건을 충족한 학생이 없습니다.</p>';
+  var DOCN = { plan:'활동계획서', report:'결과보고서' };
+  var note = '마일리지가 같으면 같은 순위로 표시됩니다.<br>';
+  if (RULE) {
+    var dn = (RULE.docs || []).map(function(k){ return DOCN[k] || k; });
+    note += '순위표는 <b>사업단 주관활동 마일리지(' + esc((RULE.excl || []).join('·')) + ' 제외) ' +
+            RULE.min + '점 이상</b>' +
+            (dn.length ? ' · <b>' + esc(dn.join('·')) + ' 기한 내 제출</b>' : '') +
+            '인 학생만 대상으로, ' + esc((RULE.excl || []).join('·')) + '을 포함한 누적 마일리지 순입니다.<br>';
+  }
+  note += '누적 마일리지가 동점인 경우 <b>' + DATA.semester + '학기 성적 평점평균 상위자</b>가 선발됩니다.';
+  h += '<p class="rank-note">' + note + '</p>';
   document.getElementById('rankBody').innerHTML = h;
 }
 
