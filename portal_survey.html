@@ -298,6 +298,32 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .notice-sheet-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(14,165,233,.1);border:1.5px solid rgba(14,165,233,.3);border-radius:9px;padding:10px 12px;margin-top:10px;text-decoration:none}
 .notice-sheet-title{font-size:12px;font-weight:700;color:#7dd3fc;word-break:keep-all;line-height:1.5}
 .notice-sheet-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+/* 우수학생 선발 자격 박스 (2026-2학기~) */
+.qual-box{background:rgba(245,166,35,.1);border:1.5px solid rgba(245,166,35,.45);border-radius:10px;padding:11px 11px 10px;margin-bottom:10px}
+.qual-cap{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.55);text-align:center;margin-bottom:7px;word-break:keep-all}
+.qual-split{display:flex;gap:6px;align-items:stretch}
+.qual-in{flex:2.3;background:rgba(245,166,35,.2);border:1.5px solid rgba(245,166,35,.6);border-radius:8px;padding:8px 7px;text-align:center;min-width:0}
+.qual-in b{display:block;font-size:12px;font-weight:800;color:#f5c842;line-height:1.35}
+.qual-in i{display:block;font-style:normal;font-size:10px;color:rgba(255,255,255,.5);margin-top:2px;line-height:1.4;word-break:keep-all}
+.qual-in u{display:block;text-decoration:none;font-size:clamp(17px,4.6vw,20px);font-weight:900;color:#f5c842;margin-top:4px;line-height:1.15}
+.qual-out{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:8px 6px;text-align:center;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.qual-out b{display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);line-height:1.35}
+.qual-out i{display:block;font-style:normal;font-size:10px;color:rgba(255,255,255,.33);margin-top:2px;line-height:1.4}
+.qual-foot{font-size:11.5px;color:rgba(255,255,255,.62);text-align:center;margin-top:8px;line-height:1.6;word-break:keep-all}
+.doc-pts{display:flex;gap:5px;margin-top:7px}
+.doc-pts>div{flex:1;background:rgba(26,95,168,.25);border-radius:7px;padding:6px 4px;text-align:center;min-width:0}
+.doc-pts>div:last-child{background:rgba(26,95,168,.45)}
+.doc-pts span{display:block;font-size:10.5px;color:rgba(255,255,255,.6)}
+.doc-pts b{display:block;font-size:14px;font-weight:900;color:#9cc8f0;margin-top:1px}
+.doc-pts>div:last-child b{color:#fff}
+@media(max-width:400px){
+  .qual-cap{font-size:10.5px}
+  .qual-in b,.qual-out b{font-size:11px}
+  .qual-in i,.qual-out i{font-size:9.5px}
+  .qual-foot{font-size:11px}
+  .doc-pts span{font-size:9.5px}
+  .doc-pts b{font-size:13px}
+}
 .notice-sheet-tag{flex-shrink:0;background:rgba(14,165,233,.2);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#7dd3fc;white-space:nowrap}
 @media(max-width:480px){
   .notice-section{padding:0 .8rem}
@@ -569,24 +595,13 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <!-- ★ 우수학생 선발 기준 변경 (핵심) -->
       <div class="notice-req-block">
         <div class="notice-req-title">★ 우수학생 선발 기준 변경 <span style="font-size:10px;font-weight:700;color:#f5c842;background:rgba(245,166,35,.18);border:1px solid rgba(245,166,35,.35);border-radius:99px;padding:1px 7px;margin-left:5px">2026-2학기부터</span></div>
-        <div style="background:rgba(245,166,35,.1);border:1.5px solid rgba(245,166,35,.45);border-radius:11px;padding:15px 13px;margin-bottom:12px">
-          <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.65);text-align:center;margin-bottom:11px">🎯 우수학생 선발 자격</div>
-          <div style="font-size:11.5px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:5px">— 전체 마일리지 —</div>
-          <div style="display:flex;gap:6px;align-items:stretch">
-            <div style="flex:2.2;background:rgba(245,166,35,.2);border:1.5px solid rgba(245,166,35,.6);border-radius:8px;padding:11px 8px;text-align:center">
-              <div style="font-size:12.5px;font-weight:800;color:#f5c842;line-height:1.45">사업단 주관활동</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;line-height:1.5">교과 · 출결<br>비교과 · 서류</div>
-              <div style="font-size:22px;font-weight:900;color:#f5c842;margin-top:7px;line-height:1.2">30점<span style="font-size:13px;font-weight:800"> 이상</span></div>
-            </div>
-            <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:11px 8px;text-align:center;display:flex;flex-direction:column;justify-content:center">
-              <div style="font-size:12.5px;font-weight:700;color:rgba(255,255,255,.5);line-height:1.45">외부활동</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:5px;line-height:1.5">요건에서<br>제외</div>
-            </div>
+        <div class="qual-box">
+          <div class="qual-cap">🎯 우수학생 선발 자격 — 전체 마일리지 중</div>
+          <div class="qual-split">
+            <div class="qual-in"><b>사업단 주관활동</b><i>교과 · 출결 · 비교과 · 서류</i><u>30점 이상</u></div>
+            <div class="qual-out"><b>외부활동</b><i>요건 제외</i></div>
           </div>
-          <div style="font-size:12.5px;color:rgba(255,255,255,.7);text-align:center;margin-top:11px;line-height:1.7;word-break:keep-all">
-            전체 마일리지 가운데 <strong style="color:#f5c842">외부활동을 뺀 점수</strong>가<br>
-            <strong style="color:#f5c842">30점 이상</strong>이어야 선발 후보가 됩니다.
-          </div>
+          <div class="qual-foot">외부활동을 뺀 점수가 <strong style="color:#f5c842">30점 이상</strong>이어야 선발 후보가 됩니다.</div>
         </div>
         <div style="font-size:11.5px;color:rgba(255,255,255,.6);line-height:1.95;word-break:keep-all">
           30점을 채운 학생 중 <strong style="color:rgba(255,255,255,.88)">학년별 상위 5명</strong>을 선발합니다. (총 15명 · 각 100만원)<br>
@@ -793,24 +808,13 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         <span class="notice-accordion-expand" id="noti-4-btn">펼치기 <span class="n-arr">▼</span></span>
       </div>
       <div class="notice-accordion-body" id="noti-4-body" style="display:none">
-        <div style="background:rgba(245,166,35,.1);border:1.5px solid rgba(245,166,35,.45);border-radius:11px;padding:15px 13px;margin-bottom:12px">
-          <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.65);text-align:center;margin-bottom:11px">🎯 우수학생 선발 자격</div>
-          <div style="font-size:11.5px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:5px">— 전체 마일리지 —</div>
-          <div style="display:flex;gap:6px;align-items:stretch">
-            <div style="flex:2.2;background:rgba(245,166,35,.2);border:1.5px solid rgba(245,166,35,.6);border-radius:8px;padding:11px 8px;text-align:center">
-              <div style="font-size:12.5px;font-weight:800;color:#f5c842;line-height:1.45">사업단 주관활동</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;line-height:1.5">교과 · 출결<br>비교과 · 서류</div>
-              <div style="font-size:22px;font-weight:900;color:#f5c842;margin-top:7px;line-height:1.2">30점<span style="font-size:13px;font-weight:800"> 이상</span></div>
-            </div>
-            <div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:8px;padding:11px 8px;text-align:center;display:flex;flex-direction:column;justify-content:center">
-              <div style="font-size:12.5px;font-weight:700;color:rgba(255,255,255,.5);line-height:1.45">외부활동</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:5px;line-height:1.5">요건에서<br>제외</div>
-            </div>
+        <div class="qual-box">
+          <div class="qual-cap">🎯 우수학생 선발 자격 — 전체 마일리지 중</div>
+          <div class="qual-split">
+            <div class="qual-in"><b>사업단 주관활동</b><i>교과 · 출결 · 비교과 · 서류</i><u>30점 이상</u></div>
+            <div class="qual-out"><b>외부활동</b><i>요건 제외</i></div>
           </div>
-          <div style="font-size:12.5px;color:rgba(255,255,255,.7);text-align:center;margin-top:11px;line-height:1.7;word-break:keep-all">
-            전체 마일리지 가운데 <strong style="color:#f5c842">외부활동을 뺀 점수</strong>가<br>
-            <strong style="color:#f5c842">30점 이상</strong>이어야 선발 후보가 됩니다.
-          </div>
+          <div class="qual-foot">외부활동을 뺀 점수가 <strong style="color:#f5c842">30점 이상</strong>이어야 선발 후보가 됩니다.</div>
         </div>
         <div style="font-size:12px;color:rgba(255,255,255,.7);line-height:1.8;word-break:keep-all">
           30점을 채운 학생 중 <strong>학년별 누적 마일리지 상위 5명</strong>을 선발합니다.<br>
@@ -829,19 +833,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
           차세대반도체 융합전공 개설 교과목은 <strong>3·4학년 권장 과목</strong>이라
           2학년은 수강이 어렵고, 그만큼 <strong>교과 마일리지를 쌓을 기회가 적습니다.</strong><br>
           <span style="display:inline-block;margin-top:6px">▶ 이를 보완하기 위해 <strong>2학년에 한해</strong> 아래 서류 제출 시 마일리지를 지급합니다.</span>
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <div style="flex:1;background:rgba(26,95,168,.25);border-radius:7px;padding:8px;text-align:center">
-              <div style="font-size:11.5px;color:rgba(255,255,255,.6)">활동계획서</div>
-              <div style="font-size:16px;font-weight:900;color:#9cc8f0;margin-top:2px">5점</div>
-            </div>
-            <div style="flex:1;background:rgba(26,95,168,.25);border-radius:7px;padding:8px;text-align:center">
-              <div style="font-size:11.5px;color:rgba(255,255,255,.6)">결과보고서</div>
-              <div style="font-size:16px;font-weight:900;color:#9cc8f0;margin-top:2px">5점</div>
-            </div>
-            <div style="flex:1;background:rgba(26,95,168,.4);border-radius:7px;padding:8px;text-align:center">
-              <div style="font-size:11.5px;color:rgba(255,255,255,.6)">합계</div>
-              <div style="font-size:16px;font-weight:900;color:#fff;margin-top:2px">10점</div>
-            </div>
+          <div class="doc-pts">
+            <div><span>활동계획서</span><b>5점</b></div>
+            <div><span>결과보고서</span><b>5점</b></div>
+            <div><span>합계</span><b>10점</b></div>
           </div>
           <div style="margin-top:9px;font-size:12px;color:rgba(255,255,255,.6);line-height:1.8">※ 2026-1학기에 3기 학생에게 적용했던 서류 마일리지는 2026-2학기에는 적용되지 않습니다.</div>
         </div>
