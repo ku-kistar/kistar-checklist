@@ -184,6 +184,10 @@ td.no,td.lim{cursor:pointer}
 .rank-dp{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank-sp{margin-left:auto;font-family:'JetBrains Mono',monospace;font-weight:700;white-space:nowrap}
 .rank-gpa{font-size:11px;color:var(--blue);font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.rank-q{font-size:10px;color:var(--ink3,#6b6960);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.rank-doc{font-size:10px;padding:1px 6px;border-radius:99px;white-space:nowrap}
+.rank-doc.ok{background:#edf7f1;color:#2d7a4f}.rank-doc.warn{background:#fdf5e6;color:#a0620a}.rank-doc.bad{background:#fdf0ee;color:#c8392b}
+.rank-rule{font-size:12px;color:var(--ink3,#6b6960);margin:0 0 10px;line-height:1.6}
 .rank-ns{font-size:10px;background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:99px;white-space:nowrap}
 
 /* ── 격자 ── */
@@ -938,13 +942,32 @@ function saveGpa(){
 }
 
 /* ── 학년별 상위 5명 ── */
+var DOC_LB={plan:'계획서',report:'보고서'};
+var DOC_ST={ok:['ok','✓'],nosign:['warn','서명?'],late:['bad','지각'],none:['bad','미제출']};
+function docChips(w){
+  if(!w.docs) return '';
+  var s='';
+  ['plan','report'].forEach(function(k){
+    var st=w.docs[k]; if(!st) return;
+    var m=DOC_ST[st]||['warn',st];
+    s+='<span class="rank-doc '+m[0]+'">'+DOC_LB[k]+' '+m[1]+'</span>';
+  });
+  return s;
+}
 function renderRanks(){
   var h="";
+  var RULE=DATA.rankRule||null;
+  if(RULE){
+    var dn=(RULE.docs||[]).map(function(k){return DOC_LB[k]==='계획서'?'활동계획서':'결과보고서';});
+    h+='<p class="rank-rule">선발 요건 — 사업단 주관활동('+esc((RULE.excl||[]).join('·'))+' 제외) <b>'+RULE.min+'점 이상</b>'+
+       (dn.length?' · <b>'+esc(dn.join('·'))+' 기한 내 제출</b>':' · 서류요건 미적용 (학기 탭 I열)')+
+       '. 순위는 '+esc((RULE.excl||[]).join('·'))+' 포함 누적 마일리지.</p>';
+  }
   (DATA.ranks||[]).forEach(function(r){
-    if(!r.rows.length) return;
+    if(!r.rows.length && !RULE) return;
     // 같은 순위가 둘 이상이면 동점 표시
     var cnt={}; r.rows.forEach(function(w){cnt[w.rank]=(cnt[w.rank]||0)+1;});
-    h+='<div class="rank-card"><div class="rank-head"><span style="color:#fff">'+esc(r.grade)+'학년 상위 '+DATA.topN+'명</span><span>'+r.rows.length+'명</span></div><div class="rank-body">';
+    h+='<div class="rank-card"><div class="rank-head"><span style="color:#fff">'+esc(r.grade)+'학년 상위 '+DATA.topN+'명</span><span>'+r.rows.length+'명'+(RULE&&r.pool!=null?' · 요건 충족 '+r.pool+'/'+r.total+'명':'')+'</span></div><div class="rank-body">';
     r.rows.forEach(function(w){
       h+='<div class="rank-row'+(cnt[w.rank]>1?' tie':'')+'">'+
          '<span class="rank-no">'+w.rank+'</span>'+
@@ -953,6 +976,8 @@ function renderRanks(){
          '<span class="rank-dp">'+esc(w.dept)+'</span>'+
          (w.gpa!==null?'<span class="rank-gpa">'+w.gpa.toFixed(2)+'</span>':'')+
          (w.ns>=3?'<span class="rank-ns">노쇼 '+w.ns+'</span>':'')+
+         (w.q!=null&&RULE?'<span class="rank-q">주관 '+w.q+'</span>':'')+
+         docChips(w)+
          '<span class="rank-sp">'+w.tot+'점</span>'+
          '</div>';
     });
@@ -1321,8 +1346,19 @@ function buildDocx(){
   body+=dp("차세대AI반도체특성화대학사업단",{align:"center",sz:18,color:"666666",after:320});
 
   body+=dp("1. 선발 기준",{b:true,sz:22,before:120,after:80});
-  body+=dp("가. 누적 마일리지 점수 상위 학년별 5명 <총 15명>",{indent:280,after:40});
-  body+=dp("나. 동점자의 경우 "+yr+"학년도 "+sem+"학기 평점평균이 높은 자",{indent:280,after:240});
+  var RULE=d.rankRule||null;
+  if(RULE){
+    var ex=(RULE.excl||[]).join("·");
+    var dn=(RULE.docs||[]).map(function(k){return k==="plan"?"활동계획서":"결과보고서";});
+    var L=["가","나","다","라"], li=0;
+    body+=dp(L[li++]+". 사업단 주관활동 마일리지("+ex+" 제외) "+RULE.min+"점 이상인 자",{indent:280,after:40});
+    if(dn.length) body+=dp(L[li++]+". "+dn.join("·")+"를 기한 내 제출한 자",{indent:280,after:40});
+    body+=dp(L[li++]+". 위 요건 충족자 중 누적 마일리지("+ex+" 포함) 상위 학년별 "+d.topN+"명",{indent:280,after:40});
+    body+=dp(L[li++]+". 동점자의 경우 "+yr+"학년도 "+sem+"학기 평점평균이 높은 자",{indent:280,after:240});
+  } else {
+    body+=dp("가. 누적 마일리지 점수 상위 학년별 5명 <총 15명>",{indent:280,after:40});
+    body+=dp("나. 동점자의 경우 "+yr+"학년도 "+sem+"학기 평점평균이 높은 자",{indent:280,after:240});
+  }
 
   body+=dp("2. 선발 개요",{b:true,sz:22,before:120,after:80});
   var total=0; (d.ranks||[]).forEach(function(r){ total+=r.rows.length; });
