@@ -206,35 +206,67 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admin-card[data-hue="cal"]{--hue:#64748b}
 .admin-card[data-hue] .admin-card-head svg{color:var(--hue)}
 
-/* ── ★ 지금 할 일 띠 (2026-08-14) ──
-   관리자에게만 보인다. 할 일이 0이면 통째로 사라진다.
-   빈 상자를 남기면 배경이 되고, 배경이 되면 아무도 안 본다. */
+/* ── ★ 지금 할 일 · 작업 현황 (2026-08-14 신설 · 2026-09-30 작업현황 탭 합침) ──
+   관리자에게만 보인다. 보여 줄 것이 하나도 없으면 통째로 사라진다.
+   급한 것은 색 배경 + 큰 D-day, 나머지는 접는다 — 숫자판이 할 일을 덮지 않게. */
 #todo-strip{display:none;width:100%;max-width:680px;padding:0 2rem;margin:1.2rem 0 .4rem}
 #todo-strip.show{display:block}
 .todo-box{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);border-radius:13px;padding:12px 14px 13px}
-.todo-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.todo-head-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.86);letter-spacing:.01em}
+.todo-head{display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap}
+.todo-head + .todo-head,.todo-sec{margin-top:14px}
+.todo-head-title{font-size:12.5px;font-weight:800;color:rgba(255,255,255,.88);letter-spacing:.01em}
 .todo-head-count{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;background:rgba(200,57,43,.26);color:#ffb3aa}
-.todo-head-line{flex:1;height:1px;background:rgba(255,255,255,.10)}
-.todo-head-refresh{font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;background:none;border:none;font-family:inherit;padding:2px 4px}
-.todo-head-refresh:hover{color:rgba(255,255,255,.6)}
-.todo-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0}
-.todo-item + .todo-item{border-top:1px dashed rgba(255,255,255,.08)}
-.todo-dday{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:11px;font-weight:800;min-width:44px;text-align:right;padding-top:1px;flex-shrink:0}
+.todo-head-meta{font-size:10.5px;color:rgba(255,255,255,.38)}
+.todo-head-line{flex:1;min-width:16px;height:1px;background:rgba(255,255,255,.10)}
+.todo-head-refresh,.todo-head-link{font-size:10.5px;color:rgba(255,255,255,.34);cursor:pointer;background:none;border:none;font-family:inherit;padding:2px 4px;text-decoration:none}
+.todo-head-refresh:hover,.todo-head-link:hover{color:rgba(255,255,255,.7)}
+.todo-warn{font-size:11px;font-weight:600;color:#f0a04b;background:rgba(240,160,75,.10);border:1px solid rgba(240,160,75,.28);border-radius:8px;padding:6px 10px;margin:0 0 10px;line-height:1.5}
+/* 급한 줄 — 색 배경 + 큰 D-day 칸 */
+.todo-item{display:flex;align-items:center;gap:12px;padding:9px 10px;border-radius:10px;margin-top:6px;background:rgba(255,255,255,.035)}
+.todo-lv-red{background:rgba(255,107,90,.13)}
+.todo-lv-amber{background:rgba(240,160,75,.12)}
+.todo-dday{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;font-size:14px;font-weight:800;min-width:58px;text-align:center;padding:6px 0;border-radius:8px;flex-shrink:0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.62)}
+.todo-lv-red .todo-dday{background:#ff6b5a;color:#2a0b06}
+.todo-lv-amber .todo-dday{background:#f0a04b;color:#2a1805}
 .todo-body{flex:1;min-width:0}
-.todo-title{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.84);line-height:1.45}
-.todo-title a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.18)}
+.todo-title{font-size:13.5px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.45}
+.todo-lv-red .todo-title{color:#ffb3aa}
+.todo-lv-amber .todo-title{color:#ffd29a}
+.todo-title a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2)}
 .todo-title a:hover{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
-.todo-sub{font-size:10.5px;color:rgba(255,255,255,.34);margin-top:2px;line-height:1.5}
-.todo-todo{flex-shrink:0;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.30);border:1px dashed rgba(255,255,255,.16);border-radius:6px;padding:3px 7px;white-space:nowrap;align-self:center}
-.todo-lv-red   .todo-dday{color:#ff6b5a}
-.todo-lv-amber .todo-dday{color:#f0a04b}
-.todo-lv-gray  .todo-dday{color:rgba(255,255,255,.42)}
-.todo-foot{margin-top:9px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.28);line-height:1.6}
+.todo-sub{font-size:11px;color:rgba(255,255,255,.42);margin-top:2px;line-height:1.5}
+.todo-area{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.4);margin-right:4px}
+.todo-todo{flex-shrink:0;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.34);border:1px dashed rgba(255,255,255,.18);border-radius:6px;padding:3px 7px;white-space:nowrap}
+.todo-copy{flex-shrink:0;font-size:10px;font-weight:700;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.18);background:transparent;border-radius:6px;padding:4px 8px;white-space:nowrap;cursor:pointer;font-family:inherit;min-height:28px}
+.todo-copy:hover{color:#fff;border-color:rgba(255,255,255,.45)}
+/* 다가오는 기한 */
+.todo-up{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+.todo-up-c{background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px}
+.todo-up-d{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:rgba(255,255,255,.78)}
+.todo-up-t{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;line-height:1.45}
+/* 작업 현황 목록 */
+.todo-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-top:1px dashed rgba(255,255,255,.08)}
+.todo-tag{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;margin-top:1px}
+.todo-tag-prog{background:rgba(14,165,233,.18);color:#7dd3fc}
+.todo-tag-wait{background:rgba(255,255,255,.07);color:rgba(255,255,255,.55)}
+.todo-tag-hold{background:rgba(255,255,255,.04);color:rgba(255,255,255,.35)}
+.todo-tag-stall{background:rgba(240,160,75,.18);color:#f0a04b;margin-left:4px}
+.todo-row .todo-title{font-size:12.5px;font-weight:600}
+.todo-more{display:flex;align-items:center;gap:6px;width:100%;padding:9px 0 2px;border:none;border-top:1px dashed rgba(255,255,255,.08);background:none;color:rgba(255,255,255,.45);font-size:11.5px;font-family:inherit;cursor:pointer;text-align:left}
+.todo-more:hover{color:rgba(255,255,255,.75)}
+.todo-foot{margin-top:9px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.3);line-height:1.6}
+.todo-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(11,31,58,.96);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:12px;padding:8px 14px;border-radius:8px;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none}
+.todo-toast.show{opacity:1}
 @media(max-width:520px){
   #todo-strip{padding:0 1.1rem}
   .todo-todo{display:none}
-  .todo-dday{min-width:38px}
+  .todo-item{flex-wrap:wrap;gap:8px 10px}
+  .todo-dday{min-width:50px;font-size:13px}
+  .todo-item .todo-body{min-width:calc(100% - 64px)}
+  .todo-row{flex-wrap:wrap}
+  .todo-row .todo-body{flex:1 1 55%}
+  .todo-copy{margin-left:auto}
+  .todo-up{grid-template-columns:1fr 1fr}
 }
 
 /* ── 통합 공지 팝업 ── */
@@ -1569,7 +1601,7 @@ function showUserBar() {
     const _iab = document.getElementById('injeAdmBar');
     if (_iab) _iab.classList.add('show');
     // 🔴 setTimeout 0 을 빼지 말 것.
-    //   loadTodoStrip 은 TODO_CUR_SEM(const)·_todoLoading(let)을 쓰는데,
+    //   loadTodoStrip 은 TODO_*(const)·_todoLoading(let)을 쓰는데,
     //   이 둘은 초기화 IIFE보다 아래에 선언돼 있다. 즉시 호출하면 TDZ
     //   ReferenceError 가 나고 스크립트 평가가 그 자리에서 멈춰,
     //   아래쪽 mileageData 등이 초기화되지 않아 마일리지 화면이 통째로 죽는다.
@@ -2154,11 +2186,17 @@ window.addEventListener('pageshow', function(e) {
    ① 캘린더 마감  담당 사업단·학사팀요청 · 미완료 · D-7 이내
    ② 타과생 미조치  개설 교과목 조정 탭에 조치결과가 빈 건
    ③ 학기 확정 대기  자료는 올렸는데 확정을 안 누른 학기
+   ④ 작업현황 탭      데이터허브 시트 `작업현황` (getWorkStatus · WorkStatus.gs · v122)
+                     기한 D-7 이내·지남·「미정」→ 지금 할 일 / 그 뒤 날짜 → 다가오는 기한 /
+                     상태별 목록 → 작업 현황 (대기·보류는 접힘)
    숫자 현황판은 넣지 않는다. 대시보드가 되는 순간 할 일이 묻힌다.
    ══════════════════════════════════════════════════════════════ */
 const TODO_AHEAD_DAYS = 7;      // 캘린더 마감을 앞으로 몇 일까지 볼지
 const TODO_OVER_DAYS  = 3;      // 지난 마감을 며칠까지 남겨둘지
-const TODO_CUR_SEM    = '2026-2';
+const TODO_STALE_DAYS = 7;      // 작업현황 탭이 며칠 갱신 안 되면 경고할지
+const TODO_STALL_DAYS = 14;     // 「진행」인데 며칠 갱신이 없으면 멈춤 표시
+const TODO_WIP_MAX    = 3;      // 진행 중이 이보다 많으면 한 줄 경고
+// 학기는 하드코딩하지 않는다 — 초기화 IIFE가 서버(getSemesters)에서 받아 둔 CUR_SEM 을 쓴다 (2026-09-30)
 
 function _todoJsonp(url, cb, timeoutMs) {
   const name = '__todoCb_' + Math.random().toString(36).slice(2);
@@ -2315,12 +2353,100 @@ function _todoFromCurriculum(st) {
   return out;
 }
 
-function _todoRender(items) {
+/** ④ 작업현황 탭 — 기한으로 나눈다. 완료는 서버가 개수만 준다 */
+function _todoFromWork(d) {
+  const out = { urgent: [], upcoming: [], prog: [], wait: [], hold: [], done: 0,
+                sheetUrl: '', staleDays: null, ok: false };
+  if (!d || d.status !== 'ok' || !Array.isArray(d.items)) return out;
+  out.ok = true;
+  out.done = d.done || 0;
+  out.sheetUrl = d.sheetUrl || '';
+
+  let last = null;
+  d.items.forEach(function (it) {
+    const up = _todoParseDate(it.updated);
+    if (up && (!last || up > last)) last = up;
+
+    const st = String(it.status || '').trim();
+    it.stall = (st === '진행' && up && -_todoDiffDays(up) > TODO_STALL_DAYS);
+    if (st === '진행') out.prog.push(it);
+    else if (st === '보류') out.hold.push(it);
+    else out.wait.push(it);
+    if (st === '보류') return;                      // 보류는 기한 알림에서 뺀다
+
+    const due = String(it.due || '').trim();
+    const dt = _todoParseDate(due);
+    if (dt) {
+      const n = _todoDiffDays(dt);
+      if (n <= TODO_AHEAD_DAYS) {
+        out.urgent.push({ dday: n, level: n <= 1 ? 'red' : (n <= 3 ? 'amber' : 'gray'),
+          title: it.title, area: it.area, sub: it.next || '', src: '작업현황', work: it });
+      } else {
+        out.upcoming.push({ n: n, date: dt, it: it });
+      }
+    } else if (due === '미정') {
+      out.urgent.push({ dday: null, ddLabel: '미정', level: 'amber',
+        title: it.title, area: it.area, sub: it.next || '', src: '작업현황', work: it });
+    }
+  });
+  out.upcoming.sort(function (a, b) { return a.n - b.n; });
+  out.upcoming = out.upcoming.slice(0, 3);
+  if (last) out.staleDays = -_todoDiffDays(last);
+  return out;
+}
+
+/** 「이어서 하기」 — 새 채팅 첫 메시지를 복사한다 */
+let _todoCopyBuf = [];
+function _todoCopyText(it) {
+  return (it.area ? it.area + ' ' : '') + it.title +
+         (it.next ? '\n다음: ' + it.next : '') +
+         '\n(작업현황 ' + (it.id || ('행 ' + it.row)) + (it.doc ? ' · ' + it.doc : '') + ')';
+}
+function _todoCopyBtn(it) {
+  const i = _todoCopyBuf.push(_todoCopyText(it)) - 1;
+  return '<button type="button" class="todo-copy" onclick="_todoCopy(' + i + ')" title="새 채팅 첫 메시지를 복사합니다">이어서 하기</button>';
+}
+function _todoCopy(i) {
+  const text = _todoCopyBuf[i] || '';
+  const done = function () { _todoToast('복사했습니다 — 새 채팅에 붙여넣으세요'); };
+  const fallback = function () {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'absolute'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { _todoToast('복사하지 못했습니다'); }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+}
+function _todoToast(msg) {
+  let t = document.getElementById('todo-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'todo-toast'; t.className = 'todo-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 1800);
+}
+
+let _todoMoreOpen = false;
+function _todoToggleMore() {
+  _todoMoreOpen = !_todoMoreOpen;
+  const m = document.getElementById('todo-more-list'), b = document.getElementById('todo-more-btn');
+  if (m) m.style.display = _todoMoreOpen ? 'block' : 'none';
+  if (b) b.textContent = _todoMoreOpen ? '▴ 접기' : b.getAttribute('data-label');
+}
+
+function _todoRender(items, work) {
   const wrap = document.getElementById('todo-strip');
   if (!wrap) return;
-  if (!items.length) { wrap.classList.remove('show'); wrap.innerHTML = ''; return; }
+  work = work || _todoFromWork(null);
+  items = items.concat(work.urgent);
+  _todoCopyBuf = [];
 
-  // 마감 있는 것 먼저, 그 안에서 급한 순
+  const hasWork = work.ok && (work.prog.length + work.wait.length + work.hold.length + work.done) > 0;
+  if (!items.length && !work.upcoming.length && !hasWork) {
+    wrap.classList.remove('show'); wrap.innerHTML = ''; return;
+  }
+
+  // 마감 있는 것 먼저, 그 안에서 급한 순 · 날짜 없는 것(미정 등)은 뒤로
   items.sort(function (a, b) {
     if (a.dday === null && b.dday === null) return 0;
     if (a.dday === null) return 1;
@@ -2328,33 +2454,80 @@ function _todoRender(items) {
     return a.dday - b.dday;
   });
 
-  const rows = items.map(function (it) {
-    const dd = it.dday === null ? '·' : _todoDdayLabel(it.dday);
-    const title = it.href
-      ? '<a href="' + _todoEsc(it.href) + '">' + _todoEsc(it.title) + '</a>'
-      : _todoEsc(it.title);
-    return '' +
-      '<div class="todo-item todo-lv-' + it.level + '">' +
-        '<div class="todo-dday">' + _todoEsc(dd) + '</div>' +
-        '<div class="todo-body">' +
-          '<div class="todo-title">' + title + '</div>' +
-          '<div class="todo-sub">' + _todoEsc(it.sub) + '</div>' +
-        '</div>' +
-        (it.todo ? '<div class="todo-todo">투두에 입력</div>' : '') +
-      '</div>';
-  }).join('');
+  let html = '<div class="todo-box">';
 
-  wrap.innerHTML = '' +
-    '<div class="todo-box">' +
-      '<div class="todo-head">' +
-        '<span class="todo-head-title">지금 할 일</span>' +
-        '<span class="todo-head-count">' + items.length + '</span>' +
-        '<div class="todo-head-line"></div>' +
-        '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>' +
-      '</div>' +
-      rows +
-      '<div class="todo-foot">「투두에 입력」 표시가 있는 것은 Microsoft To Do에 옮겨 적어 두세요 — 알림은 그쪽이 확실합니다.</div>' +
+  // 오래된 정보 경고 — 믿을 수 없는 현황판은 없는 것보다 나쁘다
+  if (work.ok && work.staleDays !== null && work.staleDays > TODO_STALE_DAYS) {
+    html += '<div class="todo-warn">⚠ 작업현황 탭이 ' + work.staleDays + '일째 갱신되지 않았습니다 — 아래 내용이 지금과 다를 수 있습니다</div>';
+  }
+
+  // ① 지금 할 일
+  if (items.length) {
+    html += '<div class="todo-head">' +
+      '<span class="todo-head-title">지금 할 일</span>' +
+      '<span class="todo-head-count">' + items.length + '</span>' +
+      '<div class="todo-head-line"></div>' +
+      '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>' +
     '</div>';
+    html += items.map(function (it) {
+      const dd = it.ddLabel || (it.dday === null ? '·' : _todoDdayLabel(it.dday));
+      const title = it.href
+        ? '<a href="' + _todoEsc(it.href) + '">' + _todoEsc(it.title) + '</a>'
+        : _todoEsc(it.title);
+      const area = it.area ? '<span class="todo-area">' + _todoEsc(it.area) + '</span>' : '';
+      const right = it.work ? _todoCopyBtn(it.work) : (it.todo ? '<div class="todo-todo">투두에 입력</div>' : '');
+      return '<div class="todo-item todo-lv-' + it.level + '">' +
+        '<div class="todo-dday">' + _todoEsc(dd) + '</div>' +
+        '<div class="todo-body"><div class="todo-title">' + area + title + '</div>' +
+        (it.sub ? '<div class="todo-sub">' + _todoEsc(it.sub) + '</div>' : '') + '</div>' +
+        right + '</div>';
+    }).join('');
+  }
+
+  // ② 다가오는 기한
+  if (work.upcoming.length) {
+    html += '<div class="todo-head todo-sec"><span class="todo-head-title">다가오는 기한</span><div class="todo-head-line"></div>' +
+      (items.length ? '' : '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>') + '</div>' +
+      '<div class="todo-up">' + work.upcoming.map(function (u) {
+        const md = ('0' + (u.date.getMonth() + 1)).slice(-2) + '-' + ('0' + u.date.getDate()).slice(-2);
+        return '<div class="todo-up-c"><div class="todo-up-d">D-' + u.n + ' · ' + md + '</div>' +
+               '<div class="todo-up-t">' + _todoEsc((u.it.area ? u.it.area + ' ' : '') + u.it.title) + '</div></div>';
+      }).join('') + '</div>';
+  }
+
+  // ③ 작업 현황
+  if (hasWork) {
+    const row = function (it, cls, lab) {
+      return '<div class="todo-row"><span class="todo-tag todo-tag-' + cls + '">' + lab + '</span>' +
+        '<div class="todo-body"><div class="todo-title"><span class="todo-area">' + _todoEsc(it.area) + '</span>' + _todoEsc(it.title) +
+        (it.stall ? '<span class="todo-tag todo-tag-stall">멈춤</span>' : '') + '</div>' +
+        ((it.next || it.due) ? '<div class="todo-sub">' + _todoEsc([it.due, it.next].filter(Boolean).join(' · ')) + '</div>' : '') +
+        '</div>' + _todoCopyBtn(it) + '</div>';
+    };
+    html += '<div class="todo-head todo-sec">' +
+      '<span class="todo-head-title">작업 현황</span>' +
+      '<span class="todo-head-meta">진행 ' + work.prog.length + ' · 대기 ' + work.wait.length +
+        ' · 보류 ' + work.hold.length + ' · 완료 ' + work.done + '</span>' +
+      '<div class="todo-head-line"></div>' +
+      (work.sheetUrl ? '<a class="todo-head-link" href="' + _todoEsc(work.sheetUrl) + '" target="_blank" rel="noopener">시트에서 열기 ↗</a>' : '') +
+    '</div>';
+    if (work.prog.length > TODO_WIP_MAX) {
+      html += '<div class="todo-warn">진행 중이 ' + work.prog.length + '건입니다 — ' + TODO_WIP_MAX + '건 이하로 줄이면 끝나는 속도가 빨라집니다</div>';
+    }
+    html += work.prog.map(function (it) { return row(it, 'prog', '진행'); }).join('');
+    const rest = work.wait.length + work.hold.length;
+    if (rest) {
+      const label = '▾ 대기 ' + work.wait.length + ' · 보류 ' + work.hold.length + ' 펼치기';
+      html += '<button type="button" class="todo-more" id="todo-more-btn" data-label="' + label + '" onclick="_todoToggleMore()">' +
+        (_todoMoreOpen ? '▴ 접기' : label) + '</button>' +
+        '<div id="todo-more-list" style="display:' + (_todoMoreOpen ? 'block' : 'none') + '">' +
+        work.wait.map(function (it) { return row(it, 'wait', '대기'); }).join('') +
+        work.hold.map(function (it) { return row(it, 'hold', '보류'); }).join('') + '</div>';
+    }
+  }
+
+  html += '<div class="todo-foot">「투두에 입력」은 Microsoft To Do로 옮겨 적어 두세요 · 「이어서 하기」는 새 채팅 첫 메시지를 복사합니다</div></div>';
+  wrap.innerHTML = html;
   wrap.classList.add('show');
 }
 
@@ -2369,11 +2542,11 @@ function loadTodoStrip(force) {
   if (_todoLoading && !force) return;
   _todoLoading = true;
 
-  let items = [], pending = 2;
+  let items = [], work = null, pending = 3;
   const step = function () {
     if (--pending > 0) return;
     _todoLoading = false;
-    _todoRender(items);
+    _todoRender(items, work);
   };
 
   // ① 캘린더 — 별도 프로젝트. 죽어도 이 줄만 조용히 빠진다
@@ -2387,10 +2560,18 @@ function loadTodoStrip(force) {
   });
 
   // ②③ 개설 교과목 — 데이터허브
-  _todoJsonp(EXEC_URL + '?action=getCurriculumStats&semester=' + encodeURIComponent(TODO_CUR_SEM) +
+  _todoJsonp(EXEC_URL + '?action=getCurriculumStats&semester=' + encodeURIComponent(CUR_SEM) +
              '&adminId=' + encodeURIComponent(auth.studentId || '') +
              '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
     try { items = items.concat(_todoFromCurriculum(d)); } catch (e) {}
+    step();
+  });
+
+  // ④ 작업현황 탭 — 데이터허브 (WorkStatus.gs · 관리자 전용 · 캐시 없음)
+  _todoJsonp(EXEC_URL + '?action=getWorkStatus' +
+             '&adminId=' + encodeURIComponent(auth.studentId || '') +
+             '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
+    try { work = _todoFromWork(d); } catch (e) {}
     step();
   });
 }
