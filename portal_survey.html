@@ -1757,15 +1757,18 @@ function loadForms() {
 //    nosign  버튼 오른쪽 「⚠ 서명 확인 필요」
 //    late    버튼 오른쪽 「✕ 기한 후 제출」
 //    none    경고 문구 — 마감 4일 이상 주황, 3일 이내 빨강
+let _docReq = 0;   // 가장 최근 요청 번호 — 늦게 도착한 이전 학생 응답은 버린다
 function loadDocStatus() {
   const auth = checkAuth(); if (!auth || !auth.studentId) return;
   if (!document.querySelector('.card-st')) return;
   // 학생을 바꿔 볼 때 이전 학생의 표시가 남지 않도록 먼저 모두 숨긴다
   document.querySelectorAll('.card-st,.card-warn').forEach(e => { e.hidden = true; });
-  const cb = '__docCB_' + Date.now();
+  const my = ++_docReq;
+  const cb = '__docCB_' + Date.now() + '_' + my;
   window[cb] = d => {
     delete window[cb];
     const el = document.getElementById(cb); if (el) el.remove();
+    if (my !== _docReq) return;                        // 그 사이 다른 학생으로 바뀜
     if (!d || d.status !== 'ok') return;
     ['plan','report'].forEach(k => {
       const st = document.querySelector('.card-st[data-doc="'+k+'"]');
