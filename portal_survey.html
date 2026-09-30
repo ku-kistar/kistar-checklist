@@ -1072,7 +1072,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         <button class="admprev-btn" onclick="injeAdmGo()">조회</button>
         <button class="admprev-exit" id="injeAdmExit" onclick="injeAdmExit()">내 화면으로</button>
       </div>
-      <div class="admprev-msg" id="injeAdmMsg">학번을 입력하면 그 학생에게 보이는 설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+      <div class="admprev-msg" id="injeAdmMsg">학번을 입력하면 그 학생에게 보이는 설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
     </div>
 
     <!-- ★ 인제대 LMS 접속 안내 (2026-08-31) · 내용은 loadInjeId()가 그린다 -->
@@ -1129,7 +1129,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         <button class="admprev-btn" onclick="admPreviewGo()">조회</button>
         <button class="admprev-exit" id="admPrevExit" onclick="admPreviewExit()">내 화면으로</button>
       </div>
-      <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+      <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
     </div>
     <div class="mileage-admin-panel" id="adminMileagePanel">
       <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;font-weight:600">참여자 일괄 마일리지 적립</div>
@@ -1890,8 +1890,14 @@ const INJE_MANUAL_URL = 'https://drive.google.com/drive/folders/1X3UepVLyoBgX9gl
 
 var _injeSeq = 0;
 
+// ★ 인제대 LMS 안내 스위치 (2026-09-30)
+//   반도체머신러닝 수강생 안내 완료로 끔. 다음 공동운영 학기에 true 로 바꾸면 그대로 복구된다.
+//   false 면 카드를 숨기고 서버 요청도 보내지 않는다.
+const INJE_CARD_ON = false;
+
 function loadInjeId(birthOverride) {
   const box = document.getElementById('injeCard');
+  if (!INJE_CARD_ON) { if (box) { box.innerHTML = ''; box.style.display = 'none'; } return; }
   if (!box) return;
   const auth = checkAuth();
   if (!auth || !auth.studentId) return;
@@ -2441,7 +2447,7 @@ function _admPrevClear() {
   const auth = checkAuth();
   _admPrevSid = '';
   _admPrevSync('');
-  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문·인제대 LMS 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
+  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
   if (auth && auth.studentId) {
     loadMileage(auth.studentId); loadExtMileage(auth.studentId);
     loadSurveys(auth.studentId); loadInjeId();
