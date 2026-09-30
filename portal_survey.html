@@ -1760,6 +1760,8 @@ function loadForms() {
 function loadDocStatus() {
   const auth = checkAuth(); if (!auth || !auth.studentId) return;
   if (!document.querySelector('.card-st')) return;
+  // 학생을 바꿔 볼 때 이전 학생의 표시가 남지 않도록 먼저 모두 숨긴다
+  document.querySelectorAll('.card-st,.card-warn').forEach(e => { e.hidden = true; });
   const cb = '__docCB_' + Date.now();
   window[cb] = d => {
     delete window[cb];
@@ -2429,6 +2431,7 @@ function _admPrevApply(sid) {
   _admPrevSync(sid);
   _admPrevMsg('▶ ' + sid + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
   loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();
+  loadDocStatus();   // 활동계획서·결과보고서 카드 상태도 그 학생 기준으로
 }
 
 function _admPrevClear() {
@@ -2439,6 +2442,7 @@ function _admPrevClear() {
   if (auth && auth.studentId) {
     loadMileage(auth.studentId); loadExtMileage(auth.studentId);
     loadSurveys(auth.studentId); loadInjeId();
+    loadDocStatus();
   }
 }
 
