@@ -1547,7 +1547,8 @@ function doAuth() {
   };
   const script = document.createElement('script');
   script.id = cbName + '_script';
-  script.src = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth) + '&callback=' + cbName;
+  script.src = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth) +
+    '&userAgent=' + encodeURIComponent(navigator.userAgent || '') + '&callback=' + cbName;   // ★ 접속기록 브라우저정보 (2026-10-06)
   document.head.appendChild(script);
 }
 
@@ -1791,7 +1792,7 @@ function loadForms() {
     if(window[cbName]) delete window[cbName];
     document.getElementById('skeletonGrid').style.display='none';
     document.getElementById('errorState').classList.add('show');
-  },10000);
+  },20000);   // ★ 10초→20초 (2026-10-06) — 마감 직전 몰릴 때 「불러오지 못했습니다」 방지
   const s=document.createElement('script');
   s.id='__jsonp'; s.src=SCRIPT_URL+'?callback='+cbName;
   s.onerror=()=>{ clearTimeout(loadTO); if(window[cbName]) delete window[cbName]; document.getElementById('skeletonGrid').style.display='none'; document.getElementById('errorState').classList.add('show'); };
@@ -2148,7 +2149,7 @@ function escHtml(str) {
         if (existing && existing.studentId === sid) {
           // 이미 로그인됨
         } else {
-          fetch(EXEC_URL + '?action=verifyBySid&studentId=' + encodeURIComponent(sid) + '&token=' + encodeURIComponent(token))
+          fetch(EXEC_URL + '?action=verifyBySid&studentId=' + encodeURIComponent(sid) + '&token=' + encodeURIComponent(token) + '&userAgent=' + encodeURIComponent(navigator.userAgent || ''))
             .then(r => r.json())
             .then(result => {
               if (result.status === 'ok') {
