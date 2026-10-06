@@ -739,6 +739,18 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 
 <script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+
+/* ★ 제출본 조회 인증 (2026-10-06)
+   getPlanByAdmin · getReportByAdmin 에 로그인한 사람의 학번·생년월일을 함께 보낸다.
+   GAS가 「본인 또는 관리자」만 내용을 돌려준다. 생년월일이 없는 세션(체크리스트 자동로그인)은
+   조회가 거절되고 폼은 빈 상태로 남는다 — 데이터 허브에 학번·생년월일로 다시 로그인하면 된다. */
+function _subAuthQS() {
+  try {
+    const a = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null') || {};
+    return '&reqId=' + encodeURIComponent(a.studentId || '') +
+           '&reqBirth=' + encodeURIComponent(a.birth || a.birthDate || '');
+  } catch (e) { return ''; }
+}
 const SCRIPT_URL_HUB = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
 
 const DEPT_COURSES = {
@@ -769,7 +781,7 @@ function lookupStudent() {
   nameEl.textContent = '조회 중...';
   deptEl.textContent = '';
   dateEl.textContent = '';
-  fetch(EXEC_URL + '?action=getPlanByAdmin&studentId=' + encodeURIComponent(sid))
+  fetch(EXEC_URL + '?action=getPlanByAdmin&studentId=' + encodeURIComponent(sid) + _subAuthQS())
     .then(r => r.json())
     .then(data => {
       if (data.status !== 'ok' || !data.found) {
@@ -1251,7 +1263,7 @@ window.addEventListener('DOMContentLoaded', function() {
             const sr = document.getElementById('submitResult');
             if (sr) { sr.className = 'submit-result show success'; sr.innerHTML = '✅ 재제출이 허용되었습니다. 이전 제출 내용을 불러오는 중입니다...'; }
             // 서버에 저장된 이전 제출 데이터를 불러와 폼에 채움 (readonly 처리는 하지 않음 — 수정 가능 상태 유지)
-            fetch(EXEC_URL + '?action=getPlanByAdmin&studentId=' + encodeURIComponent(_sid))
+            fetch(EXEC_URL + '?action=getPlanByAdmin&studentId=' + encodeURIComponent(_sid) + _subAuthQS())
               .then(r2 => r2.json())
               .then(prevData => {
                 if (prevData.status === 'ok' && prevData.found) {
