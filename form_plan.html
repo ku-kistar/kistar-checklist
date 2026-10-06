@@ -84,6 +84,9 @@ body{background:var(--bg);min-height:100vh;padding:0 0 4rem}
 .ps-btn{display:inline-block;margin-top:10px;padding:8px 16px;border:none;border-radius:8px;background:#c8392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .ps-btn:hover{background:#a82d21}
 .ps-note{margin-top:6px;font-size:12px;font-weight:700}
+.ps-ld{background:#eaf1fb;border:1px solid #b5d4f4;color:#1a4f8a}
+.ps-ld .ps-title::before{content:'';display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid #b5d4f4;border-top-color:#1a5fa8;border-radius:50%;animation:psSpin .8s linear infinite;vertical-align:-1px}
+@keyframes psSpin{to{transform:rotate(360deg)}}
 .submit-result.show{display:block}
 .submit-result.success{background:var(--green-light);color:var(--green);border:0.5px solid #b7e4c7}
 .submit-result.error{background:var(--accent-light);color:var(--accent)}
@@ -1564,9 +1567,16 @@ function _planBanner(kind,title,body,extra){
   el.style.display='block';
   if(kind==='er') el.scrollIntoView({behavior:'smooth',block:'start'});
 }
+function _planBannerHide(){ const el=document.getElementById('planStateBanner'); if(el){el.style.display='none';el.innerHTML='';} }
 function _planRelogin(){ localStorage.removeItem('kistar_auth_url2'); location.href='portal_survey.html'; }
 function _planBoot(sid){
+  // 확인이 끝날 때까지 제출을 잠그고 안내를 띄운다 — 빈 화면을 「안 됐다」로 오해하지 않게 (2026-10-06)
+  _planLocked=true;
+  _planBanner('ld','제출 내역을 확인하는 중입니다','잠시만 기다려 주세요. 이미 제출했다면 제출한 내용이 채워집니다 (보통 5~10초).');
   const j=function(u){return fetch(u).then(function(r){return r.json();}).catch(function(){return null;});};
+  // 세 요청을 동시에 보낸다 — 제출본 조회는 제출 기록이 없으면 버린다
+  const pPrev=fetch(EXEC_URL+'?action=getPlanByAdmin&studentId='+encodeURIComponent(sid)+_subAuthQS()).then(function(r){return r.json();});
+  pPrev.catch(function(){});
   Promise.all([
     j(EXEC_URL+'?action=getDocStatus&studentId='+encodeURIComponent(sid)),
     j(EXEC_URL)
@@ -1576,18 +1586,20 @@ function _planBoot(sid){
     const st=(doc&&doc.status==='ok'&&doc.plan)?doc.plan:null;
     if(!st||st.state==='none'){                       // 이번 학기 미제출 — 예전과 같이 시작
       localStorage.removeItem('kistar_plan_'+sid+'_'+_planSem()+'_submitted');
+      _planLocked=false; _planBannerHide();
       initDraft(sid); return;
     }
     const f=(fl&&Array.isArray(fl.forms))?fl.forms.find(function(x){return x.id==='form_plan';}):null;
     const due=f?_planParse(f.deadline):null;
     const closed=!f||(due&&new Date()>due);
     const at=_planEsc(_planFmt(_planParse(st.at)));
-    fetch(EXEC_URL+'?action=getPlanByAdmin&studentId='+encodeURIComponent(sid)+_subAuthQS())
-      .then(function(r){return r.json();})
+    pPrev
       .then(function(prev){
         if(!prev||prev.status!=='ok'||!prev.found) throw new Error('nodata');
         fillFormWithData(prev);
         if(prev['서명이미지Base64']&&prev['서명이미지Base64'].length>100) signFileBase64=prev['서명이미지Base64'];
+        // 글자 수 표시도 채운 내용 기준으로 (input 이벤트로 기존 카운터 갱신)
+        document.querySelectorAll('#main-content textarea').forEach(function(t){ t.dispatchEvent(new Event('input')); });
         setTimeout(autoResizeAll,100); setTimeout(syncAllPrintTexts,200);
         localStorage.removeItem('kistar_draft_plan_'+sid+'_'+_planSem());   // 제출본이 기준 — 예전 임시저장으로 덮지 않게
         if(closed){
@@ -1596,6 +1608,7 @@ function _planBoot(sid){
             at+'에 제출한 내용을 읽기 전용으로 보여 드립니다. 수정이 필요하면 사업단(☎ 02-3290-4988)에 문의하세요.');
           return;
         }
+        _planLocked=false;
         let note='';
         if(st.state==='nosign') note='<div class="ps-note">⚠ 서명이 확인되지 않았습니다 — 서명 파일을 올리고 다시 제출해야 제출로 인정됩니다.</div>';
         if(st.state==='late')   note='<div class="ps-note">⚠ 개인 제출기한이 지난 뒤 제출된 것으로 기록되어 있습니다. 사업단에 문의하세요.</div>';
