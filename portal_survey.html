@@ -206,7 +206,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admin-card[data-hue="cal"]{--hue:#64748b}
 .admin-card[data-hue] .admin-card-head svg{color:var(--hue)}
 
-/* ── ★ 지금 할 일 · 작업 현황 (2026-08-14 신설 · 2026-09-30 작업현황 탭 합침) ──
+/* ── ★ 지금 할 일 · 작업 현황 (2026-08-14 신설 · 2026-10-02 작업현황 탭 합침) ──
    관리자에게만 보인다. 보여 줄 것이 하나도 없으면 통째로 사라진다.
    급한 것은 색 배경 + 큰 D-day, 나머지는 접는다 — 숫자판이 할 일을 덮지 않게. */
 #todo-strip{display:none;width:100%;max-width:680px;padding:0 2rem;margin:1.2rem 0 .4rem}
@@ -669,7 +669,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
           </div>
         </div>
         <div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:7px;line-height:1.85;margin-bottom:7px;word-break:keep-all">
-          · 활동계획서 제출: <strong style="color:rgba(255,255,255,.75)">2026.09.30(수) ~ 10.14(수) 23:00</strong><br>
+          · 활동계획서 제출: <strong class="js-plan-due" style="color:rgba(255,255,255,.75)">~ 10.16(금) 23:00</strong><br>
           · 결과보고서 제출: <strong style="color:rgba(255,255,255,.75)">2026.12.07(월) ~ 12.18(금) 23:00</strong><br>
           · 외부활동 마일리지 인정: <strong style="color:rgba(255,255,255,.75)">2026.08.22(토) ~ 12.18(금)</strong><br>
           · 외부활동 증빙 마감: <strong style="color:rgba(255,255,255,.75)">2026.12.18(금) 23:00</strong><br>
@@ -815,7 +815,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         </div>
         <div class="notice-inner-box amber">
           <strong>※ 2026-2학기 제출 일정</strong><br>
-          · 활동계획서 제출: <strong>2026.09.30(수) ~ 10.14(수) 23:00</strong><br>
+          · 활동계획서 제출: <strong class="js-plan-due">~ 10.16(금) 23:00</strong><br>
           · 결과보고서 제출: <strong>2026.12.07(월) ~ 12.18(금) 23:00</strong><br>
           · 외부활동 마일리지 인정: <strong>2026.08.22(토) ~ 12.18(금)</strong><br>
           · 외부활동 증빙 마감: <strong>2026.12.18(금) 23:00</strong><br>
@@ -1715,6 +1715,21 @@ function createCard(form) {
   return a;
 }
 
+/* ★ 공지의 활동계획서 마감을 설문관리 form_plan E열에서 채운다 (2026-10-02)
+   마감을 바꿀 때 시트 E열만 고치면 카드와 공지(팝업·아코디언)가 같이 바뀐다.
+   form_plan 이 꺼져 있거나 시작 전이면 HTML에 적힌 기본 문구를 그대로 둔다. */
+function _syncPlanDue(forms) {
+  try {
+    const f = (forms || []).find(function (x) { return x.id === 'form_plan'; });
+    if (!f || !f.deadline) return;
+    const m = String(f.deadline).match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}:\d{2}))?/);
+    if (!m) return;
+    const wd = ['일','월','화','수','목','금','토'][new Date(+m[1], +m[2] - 1, +m[3]).getDay()];
+    const txt = '~ ' + m[2] + '.' + m[3] + '(' + wd + ') ' + (m[4] || '23:59');
+    document.querySelectorAll('.js-plan-due').forEach(function (el) { el.textContent = txt; });
+  } catch (e) {}
+}
+
 function renderForms(forms) {
   const grid = document.getElementById('formsGrid');
   const empty = document.getElementById('emptyState');
@@ -1770,6 +1785,7 @@ function loadForms() {
     renderForms(_forms);
     renderSurveyCards();
     loadDocStatus();
+    _syncPlanDue(_forms);
   };
   loadTO=setTimeout(()=>{
     if(window[cbName]) delete window[cbName];
@@ -2184,7 +2200,7 @@ window.addEventListener('pageshow', function(e) {
    ★ 지금 할 일 (2026-08-14)
    관리자에게만 표시. 마감이 있고 지나면 손해가 확정되는 것만 올린다.
    ① 캘린더 마감  담당 사업단·학사팀요청 · 미완료 · D-7 이내
-   ② 타과생 미조치  개설 교과목 조정 탭에 조치결과가 빈 건
+   ② (삭제 2026-10-02) 타과생 — 09-09 자동 확정 규칙과 어긋나 허위 경보가 났다
    ③ 학기 확정 대기  자료는 올렸는데 확정을 안 누른 학기
    ④ 작업현황 탭      데이터허브 시트 `작업현황` (getWorkStatus · WorkStatus.gs · v122)
                      기한 D-7 이내·지남·「미정」→ 지금 할 일 / 그 뒤 날짜 → 다가오는 기한 /
@@ -2196,7 +2212,7 @@ const TODO_OVER_DAYS  = 3;      // 지난 마감을 며칠까지 남겨둘지
 const TODO_STALE_DAYS = 7;      // 작업현황 탭이 며칠 갱신 안 되면 경고할지
 const TODO_STALL_DAYS = 14;     // 「진행」인데 며칠 갱신이 없으면 멈춤 표시
 const TODO_WIP_MAX    = 3;      // 진행 중이 이보다 많으면 한 줄 경고
-// 학기는 하드코딩하지 않는다 — 초기화 IIFE가 서버(getSemesters)에서 받아 둔 CUR_SEM 을 쓴다 (2026-09-30)
+// 학기는 하드코딩하지 않는다 — 초기화 IIFE가 서버(getSemesters)에서 받아 둔 CUR_SEM 을 쓴다 (2026-10-02)
 
 function _todoJsonp(url, cb, timeoutMs) {
   const name = '__todoCb_' + Math.random().toString(36).slice(2);
@@ -2318,25 +2334,9 @@ function _todoFromCurriculum(st) {
   const out = [];
   const adjust = st.adjust || {};
 
-  // ② 타과생 미조치 — 과목별 명단에서 조치결과가 빈 건을 센다
-  const pending = {};
-  (st.courses || []).forEach(function (c) {
-    (c.outsiders || []).forEach(function (o) {
-      const rec = adjust[c.code + '|' + o.sid];
-      if (!rec || !String(rec.result || '').trim()) pending[o.sid] = true;
-    });
-  });
-  const nPending = Object.keys(pending).length;
-  if (nPending > 0) {
-    out.push({
-      dday: null,
-      level: 'amber',
-      title: '타과생 ' + nPending + '명 조치 미기록',
-      sub: '개설 교과목 → 타과생 조정 탭 · 1차 폐강 전에 정리',
-      href: 'admin_curriculum.html',
-      todo: true
-    });
-  }
+  // ② 타과생 경보는 두지 않는다 (2026-10-02 삭제)
+  //    2026-09-09 개설과목 §5-3 — 최종 명단에 있는 타과생은 조치 칸이 비어도 「수강 확정(자동)」이다.
+  //    이탈 사유 미기재는 「이 학기 수치를 확정」 점검창이 ⚠로 잡는다.
 
   // ③ 학기 확정 대기 — 자료는 올렸는데 확정 스냅샷이 없다
   const hasData = (st.courses || []).length > 0;
@@ -2470,7 +2470,7 @@ function _todoRender(items, work) {
       '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>' +
     '</div>';
     html += items.map(function (it) {
-      const dd = it.ddLabel || (it.dday === null ? '·' : _todoDdayLabel(it.dday));
+      const dd = it.ddLabel || (it.dday === null ? '확인' : _todoDdayLabel(it.dday));
       const title = it.href
         ? '<a href="' + _todoEsc(it.href) + '">' + _todoEsc(it.title) + '</a>'
         : _todoEsc(it.title);
