@@ -1584,9 +1584,6 @@ function _planBoot(sid){
   ]).then(function(res){
     const doc=res[0], fl=res[1];
     if(doc&&doc.status==='ok'&&doc.sem) window._PLAN_SEM=doc.sem;
-    // 학기 칸은 서버 학기로 미리 고른다 (2026-2 → 2학기). 제출본을 불러오면 그 값이 우선
-    try{ const sEl=document.getElementById('f-semester-input'), m=String(window._PLAN_SEM||'').match(/-(\d)$/);
-         if(sEl&&!sEl.value&&m) sEl.value=m[1]+'학기'; }catch(e){}
     const st=(doc&&doc.status==='ok'&&doc.plan)?doc.plan:null;
     if(!st||st.state==='none'){                       // 이번 학기 미제출 — 예전과 같이 시작
       localStorage.removeItem('kistar_plan_'+sid+'_'+_planSem()+'_submitted');
