@@ -1224,11 +1224,21 @@ function dropMsg(t, color){
   if(el){ el.textContent=t; el.style.color=color||'var(--text2)'; }
 }
 
+// ★ 2026-10-07 T37 — 관리자 생년월일. 체크리스트 로그인에 없으면 데이터허브 로그인 값을 쓴다
+function _admBirth(auth){
+  if(auth && (auth.birth || auth.birthDate)) return auth.birth || auth.birthDate;
+  try{
+    var u = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    if(u && auth && String(u.studentId) === String(auth.studentId)) return u.birth || u.birthDate || '';
+  }catch(e){}
+  return '';
+}
+
 // 학번으로 이름·학과 조회 → 입력칸과 학과 탭을 채운다
 function lookupStudent(sid){
   var auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
   if(!auth || !auth.studentId) return Promise.resolve(null);
-  return hubCall({action:'getProgressOne', studentId:sid, adminId:auth.studentId})
+  return hubCall({action:'getProgressOne', studentId:sid, adminId:auth.studentId, adminBirth:_admBirth(auth)})
     .then(function(r){
       if(!r || r.status!=='ok' || !r.student) return null;
       var st=r.student;
@@ -1559,6 +1569,7 @@ function saveResult(){
     action:'saveProgress',
     studentId: sid,
     adminId:   auth.studentId,     // 서버가 이 값으로 관리자 여부를 재확인한다
+    adminBirth: _admBirth(auth),   // ★ 2026-10-07 T37 — 생년월일까지 확인
     total:    total,
     track:    c1, joint: c2, industry: c4, free: c5, recog: c3,
     required: aiChecked ? '이수' : '미이수',

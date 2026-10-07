@@ -841,7 +841,7 @@ function allowResubmit() {
   if (!confirm('학번 ' + lookupStudentId + ' 학생의 활동계획서 재제출을 허용하시겠습니까?\n학생이 다시 수정 후 제출할 수 있게 됩니다.')) return;
   const btn = document.getElementById('resubmitBtn');
   btn.textContent = '처리 중...'; btn.disabled = true;
-  fetch(EXEC_URL + '?action=allowResubmit&formType=plan&studentId=' + encodeURIComponent(lookupStudentId))
+  fetch(EXEC_URL + '?action=allowResubmit&formType=plan&studentId=' + encodeURIComponent(lookupStudentId) + _subAuthQS())
     .then(r => r.json())
     .then(data => {
       if (data.status === 'ok') {

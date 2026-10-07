@@ -3080,7 +3080,9 @@ function submitMileage() {
   const pid = 'P' + Date.now().toString().slice(-6);
   const params = new URLSearchParams({
     action: 'addMileage', semester, programId: pid, programName: progName,
-    category, status, date, points, studentIds: studentIds.join(',')
+    category, status, date, points, studentIds: studentIds.join(','),
+    // ★ 2026-10-07 T37 — 서버가 관리자 학번+생년월일을 다시 확인한다
+    reqId: (checkAuth() || {}).studentId || '', reqBirth: (checkAuth() || {}).birth || ''
   });
 
   const btn = document.querySelector('.mileage-submit-btn');

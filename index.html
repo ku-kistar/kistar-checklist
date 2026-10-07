@@ -543,6 +543,7 @@ function doAuth() {
           name: result.name,
           dept: result.dept,
           studentId: sid,
+          birth: birth,                       // ★ 2026-10-07 T37 — 관리자 화면(admin.html) 서버 확인용
           role: result.role || '',
           isAdmin: result.isAdmin || false,
           isStaff: result.isStaff || result.dept === '차세대AI반도체특성화대학사업단'

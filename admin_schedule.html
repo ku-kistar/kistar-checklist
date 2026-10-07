@@ -286,7 +286,12 @@ function loadData() {
 
   const s = document.createElement('script');
   s.id = '__adminJsonp';
-  s.src = SCRIPT_URL + '?action=getScheduleData&callback=' + cbName;
+  // ★ 2026-10-07 T37 — 서버가 관리자 학번+생년월일을 다시 확인한다
+  let _a = {};
+  try { _a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null') || {}; } catch (e) {}
+  s.src = SCRIPT_URL + '?action=getScheduleData&callback=' + cbName
+        + '&reqId=' + encodeURIComponent(_a.studentId || '')
+        + '&reqBirth=' + encodeURIComponent(_a.birth || _a.birthDate || '');
   s.onerror = function() {
     delete window[cbName]; s.remove();
     document.getElementById('loadingArea').style.display = 'none';

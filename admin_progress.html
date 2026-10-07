@@ -401,7 +401,7 @@ function satisfied(code, r, ar){
 async function boot(){
   if(!AUTH || !AUTH.studentId){ gate('로그인이 필요합니다.'); return; }
   try{
-    const res = await jsonp({action:'getProgress', studentId:AUTH.studentId,
+    const res = await jsonp({action:'getProgress', studentId:AUTH.studentId, birthDate:(AUTH.birth||AUTH.birthDate||''),
                              page:'admin_progress.html', userAgent:navigator.userAgent});
     if(res.status!=='ok'){ gate(res.message || '조회에 실패했습니다.'); return; }
     DATA = res.students.map(shape);
@@ -855,7 +855,7 @@ async function saveMemo_(){
   if(!txt){ msg.textContent='내용을 입력하세요.'; msg.className='memo-msg warn'; return; }
   btn.disabled=true; msg.textContent='저장 중...'; msg.className='memo-msg';
   try{
-    const r=await jsonp({action:'saveProgressMemo', adminId:AUTH.studentId,
+    const r=await jsonp({action:'saveProgressMemo', adminId:AUTH.studentId, adminBirth:(AUTH.birth||AUTH.birthDate||''),
                          studentId:sel, memo:txt});
     if(r.status!=='ok') throw new Error(r.message||'저장에 실패했습니다.');
     const d=DATA.find(x=>x.sid===sel);

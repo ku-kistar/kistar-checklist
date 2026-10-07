@@ -133,6 +133,15 @@ body{background:var(--bg);font-family:'Pretendard','Apple SD Gothic Neo',sans-se
 <script>
 const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
 
+// ★ 2026-10-07 T37 — 서버가 관리자 학번+생년월일을 다시 확인한다
+function _admQS() {
+  try {
+    const a = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null') || {};
+    return '&reqId=' + encodeURIComponent(a.studentId || '') +
+           '&reqBirth=' + encodeURIComponent(a.birth || a.birthDate || '');
+  } catch (e) { return ''; }
+}
+
 let currentTab = 'plan';
 let allData = { plan: [], report: [] };
 let selected = new Set();
@@ -153,8 +162,8 @@ async function loadList() {
   document.getElementById('listArea').innerHTML = '<div class="loading"><span class="spinner"></span>목록 불러오는 중...</div>';
   try {
     const [rPlan, rReport] = await Promise.all([
-      fetch(EXEC_URL + '?action=getAllSubmissions&formType=plan').then(r => r.json()),
-      fetch(EXEC_URL + '?action=getAllSubmissions&formType=report').then(r => r.json())
+      fetch(EXEC_URL + '?action=getAllSubmissions&formType=plan' + _admQS()).then(r => r.json()),
+      fetch(EXEC_URL + '?action=getAllSubmissions&formType=report' + _admQS()).then(r => r.json())
     ]);
     allData.plan   = (rPlan.status === 'ok'   ? rPlan.plan   : []).sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));
     allData.report = (rReport.status === 'ok' ? rReport.report : []).sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ko'));

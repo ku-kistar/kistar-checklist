@@ -294,11 +294,19 @@ let ROSTER_2026_1 = {};
 let ELIGIBLE = {};
 let MILEAGE_DATA = {};
 
+// ★ 2026-10-07 T37 — 관리자 기능은 서버가 학번+생년월일을 다시 확인한다
+function _admCred() {
+  try {
+    const a = JSON.parse(localStorage.getItem("kistar_auth_url2") || "null") || {};
+    return { reqId: a.studentId || "", reqBirth: a.birth || a.birthDate || "" };
+  } catch (e) { return {}; }
+}
+
 function callGAS(params) {
   return new Promise(function(resolve, reject) {
     const cbName = "_cb_" + Date.now();
     const script = document.createElement("script");
-    const url = EXEC_URL + "?" + Object.entries(Object.assign({callback: cbName}, params))
+    const url = EXEC_URL + "?" + Object.entries(Object.assign({callback: cbName}, _admCred(), params))
       .map(function([k,v]){return k+"="+encodeURIComponent(v);}).join("&");
     window[cbName] = function(data) {
       delete window[cbName];
@@ -315,7 +323,7 @@ async function loadData() {
   try {
     // getMileageSummary 호출 — 학번별 학기별 합산 데이터
     const res = await callGAS({action: "getMileageSummary"});
-    if (!res || res.status !== "ok") throw new Error("데이터 오류");
+    if (!res || res.status !== "ok") throw new Error((res && res.message) || "데이터 오류");
 
     // res.summary: 배열 [ { studentId, name, dept, total, bySemester: {"2026-1": N, ...}, ... } ]
     ELIGIBLE = res.eligible || {};   // ★ 학기별 대상자 명단
