@@ -225,6 +225,14 @@ tbody tr:hover td{background:rgba(255,255,255,.045)}
 .pt.neg{background:rgba(200,57,43,.2);color:#f2998e;font-family:'JetBrains Mono',monospace;font-weight:600}
 tbody tr:hover .pt.on{background:rgba(14,165,233,.22)}
 
+/* 서류 칸 제출 상태 (2026-10-07) — 점수가 없을 때만 찍는다. 총점과 무관 */
+.pt.dk,.pt.dw,.pt.dn{font-size:11px;cursor:pointer}
+.pt.dk{color:#8fd3a8;font-weight:600}
+.pt.dw{background:rgba(217,140,30,.16);color:#f2c27a;font-weight:700}
+.pt.dn{color:#7f93ad}
+.pt.dn.past{background:rgba(200,57,43,.16);color:#f2998e;font-weight:700}
+.pt.dk:focus-visible,.pt.dw:focus-visible,.pt.dn:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+
 /* 노쇼가 난 행사 — 원인이므로 붉게. 뱃지·패널티와 같은 계통으로 묶는다. */
 .pt.ns{
   background:rgba(200,57,43,.16);color:#f2998e;
@@ -349,6 +357,7 @@ tbody .ph{border-bottom:1px solid var(--line2)}
 <div class="foot">
   <ul>
     <li>누적 마일리지는 이수·출석·비교과·서류·외부활동을 합산한 값입니다. 2026-2학기 서류 마일리지(활동계획서·결과보고서)는 <b>2학년만</b> 해당합니다.</li>
+    <li>서류 칸 — <b>제출</b>(기한 내·서명 확인) · <b>서명확인</b>(서명이 확인되지 않음) · <b>기한후</b> · <b>미제출</b>. 점수가 없는 학년도 제출 상태가 표시됩니다. <b>기한 내 미제출·기한 후 제출은 인재·우수학생 장학금 지급 불가</b>입니다. 칸을 누르면 설명이 나옵니다.</li>
     <li>붉은 <b>노</b> 칸은 신청 후 참석하지 않은 행사, 빗금 칸은 그로 인해 참여가 제한된 행사입니다.</li>
     <li>학번 옆 <b>노쇼</b> 뒤의 숫자는 노쇼 횟수입니다. <b>한 학기 내</b> 3회부터 장학금 지급 대상에서 제외됩니다. (노쇼 횟수는 학기별로 초기화)</li>
   </ul>
@@ -477,6 +486,15 @@ function load(force){
 }
 
 /* ── 그리기 ───────────────────────────────────── */
+/* 서류 칸 (2026-10-07) — Board.gs v6 의 students[].d [계획서, 보고서] */
+var DOCMARK = { ok:['dk','제출'], late:['dw','기한후'], nosign:['dw','서명확인'], none:['dn','미제출'] };
+function docKey(id){
+  id = String(id || '');
+  if (id.indexOf('DOC-활동계획서') === 0) return 0;
+  if (id.indexOf('DOC-결과보고서') === 0) return 1;
+  return -1;
+}
+
 function render(){
   document.getElementById('pageTitle').firstChild.nodeValue = DATA.semester + '학기 사업단 마일리지 현황\n    ';
   document.title = DATA.semester + '학기 마일리지 현황 · 차세대반도체 융합전공';
@@ -554,6 +572,10 @@ function render(){
   }
   h += '</tr></thead><tbody>';
 
+  var DK = [];                                   // 열 → 서류 번호 (0 계획서 · 1 보고서 · -1)
+  for (var x = 0; x < P.length; x++) DK.push(docKey(P[x].id));
+  var DPH = DATA.docPhase || null;
+
   for (i = 0; i < S.length; i++){
     var st = S[i];
     var lim = {}; for (var k = 0; k < st.lim.length; k++) lim[st.lim[k]] = 1;
@@ -584,6 +606,12 @@ function render(){
         } else if (!v && lim[b]){                // 그 결과 막힌 행사
           cls += ' lim';
           attr = ' data-lim="' + b + '" tabindex="0"';
+        } else if (!v && st.d && DK[b] >= 0 && DOCMARK[st.d[DK[b]]]){   // 서류 — 점수 없는 칸만
+          var dc = st.d[DK[b]], dm = DOCMARK[dc];
+          cls += ' ' + dm[0];
+          if (dc === 'none' && DPH && DPH[DK[b] ? 'report' : 'plan'].past) cls += ' past';
+          mark = dm[1];
+          attr = ' data-doc="' + b + '" data-ds="' + dc + '" tabindex="0"';
         }
         h += '<td class="' + cls + '"' + attr + '>' + mark + '</td>';
       }
@@ -674,6 +702,22 @@ document.getElementById('rankHead').addEventListener('click', function(){
     if (tn){
       var pn = DATA.programs[+tn.dataset.ns];
       info('신청 후 참석하지 않은 행사입니다 — ' + pn.name, { tag:'노쇼', warn:true });
+      return;
+    }
+    var tdc = e.target.closest('td[data-doc]');
+    if (tdc){
+      var j  = +tdc.dataset.doc, ds = tdc.dataset.ds;
+      var nm = docKey(DATA.programs[j].id) ? '결과보고서' : '활동계획서';
+      var ph = (DATA.docPhase || {})[docKey(DATA.programs[j].id) ? 'report' : 'plan'] || {};
+      var due = ph.due ? ' (마감 ' + ph.due + ')' : '';
+      var T = {
+        ok:     [nm + ' — 기한 내 제출 · 서명 확인 완료', false],
+        nosign: [nm + ' — 서명이 확인되지 않았습니다. 데이터허브에서 다시 열어 서명 후 제출하세요' + due, true],
+        late:   [nm + ' — 마감 후 제출. 인재·우수학생 장학금 지급 대상에서 제외됩니다', true],
+        none:   ph.past ? [nm + ' — 기한 내 미제출. 인재·우수학생 장학금 지급 대상에서 제외됩니다', true]
+                        : [nm + ' — 아직 제출하지 않았습니다' + due, true]
+      }[ds] || [nm, false];
+      info(T[0], { tag:'서류', warn:T[1] });
       return;
     }
     var td = e.target.closest('td[data-lim]');

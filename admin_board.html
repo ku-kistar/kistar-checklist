@@ -252,6 +252,11 @@ table.grid tfoot td.lb{font-family:'Malgun Gothic','맑은 고딕',sans-serif;fo
 .gchip:hover{border-color:var(--navy)}
 .gchip-all{font-weight:700;color:var(--navy);border-color:var(--navy)}
 td.no{background:var(--accent-light);color:var(--accent);font-weight:700}
+/* 서류 칸 (2026-10-07) — 학생 현황판과 같은 표시 */
+td.dk{color:var(--green);font-size:10px;font-weight:600}
+td.dw{color:var(--amber);font-size:10px;font-weight:700}
+td.dn{color:var(--text3);font-size:10px}
+td.dn.past{color:var(--red);font-weight:700}
 td.lim{background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)}
 td.nsn{width:34px;min-width:34px;color:var(--accent)}
 .cat-EDU{background:#1a5fa8}.cat-ATT{background:#7fa8d4}
@@ -442,6 +447,7 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
     <input type="text" class="tb-search" id="q" placeholder="이름 · 학번 검색" oninput="renderGrid()">
     <div style="display:flex;gap:6px;flex-wrap:wrap" id="gradeTabs"></div>
     <div class="tb-spacer"></div>
+    <button class="btn btn-navy" id="btnDocCopy" onclick="copyDocList()" style="display:none" title="걸러진 학생의 학번·이름·학과·학년을 복사합니다">명단 복사</button>
     <button class="btn" onclick="loadData()">↻ 새로고침</button>
     <button class="btn btn-primary" id="btnXlsx" onclick="exportXlsx()">엑셀 (증빙)</button>
     <button class="btn btn-navy" id="btnDocx" onclick="exportDocx()">보고서 (docx)</button>
@@ -512,7 +518,11 @@ var SEM  = "";        // 보고 있는 학기. 빈 값이면 서버가 live 학�
 var SEMS = null;      // 학기 목록 (최초 1회만 조회)
 var gradeFilter = "";
 var genFilter   = "";   // 기수 필터 (예: "1기")
-var flagFilter  = "";   // "" | "edge" | "zero" | "ns3"  — 인사이트 칩
+var flagFilter  = (function(){  // "" | "edge" | "zero" | "ns3" | "doc:plan:none" …  — 인사이트 칩
+  // 대문 「지금 할 일」에서 ?f=doc:plan:none 으로 들어오면 그 명단부터 보여 준다 (2026-10-07)
+  try{ var f=new URLSearchParams(location.search).get("f")||"";
+       return /^doc:(plan|report):(none|nosign|late)$/.test(f)?f:""; }catch(e){ return ""; }
+})();
 var statMode    = "grade";  // "grade" | "gen"
 var collapsed   = {};   // {EDU:true, ...} 접힌 카테고리
 
@@ -756,6 +766,7 @@ function syncFilterUI(){
   document.querySelectorAll("#chips .chip[data-f]").forEach(function(c){
     c.classList.toggle("on", c.getAttribute("data-f")===flagFilter);
   });
+  var cb=$("btnDocCopy"); if(cb) cb.style.display = flagFilter.indexOf("doc:")===0 ? "" : "none";
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -869,7 +880,48 @@ function renderChips(){
   if(!need&&!unres) gpaTxt+=' <span style="color:var(--green)">· 동점 모두 해소</span>';
   h+='<span class="chip static">'+gpaTxt+'</span>';
 
+  // 서류 미제출 관리 (2026-10-07) — 열린 서류만. 누르면 격자가 그 명단으로 걸러진다
+  var ph=d.docPhase||null;
+  if(ph && !d.closed){
+    [["plan","활동계획서"],["report","결과보고서"]].forEach(function(p){
+      var x=ph[p[0]]; if(!x||!x.open) return;
+      var c={none:0,nosign:0,late:0};
+      d.students.forEach(function(s){ var v=s.docs&&s.docs[p[0]]; if(c[v]!==undefined) c[v]++; });
+      var dd="";
+      if(x.due){
+        var t=new Date(x.due.replace(/-/g,"/")), n=Math.ceil((t-new Date())/86400000);
+        dd=x.past?" · 마감 지남":" · 마감 D-"+Math.max(n,0);
+      }
+      h+='<button class="chip" data-f="doc:'+p[0]+':none" onclick="setFlag(\'doc:'+p[0]+':none\')" '+
+         'title="'+p[1]+'를 아직 내지 않은 학생입니다. 기한 내 미제출은 인재·우수학생 장학금 지급 불가.">'+
+         p[1]+' 미제출 <b style="color:var(--red)">'+c.none+'</b>명'+dd+'</button>';
+      if(c.nosign) h+='<button class="chip" data-f="doc:'+p[0]+':nosign" onclick="setFlag(\'doc:'+p[0]+':nosign\')" '+
+         'title="제출했지만 서명이 확인되지 않았습니다. 다시 열어 서명 후 제출하도록 안내.">'+
+         '서명확인 <b style="color:var(--amber)">'+c.nosign+'</b>명</button>';
+      if(c.late) h+='<button class="chip" data-f="doc:'+p[0]+':late" onclick="setFlag(\'doc:'+p[0]+':late\')" '+
+         'title="마감 후 제출 — 장학금 지급 불가 대상.">기한후 <b>'+c.late+'</b>명</button>';
+    });
+  }
+
   $("chips").innerHTML=h;
+  syncFilterUI();   // ?f= 로 들어온 필터를 칩·명단 복사 버튼에 반영
+}
+
+/* 걸러진 명단 복사 (2026-10-07) — 학번·이름·학과·학년, 탭 구분 → 엑셀에 붙여 넣으면 4열 */
+function copyDocList(){
+  var rows=filtered();
+  if(!rows.length){ toast("복사할 학생이 없습니다", true); return; }
+  var text="학번\t이름\t학과\t학년\n"+rows.map(function(s){
+    return [s.sid,s.name,s.dept,s.grade].join("\t");
+  }).join("\n");
+  var done=function(){ toast(rows.length+"명 복사했습니다 — 엑셀이나 문자 발송 명단에 붙여 넣으세요"); };
+  var fb=function(){
+    var ta=document.createElement("textarea"); ta.value=text; ta.style.position="absolute"; ta.style.left="-9999px";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); done(); }catch(e){ toast("복사하지 못했습니다", true); }
+    document.body.removeChild(ta);
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done,fb); else fb();
 }
 
 /* ── 동점 알림 ── */
@@ -1048,6 +1100,10 @@ function filtered(){
     if(flagFilter==="edge" && !(s.tot>=goal-10&&s.tot<goal)) return false;
     if(flagFilter==="zero" && s.tot!==0) return false;
     if(flagFilter==="ns3"  && (s.ns||0)<3) return false;
+    if(flagFilter.indexOf("doc:")===0){
+      var fp=flagFilter.split(":");
+      if(!s.docs || s.docs[fp[1]]!==fp[2]) return false;
+    }
     if(!q) return true;
     return (s.name||"").toLowerCase().indexOf(q)>=0 || String(s.sid).indexOf(q)>=0;
   });
@@ -1139,6 +1195,11 @@ function renderGrid(){
 
   // ③ 본문
   var colN=new Array(P.length); for(var k=0;k<P.length;k++) colN[k]=0;
+  // 서류 칸 (2026-10-07) — 점수가 없을 때 제출 상태를 학생 현황판과 같은 말로 찍는다
+  var DKEY=P.map(function(p){ var id=String(p.id||"");
+    return id.indexOf("DOC-활동계획서")===0?"plan":(id.indexOf("DOC-결과보고서")===0?"report":""); });
+  var DMK={ok:["dk","제출"],late:["dw","기한후"],nosign:["dw","서명확인"],none:["dn","미제출"]};
+  var DPH=DATA.docPhase||null;
   var sumTot=0, sumNs=0;
 
   rows.forEach(function(s){
@@ -1152,6 +1213,11 @@ function renderGrid(){
       var v=s.s[j]||0;
       var isNo=s.nsc.indexOf(j)>=0, isLim=s.lim.indexOf(j)>=0;
       var cls="pcol gp-"+GK[j]+" "+(isNo?"no":(isLim?"lim ":"")+(v?"v":"z"));
+      var dk=DKEY[j], ds=(!v&&!isNo&&dk&&DPH&&DPH[dk]&&DPH[dk].open&&s.docs)?s.docs[dk]:"";
+      if(ds&&DMK[ds]){
+        cls="pcol gp-"+GK[j]+" "+DMK[ds][0]+(ds==="none"&&DPH[dk].past?" past":"");
+        h+='<td class="'+cls+'">'+DMK[ds][1]+'</td>';
+      } else
       h+='<td class="'+cls+'">'+(isNo?"노":(v?v:"·"))+'</td>';
       if(v) colN[j]++;
     }

@@ -2204,6 +2204,8 @@ window.addEventListener('pageshow', function(e) {
    ② (삭제 2026-10-02) 타과생 — 09-09 자동 확정 규칙과 어긋나 허위 경보가 났다
    ③ 학기 확정 대기  자료는 올렸는데 확정을 안 누른 학기
    ④ 작업현황 탭      데이터허브 시트 `작업현황` (getWorkStatus · WorkStatus.gs · v122)
+   ⑤ 서류 미제출     현황판 getBoardData 의 students[].d (Board.gs v6 · 2026-10-07)
+                     열린 서류의 마감 D-7 ~ D+3 동안만. 누르면 admin_board 미제출 명단
                      기한 D-7 이내·지남·「미정」→ 지금 할 일 / 그 뒤 날짜 → 다가오는 기한 /
                      상태별 목록 → 작업 현황 (대기·보류는 접힘)
    숫자 현황판은 넣지 않는다. 대시보드가 되는 순간 할 일이 묻힌다.
@@ -2532,6 +2534,34 @@ function _todoRender(items, work) {
   wrap.classList.add('show');
 }
 
+/** ⑤ 서류 미제출 (2026-10-07) — 학생용 현황판 응답을 그대로 센다. 마스킹 데이터라 실명 없음 */
+function _todoFromDocs(d) {
+  const out = [];
+  if (!d || d.status !== 'ok' || d.closed || !d.docPhase) return out;
+  [['plan', '활동계획서', 0], ['report', '결과보고서', 1]].forEach(function (p) {
+    const ph = d.docPhase[p[0]];
+    if (!ph || !ph.open) return;
+    let none = 0, sign = 0, late = 0;
+    (d.students || []).forEach(function (s) {
+      const v = s.d ? s.d[p[2]] : '';
+      if (v === 'none') none++; else if (v === 'nosign') sign++; else if (v === 'late') late++;
+    });
+    if (!none && !sign) return;
+    const due = _todoParseDate(ph.due);
+    const n = due ? _todoDiffDays(due) : null;
+    if (n !== null && (n > TODO_AHEAD_DAYS || n < -TODO_OVER_DAYS)) return;
+    out.push({
+      dday: n, level: n === null ? 'amber' : (n <= 1 ? 'red' : (n <= 3 ? 'amber' : 'gray')),
+      area: '[비교과]',
+      title: p[1] + ' 미제출 ' + none + '명' + (sign ? ' · 서명확인 ' + sign + '명' : ''),
+      sub: (ph.past ? '마감 지남 — 기한 내 미제출은 장학금 지급 불가' : '마감 ' + ph.due + ' · 누르면 명단') +
+           (late ? ' · 기한후 ' + late + '명' : ''),
+      href: 'admin_board.html?f=doc:' + p[0] + ':none'
+    });
+  });
+  return out;
+}
+
 let _todoLoading = false;
 function loadTodoStrip(force) {
   const auth = checkAuth();
@@ -2543,7 +2573,7 @@ function loadTodoStrip(force) {
   if (_todoLoading && !force) return;
   _todoLoading = true;
 
-  let items = [], work = null, pending = 3;
+  let items = [], work = null, pending = 4;
   const step = function () {
     if (--pending > 0) return;
     _todoLoading = false;
@@ -2567,6 +2597,12 @@ function loadTodoStrip(force) {
     try { items = items.concat(_todoFromCurriculum(d)); } catch (e) {}
     step();
   });
+
+  // ⑤ 서류 미제출 — 학생용 현황판 응답 (마스킹 · 2분 캐시)
+  _todoJsonp(EXEC_URL + '?action=getBoardData', function (d) {
+    try { items = items.concat(_todoFromDocs(d)); } catch (e) {}
+    step();
+  }, 20000);
 
   // ④ 작업현황 탭 — 데이터허브 (WorkStatus.gs · 관리자 전용 · 캐시 없음)
   _todoJsonp(EXEC_URL + '?action=getWorkStatus' +
