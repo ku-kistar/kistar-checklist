@@ -465,6 +465,16 @@ function readAuth(){
   } catch(e){ return null; }
 }
 function openAuth(){ $('auth').classList.add('show'); $('page').hidden = true; }
+// ★ 2026-10-08 T40 — 관리자는 데이터허브 대문 로그인의 출입증(24자리)으로 들어온다
+function portalAdminAuth(){
+  try {
+    var u = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    if (!u || !u.isAdmin || !u.studentId) return null;
+    var t = String(u.birth || '');
+    if (!/^\d{24}$/.test(t) || (u.tokenExp && Date.now() > u.tokenExp)) return null;
+    return { id: String(u.studentId), pw: t, at: Date.now() };
+  } catch(e){ return null; }
+}
 
 $('pwBtn').addEventListener('click', function(){
   var i = $('apw');
@@ -1533,7 +1543,7 @@ function saveMemo(row, value){
 
 /* ── 진입 ── */
 (function init(){
-  var s = readAuth();
+  var s = portalAdminAuth() || readAuth();   // ★ T40 — 대문 관리자 출입증 우선
   if (s) login(s.id, s.pw, true).catch(function(){});
   else openAuth();
 })();

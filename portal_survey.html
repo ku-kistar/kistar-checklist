@@ -149,6 +149,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .auth-btn:hover{opacity:.88}
 .auth-btn:disabled{opacity:.5;cursor:default}
 .auth-msg{margin-top:.9rem;font-size:12px;text-align:center;min-height:18px}
+/* ★ 2026-10-08 T40 — 관리자 로그인 전환 */
+.auth-mode{display:block;margin:.6rem auto 0;padding:6px 10px;background:none;border:none;font:inherit;font-size:11.5px;color:rgba(255,255,255,.38);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:32px}
+.auth-mode:hover{color:rgba(255,255,255,.7)}
 .auth-msg.error{color:#f08070}
 .auth-msg.loading{color:rgba(255,255,255,.45)}
 .auth-msg.success{color:#5ec8b0}
@@ -604,7 +607,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <input type="text" id="auth-id" placeholder="학번 또는 교번 입력" maxlength="20" inputmode="text" autocomplete="off">
     </div>
     <div class="auth-field">
-      <label>생년월일 8자리</label>
+      <label id="auth-birth-label">생년월일 8자리</label>
       <div class="pw-wrap">
         <input type="password" id="auth-birth" placeholder="예: 20010315" maxlength="8" inputmode="numeric">
         <button class="pw-toggle" type="button" onclick="togglePw()">
@@ -615,6 +618,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </div>
     <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
     <div class="auth-msg" id="auth-msg"></div>
+    <button type="button" class="auth-mode" id="auth-mode" onclick="toggleAdminMode()">관리자 로그인 (비밀번호)</button>
   </div>
 </div>
 
@@ -957,11 +961,11 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
             <span class="admin-card-title">마일리지</span>
           </div>
           <div class="admin-card-btns">
-            <a href="admin_mileage.html" class="admin-link">
+            <a href="admin_mileage.html" class="admin-link" data-perm="마일리지대시보드">
               <div class="admin-link-name">마일리지 대시보드</div>
               <div class="admin-link-desc">학생별 총점 · 검색 · CSV</div>
             </a>
-            <a href="admin_board.html" class="admin-link">
+            <a href="admin_board.html" class="admin-link" data-perm="활동현황">
               <div class="admin-link-name">활동별 현황 · 증빙</div>
               <div class="admin-link-desc">활동별 격자 · 엑셀 · 보고서 출력</div>
             </a>
@@ -984,15 +988,15 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
             <span class="admin-card-title">교과 · 이수현황</span>
           </div>
           <div class="admin-card-btns">
-            <a href="admin_curriculum.html" class="admin-link">
+            <a href="admin_curriculum.html" class="admin-link" data-perm="개설과목">
               <div class="admin-link-name">개설 교과목</div>
               <div class="admin-link-desc">과목 · 교수 · 조교 · 수강신청 집계</div>
             </a>
-            <a href="admin_progress.html" class="admin-link">
+            <a href="admin_progress.html" class="admin-link" data-perm="이수현황">
               <div class="admin-link-name">이수 현황</div>
               <div class="admin-link-desc">155명 이수 요건 · 조치 필요 목록</div>
             </a>
-            <a href="admin.html" class="admin-link relogin">
+            <a href="admin.html" class="admin-link relogin" data-perm="이수현황">
               <div class="admin-link-name">성적 입력 · 이수 판정</div>
               <div class="admin-link-desc">전체성적 xlsx 넣고 시트에 저장</div>
             </a>
@@ -1007,15 +1011,15 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
             <span class="admin-card-title">학생 제출 서류</span>
           </div>
           <div class="admin-card-btns">
-            <a href="form_plan.html" class="admin-link">
+            <a href="form_plan.html" class="admin-link" data-perm="서류조회">
               <div class="admin-link-name">활동계획서 조회</div>
               <div class="admin-link-desc">학번으로 제출본 열람</div>
             </a>
-            <a href="form_report.html" class="admin-link">
+            <a href="form_report.html" class="admin-link" data-perm="서류조회">
               <div class="admin-link-name">결과보고서 조회</div>
               <div class="admin-link-desc">학번으로 제출본 열람</div>
             </a>
-            <a href="admin_bulk_pdf.html" class="admin-link">
+            <a href="admin_bulk_pdf.html" class="admin-link" data-perm="서류조회">
               <div class="admin-link-name">일괄 PDF 출력</div>
               <div class="admin-link-desc">여러 학생 서류를 한 번에 PDF로</div>
             </a>
@@ -1030,7 +1034,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
             <span class="admin-card-title">설문 · 조사</span>
           </div>
           <div class="admin-card-btns">
-            <a href="admin_schedule.html" class="admin-link">
+            <a href="admin_schedule.html" class="admin-link" data-perm="일정조사">
               <div class="admin-link-name">일정조사 현황</div>
               <div class="admin-link-desc">시간대별 응답 히트맵 · 전체 명단</div>
             </a>
@@ -1149,7 +1153,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div class="mileage-section show" id="mileage-section">
     <div class="mileage-header">
       <div class="admin-section-label" style="margin-bottom:0">🎖 전체 마일리지</div>
-      <button class="admin-mileage-btn" id="adminMileageToggle" style="display:none" onclick="toggleAdminMileage()">+ 마일리지 입력</button>
     </div>
 
     <!-- 관리자 전용 · 학생 화면 미리보기 (기본 숨김) -->
@@ -1162,55 +1165,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
         <button class="admprev-exit" id="admPrevExit" onclick="admPreviewExit()">내 화면으로</button>
       </div>
       <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
-    </div>
-    <div class="mileage-admin-panel" id="adminMileagePanel">
-      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;font-weight:600">참여자 일괄 마일리지 적립</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">학기</div>
-          <select class="mileage-input" id="mileageSemester" style="margin-bottom:0">
-            <option value="2024-2">2024-2학기</option>
-            <option value="2025-1">2025-1학기</option>
-            <option value="2025-2">2025-2학기</option>
-            <option value="2026-1">2026-1학기</option>
-            <option value="2026-2" selected>2026-2학기</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">날짜</div>
-          <input class="mileage-input" id="mileageDate" type="date" style="margin-bottom:0;color-scheme:dark">
-        </div>
-      </div>
-      <div style="margin-bottom:4px">
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">프로그램명</div>
-        <input class="mileage-input" id="mileageProgName" placeholder="예: 글로벌역량 강화프로그램 1" style="margin-bottom:0">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">카테고리</div>
-          <select class="mileage-input" id="mileageCategory" style="margin-bottom:0">
-            <option value="교과">교과</option>
-            <option value="비교과" selected>비교과</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">상태</div>
-          <select class="mileage-input" id="mileageStatus" style="margin-bottom:0">
-            <option value="정상" selected>정상</option>
-            <option value="패널티">패널티</option>
-          </select>
-        </div>
-        <div>
-          <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">점수</div>
-          <input class="mileage-input" id="mileagePoints" type="number" placeholder="예: 10" min="1" style="margin-bottom:0">
-        </div>
-      </div>
-      <div style="margin-bottom:4px">
-        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:4px;font-weight:600">학번 목록 <span style="font-weight:400">(줄바꿈 또는 콤마로 구분)</span></div>
-        <textarea class="mileage-input" id="mileageStudentIds" rows="4" placeholder="2022170155&#10;2023170222&#10;2021170738" style="margin-bottom:0"></textarea>
-      </div>
-      <button class="mileage-submit-btn" onclick="submitMileage()" style="margin-top:8px">적립하기</button>
-      <div class="mileage-result-msg" id="mileageResultMsg"></div>
     </div>
 
     <!-- ★ 요약 카드 (총점 + 달성 상태 + 진행바 통합) -->
@@ -1495,6 +1449,7 @@ function checkAuth() {
     if (!auth) return null;
     if (!auth.loginTime) { auth.loginTime = Date.now(); localStorage.setItem(AUTH_KEY, JSON.stringify(auth)); }
     if (Date.now() - auth.loginTime > EXPIRE_MS) { localStorage.removeItem(AUTH_KEY); return null; }
+    if (auth.tokenExp && Date.now() > auth.tokenExp) { localStorage.removeItem(AUTH_KEY); return null; }   // ★ T40 출입증 6시간
     return auth;
   } catch(e) { return null; }
 }
@@ -1506,8 +1461,8 @@ function doAuth() {
   const sid   = document.getElementById('auth-id').value.trim();
   const birth = document.getElementById('auth-birth').value.trim();
   const btn   = document.getElementById('auth-btn');
-  if (!sid || !birth) { showMsg('error','학번과 생년월일을 모두 입력해주세요.'); return; }
-  if (birth.length !== 8 || !/^\d{8}$/.test(birth)) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
+  if (!sid || !birth) { showMsg('error', _authAdminMode ? '학번과 비밀번호를 모두 입력해주세요.' : '학번과 생년월일을 모두 입력해주세요.'); return; }
+  if (!_authAdminMode && (birth.length !== 8 || !/^\d{8}$/.test(birth))) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
   btn.disabled = true;
   showMsg('loading','확인 중...');
   const cbName = 'authCb_' + Date.now();
@@ -1527,10 +1482,12 @@ function doAuth() {
       showMsg('success', result.name + '님, 환영합니다!');
       localStorage.setItem(AUTH_KEY, JSON.stringify({
         name: result.name, dept: result.dept, studentId: sid,
-        birth: birth,                       // ★ 관리자 조회(getCurriculumStats)에 필요
+        birth: result.token || birth,       // ★ 관리자 = 출입증(24자리) · 학생 = 생년월일 (2026-10-08 T40)
         role: result.role || '', isAdmin: result.isAdmin || false,
         isStaff: result.isStaff || false, loginTime: Date.now(),
-        affiliation: result.affiliation || 'korea'
+        affiliation: result.affiliation || 'korea',
+        perms: result.perms || null,        // ★ T40 — 관리자 화면 권한 (「전체」 또는 화면 이름)
+        tokenExp: result.tokenExp || 0      // ★ T40 — 출입증 만료 시각
       }));
       setTimeout(() => {
         document.getElementById('auth-overlay').classList.add('hidden');
@@ -1540,10 +1497,19 @@ function doAuth() {
         checkNoticePopup();
       }, 700);
     } else {
-      showMsg('error','학번 또는 생년월일이 일치하지 않습니다.');
+      showMsg('error', (result && result.status === 'fail' && result.message && (_authAdminMode || /관리자/.test(result.message))) ? result.message
+                       : (_authAdminMode ? '학번 또는 비밀번호가 맞지 않습니다.' : '학번 또는 생년월일이 일치하지 않습니다.'));
       btn.disabled = false;
     }
   };
+  if (_authAdminMode) {   // ★ 2026-10-08 T40 — 관리자 비밀번호는 POST 로만 보낸다 (주소에 남지 않게)
+    const body = new URLSearchParams({ action: 'adminLogin', studentId: sid, password: birth, userAgent: navigator.userAgent || '' });
+    fetch(EXEC_URL, { method: 'POST', body: body })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { if (window[cbName]) window[cbName](res); })
+      .catch(function () { clearTimeout(loginTO); delete window[cbName]; showMsg('error', '네트워크 오류가 발생했습니다. 다시 시도해주세요.'); btn.disabled = false; });
+    return;
+  }
   const script = document.createElement('script');
   script.id = cbName + '_script';
   script.src = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth) +
@@ -1558,6 +1524,15 @@ function showMsg(type, text) {
 }
 
 function doLogout() {
+  try {   // ★ T40 — 서버의 출입증도 지운다 (응답은 기다리지 않는다)
+    const _a = checkAuth();
+    if (_a && _a.isAdmin && /^\d{24}$/.test(String(_a.birth || ''))) {
+      const _s = document.createElement('script');
+      window.__admOut = function () {};
+      _s.src = EXEC_URL + '?action=adminLogout&token=' + encodeURIComponent(_a.birth) + '&callback=__admOut';
+      document.head.appendChild(_s);
+    }
+  } catch (e) {}
   localStorage.removeItem(AUTH_KEY);
   const _ts = document.getElementById('todo-strip');
   if (_ts) { _ts.classList.remove('show'); _ts.innerHTML = ''; }
@@ -1592,21 +1567,29 @@ function showUserBar() {
   document.getElementById('mileage-section').classList.add('show');
   loadInjeId();   // ★ 인제대 LMS 안내 (2026-08-31). 호출부는 여기 한 곳뿐이다 — 중복 호출 시 JSONP 경합
   if (auth.isAdmin) {
+    const _full = _admCan(auth, '전체');
     const hubBtn = document.getElementById('hub-link');
-    if (hubBtn) hubBtn.style.display = 'flex';
+    if (hubBtn && _admCan(auth, '교과목허브')) hubBtn.style.display = 'flex';
     document.getElementById('admin-section').classList.add('show');
-    document.getElementById('adminMileageToggle').style.display = 'flex';
+    // ★ T40 — 권한 없는 버튼은 숨기고, 버튼이 하나도 안 남은 카드도 숨긴다
+    document.querySelectorAll('#admin-section [data-perm]').forEach(function (a) {
+      a.style.display = _admCan(auth, a.getAttribute('data-perm')) ? '' : 'none';
+    });
+    document.querySelectorAll('#admin-section .admin-card').forEach(function (c) {
+      const left = Array.prototype.some.call(c.querySelectorAll('.admin-link'), function (a) { return a.style.display !== 'none'; });
+      c.style.display = left ? '' : 'none';
+    });
     const _apb = document.getElementById('admPrevBar');
-    if (_apb) _apb.classList.add('show');
+    if (_apb && _full) _apb.classList.add('show');
     const _iab = document.getElementById('injeAdmBar');
-    if (_iab) _iab.classList.add('show');
+    if (_iab && _full) _iab.classList.add('show');
     // 🔴 setTimeout 0 을 빼지 말 것.
     //   loadTodoStrip 은 TODO_*(const)·_todoLoading(let)을 쓰는데,
     //   이 둘은 초기화 IIFE보다 아래에 선언돼 있다. 즉시 호출하면 TDZ
     //   ReferenceError 가 나고 스크립트 평가가 그 자리에서 멈춰,
     //   아래쪽 mileageData 등이 초기화되지 않아 마일리지 화면이 통째로 죽는다.
     //   (관리자 경로에서만 발생 — 학생은 이 블록에 들어오지 않는다)
-    setTimeout(function () { loadTodoStrip(); }, 0);
+    if (_full) setTimeout(function () { loadTodoStrip(); }, 0);
   }
   // 학점교류생 배너
   const existingBanner = document.getElementById('exchange-banner');
@@ -1638,6 +1621,26 @@ function showUserBar() {
     // _admPrevSid 가 비어 있는 평상시에는 auth.studentId 와 동일하다.
     loadMileage(_admViewSid(auth)); loadExtMileage(_admViewSid(auth));
   }
+}
+
+// ★ 2026-10-08 T40 — 관리자·직원은 학번 + 비밀번호. 학생 칸(숫자 8자리)은 그대로 둔다
+let _authAdminMode = false;
+function toggleAdminMode() {
+  _authAdminMode = !_authAdminMode;
+  const inp = document.getElementById('auth-birth');
+  document.getElementById('auth-birth-label').textContent = _authAdminMode ? '비밀번호' : '생년월일 8자리';
+  document.getElementById('auth-mode').textContent = _authAdminMode ? '학생 로그인 (생년월일)' : '관리자 로그인 (비밀번호)';
+  if (_authAdminMode) { inp.removeAttribute('maxlength'); inp.setAttribute('inputmode', 'text'); inp.placeholder = '관리자 비밀번호'; }
+  else { inp.setAttribute('maxlength', '8'); inp.setAttribute('inputmode', 'numeric'); inp.placeholder = '예: 20010315'; }
+  inp.value = ''; inp.focus();
+  document.getElementById('auth-msg').textContent = '';
+}
+/** 관리자 화면 권한 — perms 가 없으면(예전 로그인) 전체로 본다. 서버가 다시 확인하므로 화면 표시용 */
+function _admCan(auth, key) {
+  if (!auth || !auth.isAdmin) return false;
+  const p = auth.perms;
+  if (!p || !p.length) return true;
+  return p.indexOf('전체') > -1 || (!!key && p.indexOf(key) > -1);
 }
 
 function togglePw() {
@@ -3178,65 +3181,6 @@ function toggleExtSection() {
 }
 
 
-function toggleAdminMileage() {
-  document.getElementById('adminMileagePanel').classList.toggle('show');
-}
-
-function submitMileage() {
-  const semester   = document.getElementById('mileageSemester').value;
-  const progName   = document.getElementById('mileageProgName').value.trim();
-  const category   = document.getElementById('mileageCategory').value;
-  const status     = document.getElementById('mileageStatus').value;
-  const date       = document.getElementById('mileageDate').value;
-  const idsRaw     = document.getElementById('mileageStudentIds').value;
-  const studentIds = idsRaw.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
-  const msgEl      = document.getElementById('mileageResultMsg');
-  msgEl.className  = 'mileage-result-msg';
-  msgEl.textContent = '';
-
-  let rawPoints = parseInt(document.getElementById('mileagePoints').value);
-  if (!progName || !rawPoints || studentIds.length === 0) {
-    msgEl.textContent = '프로그램명, 점수, 학번을 모두 입력해주세요.';
-    msgEl.classList.add('err'); return;
-  }
-  // 패널티는 점수를 음수로 저장
-  const points = status === '패널티' ? -Math.abs(rawPoints) : Math.abs(rawPoints);
-
-  const pid = 'P' + Date.now().toString().slice(-6);
-  const params = new URLSearchParams({
-    action: 'addMileage', semester, programId: pid, programName: progName,
-    category, status, date, points, studentIds: studentIds.join(','),
-    // ★ 2026-10-07 T37 — 서버가 관리자 학번+생년월일을 다시 확인한다
-    reqId: (checkAuth() || {}).studentId || '', reqBirth: (checkAuth() || {}).birth || ''
-  });
-
-  const btn = document.querySelector('.mileage-submit-btn');
-  btn.disabled = true; btn.textContent = '처리 중...';
-
-  fetch(SCRIPT_URL, { method: 'POST', body: params })
-    .then(r => r.json())
-    .then(data => {
-      btn.disabled = false; btn.textContent = '적립하기';
-      if (data.status === 'ok') {
-        const notFoundMsg = data.notFound && data.notFound.length > 0 ? '\n미확인 학번: ' + data.notFound.join(', ') : '';
-        msgEl.textContent = '✓ ' + data.added + '명 완료' + notFoundMsg;
-        msgEl.classList.add('ok');
-        document.getElementById('mileageProgName').value = '';
-        document.getElementById('mileagePoints').value = '';
-        document.getElementById('mileageStudentIds').value = '';
-        document.getElementById('mileageDate').value = '';
-        document.getElementById('mileageStatus').value = '정상';
-      } else {
-        msgEl.textContent = '오류: ' + (data.message || '알 수 없는 오류');
-        msgEl.classList.add('err');
-      }
-    })
-    .catch(() => {
-      btn.disabled = false; btn.textContent = '적립하기';
-      msgEl.textContent = '네트워크 오류가 발생했습니다.';
-      msgEl.classList.add('err');
-    });
-}
 </script>
 </body>
 </html>

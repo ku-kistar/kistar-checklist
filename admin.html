@@ -1226,6 +1226,12 @@ function dropMsg(t, color){
 
 // ★ 2026-10-07 T37 — 관리자 생년월일. 체크리스트 로그인에 없으면 데이터허브 로그인 값을 쓴다
 function _admBirth(auth){
+  // ★ 2026-10-08 T40 — 데이터허브 대문 관리자 로그인의 출입증(24자리)을 먼저 쓴다. 생년월일로는 서버가 거절한다
+  try{
+    var u0 = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    if(u0 && auth && String(u0.studentId) === String(auth.studentId) && /^\d{24}$/.test(String(u0.birth || ''))
+       && (!u0.tokenExp || Date.now() < u0.tokenExp)) return String(u0.birth);
+  }catch(e){}
   if(auth && (auth.birth || auth.birthDate)) return auth.birth || auth.birthDate;
   try{
     var u = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
