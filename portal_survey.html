@@ -609,7 +609,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div class="auth-field">
       <label id="auth-birth-label">생년월일 8자리</label>
       <div class="pw-wrap">
-        <input type="password" id="auth-birth" placeholder="예: 20010315" maxlength="8" inputmode="numeric">
+        <input type="password" id="auth-birth" placeholder="예: 20010315" inputmode="numeric">
         <button class="pw-toggle" type="button" onclick="togglePw()">
           <svg id="eyeOn" width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M1 9C2.5 5.5 5.5 3 9 3s6.5 2.5 8 6c-1.5 3.5-4.5 6-8 6S2.5 12.5 1 9z" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
           <svg id="eyeOff" width="17" height="17" viewBox="0 0 18 18" fill="none" style="display:none"><path d="M1 9C2.5 5.5 5.5 3 9 3s6.5 2.5 8 6c-1.5 3.5-4.5 6-8 6S2.5 12.5 1 9z" stroke="currentColor" stroke-width="1.3"/><circle cx="9" cy="9" r="2.5" stroke="currentColor" stroke-width="1.3"/><line x1="2" y1="2" x2="16" y2="16" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -1462,7 +1462,9 @@ function doAuth() {
   const birth = document.getElementById('auth-birth').value.trim();
   const btn   = document.getElementById('auth-btn');
   if (!sid || !birth) { showMsg('error', _authAdminMode ? '학번과 비밀번호를 모두 입력해주세요.' : '학번과 생년월일을 모두 입력해주세요.'); return; }
-  if (!_authAdminMode && (birth.length !== 8 || !/^\d{8}$/.test(birth))) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
+  // ★ T40 — 학생 칸에 숫자 8자리가 아닌 값(문자 포함 또는 8자 초과)이 들어오면 관리자 비밀번호로 확인한다
+  const _pwTry = !_authAdminMode && !/^\d{0,8}$/.test(birth);
+  if (!_authAdminMode && !_pwTry && birth.length !== 8) { showMsg('error','생년월일은 8자리 숫자로 입력해주세요. (예: 20010315)'); return; }
   btn.disabled = true;
   showMsg('loading','확인 중...');
   const cbName = 'authCb_' + Date.now();
@@ -1505,12 +1507,13 @@ function doAuth() {
       showMsg('loading', '관리자 계정입니다 — 비밀번호를 입력하세요.');
       btn.disabled = false;
     } else {
-      showMsg('error', (result && result.status === 'fail' && result.message && (_authAdminMode || /관리자/.test(result.message))) ? result.message
+      showMsg('error', _pwTry ? '생년월일은 8자리 숫자로 입력해주세요. 관리자는 비밀번호를 다시 확인하세요.'
+                       : (result && result.status === 'fail' && result.message && (_authAdminMode || /관리자/.test(result.message))) ? result.message
                        : (_authAdminMode ? '학번 또는 비밀번호가 맞지 않습니다.' : '학번 또는 생년월일이 일치하지 않습니다.'));
       btn.disabled = false;
     }
   };
-  if (_authAdminMode) {   // ★ 2026-10-08 T40 — 관리자 비밀번호는 POST 로만 보낸다 (주소에 남지 않게)
+  if (_authAdminMode || _pwTry) {   // ★ 2026-10-08 T40 — 관리자 비밀번호는 POST 로만 보낸다 (주소에 남지 않게)
     const body = new URLSearchParams({ action: 'adminLogin', studentId: sid, password: birth, userAgent: navigator.userAgent || '' });
     fetch(EXEC_URL, { method: 'POST', body: body })
       .then(function (r) { return r.json(); })
@@ -1639,7 +1642,7 @@ function toggleAdminMode() {
   document.getElementById('auth-birth-label').textContent = _authAdminMode ? '비밀번호' : '생년월일 8자리';
   document.getElementById('auth-mode').textContent = _authAdminMode ? '학생 로그인 (생년월일)' : '관리자 로그인 (비밀번호)';
   if (_authAdminMode) { inp.removeAttribute('maxlength'); inp.setAttribute('inputmode', 'text'); inp.placeholder = '관리자 비밀번호'; }
-  else { inp.setAttribute('maxlength', '8'); inp.setAttribute('inputmode', 'numeric'); inp.placeholder = '예: 20010315'; }
+  else { inp.setAttribute('inputmode', 'numeric'); inp.placeholder = '예: 20010315'; }
   inp.value = ''; inp.focus();
   document.getElementById('auth-msg').textContent = '';
 }
