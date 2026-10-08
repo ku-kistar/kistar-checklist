@@ -2938,10 +2938,29 @@ function loadExtMileage(studentId) {
   const loadingEl = document.getElementById('extLoading');
   if(loadingEl) loadingEl.style.display = 'block';
 
+  // ★ 2026-10-08 T41 — 폼 응답 GAS가 본인 확인 후 「본인 행만」 돌려준다 (예전엔 전원 목록을 받아 브라우저에서 걸렀다)
+  //   관리자 미리보기 : reqId·reqBirth + targetId  /  평상시 : studentId + birthDate
+  const auth = checkAuth() || {};
+  const preview = !!(typeof _admPrevSid !== 'undefined' && _admPrevSid);
+  let qs;
+  if (preview) {
+    if (!auth.isAdmin) { renderExtError(); return; }
+    qs = '&reqId=' + encodeURIComponent(auth.studentId || '')
+       + '&reqBirth=' + encodeURIComponent(String(auth.birth || auth.birthDate || '').replace(/[^0-9]/g, ''))
+       + '&targetId=' + encodeURIComponent(studentId);
+  } else {
+    const birth = String(auth.birth || auth.birthDate || '').replace(/[^0-9]/g, '');
+    // 체크리스트 자동로그인(verifyBySid)으로 들어오면 생년월일이 없다 → 다시 로그인 안내 (섹션은 숨기지 않는다)
+    if (birth.length !== 8) { renderExtRelogin(); return; }
+    qs = '&studentId=' + encodeURIComponent(studentId) + '&birthDate=' + encodeURIComponent(birth);
+  }
+
   const cbName = '_extCb_' + Date.now();
   window[cbName] = function(res) {
     delete window[cbName];
+    if(res && res.status === 'denied') { renderExtRelogin(res.message); return; }
     if(!res || res.status !== 'ok') { renderExtError(); return; }
+    // 서버가 이미 본인 행만 준다. 혹시 몰라 한 번 더 거른다
     const mine = (res.records || []).filter(r => String(r['학번']).trim() === String(studentId).trim());
     renderExtMileage(mine);
   };
@@ -2953,8 +2972,20 @@ function loadExtMileage(studentId) {
 
   const s = document.createElement('script');
   s.onerror = () => { clearTimeout(to); delete window[cbName]; renderExtError(); };
-  s.src = EXT_GAS_URL + '?action=getList&callback=' + cbName;
+  s.src = EXT_GAS_URL + '?action=getList' + qs + '&callback=' + cbName;
   document.body.appendChild(s);
+}
+
+/** 본인 확인이 안 될 때 — 숨기지 않고 다시 로그인하도록 안내한다 */
+function renderExtRelogin(msg) {
+  const ld = document.getElementById('extLoading');
+  if(ld) ld.style.display = 'none';
+  const listEl = document.getElementById('extList');
+  if(listEl) listEl.innerHTML = '<div class="ext-error">🔒 신청 현황은 본인 확인 후 보입니다. '
+    + '<a href="#" onclick="doLogout();return false;" style="color:inherit;font-weight:700;text-decoration:underline">로그아웃</a> 후 학번·생년월일로 다시 로그인해 주세요.'
+    + (msg && /10분/.test(msg) ? '<br>' + msg : '') + '</div>';
+  const section = document.getElementById('extSection');
+  if(section) section.style.display = 'block';
 }
 
 /* 제외 건 표시 시작일 — 이 날짜 이후 제출분 중 P열에 문구가 있는 건만 「ℹ️ 별도 처리」 카드로 보인다 (2026-10-08) */
