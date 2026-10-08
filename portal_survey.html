@@ -1217,7 +1217,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div class="mileage-total-card" id="mileageTotalCard" style="display:none">
       <div class="mtc-row">
         <div>
-          <div class="mileage-total-label">2026-1학기 마일리지</div>
+          <div class="mileage-total-label">마일리지</div>
           <div style="display:flex;align-items:baseline;gap:4px">
             <span class="mileage-total-num" id="mileageTotalNum">0</span>
             <span class="mileage-total-unit">점</span>
@@ -1249,7 +1249,6 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <span id="semesterSummaryNum"></span>
     </div>
     <div class="mileage-filter" id="mileageFilter" style="display:none">
-      <button class="mileage-filter-btn active" data-sem="2026-1" onclick="filterMileage('2026-1', this)">2026-1학기</button>
     </div>
     <!-- ★ 외부활동 신청 현황 -->
     <div class="ext-section" id="extSection" style="display:none">
@@ -2742,9 +2741,8 @@ function loadMileage(studentId) {
 
 function renderMileage(data) {
   document.getElementById('mileageTotalCard').style.display = 'block';
-  document.getElementById('mileageTotalNum').textContent = data.totalPoints;
-  const normalRecs = data.records.filter(r => r['상태'] === '정상');
-  document.getElementById('mileageActCount').textContent = normalRecs.length + '건';
+  // ★ 2026-10-08 — 큰 숫자·건수는 filterMileage()가 「선택한 학기」 기준으로 채운다.
+  //   (예전엔 data.totalPoints = 전 학기 합계를 그대로 써서 「2026-2학기 170점」처럼 보였다)
   document.getElementById('mileageFilter').style.display = 'flex';
 
   // ★ 개인 알림 (노쇼 경고) — 상단 개인알림 영역에 렌더링
@@ -2754,40 +2752,65 @@ function renderMileage(data) {
   const penaltyEl = document.getElementById('mileagePenalty');
   if (penaltyEl) penaltyEl.style.display = 'none';
 
-  // ★ 40점 달성 여부 — 정상 + 패널티 모두 합산 (실제 점수 기준)
-  const normSemCheck = s => (s || '').replace(/-0*(\d)$/, '-$1');
-  const pts261 = (data.records || [])
-    .filter(r => (r['상태'] === '정상' || r['상태'] === '패널티') && normSemCheck(r['학기']) === CUR_SEM)
-    .reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
-  const achieveBadge = document.getElementById('mileageAchieveBadge');
-  const pct = Math.min(pts261 / 40 * 100, 100);
-  document.getElementById('mileageProgressFill').style.width = pct + '%';
-  if (pts261 >= 40) {
-    achieveBadge.classList.remove('pending');
-    achieveBadge.textContent = '🎉 장학금 요건 충족';
-    document.getElementById('mileageProgressText').textContent =
-      '40점 기준 달성 · 활동계획서·결과보고서·신청서 현장 제출도 챙겨주세요';
-  } else {
-    achieveBadge.classList.add('pending');
-    achieveBadge.textContent = '40점까지 ' + (40 - pts261) + '점';
-    document.getElementById('mileageProgressText').textContent = pts261 + ' / 40점 (' + CUR_SEM + '학기)';
-  }
-
   // 교과 항목 있으면 안내 박스 표시
   const hasEdu = (data.records || []).some(r => r['카테고리'] === '교과' && r['상태'] === '정상');
   const eduNotice = document.getElementById('mileageEduNotice');
   if (eduNotice && hasEdu) eduNotice.style.display = 'block';
 
-  const _lbl = document.querySelector('.mileage-total-label');
-  if (_lbl) _lbl.textContent = CUR_SEM + '학기 마일리지';
-  const _btn = document.querySelector('.mileage-filter-btn');
-  if (_btn) {
-    _btn.dataset.sem = CUR_SEM;
-    _btn.textContent = CUR_SEM + '학기';
-    _btn.setAttribute('onclick', "filterMileage('" + CUR_SEM + "', this)");
+  // ★ 학기 버튼 — 현재 학기 + 직전 학기. 직전 학기 내역이 없어도 버튼은 늘 보인다 (누르면 「내역 없음」)
+  const fbox = document.getElementById('mileageFilter');
+  if (fbox) {
+    fbox.innerHTML = [CUR_SEM, prevSem_(CUR_SEM)].map(sm =>
+      '<button class="mileage-filter-btn" data-sem="' + sm + '" onclick="filterMileage(\'' + sm + '\', this)">' +
+      sm + '학기' + (sm === CUR_SEM ? '' : ' (기록)') + '</button>').join('');
   }
   filterMileage(CUR_SEM, null);
   }
+/** '2026-2' → '2026-1', '2026-1' → '2025-2' */
+function prevSem_(sem) {
+  const m = String(sem || '').match(/^(\d{4})-(\d)$/);
+  if (!m) return '';
+  return m[2] === '2' ? m[1] + '-1' : (parseInt(m[1], 10) - 1) + '-2';
+}
+
+/** 요약 카드 — 선택한 학기의 점수·건수. 40점 막대·배지는 현재 학기에만 (장학금은 현재 학기 점수로 본다) */
+function updateMileageSummary_(semester) {
+  if (!mileageData) return;
+  const normSem = s => (s || '').replace(/-0*(\d)$/, '-$1');
+  const inSem = (mileageData.records || []).filter(r => normSem(r['학기']) === semester);
+  const pts = inSem.filter(r => r['상태'] === '정상' || r['상태'] === '패널티')
+                   .reduce((sum, r) => sum + (parseInt(r['점수']) || 0), 0);
+  const cnt = inSem.filter(r => r['상태'] === '정상').length;
+  const isCur = semester === CUR_SEM;
+
+  document.getElementById('mileageTotalNum').textContent = pts;
+  document.getElementById('mileageActCount').textContent = cnt + '건';
+  const lbl = document.querySelector('.mileage-total-label');
+  if (lbl) lbl.textContent = semester + '학기 마일리지';
+
+  const badge = document.getElementById('mileageAchieveBadge');
+  const bar   = document.querySelector('#mileageTotalCard .mileage-progress-bar');
+  const note  = document.getElementById('mileageProgressText');
+  if (!isCur) {
+    if (badge) badge.style.display = 'none';
+    if (bar)   bar.style.display   = 'none';
+    if (note)  note.textContent = semester + '학기 확정 기록입니다 · 장학금은 ' + CUR_SEM + '학기 점수로 봅니다';
+    return;
+  }
+  if (badge) badge.style.display = '';
+  if (bar)   bar.style.display   = '';
+  document.getElementById('mileageProgressFill').style.width = Math.min(pts / 40 * 100, 100) + '%';
+  if (pts >= 40) {
+    badge.classList.remove('pending');
+    badge.textContent = '🎉 장학금 요건 충족';
+    note.textContent = '40점 기준 달성 · 활동계획서·결과보고서·신청서 현장 제출도 챙겨주세요';
+  } else {
+    badge.classList.add('pending');
+    badge.textContent = '40점까지 ' + (40 - pts) + '점';
+    note.textContent = pts + ' / 40점 (' + CUR_SEM + '학기)';
+  }
+}
+
 function toggleEduNotice() {
   const body = document.getElementById('eduNoticeBody');
   const btn = document.getElementById('eduNoticeToggleBtn');
@@ -2807,6 +2830,8 @@ function filterMileage(semester, btn) {
     if (target) target.classList.add('active');
   }
   if (!mileageData) return;
+  updateMileageSummary_(semester);
+  if (typeof _extAll !== 'undefined' && _extAll) renderExtMileage(_extAll);   // 외부활동 신청 현황도 같은 학기로
 
   const list = document.getElementById('mileageList');
   list.querySelectorAll('.m-table').forEach(el => el.remove());
@@ -2838,6 +2863,7 @@ function filterMileage(semester, btn) {
   const emptyEl = document.getElementById('mileageEmpty');
   const labelEl = document.getElementById('mileageListLabel');
   if (recs.length === 0) {
+    emptyEl.textContent = (semester === CUR_SEM || semester === 'all') ? '참여 내역이 없습니다.' : semester + '학기 활동 내역이 없습니다.';
     emptyEl.style.display = 'block';
     if (labelEl) labelEl.style.display = 'none';
     return;
@@ -2962,6 +2988,7 @@ function loadExtMileage(studentId) {
     if(!res || res.status !== 'ok') { renderExtError(); return; }
     // 서버가 이미 본인 행만 준다. 혹시 몰라 한 번 더 거른다
     const mine = (res.records || []).filter(r => String(r['학번']).trim() === String(studentId).trim());
+    _extAll = mine;                 // 학기 버튼을 바꿀 때 다시 거른다
     renderExtMileage(mine);
   };
   const to = setTimeout(() => {
@@ -2998,7 +3025,24 @@ function _extAfter(v, from) {
   return d >= from;
 }
 
+/* 외부활동 학기 구분 (2026-10-08) — 판정도구와 같은 규칙
+   · 판정 전 건(미판정·점수 없음) = 현재 학기
+   · 판정된 건 = 제출일이 EXT_SEM_SWITCH 이전이면 직전 학기
+   ※ 활동 인정 기간(2학기 8/22~)은 판정 때 증빙으로 거른다. 여기 날짜는 「제출일」 기준 화면 구분이다
+     (1학기 마지막 제출 08-26 · 2학기 첫 제출 09-14). 학기 전환 때 판정도구 SEM_SWITCH와 함께 바꾼다. */
+const EXT_SEM_SWITCH = '2026-09-01';
+let _extAll = null;
+function _extSem(r) {
+  const L = String(r['판정상태'] || '').trim();
+  const judged = (!!L && L !== '미판정') || String(r['판정점수'] == null ? '' : r['판정점수']).trim() !== '';
+  if (!judged || _extAfter(r['제출일시'], EXT_SEM_SWITCH)) return CUR_SEM;
+  return /\d{4}\D+\d/.test(String(r['제출일시'] || '')) ? prevSem_(CUR_SEM) : CUR_SEM;
+}
+
 function renderExtMileage(records) {
+  // 선택한 학기 건만 (요약 카드·적립 내역과 같은 학기)
+  const _semSel = (currentFilter && currentFilter !== 'all') ? currentFilter : CUR_SEM;
+  records = (records || []).filter(r => _extSem(r) === _semSel);
   const section = document.getElementById('extSection');
   const listEl = document.getElementById('extList');
   const ld = document.getElementById('extLoading');
