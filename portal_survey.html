@@ -618,7 +618,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     </div>
     <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
     <div class="auth-msg" id="auth-msg"></div>
-    <button type="button" class="auth-mode" id="auth-mode" onclick="toggleAdminMode()">관리자 로그인 (비밀번호)</button>
+    <button type="button" class="auth-mode" id="auth-mode" onclick="toggleAdminMode()" style="display:none">관리자 로그인 (비밀번호)</button>
   </div>
 </div>
 
@@ -1480,6 +1480,7 @@ function doAuth() {
     if (s && s.parentNode) s.parentNode.removeChild(s);
     if (result.status === 'ok') {
       showMsg('success', result.name + '님, 환영합니다!');
+      if (result.token) { try { localStorage.setItem('kistar_admin_device', '1'); } catch (e) {} }   // ★ T40 — 이 기기는 관리자 로그인 링크를 보인다
       localStorage.setItem(AUTH_KEY, JSON.stringify({
         name: result.name, dept: result.dept, studentId: sid,
         birth: result.token || birth,       // ★ 관리자 = 출입증(24자리) · 학생 = 생년월일 (2026-10-08 T40)
@@ -1496,6 +1497,13 @@ function doAuth() {
         loadSurveys(sid);
         checkNoticePopup();
       }, 700);
+    } else if (!_authAdminMode && result && result.status === 'fail' && /관리자 계정입니다/.test(result.message || '')) {
+      // ★ T40 — 관리자 학번을 학생 칸에 넣으면 비밀번호 칸으로 바꿔 준다 (학생에게는 버튼이 안 보인다)
+      _showAdminModeLink();
+      toggleAdminMode();
+      document.getElementById('auth-id').value = sid;
+      showMsg('loading', '관리자 계정입니다 — 비밀번호를 입력하세요.');
+      btn.disabled = false;
     } else {
       showMsg('error', (result && result.status === 'fail' && result.message && (_authAdminMode || /관리자/.test(result.message))) ? result.message
                        : (_authAdminMode ? '학번 또는 비밀번호가 맞지 않습니다.' : '학번 또는 생년월일이 일치하지 않습니다.'));
@@ -1635,6 +1643,13 @@ function toggleAdminMode() {
   inp.value = ''; inp.focus();
   document.getElementById('auth-msg').textContent = '';
 }
+/** 관리자 로그인 링크 — 학생에게는 숨긴다. 주소에 ?admin 이 있거나 관리자로 로그인했던 기기만 보인다 */
+function _showAdminModeLink() { const b = document.getElementById('auth-mode'); if (b) b.style.display = 'block'; }
+(function () {
+  try {
+    if (/[?&]admin\b/.test(location.search) || localStorage.getItem('kistar_admin_device') === '1') _showAdminModeLink();
+  } catch (e) {}
+})();
 /** 관리자 화면 권한 — perms 가 없으면(예전 로그인) 전체로 본다. 서버가 다시 확인하므로 화면 표시용 */
 function _admCan(auth, key) {
   if (!auth || !auth.isAdmin) return false;
