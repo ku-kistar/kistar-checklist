@@ -1474,9 +1474,10 @@ function doAuth() {
     if (s && s.parentNode) s.parentNode.removeChild(s);
     showMsg('error','서버 응답 시간이 초과되었습니다. 다시 시도해주세요.');
     btn.disabled = false;
-  }, 15000);
+  }, 30000);   // ★ 2026-10-08 — 15초 → 30초. 서버가 잠깐 쉬다 깨어날 때(첫 접속) 15초를 넘기는 경우가 있다
+  const _slowMsg = setTimeout(() => { if (window[cbName]) showMsg('loading', '확인 중... 서버 응답을 기다리고 있습니다 (최대 30초)'); }, 6000);
   window[cbName] = function(result) {
-    clearTimeout(loginTO);
+    clearTimeout(loginTO); clearTimeout(_slowMsg);
     delete window[cbName];
     const s = document.getElementById(cbName + '_script');
     if (s && s.parentNode) s.parentNode.removeChild(s);
