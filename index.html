@@ -593,7 +593,7 @@ function doAuth() {
               showLogoutBtn();
             }
           };
-          const s = document.createElement('script');
+          const s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
           s.id = '__autoLoginScript';
           s.src = SCRIPT_URL2 + '?action=verifyBySid&studentId=' + encodeURIComponent(sid) + '&token=' + encodeURIComponent(token) + '&callback=' + cbName;
           (document.head || document.documentElement).appendChild(s);

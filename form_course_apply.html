@@ -247,7 +247,7 @@ function jsonp(params, onOk, onErr){
   var qs = Object.keys(params).map(function(k){
     return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
   }).join('&');
-  var s = document.createElement('script');
+  var s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
   s.src = SCRIPT_URL_HUB + '?' + qs + '&callback=' + cb;
   s.onerror = function(){
     if(done) return;

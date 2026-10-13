@@ -230,7 +230,7 @@ function doSubmit() {
       btn.textContent = '선택 완료 · 제출하기';
     }
   };
-  const s = document.createElement('script');
+  const s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
   s.id = '__schedJsonp';
   s.src = SCRIPT_URL + '?action=submitSchedule'
     + '&studentId=' + encodeURIComponent(auth.studentId || '')

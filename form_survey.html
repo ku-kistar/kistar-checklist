@@ -615,7 +615,7 @@ function submitSurvey() {
 
   // JSONP 헬퍼
   function jsonpCall(params, cbName, onSuccess, onError) {
-    const scriptEl = document.createElement('script');
+    const scriptEl = document.createElement('script'); scriptEl.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     params.append('callback', cbName);
     const tid = setTimeout(function() {
       if (window[cbName]) {

@@ -435,7 +435,7 @@ var _n = 0;
 function jsonp(params){
   return new Promise(function(res, rej){
     var cb = '__mb' + (++_n) + '_' + Date.now();
-    var s  = document.createElement('script');
+    var s  = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     var to = setTimeout(function(){ cleanup(); rej(new Error('시간 초과')); }, 30000);
     function cleanup(){
       clearTimeout(to);
