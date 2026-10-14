@@ -227,7 +227,7 @@ function jsonp(params){
     window[cb] = d => { cleanup(); resolve(d); };
     const q = Object.entries({...params, callback: cb})
       .map(([k,v]) => encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
-    const sc = document.createElement('script');
+    const sc = document.createElement('script'); sc.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     sc.src = EXEC_URL + '?' + q;
     sc.onerror = () => { cleanup(); reject(new Error('네트워크 오류')); };
     document.head.appendChild(sc);

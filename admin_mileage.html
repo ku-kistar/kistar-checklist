@@ -284,7 +284,7 @@ function buildSemTabs(cb) {
     }
     if (cb) cb();
   };
-  const s = document.createElement('script');
+  const s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     s.src = EXEC_URL + '?action=getSemesters&callback=' + cbName;
   document.head.appendChild(s);
 }
@@ -305,7 +305,7 @@ function _admCred() {
 function callGAS(params) {
   return new Promise(function(resolve, reject) {
     const cbName = "_cb_" + Date.now();
-    const script = document.createElement("script");
+    const script = document.createElement("script"); script.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     const url = EXEC_URL + "?" + Object.entries(Object.assign({callback: cbName}, _admCred(), params))
       .map(function([k,v]){return k+"="+encodeURIComponent(v);}).join("&");
     window[cbName] = function(data) {

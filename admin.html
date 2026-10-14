@@ -335,7 +335,7 @@ const HUB_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31q
 function hubCall(params){
   return new Promise(function(resolve, reject){
     var cb = 'hcb_' + Math.random().toString(36).slice(2);
-    var sc = document.createElement('script');
+    var sc = document.createElement('script'); sc.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     var t  = setTimeout(function(){ cleanup(); reject(new Error('응답 시간 초과')); }, 30000);
     function cleanup(){ clearTimeout(t); try{ delete window[cb]; }catch(e){} if(sc.parentNode) sc.remove(); }
     window[cb] = function(d){ cleanup(); resolve(d); };
@@ -378,7 +378,7 @@ function normSem(txt){
         document.getElementById('access-denied').style.display = 'block';
       }
     };
-    const s = document.createElement('script');
+    const s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     s.src = HUB_URL + '?action=verifyAdmin&studentId=' + encodeURIComponent(auth.studentId)
       + '&birthdate=' + encodeURIComponent(auth.birthdate || '')
       + '&page=admin_dashboard&callback=' + cbName;

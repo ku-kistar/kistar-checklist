@@ -224,7 +224,7 @@ let allRecords = []; // 전체 응답 원본
 function callGAS(params) {
   return new Promise(function(resolve, reject) {
     const cbName = "_cb_" + Date.now() + Math.random().toString(36).slice(2);
-    const script = document.createElement("script");
+    const script = document.createElement("script"); script.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     const url = SCRIPT_URL + "?" + Object.entries(Object.assign({callback: cbName}, params))
       .map(function(e){return e[0]+"="+encodeURIComponent(e[1]);}).join("&");
     window[cbName] = function(data) { delete window[cbName]; document.body.removeChild(script); resolve(data); };
@@ -284,7 +284,7 @@ function loadData() {
     document.getElementById('dataArea').style.display = 'block';
   };
 
-  const s = document.createElement('script');
+  const s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
   s.id = '__adminJsonp';
   // ★ 2026-10-07 T37 — 서버가 관리자 학번+생년월일을 다시 확인한다
   let _a = {};

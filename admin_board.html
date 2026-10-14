@@ -551,7 +551,7 @@ function toast(msg, isErr){
 function callGAS(params){
   return new Promise(function(resolve,reject){
     var cb="_cb_"+Date.now()+"_"+Math.floor(Math.random()*1e6);
-    var s=document.createElement("script");
+    var s=document.createElement("script"); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     var q=Object.assign({callback:cb},params);
     s.src=EXEC_URL+"?"+Object.keys(q).map(function(k){return k+"="+encodeURIComponent(q[k]);}).join("&");
     window[cb]=function(d){delete window[cb];if(s.parentNode)s.parentNode.removeChild(s);resolve(d);};

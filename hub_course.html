@@ -409,7 +409,7 @@ function esc(s){ return String(s == null ? '' : s)
 function call(params){
   return new Promise(function(res, rej){
     var cb = 'hub_' + Math.random().toString(36).slice(2);
-    var s = document.createElement('script');
+    var s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     var t = setTimeout(function(){ done(); rej(new Error('응답이 없습니다. 잠시 뒤 다시 시도하세요.')); }, 25000);
     function done(){ clearTimeout(t); try{ delete window[cb]; }catch(e){ window[cb] = undefined; }
       if (s.parentNode) s.parentNode.removeChild(s); }

@@ -238,6 +238,8 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .todo-title a{color:inherit;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2)}
 .todo-title a:hover{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
 .todo-sub{font-size:11px;color:rgba(255,255,255,.42);margin-top:2px;line-height:1.5}
+/* 긴 영문·파일명 줄이 화면 밖으로 튀어나가지 않게 (2026-10-13) */
+.todo-title,.todo-sub{overflow-wrap:anywhere;min-width:0}
 .todo-area{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.4);margin-right:4px}
 .todo-todo{flex-shrink:0;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.34);border:1px dashed rgba(255,255,255,.18);border-radius:6px;padding:3px 7px;white-space:nowrap}
 .todo-copy{flex-shrink:0;font-size:10px;font-weight:700;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.18);background:transparent;border-radius:6px;padding:4px 8px;white-space:nowrap;cursor:pointer;font-family:inherit;min-height:28px}
