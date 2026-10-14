@@ -84,13 +84,14 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty-state{text-align:center;padding:3rem;color:var(--text3);font-size:13px}
+/* 휴대폰: 학년별 상위 5명 1열 (2026-10-14 — 전에는 인쇄 블록 안에 있어 적용되지 않았다) */
+@media(max-width:700px){#top5Grid{grid-template-columns:1fr!important}}
 #access-denied{display:none;max-width:400px;margin:4rem auto;text-align:center;padding:2rem;background:var(--surface);border-radius:16px;border:1px solid var(--border)}
 @media print{
   .top-bar,.sem-tabs,.btn-group,.table-search{display:none!important}
   body{background:#fff;padding:0}
   .container{max-width:100%;padding:.5rem}
   .summary-grid{grid-template-columns:repeat(5,1fr)!important}
-@media(max-width:700px){#top5Grid{grid-template-columns:1fr!important}}
   .summary-card,.top5-section,.table-section{border:1px solid #ccc!important;break-inside:avoid}
   .summary-val{font-size:22px!important}
   thead th{background:#0b1f3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
