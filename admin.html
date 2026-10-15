@@ -176,8 +176,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 <div id="access-denied">
   <p style="font-size:32px;margin-bottom:1rem">🔒</p>
   <h2 style="font-size:18px;margin-bottom:.5rem">접근 권한 없음</h2>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">관리자 계정으로 로그인 후 이용하세요.</p>
-  <a href="./" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">대문으로 돌아가기</a>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">데이터허브 대문에서 관리자(학번 + 비밀번호)로 로그인한 뒤 이용하세요.<br>로그인은 6시간 유지됩니다.</p>
+  <a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">데이터허브 대문으로</a>
 </div>
 
 <div id="main-content" style="display:none">
@@ -189,10 +189,6 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     <p id="admin-user-info">로딩 중...</p>
   </div>
   <div class="header-nav">
-    <a href="./" class="back-btn">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M8 2L4 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      학과 선택으로
-    </a>
     <a href="admin_progress.html" class="back-btn">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="1.5" width="9" height="9" rx="1.8" stroke="currentColor" stroke-width="1.4"/><path d="M4 8V5.5M6 8V3.5M8 8V6.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       이수 현황
@@ -361,26 +357,37 @@ function normSem(txt){
   if (m) return m[1] + '-' + m[2];
   return '';
 }
+// ★ 2026-10-15 T40 후속 — 관리자 정보는 데이터허브 대문 로그인(kistar_auth_url2)에서 읽는다.
+//   10-08부터 관리자는 대문에서 학번+비밀번호로 로그인하고 24자리 출입증(6시간)을 받는다.
+//   체크리스트 로그인(kistar_auth)의 생년월일은 서버가 거절하므로 더 이상 쓰지 않는다.
+function _admAuth(){
+  try{
+    var u = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+    if(!u || !u.studentId) return null;
+    if(!/^\d{24}$/.test(String(u.birth || ''))) return null;      // 출입증 없음 = 관리자 로그인 아님
+    if(u.tokenExp && Date.now() > u.tokenExp) return null;         // 6시간 만료
+    return u;
+  }catch(e){ return null; }
+}
 (function(){
   try {
-    const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
-    if (!auth || !auth.studentId) {
+    const auth = _admAuth();
+    if (!auth) {
       document.getElementById('access-denied').style.display = 'block'; return;
     }
-    // GAS 서버사이드 관리자 검증
+    // GAS 서버사이드 관리자 검증 (다른 관리자 화면과 같은 방식). 데이터 요청은 서버가 출입증을 다시 확인한다
     const cbName = 'adminVerifyCb_' + Date.now();
     window[cbName] = function(result) {
       delete window[cbName]; document.head.removeChild(s);
       if (result && result.isAdmin) {
         document.getElementById('main-content').style.display = 'block';
-        document.getElementById('admin-user-info').textContent = auth.name + ' · ' + auth.dept;
+        document.getElementById('admin-user-info').textContent = (auth.name || '관리자') + (auth.dept ? ' · ' + auth.dept : '');
       } else {
         document.getElementById('access-denied').style.display = 'block';
       }
     };
     const s = document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
     s.src = HUB_URL + '?action=verifyAdmin&studentId=' + encodeURIComponent(auth.studentId)
-      + '&birthdate=' + encodeURIComponent(auth.birthdate || '')
       + '&page=admin_dashboard&callback=' + cbName;
     s.onerror = () => { document.getElementById('access-denied').style.display = 'block'; };
     document.head.appendChild(s);
@@ -1242,7 +1249,7 @@ function _admBirth(auth){
 
 // 학번으로 이름·학과 조회 → 입력칸과 학과 탭을 채운다
 function lookupStudent(sid){
-  var auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
+  var auth = _admAuth();   // ★ 2026-10-15 T40 후속
   if(!auth || !auth.studentId) return Promise.resolve(null);
   return hubCall({action:'getProgressOne', studentId:sid, adminId:auth.studentId, adminBirth:_admBirth(auth)})
     .then(function(r){
@@ -1568,8 +1575,8 @@ function saveResult(){
   el.className = 'save-result show success';
   el.textContent = '저장 중...';
 
-  const auth = JSON.parse(localStorage.getItem('kistar_auth') || 'null');
-  if (!auth || !auth.studentId) { showSaveResult('error','관리자 로그인이 필요합니다.'); return; }
+  const auth = _admAuth();   // ★ 2026-10-15 T40 후속
+  if (!auth) { showSaveResult('error','관리자 로그인이 만료됐습니다. 데이터허브 대문에서 다시 로그인한 뒤 저장해 주세요. (입력한 내용은 이 창에 그대로 있습니다)'); return; }
 
   hubCall({
     action:'saveProgress',
