@@ -945,7 +945,7 @@ function loadChecklistStatus(dept){
     const state=JSON.parse(saved);const raw=state.raw||{1:0,2:0,3:0,4:0,5:0};
     const c1=Math.min(raw[1]||0,12),c2=Math.min(raw[2]||0,6),c3=Math.min(raw[3]||0,6),c4=Math.min(raw[4]||0,6),c5=Math.min(raw[5]||0,6);
     const total=c1+c2+c3+c4+c5;
-    const labels=['[1]전공트랙','[2]공동운영','[3]산학연계','[4]자유이수','[5]학부인정'];const maxes=[12,6,6,6,6];const vals=[c1,c2,c3,c4,c5];
+    const labels=['[1]전공트랙','[2]공동운영','[3]산학연계','[4]자유이수','[5]학부인정'];const maxes=[12,6,6,6,6];const vals=[c1,c2,c4,c5,c3];/* raw[3]=학부인정 · raw[4]=산학연계 · raw[5]=자유이수 (화면 번호와 다름 — 마스터 §4) */
     wrap.innerHTML='<div class="status-grid">'+vals.map((v,i)=>'<div class="status-item '+(v>=maxes[i]?'ok':'fail')+'"><div class="status-item-num">'+v+'</div><div class="status-item-label">'+labels[i]+'</div><div class="status-item-sub">/ '+maxes[i]+'학점 '+(v>=maxes[i]?'✓':'')+'</div></div>').join('')+'</div><div class="status-total"><span class="status-total-label">총 이수학점</span><span class="status-total-val '+(total>=36?'complete':'')+'">'+total+' / 36학점</span></div>';
   }catch(e){wrap.innerHTML='<div class="status-no-data">데이터 읽기 오류</div>';}
 }
