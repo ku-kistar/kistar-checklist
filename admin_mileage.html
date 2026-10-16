@@ -355,7 +355,7 @@ window.addEventListener("DOMContentLoaded", function() {
   try {
     const auth = JSON.parse(localStorage.getItem("kistar_auth_url2") || "null");
     const EXPIRE_MS = 8*60*60*1000;
-    if (!auth || !auth.studentId || Date.now()-(auth.loginTime||0)>EXPIRE_MS) {
+    if (!auth || !auth.studentId || Date.now()-(auth.loginTime||0)>EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)) {   // ★ 2026-10-16 관리자 출입증(6시간) 만료도 같이 본다
       document.getElementById("access-denied").style.display="block"; return;
     }
     // GAS 서버사이드 관리자 재검증
@@ -562,7 +562,7 @@ window.addEventListener("pageshow", function(e) {
   if (e.persisted) {
     const auth = JSON.parse(localStorage.getItem("kistar_auth_url2")||"null");
     const EXPIRE_MS = 8*60*60*1000;
-    if (!auth||!auth.studentId||Date.now()-(auth.loginTime||0)>EXPIRE_MS) {
+    if (!auth||!auth.studentId||Date.now()-(auth.loginTime||0)>EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)) {   // ★ 2026-10-16 관리자 출입증(6시간) 만료도 같이 본다
       document.getElementById("main-content").style.display="none";
       document.getElementById("access-denied").style.display="block";
     }

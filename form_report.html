@@ -677,9 +677,9 @@ window.addEventListener('DOMContentLoaded',function(){
     const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
     if(!auth){showAccessDenied('🔒','접근 권한 없음','로그인 후 이용하세요. portal_survey 페이지에서 로그인해주세요.');return;}
     const EXPIRE_MS=8*60*60*1000;
-    if(Date.now()-(auth.loginTime||0)>EXPIRE_MS){
+    if(Date.now()-(auth.loginTime||0)>EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)){   // ★ 2026-10-16 관리자 출입증(6시간) 만료도 같이 본다
       localStorage.removeItem('kistar_auth_url2');
-      showAccessDenied('⏱️','로그인 만료','로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.','← 홈으로 돌아가기');return;
+      showAccessDenied('⏱️','로그인 만료','로그인 유효 시간이 지났습니다.<br>데이터허브에서 다시 로그인해주세요.','← 홈으로 돌아가기');return;
     }
     const SUBMIT_KEY='kistar_report_'+(auth.studentId||'')+'_2026-2_submitted';
     const prevSubmit=localStorage.getItem(SUBMIT_KEY);
@@ -1289,7 +1289,7 @@ window.addEventListener('pageshow',function(e){
   if(e.persisted){
     const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');
     const EXPIRE_MS=8*60*60*1000;
-    if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS){document.getElementById('main-content').style.display='none';showAccessDenied('⏱️','로그인 만료','다시 로그인해주세요.');}
+    if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)){document.getElementById('main-content').style.display='none';showAccessDenied('⏱️','로그인 만료','다시 로그인해주세요.');}
   }
 });
 </script>

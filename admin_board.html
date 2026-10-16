@@ -349,7 +349,8 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
 
 <div id="access-denied">
   <h2>접근 권한이 없습니다</h2>
-  <p id="denyMsg">관리자만 열람할 수 있는 페이지입니다.<br>데이터허브에서 다시 로그인해 주세요.</p>
+  <p id="denyMsg">관리자만 열람할 수 있는 페이지입니다.<br>데이터허브 대문에서 다시 로그인해 주세요. (관리자는 학번 + 비밀번호)</p>
+  <a href="portal_survey.html" style="display:inline-block;margin-top:16px;padding:10px 22px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700">데이터허브 대문으로</a>
 </div>
 
 <div id="birth-gate">
@@ -579,7 +580,7 @@ window.addEventListener("DOMContentLoaded", function(){
   var auth=null;
   try{ auth=JSON.parse(localStorage.getItem("kistar_auth_url2")||"null"); }catch(e){}
   var EXPIRE=8*60*60*1000;
-  if(!auth||!auth.studentId||Date.now()-(auth.loginTime||0)>EXPIRE){
+  if(!auth||!auth.studentId||Date.now()-(auth.loginTime||0)>EXPIRE||(auth.tokenExp&&Date.now()>auth.tokenExp)){   // ★ 2026-10-16 관리자 출입증(6시간) 만료도 같이 본다
     $("access-denied").style.display="block"; return;
   }
   AUTH={studentId:auth.studentId, birthDate:""};
@@ -619,6 +620,8 @@ function loadData(){
     if(!res){ throw new Error("응답 없음"); }
     if(res.status==="denied"){
       $("loadingState").style.display="none";
+      // ★ 2026-10-16 관리자 출입증(24자리)이 거절되면 생년월일 창은 소용없다 → 대문 재로그인 안내
+      if(String(AUTH.birthDate).length===24){ $("access-denied").style.display="block"; return; }
       $("birth-gate").style.display="block";
       $("birthInput").value=""; $("birthInput").focus();
       showBirthErr(res.message||"확인에 실패했습니다.");

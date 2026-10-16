@@ -240,7 +240,7 @@ function checkAuth() {
     if (!raw) return null;
     const auth = JSON.parse(raw);
     if (!auth || !auth.studentId) return null;
-    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) { localStorage.removeItem(AUTH_KEY); return null; }
+    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)) { localStorage.removeItem(AUTH_KEY); return null; }   // ★ 2026-10-16 관리자 출입증(6시간) 만료도 같이 본다
     return auth;
   } catch(e) { return null; }
 }

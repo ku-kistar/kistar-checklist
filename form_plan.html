@@ -1225,9 +1225,9 @@ window.addEventListener('DOMContentLoaded', function() {
     const auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
     if (!auth) { document.getElementById('access-denied').style.display = 'block'; return; }
     const EXPIRE_MS = 8 * 60 * 60 * 1000;
-    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS) {
+    if (Date.now() - (auth.loginTime || 0) > EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)) {   // ★ 2026-10-16 관리자 출입증(6시간) 만료도 같이 본다
       localStorage.removeItem('kistar_auth_url2');
-      document.getElementById('access-denied').innerHTML = '<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 후 8시간이 경과했습니다.<br>다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 홈으로 돌아가기</a>';
+      document.getElementById('access-denied').innerHTML = '<p style="font-size:32px;margin-bottom:1rem">⏱️</p><h2 style="font-size:18px;margin-bottom:.5rem">로그인 만료</h2><p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem">로그인 유효 시간이 지났습니다.<br>데이터허브에서 다시 로그인해주세요.</p><a href="portal_survey.html" style="display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600">← 홈으로 돌아가기</a>';
       document.getElementById('access-denied').style.display = 'block';
       return;
     }
@@ -1621,7 +1621,7 @@ function _planBoot(sid){
         _planLocked=true; setFormReadonly(true);
         _planBanner('er','제출 기록은 있지만 내용을 불러오지 못했습니다',
           '<b>'+at+'</b>에 제출한 기록이 있습니다. 이 상태로 다시 제출하면 <b>빈 칸이 그대로 기존 제출본을 덮어써</b> 장학금 서류 요건을 잃을 수 있어 제출을 막아 두었습니다.<br>'+
-          '데이터 허브에서 <b>학번 · 생년월일로 다시 로그인</b>하면 제출한 내용이 채워집니다.',
+          '데이터 허브에서 <b>다시 로그인</b>(학생은 학번·생년월일, 관리자는 학번·비밀번호)하면 제출한 내용이 채워집니다.',
           '<button type="button" class="ps-btn" onclick="_planRelogin()">다시 로그인하기 →</button>');
       });
   });
@@ -1710,7 +1710,7 @@ function syncAllPrintTexts() {
 window.addEventListener('beforeprint', syncAllPrintTexts);
 
 window.addEventListener('pageshow',function(e){
-  if(e.persisted){const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');const EXPIRE_MS=8*60*60*1000;if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS){document.getElementById('main-content').style.display='none';document.getElementById('access-denied').style.display='block';}}
+  if(e.persisted){const auth=JSON.parse(localStorage.getItem('kistar_auth_url2')||'null');const EXPIRE_MS=8*60*60*1000;if(!auth||Date.now()-(auth.loginTime||0)>EXPIRE_MS||(auth.tokenExp&&Date.now()>auth.tokenExp)){document.getElementById('main-content').style.display='none';document.getElementById('access-denied').style.display='block';}}
 });
 </script>
 </body>
