@@ -660,7 +660,21 @@ function start(d){
       selectCourse(courses[+b.dataset.i]);
     };
   }
+  // ★ 2026-10-16 전체 현황에서 새 탭으로 열린 경우 — 주소의 과목·주차로 바로 간다 (관리자만)
+  var dl = deepLink();
+  if (dl && role === 'admin' && !viewAs){ deepLinkUsed = true; ovGo(dl.c, dl.r, dl.k, true); return; }
   selectCourse(courses[0]);
+}
+
+var deepLinkUsed = false;
+function deepLink(){
+  if (deepLinkUsed) return null;   // 조교 시점 전환 등으로 start 가 다시 불리면 처음 과목으로
+  try {
+    var q = new URLSearchParams(location.search);
+    var c = q.get('c'), r = parseInt(q.get('r'), 10), k = q.get('k');
+    if (!c || !r || (k !== 'week' && k !== 'speaker')) return null;
+    return { c:c, r:r, k:k };
+  } catch(e){ return null; }
 }
 
 function selectCourse(c, initKind){
@@ -862,14 +876,19 @@ function ovPaint(d){
      + '<span><i></i>아직 안 지난 주차</span>'
      + '<span><i class="off">휴</i>휴강</span>'
      + '<span><i class="pd"></i>수업 준비 미완료</span></div>'
-     + '<div class="ov-note">칸에 마우스를 올리면 준비 항목 수가 보이고, 누르면 그 주차로 넘어갑니다.</div></div>';
+     + '<div class="ov-note">칸에 마우스를 올리면 준비 항목 수가 보이고, 누르면 그 주차가 새 탭으로 열립니다. 이 탭으로 돌아오면 현황이 새로 고쳐집니다.</div></div>';
 
   h += '<div id="ovSpk"></div>';
 
   $('allWrap').innerHTML = h;
   $('allWrap').onclick = function(e){
     var b = e.target.closest('[data-c][data-r]'); if (!b) return;
-    ovGo(b.dataset.c, +b.dataset.r, b.dataset.k || 'week');
+    // ★ 2026-10-16 새 탭으로 연다 — 이 탭의 전체 현황은 그대로 남는다. 주소에는 과목·주차만 (출입증 없음)
+    var url = 'hub_course.html?c=' + encodeURIComponent(b.dataset.c) + '&r=' + (+b.dataset.r)
+            + '&k=' + encodeURIComponent(b.dataset.k || 'week');
+    var w = window.open(url, '_blank');
+    if (w){ ovLeft = true; try{ w.opener = null; }catch(x){} }
+    else ovGo(b.dataset.c, +b.dataset.r, b.dataset.k || 'week');   // 팝업 차단 시 예전처럼 이 탭에서
   };
 }
 
@@ -897,11 +916,11 @@ function ovPaintSpk(s){
   box.innerHTML = h;
 }
 
-function ovGo(code, row, kind){
+function ovGo(code, row, kind, fresh){
   var c = null;
   courses.forEach(function(x){ if (x.code === code) c = x; });
-  if (!c) return;
-  ovShow(false);
+  if (!c){ if (fresh) selectCourse(courses[0]); return; }
+  if (!fresh) ovShow(false);
 
   var p = $('pick');
   if (p && !p.hidden){
@@ -925,6 +944,24 @@ function ovGo(code, row, kind){
     el.classList.add('flash');
   });
 }
+
+/* ★ 2026-10-16 새 탭에서 확인·초기화하고 돌아오면 전체 현황을 다시 받는다.
+   「불러오는 중」으로 지우지 않고 받은 뒤 바꿔 그려 스크롤 위치를 지킨다. */
+var ovLeft = false, ovBusy = false;
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState !== 'visible' || !ovOn || !ovLeft || ovBusy) return;
+  ovLeft = false; ovBusy = true;
+  var y = window.scrollY, wrap = document.querySelector('#allWrap .ov-wrap'), x = wrap ? wrap.scrollLeft : 0;
+  call(withAuth({ action:'getTaOverview' })).then(function(d){
+    if (!d || !d.ok || !ovOn) return null;
+    ovPaint(d);
+    var w2 = document.querySelector('#allWrap .ov-wrap'); if (w2) w2.scrollLeft = x;
+    window.scrollTo(0, y);
+    return call(withAuth({ action:'getTaSpeakerOverview' })).catch(function(){ return null; });
+  }).then(function(s){
+    if (s && s.ok && ovOn){ ovPaintSpk(s); window.scrollTo(0, y); }
+  }).catch(function(){}).then(function(){ ovBusy = false; });
+});
 
 /* ── 탭 ── */
 function openKind(kind){
