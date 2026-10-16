@@ -2695,7 +2695,7 @@ function _admPrevSync(sid) {
    이수현황 화면과 같은 명단(getProgress · 관리자 출입증 확인)을 처음 입력칸을 누를 때
    한 번만 받아 메모리에만 둔다. 저장하지 않는다 — 새로고침하면 사라진다.
    이수현황 권한이 없는 계정은 명단을 못 받는다 → 학번 조회는 예전 그대로 된다. */
-var _admRoster = null, _admRosterJob = null;
+var _admRoster = null, _admRosterJob = null, _admRosterErr = '';
 function _admRosterLabel(r) {
   var y = String(r.year == null ? '' : r.year).trim();
   if (/^\d+$/.test(y)) y += '학년';
@@ -2707,6 +2707,7 @@ function _admRosterLoad() {
   if (_admRosterJob) return _admRosterJob;
   const auth = checkAuth();
   if (!auth || !auth.isAdmin) return Promise.resolve(null);
+  if (!_admPrevSid) _admPrevMsg('이름 후보를 불러오는 중… (처음 한 번, 몇 초 걸립니다)');
   _admRosterJob = new Promise(function (resolve) {
     const cb = '__admRosterCb_' + Date.now();
     const sc = document.createElement('script'); sc.crossOrigin = 'anonymous';
@@ -2718,7 +2719,7 @@ function _admRosterLoad() {
       resolve(list);
     }
     window[cb] = function (d) {
-      if (!d || d.status !== 'ok' || !d.students) { done(null); return; }
+      if (!d || d.status !== 'ok' || !d.students) { _admRosterErr = (d && d.message) || '응답 없음'; done(null); return; }
       _admRoster = d.students.map(function (r) {
         return { sid: String(r.sid || ''), name: String(r.name || ''), year: r.year, dept: r.dept || '', status: r.status || '' };
       }).filter(function (r) { return r.sid; });
@@ -2726,12 +2727,14 @@ function _admRosterLoad() {
       if (dl) dl.innerHTML = _admRoster.map(function (r) {
         return '<option value="' + escHtml(_admRosterLabel(r)) + '"></option>';
       }).join('');
+      if (!_admPrevSid) _admPrevMsg('이름 후보 ' + _admRoster.length + '명 준비됨 — 이름을 입력하면 아래에 후보가 뜹니다.');
       done(_admRoster);
     };
-    sc.onerror = function () { done(null); };
+    sc.onerror = function () { _admRosterErr = '연결 실패'; done(null); };
     sc.src = SCRIPT_URL + '?action=getProgress&studentId=' + encodeURIComponent(auth.studentId)
       + '&birthDate=' + encodeURIComponent(auth.birth || auth.birthDate || '')
-      + '&page=portal_survey_preview&callback=' + cb;
+      + '&page=admin_progress.html&userAgent=' + encodeURIComponent(navigator.userAgent)   // 이수현황 화면과 같은 요청
+      + '&callback=' + cb;
     document.head.appendChild(sc);
   });
   return _admRosterJob;
@@ -2749,7 +2752,7 @@ function _admPrevResolve(raw) {
   if (!v) { _admPrevMsg('학번 또는 이름을 입력하세요.', 'err'); return; }
   _admPrevMsg('명단에서 찾는 중…');
   _admRosterLoad().then(function (list) {
-    if (!list) { _admPrevMsg('명단을 불러오지 못했습니다(이수현황 권한 필요). 학번으로 조회해 주세요.', 'err'); return; }
+    if (!list) { _admPrevMsg('명단을 불러오지 못했습니다(' + (_admRosterErr || '이수현황 권한 필요') + '). 학번으로 조회해 주세요.', 'err'); return; }
     const q = v.replace(/\s+/g, '');
     const hit = list.filter(function (r) { return r.name.replace(/\s+/g, '').indexOf(q) >= 0; });
     if (!hit.length) { _admPrevMsg('「' + v + '」 학생을 명단에서 찾지 못했습니다.', 'err'); return; }
@@ -3059,7 +3062,11 @@ function renderMileageError() {
     document.getElementById('mileageEmpty').style.display = 'none';
     const box = document.createElement('div');
     box.className = 'ext-error m-table';
-    box.textContent = '⚠ 마일리지를 불러오지 못했습니다. 새로고침해 주세요.';
+    const _a = checkAuth() || {};
+    box.textContent = (_a.isAdmin && !_admPrevSid)   // ★ 2026-10-16 관리자 본인 학번은 마일리지 대상이 아니다
+      ? '관리자 계정입니다. 위 「ADMIN 미리보기」에 학번 또는 이름을 넣으면 그 학생의 마일리지가 보입니다.'
+      : '⚠ 마일리지를 불러오지 못했습니다. 새로고침해 주세요.';
+    if (_a.isAdmin && !_admPrevSid) box.style.color = 'rgba(255,255,255,.55)';
     list.appendChild(box);
   }
 }
@@ -3093,6 +3100,13 @@ function loadExtMileage(studentId) {
        + '&reqBirth=' + encodeURIComponent(String(auth.birth || auth.birthDate || '').replace(/[^0-9]/g, ''))
        + '&targetId=' + encodeURIComponent(studentId);
   } else {
+    // ★ 2026-10-16 관리자 본인 화면에는 신청 현황이 없다 — 재로그인 오류 대신 안내
+    if (auth.isAdmin && String(auth.birth || '').length === 24) {
+      if (loadingEl) loadingEl.style.display = 'none';
+      const le = document.getElementById('extList');
+      if (le) le.innerHTML = '<div class="ext-error" style="color:rgba(255,255,255,.55)">관리자 계정입니다. 위 「ADMIN 미리보기」에 학번 또는 이름을 넣으면 그 학생의 신청 현황이 보입니다.</div>';
+      return;
+    }
     const birth = String(auth.birth || auth.birthDate || '').replace(/[^0-9]/g, '');
     // 체크리스트 자동로그인(verifyBySid)으로 들어오면 생년월일이 없다 → 다시 로그인 안내 (섹션은 숨기지 않는다)
     if (birth.length !== 8) { renderExtRelogin(); return; }
