@@ -546,6 +546,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admprev-msg{font-size:11.5px;line-height:1.6;margin-top:7px;color:rgba(255,255,255,.55)}
 .admprev-msg.on{color:#ffd0a0}
 .admprev-msg.err{color:#ff8a80}
+.admprev-pick{display:inline-block;margin:4px 6px 0 0;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,208,160,.45);
+  background:rgba(255,255,255,.06);color:#ffd0a0;font-size:11.5px;font-family:inherit;cursor:pointer}
+.admprev-pick:hover{background:rgba(200,57,43,.35);color:#fff}
 
 /* ══ 인제대 LMS 접속 안내 카드 (2026-08-31 신설) ══
    반도체머신러닝 수강 확정자에게만 보인다. 서버(_getInjeId)가
@@ -1108,12 +1111,12 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <div id="injeAdmBar">
       <div class="admprev-row">
         <span class="admprev-tag">ADMIN 미리보기</span>
-        <input class="admprev-input" id="injeAdmInput" type="text" inputmode="numeric"
-               placeholder="학번 입력" onkeydown="if(event.key==='Enter')injeAdmGo()">
+        <input class="admprev-input" id="injeAdmInput" type="text" list="admRoster" autocomplete="off"
+               placeholder="학번 또는 이름" onfocus="_admRosterLoad()" onkeydown="if(event.key==='Enter')injeAdmGo()">
         <button class="admprev-btn" onclick="injeAdmGo()">조회</button>
         <button class="admprev-exit" id="injeAdmExit" onclick="injeAdmExit()">내 화면으로</button>
       </div>
-      <div class="admprev-msg" id="injeAdmMsg">학번을 입력하면 그 학생에게 보이는 설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+      <div class="admprev-msg" id="injeAdmMsg">학번 또는 이름을 입력하면 그 학생에게 보이는 설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
     </div>
 
     <!-- ★ 인제대 LMS 접속 안내 (2026-08-31) · 내용은 loadInjeId()가 그린다 -->
@@ -1160,16 +1163,18 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
       <div class="admin-section-label" style="margin-bottom:0">🎖 전체 마일리지</div>
     </div>
 
+    <!-- ★ 2026-10-16 미리보기 이름 검색 후보 — _admRosterLoad()가 채운다 (관리자만 · 메모리에만) -->
+    <datalist id="admRoster"></datalist>
     <!-- 관리자 전용 · 학생 화면 미리보기 (기본 숨김) -->
     <div id="admPrevBar">
       <div class="admprev-row">
         <span class="admprev-tag">ADMIN 미리보기</span>
-        <input class="admprev-input" id="admPrevInput" type="text" inputmode="numeric"
-               placeholder="학번 입력" onkeydown="if(event.key==='Enter')admPreviewGo()">
+        <input class="admprev-input" id="admPrevInput" type="text" list="admRoster" autocomplete="off"
+               placeholder="학번 또는 이름" onfocus="_admRosterLoad()" onkeydown="if(event.key==='Enter')admPreviewGo()">
         <button class="admprev-btn" onclick="admPreviewGo()">조회</button>
         <button class="admprev-exit" id="admPrevExit" onclick="admPreviewExit()">내 화면으로</button>
       </div>
-      <div class="admprev-msg" id="admPrevMsg">학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
+      <div class="admprev-msg" id="admPrevMsg">학번 또는 이름을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.</div>
     </div>
 
     <!-- ★ 요약 카드 (총점 + 달성 상태 + 진행바 통합) -->
@@ -2675,9 +2680,10 @@ function _admPrevMsg(text, cls) {
       마일리지는 A학생, 인제대 카드는 B학생이 뜨는 상황이 생긴다.
    두 바의 입력칸·안내문·「내 화면으로」 버튼을 항상 같이 맞춘다.        */
 function _admPrevSync(sid) {
+  const who = sid ? _admRosterFind(sid) : null;   // ★ 2026-10-16 명단이 있으면 이름까지 보여 준다
   ['admPrevInput', 'injeAdmInput'].forEach(function (id) {
     const el = document.getElementById(id);
-    if (el) el.value = sid;
+    if (el) el.value = who ? _admRosterLabel(who) : sid;
   });
   ['admPrevExit', 'injeAdmExit'].forEach(function (id) {
     const el = document.getElementById(id);
@@ -2685,10 +2691,94 @@ function _admPrevSync(sid) {
   });
 }
 
+/* ── ★ 2026-10-16 미리보기 이름 검색 ──────────────────────────
+   이수현황 화면과 같은 명단(getProgress · 관리자 출입증 확인)을 처음 입력칸을 누를 때
+   한 번만 받아 메모리에만 둔다. 저장하지 않는다 — 새로고침하면 사라진다.
+   이수현황 권한이 없는 계정은 명단을 못 받는다 → 학번 조회는 예전 그대로 된다. */
+var _admRoster = null, _admRosterJob = null;
+function _admRosterLabel(r) {
+  var y = String(r.year == null ? '' : r.year).trim();
+  if (/^\d+$/.test(y)) y += '학년';
+  var st = (r.status && r.status !== '재학') ? r.status : '';
+  return [r.name, y, r.dept, st, r.sid].filter(Boolean).join(' · ');
+}
+function _admRosterLoad() {
+  if (_admRoster) return Promise.resolve(_admRoster);
+  if (_admRosterJob) return _admRosterJob;
+  const auth = checkAuth();
+  if (!auth || !auth.isAdmin) return Promise.resolve(null);
+  _admRosterJob = new Promise(function (resolve) {
+    const cb = '__admRosterCb_' + Date.now();
+    const sc = document.createElement('script'); sc.crossOrigin = 'anonymous';
+    const t = setTimeout(function () { done(null); }, 30000);
+    function done(list) {
+      clearTimeout(t); try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+      if (sc.parentNode) sc.remove();
+      if (!list) _admRosterJob = null;            // 실패하면 다음에 다시 시도
+      resolve(list);
+    }
+    window[cb] = function (d) {
+      if (!d || d.status !== 'ok' || !d.students) { done(null); return; }
+      _admRoster = d.students.map(function (r) {
+        return { sid: String(r.sid || ''), name: String(r.name || ''), year: r.year, dept: r.dept || '', status: r.status || '' };
+      }).filter(function (r) { return r.sid; });
+      const dl = document.getElementById('admRoster');
+      if (dl) dl.innerHTML = _admRoster.map(function (r) {
+        return '<option value="' + escHtml(_admRosterLabel(r)) + '"></option>';
+      }).join('');
+      done(_admRoster);
+    };
+    sc.onerror = function () { done(null); };
+    sc.src = SCRIPT_URL + '?action=getProgress&studentId=' + encodeURIComponent(auth.studentId)
+      + '&birthDate=' + encodeURIComponent(auth.birth || auth.birthDate || '')
+      + '&page=portal_survey_preview&callback=' + cb;
+    document.head.appendChild(sc);
+  });
+  return _admRosterJob;
+}
+function _admRosterFind(sid) {
+  if (!_admRoster) return null;
+  for (var i = 0; i < _admRoster.length; i++) if (_admRoster[i].sid === sid) return _admRoster[i];
+  return null;
+}
+/* 입력값 → 학번. 학번이면 그대로, 후보 목록에서 고른 값이면 끝의 학번, 이름이면 명단에서 찾는다 */
+function _admPrevResolve(raw) {
+  const v = String(raw || '').trim();
+  const m = v.match(/(\d{7,})\s*$/);
+  if (m) { _admPrevApply(m[1]); return; }
+  if (!v) { _admPrevMsg('학번 또는 이름을 입력하세요.', 'err'); return; }
+  _admPrevMsg('명단에서 찾는 중…');
+  _admRosterLoad().then(function (list) {
+    if (!list) { _admPrevMsg('명단을 불러오지 못했습니다(이수현황 권한 필요). 학번으로 조회해 주세요.', 'err'); return; }
+    const q = v.replace(/\s+/g, '');
+    const hit = list.filter(function (r) { return r.name.replace(/\s+/g, '').indexOf(q) >= 0; });
+    if (!hit.length) { _admPrevMsg('「' + v + '」 학생을 명단에서 찾지 못했습니다.', 'err'); return; }
+    if (hit.length === 1) { _admPrevApply(hit[0].sid); return; }
+    ['admPrevMsg', 'injeAdmMsg'].forEach(function (id) {
+      const el = document.getElementById(id); if (!el) return;
+      el.className = 'admprev-msg on';
+      el.innerHTML = '「' + escHtml(v) + '」 ' + hit.length + '명 — 조회할 학생을 고르세요<br>'
+        + hit.slice(0, 12).map(function (r) {
+            return '<button type="button" class="admprev-pick" onclick="_admPrevApply(\'' + r.sid + '\')">'
+              + escHtml(_admRosterLabel(r)) + '</button>';
+          }).join('') + (hit.length > 12 ? '<br>… 더 있습니다. 이름을 더 입력하세요.' : '');
+    });
+  });
+}
+
 function _admPrevApply(sid) {
   _admPrevSid = sid;
   _admPrevSync(sid);
-  _admPrevMsg('▶ ' + sid + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
+  const who = _admRosterFind(sid);
+  _admPrevMsg('▶ ' + (who ? who.name + ' (' + _admRosterLabel(who).split(' · ').slice(1).join(' · ') + ')' : sid)
+    + ' 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
+  if (!who) _admRosterLoad().then(function (l) {          // 명단을 늦게 받으면 이름을 덧붙인다
+    const w = _admRosterFind(sid);
+    if (w && _admPrevSid === sid) {
+      _admPrevSync(sid);
+      _admPrevMsg('▶ ' + w.name + ' (' + _admRosterLabel(w).split(' · ').slice(1).join(' · ') + ') 학생의 화면을 보고 있습니다. 상단 이름·체크리스트 링크는 관리자 본인 것입니다.', 'on');
+    }
+  });
   loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();
   loadDocStatus();   // 활동계획서·결과보고서 카드 상태도 그 학생 기준으로
 }
@@ -2697,7 +2787,7 @@ function _admPrevClear() {
   const auth = checkAuth();
   _admPrevSid = '';
   _admPrevSync('');
-  _admPrevMsg('학번을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
+  _admPrevMsg('학번 또는 이름을 입력하면 그 학생에게 보이는 마일리지·설문 화면을 그대로 확인합니다. 로그인을 거치지 않으므로 접속기록에 남지 않습니다.');
   if (auth && auth.studentId) {
     loadMileage(auth.studentId); loadExtMileage(auth.studentId);
     loadSurveys(auth.studentId); loadInjeId();
@@ -2710,9 +2800,7 @@ function injeAdmGo() {
   const auth = checkAuth();
   if (!auth || !auth.isAdmin) return;
   const inp = document.getElementById('injeAdmInput');
-  const sid = (inp ? inp.value : '').trim();
-  if (!/^\d{7,}$/.test(sid)) { _admPrevMsg('학번을 숫자로만 입력하세요.', 'err'); return; }
-  _admPrevApply(sid);
+  _admPrevResolve(inp ? inp.value : '');   // ★ 2026-10-16 학번 또는 이름
 }
 
 function injeAdmExit() {
@@ -2725,10 +2813,7 @@ function admPreviewGo() {
   const auth = checkAuth();
   if (!auth || !auth.isAdmin) return;           // 이중 방어. 관리자가 아니면 아무 일도 하지 않는다
   const inp = document.getElementById('admPrevInput');
-  const sid = (inp ? inp.value : '').trim();
-  if (!/^\d{7,}$/.test(sid)) { _admPrevMsg('학번을 숫자로만 입력하세요.', 'err'); return; }
-
-  _admPrevApply(sid);
+  _admPrevResolve(inp ? inp.value : '');   // ★ 2026-10-16 학번 또는 이름
 }
 
 function admPreviewExit() {
