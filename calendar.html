@@ -786,33 +786,43 @@ const PAST = (function(){ const o=[]; let y=THIS_Y,m=THIS_M;
   for(let i=0;i<24;i++){ m--; if(m<1){m=12;y--;} o.unshift([y,m]); } return o; })();
 
 /* ── GAS ── */
-function jsonp(params, cb){
+function jsonp(params, cb, ms){
   const n = 'cal_'+Date.now()+'_'+Math.floor(Math.random()*9999);
   let done = false;
-  window[n] = r => { done = true; delete window[n]; cb(r); };
-  const q = Object.keys(params).map(k => k+'='+encodeURIComponent(params[k])).join('&');
   const sc = document.createElement('script');
+  const end = r => { if(done) return; done = true; try{ delete window[n]; }catch(e){} sc.remove(); cb(r); };
+  window[n] = r => end(r);
+  const q = Object.keys(params).map(k => k+'='+encodeURIComponent(params[k])).join('&');
+  sc.crossOrigin = 'anonymous';               // 여러 구글 계정 로그인된 폰에서 /u/1 로그인 리디렉트로 막히는 것 방지
   sc.src = GAS_URL + '?' + q + '&callback=' + n;
-  sc.onerror = () => { if(!done){ delete window[n]; cb({status:'error', message:'네트워크 오류'}); } };
+  sc.onerror = () => end({status:'error', message:'네트워크 오류'});
   document.body.appendChild(sc);
-  setTimeout(() => { if(!done){ delete window[n]; cb({status:'error', message:'응답 시간 초과'}); } }, 12000);
+  setTimeout(() => end({status:'error', message:'응답 시간 초과'}), ms || 25000);
 }
-function loadCal(nocache){
+const LAST_KEY = 'kistar_cal_last_v1';        // 마지막으로 성공한 시트 일정 (폰에서 실패 시 대체)
+function loadCal(nocache, retry){
   setStatus('load');
   jsonp({action:'getCalendar', nocache: nocache ? 1 : 0}, res => {
     if(res && res.status === 'ok' && res.events && res.events.length){
       events = res.events;
+      try{ localStorage.setItem(LAST_KEY, JSON.stringify({at: res.updated || TS, events: res.events})); }catch(e){}
       setStatus('ok', res.count + '건 · ' + (res.updated||'') + (res.cached ? ' · 캐시' : ''));
       hideWarn(); renderAll();
+    } else if(!retry){
+      loadCal(nocache, true);                 // 한 번 자동 재시도 (GAS 콜드스타트·모바일망)
     } else fallback(res && res.message ? res.message : '시트에서 일정을 읽지 못했습니다');
   });
 }
 function fallback(msg){
-  events = BACKUP.slice();
-  setStatus('bad', '백업 ' + BACKUP.length + '건');
+  let last = null;
+  try{ last = JSON.parse(localStorage.getItem(LAST_KEY) || 'null'); }catch(e){}
+  const useLast = last && last.events && last.events.length;
+  events = useLast ? last.events : BACKUP.slice();
+  setStatus('bad', (useLast ? '지난 사본 ' : '백업 ') + events.length + '건');
   showWarn('<b>구글시트에서 일정을 불러오지 못했습니다</b> — ' + msg + '<br>' +
-    '지금 보이는 것은 2026-08-06 시점의 내장 백업입니다. 그 뒤 시트에서 바꾼 내용은 빠져 있습니다. ' +
-    '<b>↻ 새로고침</b>으로 다시 시도하고, 계속 실패하면 GAS 배포 상태를 확인하세요.');
+    (useLast ? '지금 보이는 것은 이 기기에서 마지막으로 불러온 일정(' + last.at + ')입니다. '
+             : '지금 보이는 것은 2026-08-06 시점의 내장 백업입니다. 그 뒤 시트에서 바꾼 내용은 빠져 있습니다. ') +
+    '<b>↻ 새로고침</b>으로 다시 시도하세요.');
   renderAll();
 }
 function setStatus(kind, txt){
