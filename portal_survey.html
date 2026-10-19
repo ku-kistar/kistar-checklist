@@ -266,6 +266,32 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .todo-foot{margin-top:9px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.3);line-height:1.6}
 .todo-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:rgba(11,31,58,.96);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:12px;padding:8px 14px;border-radius:8px;z-index:9999;opacity:0;transition:opacity .2s;pointer-events:none}
 .todo-toast.show{opacity:1}
+/* 「지금 할 일」 한 줄 목록 (2026-10-19 · T89) */
+.t2-sec{display:flex;align-items:center;gap:6px;width:100%;background:none;border:none;padding:10px 2px 4px;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.45);cursor:pointer;text-align:left}
+.t2-sec span{font-family:'JetBrains Mono',monospace;font-weight:700;color:rgba(255,255,255,.35)}
+.t2-sec-over,.t2-sec-today{color:#ff9d90}
+.t2-sec:hover{color:rgba(255,255,255,.8)}
+.t2-row{border-top:1px solid rgba(255,255,255,.06)}
+.t2-line{display:flex;align-items:center;gap:10px;padding:8px 4px;cursor:pointer;border-radius:8px}
+.t2-line:hover{background:rgba(255,255,255,.04)}
+.t2-ck{flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);background:transparent;cursor:pointer;padding:0}
+.t2-ck:hover{border-color:#5fd39a;background:rgba(95,211,154,.15)}
+.t2-ck-auto{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#f0a04b;border-color:rgba(240,160,75,.6);cursor:default}
+.t2-tt{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.86);line-height:1.45;overflow-wrap:anywhere}
+.t2-hot .t2-tt{color:#ffd0c9}
+.t2-area{font-size:10.5px;font-weight:600;color:rgba(255,255,255,.38);margin-right:5px}
+.t2-st{font-size:9.5px;font-weight:700;color:#7dd3fc;background:rgba(14,165,233,.18);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+.t2-dd{flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.5);min-width:44px;text-align:right}
+.t2-hot .t2-dd{color:#2a0b06;background:#ff6b5a;border-radius:6px;padding:2px 7px;min-width:0}
+.t2-more{padding:0 4px 10px 34px}
+.t2-next{font-size:11.5px;color:rgba(255,255,255,.55);line-height:1.6;overflow-wrap:anywhere}
+.t2-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.t2-acts button,.t2-acts a{font-family:inherit;font-size:11px;font-weight:700;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.22);background:transparent;border-radius:6px;padding:5px 10px;cursor:pointer;text-decoration:none;min-height:30px;display:inline-flex;align-items:center}
+.t2-acts button:hover,.t2-acts a:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+.t2-undo{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);display:flex;align-items:center;gap:14px;background:#0b1f3a;border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12.5px;padding:9px 10px 9px 16px;border-radius:10px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px)}
+.t2-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%)}
+.t2-undo span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t2-undo button{flex-shrink:0;font-family:inherit;font-size:12px;font-weight:800;color:#7cc4ff;background:none;border:none;cursor:pointer;padding:4px 6px}
 @media(max-width:520px){
   #todo-strip{padding:0 1.1rem}
   .todo-todo{display:none}
@@ -2339,8 +2365,10 @@ function _todoFromCalendar(payload) {
     if (String(_todoPick(r, ['done','완료일','doneDate','completed','d'])).trim()) return;
 
     let end = _todoParseDate(_todoPick(r, ['end','종료일','endDate','to','e']));
-    if (!end) end = _todoParseDate(_todoPick(r, ['start','시작일','startDate','from','date','s']));
+    const start = _todoParseDate(_todoPick(r, ['start','시작일','startDate','from','date','s']));
+    if (!end) end = start;
     if (!end) return;
+    if (start && _todoDiffDays(start) > 0) end = start;   // ★ 2026-10-19 아직 시작 전인 기간 일정은 시작일 기준 (캘린더와 같은 규칙)
 
     const n = _todoDiffDays(end);
     if (n > TODO_AHEAD_DAYS || n < -TODO_OVER_DAYS) return;
@@ -2356,6 +2384,7 @@ function _todoFromCalendar(payload) {
       sub: n < 0 ? '마감이 지났습니다 · 캘린더에서 완료 표시하세요'
                  : (isReq ? '학사팀 요청' : '사업단'),
       href: 'calendar.html',
+      calId: String(_todoPick(r, ['id','일정ID','i'])).trim(),   // ★ 2026-10-19 대문에서 완료 체크
       todo: true
     });
   });
@@ -2395,6 +2424,7 @@ function _todoFromWork(d) {
   out.ok = true;
   out.done = d.done || 0;
   out.sheetUrl = d.sheetUrl || '';
+  out.all = d.items.slice();                       // ★ 2026-10-19 한 줄 목록·체크용 (T89)
 
   let last = null;
   d.items.forEach(function (it) {
@@ -2468,101 +2498,202 @@ function _todoToggleMore() {
   if (b) b.textContent = _todoMoreOpen ? '▴ 접기' : b.getAttribute('data-label');
 }
 
-function _todoRender(items, work) {
-  const wrap = document.getElementById('todo-strip');
-  if (!wrap) return;
-  work = work || _todoFromWork(null);
-  items = items.concat(work.urgent);
-  _todoCopyBuf = [];
+/* ── 「지금 할 일」 그리기 (2026-10-19 개편 · T89) ──────────────────
+   한 줄 목록 + 구간(지남 · 오늘·내일 · 이번 주 · 기다리는 중 · 나중).
+   빨강은 지남·오늘·내일만. 줄을 누르면 다음 할 일이 펼쳐진다.
+   ○ 체크 — 작업현황: setWorkStatus(v128) · 캘린더: setDone(쓰기 암호) · 자동 경보: 오늘만 숨김
+   체크·미루기 뒤 5초 동안 「되돌리기」.                                   */
+let _t2Open = { over: true, today: true, week: true, wait: false, later: false };
+let _t2Exp = null, _t2List = [], _t2DoneN = 0, _t2Undo = null, _t2UndoTimer = null;
+let _t2Last = { items: [], work: null };
 
-  const hasWork = work.ok && (work.prog.length + work.wait.length + work.hold.length + work.done) > 0;
-  if (!items.length && !work.upcoming.length && !hasWork) {
-    wrap.classList.remove('show'); wrap.innerHTML = ''; return;
-  }
+function _t2HideKey() { const d = _todoToday(); return 'kistar_todo_hide_' + d.getFullYear() + (d.getMonth() + 1) + d.getDate(); }
+function _t2Hidden() { try { return JSON.parse(localStorage.getItem(_t2HideKey()) || '[]'); } catch (e) { return []; } }
+function _t2SetHidden(a) { try { localStorage.setItem(_t2HideKey(), JSON.stringify(a)); } catch (e) {} }
+function _t2Ymd(n) { const d = _todoToday(); d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
 
-  // 마감 있는 것 먼저, 그 안에서 급한 순 · 날짜 없는 것(미정 등)은 뒤로
-  items.sort(function (a, b) {
+function _t2Build(items, work) {
+  const out = [];
+  items.forEach(function (it, i) {
+    out.push({ key: it.calId ? 'cal:' + it.calId : 'auto:' + it.title.replace(/\s*\d+명.*$/, ''),
+      kind: it.calId ? 'cal' : 'auto', calId: it.calId || '', dday: it.dday, title: it.title, area: it.area || '',
+      next: it.sub || '', href: it.href || '' });
+  });
+  (work && work.all ? work.all : []).forEach(function (it) {
+    const st = String(it.status || '').trim();
+    const dt = _todoParseDate(it.due);
+    out.push({ key: 'work:' + (it.id || it.row), kind: 'work', id: it.id, status: st, work: it,
+      dday: dt ? _todoDiffDays(dt) : null, dueText: dt ? '' : String(it.due || '').trim(),
+      title: it.title, area: it.area || '', next: it.next || '', href: '' });
+  });
+  const hid = _t2Hidden();
+  return out.filter(function (x) { return hid.indexOf(x.key) < 0; }).map(function (x) {
+    let s;
+    if (x.kind === 'work' && x.status === '회신대기') s = 'wait';
+    else if (x.kind === 'work' && x.status === '보류') s = 'later';
+    else if (x.dday === null) s = x.kind === 'work' ? 'later' : 'week';
+    else if (x.dday < 0) s = 'over';
+    else if (x.dday <= 1) s = 'today';
+    else if (x.dday <= TODO_AHEAD_DAYS) s = 'week';
+    else s = 'later';
+    x.sec = s;
+    return x;
+  }).sort(function (a, b) {
     if (a.dday === null && b.dday === null) return 0;
     if (a.dday === null) return 1;
     if (b.dday === null) return -1;
     return a.dday - b.dday;
   });
+}
+
+function _todoRender(items, work) {
+  _t2Last = { items: items, work: work };
+  const wrap = document.getElementById('todo-strip');
+  if (!wrap) return;
+  work = work || _todoFromWork(null);
+  _todoCopyBuf = [];
+  _t2List = _t2Build(items, work);
+  if (!_t2List.length) { wrap.classList.remove('show'); wrap.innerHTML = ''; return; }
+
+  const SEC = [['over', '지남'], ['today', '오늘 · 내일'], ['week', '이번 주'], ['wait', '기다리는 중'], ['later', '나중']];
+  const now = _t2List.filter(function (x) { return x.sec === 'over' || x.sec === 'today' || x.sec === 'week'; }).length;
 
   let html = '<div class="todo-box">';
-
-  // 오래된 정보 경고 — 믿을 수 없는 현황판은 없는 것보다 나쁘다
   if (work.ok && work.staleDays !== null && work.staleDays > TODO_STALE_DAYS) {
-    html += '<div class="todo-warn">⚠ 작업현황 탭이 ' + work.staleDays + '일째 갱신되지 않았습니다 — 아래 내용이 지금과 다를 수 있습니다</div>';
+    html += '<div class="todo-warn">⚠ 작업현황 탭이 ' + work.staleDays + '일째 갱신되지 않았습니다</div>';
   }
-
-  // ① 지금 할 일
-  if (items.length) {
-    html += '<div class="todo-head">' +
-      '<span class="todo-head-title">지금 할 일</span>' +
-      '<span class="todo-head-count">' + items.length + '</span>' +
-      '<div class="todo-head-line"></div>' +
-      '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>' +
+  html += '<div class="todo-head"><span class="todo-head-title">지금 할 일</span>' +
+    '<span class="todo-head-count">' + now + '</span>' +
+    (_t2DoneN ? '<span class="todo-head-meta">· 오늘 ' + _t2DoneN + '건 처리</span>' : '') +
+    '<div class="todo-head-line"></div>' +
+    '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻</button>' +
+    (work.sheetUrl ? '<a class="todo-head-link" href="' + _todoEsc(work.sheetUrl) + '" target="_blank" rel="noopener">시트 ↗</a>' : '') +
     '</div>';
-    html += items.map(function (it) {
-      const dd = it.ddLabel || (it.dday === null ? '확인' : _todoDdayLabel(it.dday));
-      const title = it.href
-        ? '<a href="' + _todoEsc(it.href) + '" target="_blank" rel="noopener">' + _todoEsc(it.title) + '</a>'   // ★ 2026-10-16 새 탭
-        : _todoEsc(it.title);
-      const area = it.area ? '<span class="todo-area">' + _todoEsc(it.area) + '</span>' : '';
-      const right = it.work ? _todoCopyBtn(it.work) : (it.todo ? '<div class="todo-todo">투두에 입력</div>' : '');
-      return '<div class="todo-item todo-lv-' + it.level + '">' +
-        '<div class="todo-dday">' + _todoEsc(dd) + '</div>' +
-        '<div class="todo-body"><div class="todo-title">' + area + title + '</div>' +
-        (it.sub ? '<div class="todo-sub">' + _todoEsc(it.sub) + '</div>' : '') + '</div>' +
-        right + '</div>';
+
+  SEC.forEach(function (sc) {
+    const L = _t2List.filter(function (x) { return x.sec === sc[0]; });
+    if (!L.length) return;
+    const open = _t2Open[sc[0]];
+    html += '<button type="button" class="t2-sec t2-sec-' + sc[0] + '" onclick="_t2Toggle(\'' + sc[0] + '\')">' +
+      (open ? '▾ ' : '▸ ') + sc[1] + ' <span>' + L.length + '</span></button>';
+    if (!open) return;
+    html += L.map(function (x) {
+      const i = _t2List.indexOf(x);
+      const dd = x.dday === null ? (x.dueText || (x.kind === 'auto' ? '확인' : '—')) : _todoDdayLabel(x.dday);
+      const hot = sc[0] === 'over' || sc[0] === 'today';
+      const exp = _t2Exp === x.key;
+      let acts = '';
+      if (exp) {
+        if (x.kind === 'work') acts += '<button type="button" onclick="_t2Snooze(' + i + ',1)">내일로</button><button type="button" onclick="_t2Snooze(' + i + ',7)">다음 주로</button>';
+        if (x.kind === 'auto') acts += '<button type="button" onclick="_t2Check(' + i + ')">오늘 숨기기</button>';
+        if (x.href) acts += '<a href="' + _todoEsc(x.href) + '" target="_blank" rel="noopener">열기 ↗</a>';
+        if (x.work) { const ci = _todoCopyBuf.push(_todoCopyText(x.work)) - 1; acts += '<button type="button" onclick="_todoCopy(' + ci + ')">이어서 하기</button>'; }
+      }
+      return '<div class="t2-row' + (hot ? ' t2-hot' : '') + (exp ? ' t2-exp' : '') + '">' +
+        '<div class="t2-line" onclick="_t2Expand(' + i + ')">' +
+          (x.kind === 'auto' ? '<span class="t2-ck t2-ck-auto" title="자동 경보">!</span>'
+                             : '<button type="button" class="t2-ck" aria-label="완료" title="완료" onclick="event.stopPropagation();_t2Check(' + i + ')"></button>') +
+          '<span class="t2-tt">' + (x.area ? '<span class="t2-area">' + _todoEsc(x.area) + '</span>' : '') + _todoEsc(x.title) +
+            (x.status === '진행' ? '<span class="t2-st">진행</span>' : '') + '</span>' +
+          '<span class="t2-dd">' + _todoEsc(dd) + '</span>' +
+        '</div>' +
+        (exp ? '<div class="t2-more">' + (x.next ? '<div class="t2-next">' + _todoEsc(x.next) + '</div>' : '') +
+               '<div class="t2-acts">' + acts + '</div></div>' : '') +
+      '</div>';
     }).join('');
-  }
-
-  // ② 다가오는 기한
-  if (work.upcoming.length) {
-    html += '<div class="todo-head todo-sec"><span class="todo-head-title">다가오는 기한</span><div class="todo-head-line"></div>' +
-      (items.length ? '' : '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻ 새로고침</button>') + '</div>' +
-      '<div class="todo-up">' + work.upcoming.map(function (u) {
-        const md = ('0' + (u.date.getMonth() + 1)).slice(-2) + '-' + ('0' + u.date.getDate()).slice(-2);
-        return '<div class="todo-up-c"><div class="todo-up-d">D-' + u.n + ' · ' + md + '</div>' +
-               '<div class="todo-up-t">' + _todoEsc((u.it.area ? u.it.area + ' ' : '') + u.it.title) + '</div></div>';
-      }).join('') + '</div>';
-  }
-
-  // ③ 작업 현황
-  if (hasWork) {
-    const row = function (it, cls, lab) {
-      return '<div class="todo-row"><span class="todo-tag todo-tag-' + cls + '">' + lab + '</span>' +
-        '<div class="todo-body"><div class="todo-title"><span class="todo-area">' + _todoEsc(it.area) + '</span>' + _todoEsc(it.title) +
-        (it.stall ? '<span class="todo-tag todo-tag-stall">멈춤</span>' : '') + '</div>' +
-        ((it.next || it.due) ? '<div class="todo-sub">' + _todoEsc([it.due, it.next].filter(Boolean).join(' · ')) + '</div>' : '') +
-        '</div>' + _todoCopyBtn(it) + '</div>';
-    };
-    html += '<div class="todo-head todo-sec">' +
-      '<span class="todo-head-title">작업 현황</span>' +
-      '<span class="todo-head-meta">진행 ' + work.prog.length + ' · 대기 ' + work.wait.length +
-        ' · 보류 ' + work.hold.length + ' · 완료 ' + work.done + '</span>' +
-      '<div class="todo-head-line"></div>' +
-      (work.sheetUrl ? '<a class="todo-head-link" href="' + _todoEsc(work.sheetUrl) + '" target="_blank" rel="noopener">시트에서 열기 ↗</a>' : '') +
-    '</div>';
-    if (work.prog.length > TODO_WIP_MAX) {
-      html += '<div class="todo-warn">진행 중이 ' + work.prog.length + '건입니다 — ' + TODO_WIP_MAX + '건 이하로 줄이면 끝나는 속도가 빨라집니다</div>';
-    }
-    html += work.prog.map(function (it) { return row(it, 'prog', '진행'); }).join('');
-    const rest = work.wait.length + work.hold.length;
-    if (rest) {
-      const label = '▾ 대기 ' + work.wait.length + ' · 보류 ' + work.hold.length + ' 펼치기';
-      html += '<button type="button" class="todo-more" id="todo-more-btn" data-label="' + label + '" onclick="_todoToggleMore()">' +
-        (_todoMoreOpen ? '▴ 접기' : label) + '</button>' +
-        '<div id="todo-more-list" style="display:' + (_todoMoreOpen ? 'block' : 'none') + '">' +
-        work.wait.map(function (it) { return row(it, 'wait', '대기'); }).join('') +
-        work.hold.map(function (it) { return row(it, 'hold', '보류'); }).join('') + '</div>';
-    }
-  }
-
-  html += '<div class="todo-foot">「투두에 입력」은 Microsoft To Do로 옮겨 적어 두세요 · 「이어서 하기」는 새 채팅 첫 메시지를 복사합니다</div></div>';
+  });
+  html += '</div>';
   wrap.innerHTML = html;
   wrap.classList.add('show');
+}
+function _t2Rerender() { _todoRender(_t2Last.items, _t2Last.work); }
+function _t2Toggle(s) { _t2Open[s] = !_t2Open[s]; _t2Rerender(); }
+function _t2Expand(i) { const x = _t2List[i]; if (!x) return; _t2Exp = _t2Exp === x.key ? null : x.key; _t2Rerender(); }
+
+/* 원래 목록에서 빼거나 되살린다 — 서버 응답을 기다리지 않고 먼저 그린다 */
+function _t2Drop(x) {
+  if (x.kind === 'work') _t2Last.work.all = _t2Last.work.all.filter(function (w) { return w !== x.work; });
+  else _t2Last.items = _t2Last.items.filter(function (it) { return !((it.calId && 'cal:' + it.calId === x.key) || it.title === x.title); });
+}
+function _t2Check(i) {
+  const x = _t2List[i]; if (!x) return;
+  const snap = { items: _t2Last.items.slice(), all: (_t2Last.work && _t2Last.work.all || []).slice() };
+  _t2Exp = null;
+  if (x.kind === 'auto') {
+    const h = _t2Hidden(); h.push(x.key); _t2SetHidden(h);
+    _t2Rerender();
+    _t2ShowUndo('「' + x.title + '」 오늘 숨김', function () { _t2SetHidden(_t2Hidden().filter(function (k) { return k !== x.key; })); _t2Rerender(); });
+    return;
+  }
+  _t2Drop(x); _t2DoneN++; _t2Rerender();
+  const restore = function () { _t2Last.items = snap.items; if (_t2Last.work) _t2Last.work.all = snap.all; _t2DoneN = Math.max(0, _t2DoneN - 1); _t2Rerender(); };
+  if (x.kind === 'work') {
+    _t2Work({ op: 'done', id: x.id }, function (ok, msg) {
+      if (!ok) { restore(); _todoToast('저장하지 못했습니다 — ' + msg); return; }
+      _t2ShowUndo('「' + x.title + '」 완료', function () {
+        _t2Work({ op: 'undo', id: x.id }, function (ok2, m2) { if (ok2) restore(); else _todoToast('되돌리지 못했습니다 — ' + m2); });
+      });
+    });
+  } else {
+    _t2Cal(x.calId, 1, function (ok, msg) {
+      if (!ok) { restore(); _todoToast(msg); return; }
+      _t2ShowUndo('「' + x.title + '」 완료', function () {
+        _t2Cal(x.calId, 0, function (ok2, m2) { if (ok2) restore(); else _todoToast(m2); });
+      });
+    });
+  }
+}
+function _t2Snooze(i, days) {
+  const x = _t2List[i]; if (!x || x.kind !== 'work') return;
+  const due = _t2Ymd(days), old = x.work.due;
+  x.work.due = due; _t2Exp = null; _t2Rerender();
+  _t2Work({ op: 'snooze', id: x.id, due: due }, function (ok, msg) {
+    if (!ok) { x.work.due = old; _t2Rerender(); _todoToast('저장하지 못했습니다 — ' + msg); return; }
+    _t2ShowUndo('「' + x.title + '」 ' + due.slice(5) + '로 미룸', function () {
+      _t2Work({ op: 'undo', id: x.id }, function (ok2, m2) { if (ok2) { x.work.due = old; _t2Rerender(); } else _todoToast('되돌리지 못했습니다 — ' + m2); });
+    });
+  });
+}
+function _t2Work(q, cb) {
+  const auth = checkAuth() || {};
+  _todoJsonp(EXEC_URL + '?action=setWorkStatus&op=' + q.op + '&id=' + encodeURIComponent(q.id) +
+    (q.due ? '&due=' + q.due : '') +
+    '&adminId=' + encodeURIComponent(auth.studentId || '') +
+    '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
+    if (d && d.status === 'ok') cb(true, '');
+    else cb(false, (d && d.message) || '응답 없음 — 출입증이 만료됐으면 다시 로그인하세요');
+  });
+}
+/* 캘린더 완료 — 캘린더와 같은 쓰기 암호(같은 사이트라 이 브라우저에 저장된 것을 같이 쓴다) */
+function _t2Cal(id, on, cb) {
+  let key = '';
+  try { key = localStorage.getItem('kistar_cal_writekey') || ''; } catch (e) {}
+  if (!key) {
+    const k = prompt('캘린더 쓰기 암호를 입력하세요.\n(캘린더 GAS 편집기에서 showCalendarKey() 실행 · 한 번 입력하면 저장됩니다)');
+    if (!k) { cb(false, '취소했습니다'); return; }
+    key = k.trim().toUpperCase();
+    try { localStorage.setItem('kistar_cal_writekey', key); } catch (e) {}
+  }
+  _todoJsonp(CAL_GAS_URL + '?action=setDone&id=' + encodeURIComponent(id) + '&done=' + on + '&key=' + encodeURIComponent(key), function (d) {
+    if (d && d.code === 'badkey') { try { localStorage.removeItem('kistar_cal_writekey'); } catch (e) {} cb(false, '캘린더 쓰기 암호가 맞지 않습니다'); return; }
+    if (d && d.status === 'ok') cb(true, ''); else cb(false, '캘린더에 저장하지 못했습니다');
+  });
+}
+function _t2ShowUndo(msg, fn) {
+  let t = document.getElementById('t2-undo');
+  if (!t) {
+    t = document.createElement('div'); t.id = 't2-undo'; t.className = 't2-undo';
+    t.innerHTML = '<span></span><button type="button">되돌리기</button>';
+    document.body.appendChild(t);
+    t.querySelector('button').addEventListener('click', function () {
+      const f = _t2Undo; _t2Undo = null; t.classList.remove('show'); if (f) f();
+    });
+  }
+  t.querySelector('span').textContent = msg;
+  _t2Undo = fn; t.classList.add('show');
+  clearTimeout(_t2UndoTimer);
+  _t2UndoTimer = setTimeout(function () { t.classList.remove('show'); _t2Undo = null; }, 5000);
 }
 
 /** ⑤ 서류 미제출 (2026-10-07) — 학생용 현황판 응답을 그대로 센다. 마스킹 데이터라 실명 없음 */
