@@ -24,6 +24,10 @@ color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
 .tnav.hub{border-color:var(--gold);color:var(--gold)}
 .tnav.hub:hover{background:var(--gold);border-color:var(--gold);color:#fff}
 @media(max-width:820px){.top .meta{display:none}.topnav{margin-left:auto}}
+/* ★ 2026-10-20 휴대폰 — 머리글이 한 줄에 다 안 들어가 제목이 한 글자씩 세로로 서던 것. 윗줄 제목 · 아랫줄 버튼 */
+@media(max-width:820px){.top{flex-wrap:wrap;padding:12px 16px;row-gap:9px}.top .badge{flex-shrink:0;white-space:nowrap}
+  .top h1{flex:1 1 0;min-width:0;font-size:14px;line-height:1.4;word-break:keep-all}
+  .topnav{width:100%;margin-left:0;flex-wrap:wrap}}
 .wrap{max-width:1240px;margin:24px auto 80px;padding:0 20px}
 
 /* 요약 */
