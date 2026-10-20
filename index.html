@@ -234,6 +234,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
 .auth-btn:hover{opacity:.88}
 .auth-btn:disabled{opacity:.5;cursor:default}
 .auth-msg{margin-top:.9rem;font-size:12px;text-align:center;min-height:18px}
+.aw-spin{width:28px;height:28px;margin:0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#14b8a6;animation:awSpin .8s linear infinite}
+@keyframes awSpin{to{transform:rotate(360deg)}}
 .auth-msg.error{color:#f08070}
 .auth-msg.loading{color:rgba(255,255,255,.45)}
 
@@ -303,7 +305,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
       </svg>
     </div>
     <div class="auth-title">KI-STAR 융합전공 체크리스트</div>
-    <div class="auth-sub">접속을 위해 학번과 생년월일을 입력해주세요<br>교직원은 교번과 생년월일을 입력하세요</div>
+    <div class="auth-sub">접속을 위해 학번과 생년월일을 입력해주세요<br>교직원은 데이터허브 대문에서 로그인한 뒤 「이수 체크리스트」 버튼으로 들어옵니다</div>
     <div class="auth-field">
       <label>학번 / 교번</label>
       <input type="text" id="auth-id" placeholder="학번 또는 교번 입력" maxlength="20">
@@ -328,6 +330,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--navy);min-height:100
     </div>
     <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
     <div class="auth-msg" id="auth-msg"></div>
+    <!-- ★ 2026-10-20 데이터허브에서 넘어올 때 자동 입장 대기 안내 (입력칸 대신 보인다) -->
+    <div id="auto-wait" style="display:none;text-align:center;padding:14px 0 4px">
+      <div class="aw-spin"></div>
+      <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.9);margin-top:12px">자동으로 로그인하는 중입니다</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:6px;line-height:1.6">데이터허브 로그인 정보로 들어갑니다.<br>다시 입력하지 않으셔도 됩니다 — 잠시만 기다려 주세요.</div>
+    </div>
   </div>
 </div>
 
@@ -566,6 +574,19 @@ function doAuth() {
 }
 
   // 이미 인증된 경우 오버레이 바로 숨기기 + URL 파라미터 자동로그인
+  // ★ 2026-10-20 — 자동 입장 확인 중에는 입력칸을 감추고 대기 안내를 보인다. 실패하면 입력칸을 되살린다.
+  let _awTimer = null;
+  function autoWait(on) {
+    const card = document.querySelector('#auth-overlay .auth-card'); if (!card) return;
+    card.querySelectorAll('.auth-field, #auth-btn, .auth-sub').forEach(function (e) { e.style.display = on ? 'none' : ''; });
+    const w = document.getElementById('auto-wait'); if (w) w.style.display = on ? 'block' : 'none';
+    clearTimeout(_awTimer);
+    if (on) _awTimer = setTimeout(function () {    // 25초 안에 응답이 없으면 입력칸으로 돌아간다
+      autoWait(false);
+      const m = document.getElementById('auth-msg');
+      if (m) m.textContent = '자동 로그인 응답이 늦습니다 — 데이터허브 대문에서 다시 「이수 체크리스트」를 눌러 주세요.';
+    }, 25000);
+  }
   function runAutoLogin() {
     // 0. ★ 2026-10-20 — 관리자·직원: 데이터허브 대문 출입증(kistar_auth_url2 · 24자리)이 살아 있으면 서버 secWho로 확인하고 들어온다.
     //    관리자 학번은 verifyBySid·생년월일 로그인이 거절되므로(v126) 이 길이 유일하다. 체크리스트는 보기용이라 출입증 원문은 저장하지 않는다.
@@ -575,8 +596,10 @@ function doAuth() {
       if (a2 && a2.isAdmin && /^\d{24}$/.test(tok) && (!a2.tokenExp || Date.now() < a2.tokenExp)) {
         const SURL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
         const cbW = '__secWhoCb_' + Date.now();
+        autoWait(true);
         window[cbW] = function (r) {
           delete window[cbW];
+          autoWait(false);
           const sc = document.getElementById('__secWhoScript'); if (sc) sc.remove();
           if (r && r.status === 'ok' && String(r.sid) === String(a2.studentId)) {
             const full = (r.perms || []).indexOf('전체') > -1;
@@ -596,7 +619,7 @@ function doAuth() {
           }
         };
         const sw = document.createElement('script'); sw.crossOrigin = 'anonymous'; sw.id = '__secWhoScript';
-        sw.onerror = function () { delete window[cbW]; runAutoLoginStudent(); };
+        sw.onerror = function () { delete window[cbW]; autoWait(false); runAutoLoginStudent(); };
         sw.src = SURL + '?action=secWho&token=' + encodeURIComponent(tok) + '&callback=' + cbW;
         (document.head || document.documentElement).appendChild(sw);
         return;
@@ -616,8 +639,10 @@ function doAuth() {
           // GAS URL2로 verifyBySid 요청
           const SCRIPT_URL2 = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
           const cbName = '__autoLoginCb_' + Date.now();
+          autoWait(true);
           window[cbName] = function(result) {
             delete window[cbName];
+            autoWait(false);
             const s = document.getElementById('__autoLoginScript');
             if (s) s.remove();
             if (result.status === 'ok') {
