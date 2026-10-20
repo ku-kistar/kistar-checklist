@@ -346,6 +346,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
       <option value="재학">재학</option>
       <option value="_elig">장학금 대상 (재학·초과학기 제외)</option>
       <option value="_over">초과학기</option>
+      <option value="_noen">재학 — 재적정보 없음</option>
       <option value="휴학">휴학</option><option value="수강유예">수강유예</option>
       <option value="미수강유예">미수강유예</option><option value="수료">수료</option>
       <option value="졸업">졸업</option><option value="융전포기">융전포기</option>
@@ -496,8 +497,9 @@ function rows(){
     //   _nolv 휴학 제외 · _elig 재학 AND 등록횟수 < 경계 · _over 초과학기
     (ss==='_all'?true
      : ss==='_nolv'? !['졸업','융전포기','휴학'].includes(d.st)
-     : ss==='_elig'? !!(d.en && d.en.eligible)
-     : ss==='_over'? (d.st==='재학' && !!(d.en && d.en.over))   // ★ 2026-10-20 재학 중 초과학기만 (수료생은 등록횟수가 많아도 수료 줄)
+     : ss==='_elig'? isElig(d)
+     : ss==='_over'? isOver(d)     // ★ 2026-10-20 재학 중 초과학기만 (수료생은 등록횟수가 많아도 수료 줄)
+     : ss==='_noen'? isNoEn(d)
      : ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
     (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
   const bySeq=(a,b)=>parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1]);
@@ -518,13 +520,19 @@ function init(){
   c0.textContent=actList().length; c1.textContent=DATA.length;
   render();
 }
-const STATUS=['재학','초과학기','휴학','수강유예','미수강유예','수료','졸업','융전포기'];
+const STATUS=['재학','초과학기','재학(재적정보 없음)','휴학','수강유예','미수강유예','수료','졸업','융전포기'];
 // ★ 2026-10-20 — 「재학」 줄은 장학금 대상(재학 · 초과학기 아님)만 센다. 초과학기는 따로 한 줄.
 //   학적 문자열이 아니라 재적정보(en.over)로 가른다. 줄을 누르면 명단 필터 _elig / _over 로 간다.
-const ST_KEY={'재학':'_elig','초과학기':'_over'};
-const stIs=(d,st)=> st==='재학' ? (d.st==='재학' && !(d.en&&d.en.over))
-                  : st==='초과학기' ? (d.st==='재학' && !!(d.en&&d.en.over))
-                  : d.st===st;
+// 표 줄 · 위 카드 · 학년×학과 모수 · 명단 필터가 모두 이 세 함수 하나만 쓴다 (숫자와 명단이 갈라지지 않게).
+//   isElig  장학금 대상 = 학적 재학 AND 재적정보 eligible(등록횟수 < 경계)
+//   isOver  초과학기   = 학적 재학 AND 재적정보 over
+//   isNoEn  재학인데 그 학기 재적정보 행이 없음 (정상이면 0명 — 0명이면 줄이 안 보인다)
+const isElig=d=>d.st==='재학' && !!(d.en&&d.en.eligible);
+const isOver=d=>d.st==='재학' && !!(d.en&&d.en.over);
+const isNoEn=d=>d.st==='재학' && !isElig(d) && !isOver(d);
+const ST_KEY={'재학':'_elig','초과학기':'_over','재학(재적정보 없음)':'_noen'};
+const stIs=(d,st)=> st==='재학' ? isElig(d) : st==='초과학기' ? isOver(d)
+                  : st==='재학(재적정보 없음)' ? isNoEn(d) : d.st===st;
 function drawBoard(){
   const cur=fS.value;
   const row=st=>{
@@ -535,7 +543,7 @@ function drawBoard(){
     return {st,n:g.length,ok,ac,ur};
   };
   const R=STATUS.map(row), T=R.filter(r=>r.n);
-  const enrolled=['재학','초과학기','휴학','수강유예','미수강유예','수료'];
+  const enrolled=['재학','초과학기','재학(재적정보 없음)','휴학','수강유예','미수강유예','수료'];
   const sum=k=>T.filter(r=>enrolled.includes(r.st)).reduce((a,r)=>a+r[k],0);
   const open=LS('kistar_pop_open','1')==='1';
   const head=`<div class="aihd">
@@ -600,7 +608,7 @@ const POPSHOW=['elig','mng'];
 const POPSCOPES = {
   mng:  { label:'양성인원',       f:d=>!['졸업','융전포기'].includes(d.st) },
   nolv: { label:'휴학 제외',      f:d=>!['졸업','융전포기','휴학'].includes(d.st) },
-  elig: { label:'장학금 대상',     f:d=>!!(d.en && d.en.eligible) },
+  elig: { label:'장학금 대상',     f:d=>isElig(d) },
   all:  { label:'전체',           f:()=>true }
 };
 function popScope(){ return POPSCOPES[POPSCOPE] || POPSCOPES.elig; }
@@ -781,7 +789,9 @@ function drillAI(dept,yr,state){
   document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
 }
 let drill_=null;
-function pickStatus(v){drill_=null;fS.value=v; render(); drawBoard();}
+// ★ 2026-10-20 — 숫자를 누르면 항상 「전체 명단」 탭에서 보여 준다 (조치 필요 탭에 머물면 숫자와 명단이 달라진다)
+function pickStatus(v){drill_=null;fS.value=v;fD.value='';fY.value='';fQ.value='';
+  tab=1;t0.classList.remove('on');t1.classList.add('on'); render(); drawBoard();}
 // ★ 2026-10-20 — 위 숫자 카드(전체 · 양성인원 · 장학금 대상): 아래 명단 + 「학년 × 학과」 차트·표 모수를 함께 맞춘다.
 //   전체는 졸업·포기가 섞여 학년×학과가 의미가 없으므로 학적상태 표로 보여 준다.
 function pickPop(v){

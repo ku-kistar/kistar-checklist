@@ -566,6 +566,7 @@ var SEM  = "";        // 보고 있는 학기. 빈 값이면 서버가 live 학�
 var SEMS = null;      // 학기 목록 (최초 1회만 조회)
 var gradeFilter = "";
 var genFilter   = "";   // 기수 필터 (예: "1기")
+var deptFilter  = "";   // ★ 2026-10-20 학과 필터 — 학년 × 학과 막대를 누를 때만 쓴다
 var flagFilter  = (function(){  // "" | "edge" | "zero" | "ns3" | "doc:plan:none" …  — 인사이트 칩
   // 대문 「지금 할 일」에서 ?f=doc:plan:none 으로 들어오면 그 명단부터 보여 준다 (2026-10-07)
   try{ var f=new URLSearchParams(location.search).get("f")||"";
@@ -771,6 +772,7 @@ function fmtToday(){
  *  (예전에는 클릭한 버튼 자신을 active 로 바꿨는데, 표에서도 부르게 되면서 상태가 갈라진다) */
 function setGrade(g){
   gradeFilter=(gradeFilter===g&&g!=="")?"":g;
+  deptFilter="";   // 학년 탭은 학과 조건(막대에서 건 것)을 푼다
   syncFilterUI();
   renderGrid();
 }
@@ -782,10 +784,19 @@ function setGen(v){
 }
 
 function setFlag(f){
-  flagFilter=(flagFilter===f)?"":f;
+  var on=(flagFilter===f);
+  clearPicks();                       // ★ 2026-10-20 칩 숫자 = 격자 인원이 되도록 다른 조건을 비운다
+  flagFilter=on?"":f;
   syncFilterUI();
   renderGrid();
 }
+
+/* ★ 2026-10-20 — 숫자를 누를 때(통계 표 줄 · 칩 · 막대)는 다른 조건을 모두 비우고 그 조건 하나만 건다.
+ *  그래야 눌러 본 숫자와 아래 격자 인원이 같다. 격자 위 학년 탭은 지금처럼 다른 조건과 겹쳐 걸린다. */
+function clearPicks(){ gradeFilter=""; genFilter=""; flagFilter=""; deptFilter=""; var q=$("q"); if(q) q.value=""; }
+function pickGrade(g){ var on=(gradeFilter===g&&!genFilter&&!flagFilter&&!deptFilter); clearPicks(); if(!on) gradeFilter=g; syncFilterUI(); renderGrid(); }
+function pickGen(v){ var on=(genFilter===v&&!gradeFilter&&!flagFilter&&!deptFilter); clearPicks(); if(!on) genFilter=v; syncFilterUI(); renderGrid(); }
+function pickGD(g,d){ var on=(gradeFilter===g&&deptFilter===d); clearPicks(); if(!on){ gradeFilter=g; deptFilter=d; } syncFilterUI(); renderGrid(); }
 
 /** 구획 접기/펼치기 */
 function toggleSect(id){
@@ -900,9 +911,9 @@ function renderGradeStat(){
   $("sTotSub").textContent=g.map(function(r){
     return r.k+(/^\d+$/.test(r.k)?"학년":"")+" "+r.n;
   }).join(" · ");
-  $("gsBody").innerHTML=statRowsHtml(g,"setGrade","학년");
+  $("gsBody").innerHTML=statRowsHtml(g,"pickGrade","학년");
   $("gsFoot").innerHTML=totalRowHtml();
-  $("gnBody").innerHTML=statRowsHtml(n,"setGen","기");
+  $("gnBody").innerHTML=statRowsHtml(n,"pickGen","기");
   $("gnFoot").innerHTML=totalRowHtml();
   renderDeptChart();
 }
@@ -938,19 +949,19 @@ function renderDeptChart(){
     gy.forEach(function(g){
       var v=cnt(g,d);
       h+='<div class="gc-bar" style="height:'+(v/max*88)+'%;background:'+(GC_COL[g]||"#8b98a9")+'" title="'+esc(dcShort(d)+" "+g+"학년 "+v+"명")+
-         '" onclick="setGrade(\''+esc(g)+'\')"><b>'+v+'</b></div>';
+         '" onclick="pickGD(\''+esc(g)+'\',\''+esc(d)+'\')"><b>'+v+'</b></div>';
     });
     h+='</div>';
   });
   h+='</div><div class="gc-lab">'+ds.map(function(d){
     return '<span>'+esc(dcShort(d))+'<em>'+L.filter(function(s){ return (s.dept||"기타")===d; }).length+'명</em></span>';
   }).join("")+'</div>';
-  h+='<div class="dc-cap">막대를 누르면 아래 격자가 그 학년으로 걸러집니다</div>';
+  h+='<div class="dc-cap">막대를 누르면 아래 격자가 그 학과·학년 학생으로 걸러집니다 · 표의 줄을 누르면 그 학년</div>';
   $("dcChart").innerHTML=h;
   $("dcHead").innerHTML='<tr><th>학년</th>'+ds.map(function(d){ return '<th>'+esc(dcShort(d))+'</th>'; }).join("")+'<th>계</th></tr>';
   $("dcBody").innerHTML=gs.map(function(g){
     var lb=/^\d+$/.test(g)?g+"학년":"학년 미상";
-    return '<tr data-k="'+esc(g)+'" onclick="setGrade(\''+esc(g)+'\')"><td>'+esc(lb)+'</td>'+
+    return '<tr data-k="'+esc(g)+'" onclick="pickGrade(\''+esc(g)+'\')"><td>'+esc(lb)+'</td>'+
       ds.map(function(d){ var v=cnt(g,d); return '<td>'+(v||"—")+'</td>'; }).join("")+'<td><b>'+cnt(g)+'</b></td></tr>';
   }).join("");
   $("dcFoot").innerHTML='<tr><td>전체</td>'+ds.map(function(d){
@@ -1199,8 +1210,9 @@ function catClass(p){
 function filtered(){
   var q=$("q").value.trim().toLowerCase(), goal=DATA.goal;
   return DATA.students.filter(function(s){
-    if(gradeFilter&&s.grade!==gradeFilter) return false;
-    if(genFilter&&s.gen!==genFilter) return false;
+    if(gradeFilter&&String(s.grade||"미상")!==gradeFilter) return false;   // 통계 표의 「미상」 줄과 같은 기준
+    if(genFilter&&String(s.gen||"미상")!==genFilter) return false;
+    if(deptFilter&&(s.dept||"기타")!==deptFilter) return false;
     if(flagFilter==="edge" && !(s.tot>=goal-10&&s.tot<goal)) return false;
     if(flagFilter==="zero" && s.tot!==0) return false;
     if(flagFilter==="ns3"  && (s.ns||0)<3) return false;
@@ -1259,7 +1271,10 @@ function applyCollapse(){
   var f=[];
   if(gradeFilter) f.push(gradeFilter+"학년");
   if(genFilter)   f.push(genFilter);
-  if(flagFilter)  f.push({edge:"경계선",zero:"0점",ns3:"노쇼 3회+"}[flagFilter]);
+  if(deptFilter)  f.push(dcShort(deptFilter));
+  if(flagFilter)  f.push({edge:"경계선",zero:"0점",ns3:"노쇼 3회+"}[flagFilter] ||
+    (flagFilter.indexOf("doc:")===0 ? ({plan:"활동계획서",report:"결과보고서"}[flagFilter.split(":")[1]]||"서류")+" "+
+      ({none:"미제출",nosign:"서명확인",late:"기한후"}[flagFilter.split(":")[2]]||"") : flagFilter));
   var cnt=$("gridCount");
   if(cnt) cnt.textContent="· "+filtered().length+"명 / "+shown+"개 열"+
     (shown<DATA.programs.length?" (전체 "+DATA.programs.length+")":"")+
