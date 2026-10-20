@@ -87,6 +87,24 @@ table.gs tfoot td{background:var(--surface2);font-weight:700;border-bottom:none}
   overflow:hidden;vertical-align:middle;margin-right:6px}
 .gs-bar i{display:block;height:100%;background:var(--green)}
 
+
+/* ── 학년 × 학과 차트 (2026-10-20 · 김규철 실장 요청) ── */
+.dchart{padding:12px 16px 8px}
+.dc-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--text2);margin-bottom:10px}
+.dc-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.dc-row{display:grid;grid-template-columns:62px minmax(0,1fr) 46px;align-items:center;gap:8px;margin-bottom:7px}
+.dc-lb{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap}
+.dc-bar{display:flex;height:24px;border-radius:5px;overflow:hidden;min-width:0}
+.dc-seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;
+  min-width:0;overflow:hidden;cursor:pointer;border-right:1px solid #fff;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.dc-seg:last-child{border-right:none}
+.dc-seg:hover{filter:brightness(1.12)}
+.dc-tot{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dc-cap{font-size:11px;color:var(--text3);margin-top:4px}
+@media(max-width:600px){.dc-row{grid-template-columns:44px minmax(0,1fr) 38px;gap:6px}.dc-lb{font-size:11.5px}}
+
 /* ── 학번 옆 노쇼 뱃지 ── */
 .nsb{display:inline-block;margin-left:4px;padding:0 4px;border-radius:99px;font-size:9px;
   font-weight:700;background:#f7dcd8;color:var(--accent);vertical-align:middle;
@@ -416,6 +434,7 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
       <span class="sect-tabs" onclick="event.stopPropagation()">
         <button class="stab active" data-m="grade" onclick="setStatMode('grade')">학년별</button>
         <button class="stab" data-m="gen" onclick="setStatMode('gen')">기수별</button>
+        <button class="stab" data-m="dept" onclick="setStatMode('dept')">학년 × 학과</button>
       </span>
       <span class="hint">행을 누르면 아래 격자가 걸러집니다</span>
       <span class="caret">▾</span>
@@ -439,6 +458,14 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
           </tr></thead>
           <tbody id="gnBody"></tbody>
           <tfoot id="gnFoot"></tfoot>
+        </table>
+      </div>
+      <div class="stat-pane" id="paneDept">
+        <div class="dchart" id="dcChart"></div>
+        <table class="gs">
+          <thead id="dcHead"></thead>
+          <tbody id="dcBody"></tbody>
+          <tfoot id="dcFoot"></tfoot>
         </table>
       </div>
     </div>
@@ -756,6 +783,7 @@ function setStatMode(m){
   });
   $("paneGrade").classList.toggle("on", m==="grade");
   $("paneGen").classList.toggle("on", m==="gen");
+  $("paneDept").classList.toggle("on", m==="dept");
 }
 
 function syncFilterUI(){
@@ -857,6 +885,52 @@ function renderGradeStat(){
   $("gsFoot").innerHTML=totalRowHtml();
   $("gnBody").innerHTML=statRowsHtml(n,"setGen","기");
   $("gnFoot").innerHTML=totalRowHtml();
+  renderDeptChart();
+}
+
+/* ── 학년 × 학과 차트 (2026-10-20) ──
+ *  학년별 막대 1줄, 막대 안을 학과(신전화기물) 색으로 쌓는다. 아래 표는 같은 숫자.
+ *  모수 = 이 화면의 학생 전체(그 학기 마일리지 대상). 막대·행을 누르면 격자가 그 학년으로 걸러진다. */
+var DC_ORDER=["신소재공학부","전기전자공학부","화공생명공학과","기계공학부","물리학과"];
+var DC_COLOR={"신소재공학부":"#1e4d8c","전기전자공학부":"#4a86c8","화공생명공학과":"#2d7a4f","기계공학부":"#c0832a","물리학과":"#7a5aa6"};
+function dcShort(v){ return String(v).replace(/(공학부|공학과|학부|학과)$/,""); }
+function renderDeptChart(){
+  var L=DATA.students||[], gs=[], ds=[];
+  L.forEach(function(s){
+    var g=String(s.grade||"미상"), d=s.dept||"기타";
+    if(gs.indexOf(g)<0) gs.push(g);
+    if(ds.indexOf(d)<0) ds.push(d);
+  });
+  gs.sort(function(a,b){ return (a==="미상")-(b==="미상") || parseInt(a,10)-parseInt(b,10); });
+  ds.sort(function(a,b){
+    var x=DC_ORDER.indexOf(a), y=DC_ORDER.indexOf(b);
+    return (x<0?99:x)-(y<0?99:y) || String(a).localeCompare(String(b),"ko");
+  });
+  function cnt(g,d){ return L.filter(function(s){ return String(s.grade||"미상")===g && (d==null || (s.dept||"기타")===d); }).length; }
+  var max=0; gs.forEach(function(g){ max=Math.max(max,cnt(g)); });
+  var h='<div class="dc-leg">'+ds.map(function(d){
+    return '<span><i style="background:'+(DC_COLOR[d]||"#8b98a9")+'"></i>'+esc(dcShort(d))+'</span>';
+  }).join("")+'</div>';
+  gs.forEach(function(g){
+    var tot=cnt(g), lb=/^\d+$/.test(g)?g+"학년":"학년 미상";
+    h+='<div class="dc-row"><span class="dc-lb">'+esc(lb)+'</span><div class="dc-bar" style="width:'+(max?tot/max*100:0)+'%">';
+    ds.forEach(function(d){
+      var v=cnt(g,d); if(!v) return;
+      h+='<span class="dc-seg" style="flex:'+v+' 1 0;background:'+(DC_COLOR[d]||"#8b98a9")+'" title="'+esc(lb+" · "+dcShort(d)+" "+v+"명")+
+         '" onclick="setGrade(\''+esc(g)+'\')">'+(v/(max||1)>=0.05?v:"")+'</span>';
+    });
+    h+='</div><span class="dc-tot">'+tot+'명</span></div>';
+  });
+  h+='<div class="dc-cap">막대를 누르면 아래 격자가 그 학년으로 걸러집니다 · 칸이 좁아 숫자가 안 보이면 마우스를 올리세요</div>';
+  $("dcChart").innerHTML=h;
+  $("dcHead").innerHTML='<tr><th>학년</th>'+ds.map(function(d){ return '<th>'+esc(dcShort(d))+'</th>'; }).join("")+'<th>계</th></tr>';
+  $("dcBody").innerHTML=gs.map(function(g){
+    var lb=/^\d+$/.test(g)?g+"학년":"학년 미상";
+    return '<tr data-k="'+esc(g)+'" onclick="setGrade(\''+esc(g)+'\')"><td>'+esc(lb)+'</td>'+
+      ds.map(function(d){ var v=cnt(g,d); return '<td>'+(v||"—")+'</td>'; }).join("")+'<td><b>'+cnt(g)+'</b></td></tr>';
+  }).join("");
+  $("dcFoot").innerHTML='<tr><td>전체</td>'+ds.map(function(d){
+    return '<td>'+L.filter(function(s){ return (s.dept||"기타")===d; }).length+'</td>'; }).join("")+'<td>'+L.length+'</td></tr>';
 }
 
 /** 인사이트 칩 — 앞의 셋은 누르면 격자가 그 조건으로 걸러진다. */

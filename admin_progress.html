@@ -141,6 +141,22 @@ font-size:12px;line-height:1.7;color:var(--text2);margin-top:14px}
 .kiat{background:#1e2936;color:#a8d8a8;font-family:Consolas,monospace;font-size:11.5px;padding:12px;
 border-radius:8px;white-space:pre-wrap;max-height:180px;overflow:auto;line-height:1.6;margin-top:8px}
 @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.act{flex-wrap:wrap}.act .who{min-width:0}}
+/* ── 학년 × 학과 차트 (2026-10-20 · 김규철 실장 요청) ── */
+.dchart{padding:12px 16px 8px}
+.dc-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--text2);margin-bottom:10px}
+.dc-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.dc-row{display:grid;grid-template-columns:62px minmax(0,1fr) 46px;align-items:center;gap:8px;margin-bottom:7px}
+.dc-lb{font-size:12.5px;font-weight:700;color:var(--text);white-space:nowrap}
+.dc-bar{display:flex;height:24px;border-radius:5px;overflow:hidden;min-width:0}
+.dc-seg{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;
+  min-width:0;overflow:hidden;cursor:pointer;border-right:1px solid #fff;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.dc-seg:last-child{border-right:none}
+.dc-seg:hover{filter:brightness(1.12)}
+.dc-tot{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dc-cap{font-size:11px;color:var(--text3);margin-top:4px}
+@media(max-width:600px){.dc-row{grid-template-columns:44px minmax(0,1fr) 38px;gap:6px}.dc-lb{font-size:11.5px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* 상단 현황판 */
@@ -593,6 +609,7 @@ function popHtml(){
        onclick="setScope('${k}')">${POPSCOPES[k].label}
        <span>${DATA.filter(POPSCOPES[k].f).length}명</span></button>`).join('')}
    </div>
+   ${popChart(B,YS,DS,yk)}
    <table class="bd"><thead><tr><th class="l">학년</th>
      ${DS.map(dp=>`<th>${esc(deptShort(dp))}</th>`).join('')}<th>계</th></tr></thead>
    <tbody>
@@ -612,6 +629,24 @@ function popHtml(){
      숫자를 누르면 그 학년·학과 명단이 열립니다<br>
      <b style="font-weight:600">휴학 제외</b> = 졸업·포기 제외 − 휴학 (수료·유예·초과학기는 포함) ·
      <b style="font-weight:600">마일리지 대상</b> = 재학이면서 등록횟수가 초과학기 경계 미만인 학생</div>`;
+}
+// 학년 × 학과 차트 (2026-10-20 · 김규철 실장 요청) — 위 표와 같은 모수(B)·같은 순서를 그대로 받는다.
+// 학년별 막대 1줄, 막대 안을 학과 색으로 쌓는다. 칸을 누르면 표 숫자와 같이 그 학년·학과 명단이 열린다.
+const DC_COLOR={'신소재공학부':'#1e4d8c','전기전자공학부':'#4a86c8','화공생명공학과':'#2d7a4f','기계공학부':'#c0832a','물리학과':'#7a5aa6'};
+function popChart(B,YS,DS,yk){
+  const n=(y,dp)=>B.filter(d=>yk(d)===y&&(dp==null||d.dept===dp)).length;
+  const max=Math.max(1,...YS.map(y=>n(y)));
+  const col=dp=>DC_COLOR[dp]||'#8b98a9';
+  return `<div class="dchart">
+    <div class="dc-leg">${DS.map(dp=>`<span><i style="background:${col(dp)}"></i>${esc(deptShort(dp))}</span>`).join('')}</div>
+    ${YS.map(y=>{const t=n(y), lb=y==='미상'?'학년 미상':y+'학년';
+      return `<div class="dc-row"><span class="dc-lb">${lb}</span>
+        <div class="dc-bar" style="width:${t/max*100}%">${DS.map(dp=>{const v=n(y,dp); if(!v) return '';
+          return `<span class="dc-seg" style="flex:${v} 1 0;background:${col(dp)}" title="${esc(lb+' · '+deptShort(dp)+' '+v+'명')}"
+            ${y!=='미상'?`onclick="setPop('${esc(dp)}','${y}')"`:''}>${v/max>=0.05?v:''}</span>`;}).join('')}</div>
+        <span class="dc-tot">${t}명</span></div>`;}).join('')}
+    <div class="dc-cap">모수 = 위 버튼(${esc(popScope().label)}) · 칸을 누르면 그 학년·학과 명단 · 숫자가 안 보이는 좁은 칸은 마우스를 올리세요</div>
+  </div>`;
 }
 function setPop(dept,yr){
   drill_=null; fQ.value='';
