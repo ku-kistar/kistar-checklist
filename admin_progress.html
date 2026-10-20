@@ -296,7 +296,7 @@ font-variant-numeric:tabular-nums;font-weight:600}
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.2-2.85M10 1.5v2.7H7.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     새로고침
   </a>
-  <a href="admin.html" target="_blank" rel="noopener" class="tnav">
+  <a href="admin.html" target="_blank" rel="noopener" class="tnav" id="navGrade">
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1.5" y="1.5" width="9" height="9" rx="1.8" stroke="currentColor" stroke-width="1.4"/><path d="M6 3.5v5M3.5 6h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
     성적 입력
   </a>
@@ -575,7 +575,8 @@ function drawBoard(){
      const k=ST_KEY[r.st]||r.st;
      return `<tr class="${off?'off':''} ${cur===k?'on':''}" onclick="pickStatus('${k}')">
       <td class="l"><b>${r.st}</b>${r.st==='재학'?'<span class="hintx">장학금 대상 · 초과학기 제외</span>':''}</td><td>${r.n}</td>
-      <td class="${r.ok?'g kx':'z'}" ${r.ok?`onclick="event.stopPropagation();drill('ok','${k}')"`:''}>${r.ok||'—'}</td>
+      ${r.st==='졸업'?'<td class="z" title="졸업은 졸업사정으로 확정 — 이수현황 학점으로 다시 판정하지 않습니다">—</td>'
+        :`<td class="${r.ok?'g kx':'z'}" ${r.ok?`onclick="event.stopPropagation();drill('ok','${k}')"`:''}>${r.ok||'—'}</td>`}
       <td class="z">${off?'—':r.n-r.ok}</td>
       <td class="${r.ac?'o kx':'z'}" ${r.ac?`onclick="event.stopPropagation();drill('act','${k}')"`:''}>${off?'—':(r.ac||'—')}</td>
       <td class="${r.ur?'r kx':'z'}" ${r.ur?`onclick="event.stopPropagation();drill('urg','${k}')"`:''}>${off?'—':(r.ur||'—')}</td></tr>`;}).join('')}
@@ -588,7 +589,7 @@ function drawBoard(){
      <td class="r kx" onclick="event.stopPropagation();drill('urg')">${sum('ur')}</td></tr>
    <tr class="sm all ${cur==='_all'?'on':''}" onclick="pickStatus('_all')"><td class="l"><b>전체</b>
        <span class="hintx">졸업·포기 포함</span></td>
-     <td>${DATA.length}</td><td class="g">${DATA.filter(d=>d.tot>=36).length}</td>
+     <td>${DATA.length}</td><td class="z">—</td>
      <td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>
    </tbody></table></div>`;
 }
@@ -706,8 +707,9 @@ function aiState(d){
   // '신청'으로 판정하면 '미이수·미신청'까지 걸린다. 반드시 '신청함'으로 볼 것.
   return String((d.w26||{}).KISE302||'').includes('신청함') ? '2026-2 신청' : '미이수·미신청';
 }
-// 크로스표는 상단 필터와 연동하지 않는다. 항상 졸업·포기 제외 전원 고정.
-function aiBase(){ return DATA.filter(d=>!['졸업','융전포기'].includes(d.st)); }
+// 크로스표는 상단 필터와 연동하지 않는다.
+// ★ 2026-10-20 — 모수 = 학적 재학(장학금 대상 + 초과학기). 휴학·수료·유예는 이번 학기 수강신청이 불가능해 미이수로 세지 않는다.
+function aiBase(){ return DATA.filter(d=>d.st==='재학'); }
 function drawAI(){
   const B=aiBase();
   if(!B.length){ aiBoard.innerHTML=''; return; }
@@ -748,12 +750,12 @@ function drawAI(){
   // ★ 2026-10-20 — 직원(「전체」 권한 아님)은 이 구획을 처음에 통째로 접어 둔다. 펼침 상태는 그 기기에 기억.
   if(IS_STAFF && !aiAllOpen()){
     aiBoard.innerHTML=`<div class="aihd">
-     <div class="aitt">AI반도체개론<span>전공필수 · 졸업·포기 제외 ${B.length}명</span></div>
+     <div class="aitt">AI반도체개론<span>전공필수 · 재학 ${B.length}명 (휴학·수료·유예 제외)</span></div>
      <button class="aitg" onclick="toggleAIAll()">펼치기 ▾</button></div>`;
     return;
   }
   aiBoard.innerHTML=`<div class="aihd">
-     <div class="aitt">AI반도체개론<span>전공필수 · 졸업·포기 제외 ${B.length}명</span></div>
+     <div class="aitt">AI반도체개론<span>전공필수 · 재학 ${B.length}명 (휴학·수료·유예 제외)</span></div>
      <div class="aistat">${stat}</div>${IS_STAFF?'<button class="aitg" onclick="toggleAIAll()">접기 ▴</button>':''}
      <button class="aitg" id="aiTg" onclick="toggleAI()">학년 × 학과 ${open?'▴':'▾'}</button>
    </div>
@@ -771,6 +773,9 @@ function drawAI(){
      모든 숫자를 누르면 해당 명단이 열립니다</div></div>`;
 }
 const IS_STAFF=(()=>{ const p=AUTH&&AUTH.perms; return !!(p&&p.length&&p.indexOf('전체')<0); })();
+// ★ 2026-10-20 — 쓰기(성적 입력 · 확인 메모)는 「전체」 또는 「성적입력」 권한만. 서버(SubAuth)도 따로 거절한다.
+const CAN_WRITE=(()=>{ const p=AUTH&&AUTH.perms; return !p||!p.length||p.indexOf('전체')>-1||p.indexOf('성적입력')>-1; })();
+if(!CAN_WRITE){ const g=document.getElementById('navGrade'); if(g) g.style.display='none'; }
 function aiAllOpen(){ try{ return localStorage.getItem('kistar_ai_all')==='1'; }catch(e){ return false; } }
 function toggleAIAll(){ try{ localStorage.setItem('kistar_ai_all', aiAllOpen()?'0':'1'); }catch(e){} drawAI(); }
 function toggleAI(){
@@ -934,12 +939,12 @@ function memoHtml(d){
   ${d.memo ? `<div class="memo-log">${esc(d.memo).replace(/\n/g,'<br>')}</div>`
            : `<div class="memo-none">아직 기록이 없습니다. 유선·면담으로 확인한 내용을 남겨 두면
               조치 필요 목록에서 <b>✔ 확인함</b> 으로 표시되고 순서가 뒤로 밀립니다.</div>`}
-  <textarea id="memoIn" class="memo-in" rows="2"
+  ${CAN_WRITE?`<textarea id="memoIn" class="memo-in" rows="2"
     placeholder="예: 소자·공정 트랙 — 인공지능물리학·반도체프로세스로 충족 예정 (유선 확인)"></textarea>
   <div class="memo-act">
     <button class="memo-btn" id="memoBtn" onclick="saveMemo_()">확인 메모 추가</button>
     <span class="memo-msg" id="memoMsg"></span>
-  </div>`;
+  </div>`:''}`;
 }
 
 // 메모는 AA열 한 칸만 쓴다. 데이터출처·갱신일시는 건드리지 않는다.

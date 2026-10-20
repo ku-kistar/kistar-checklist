@@ -1632,6 +1632,10 @@ function showUserBar() {
       const left = Array.prototype.some.call(c.querySelectorAll('.admin-link'), function (a) { return a.style.display !== 'none'; });
       c.style.display = left ? '' : 'none';
     });
+    // ★ 2026-10-20 — 직원(「전체」 아님)에게는 학생용 탭(설문·제출 · 내 마일리지)을 숨긴다. 관리자 카드만 남긴다.
+    if (!_full) ['.tab-wrap', '#content-forms', '#content-mileage'].forEach(function (q) {
+      const e = document.querySelector(q); if (e) e.style.display = 'none';
+    });
     const _apb = document.getElementById('admPrevBar');
     if (_apb && _full) _apb.classList.add('show');
     const _iab = document.getElementById('injeAdmBar');
