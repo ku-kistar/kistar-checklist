@@ -737,9 +737,16 @@ function drawAI(){
   const body=YS.map(y=>rowsFor(y+'학년',n(d=>d.yr===y)+'명','',d=>d.yr===y,y)).join('');
   const foot=rowsFor('합계',B.length+'명',' sm',()=>true,'');
   const open=(()=>{ try{ return localStorage.getItem('kistar_ai_open')==='1'; }catch(e){ return false; } })();
+  // ★ 2026-10-20 — 직원(「전체」 권한 아님)은 이 구획을 처음에 통째로 접어 둔다. 펼침 상태는 그 기기에 기억.
+  if(IS_STAFF && !aiAllOpen()){
+    aiBoard.innerHTML=`<div class="aihd">
+     <div class="aitt">AI반도체개론<span>전공필수 · 졸업·포기 제외 ${B.length}명</span></div>
+     <button class="aitg" onclick="toggleAIAll()">펼치기 ▾</button></div>`;
+    return;
+  }
   aiBoard.innerHTML=`<div class="aihd">
      <div class="aitt">AI반도체개론<span>전공필수 · 졸업·포기 제외 ${B.length}명</span></div>
-     <div class="aistat">${stat}</div>
+     <div class="aistat">${stat}</div>${IS_STAFF?'<button class="aitg" onclick="toggleAIAll()">접기 ▴</button>':''}
      <button class="aitg" id="aiTg" onclick="toggleAI()">학년 × 학과 ${open?'▴':'▾'}</button>
    </div>
    <div class="aipb">${bar}</div>
@@ -755,6 +762,9 @@ function drawAI(){
      2학년 미이수는 수강 가능하나 잔여 여석 대상이라 회색으로 뒀습니다 ·
      모든 숫자를 누르면 해당 명단이 열립니다</div></div>`;
 }
+const IS_STAFF=(()=>{ const p=AUTH&&AUTH.perms; return !!(p&&p.length&&p.indexOf('전체')<0); })();
+function aiAllOpen(){ try{ return localStorage.getItem('kistar_ai_all')==='1'; }catch(e){ return false; } }
+function toggleAIAll(){ try{ localStorage.setItem('kistar_ai_all', aiAllOpen()?'0':'1'); }catch(e){} drawAI(); }
 function toggleAI(){
   const el=document.getElementById('aiDetail'), b=document.getElementById('aiTg');
   if(!el||!b) return;
