@@ -495,11 +495,11 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
     <input type="text" class="tb-search" id="q" placeholder="이름 · 학번 검색" oninput="renderGrid()">
     <div style="display:flex;gap:6px;flex-wrap:wrap" id="gradeTabs"></div>
     <div class="tb-spacer"></div>
-    <button class="btn btn-navy" id="btnDocCopy" onclick="copyDocList()" style="display:none" title="걸러진 학생의 학번·이름·학과·학년을 복사합니다">명단 복사</button>
+    <button class="btn btn-navy" id="btnDocCopy" data-dl="명단 복사" onclick="copyDocList()" style="display:none" title="걸러진 학생의 학번·이름·학과·학년을 복사합니다">명단 복사</button>
     <button class="btn" onclick="loadData()">↻ 새로고침</button>
-    <button class="btn btn-primary" id="btnXlsx" onclick="exportXlsx()">엑셀 (증빙)</button>
-    <button class="btn btn-navy" id="btnDocx" onclick="exportDocx()">보고서 (docx)</button>
-    <button class="btn" onclick="window.print()">인쇄</button>
+    <button class="btn btn-primary" id="btnXlsx" data-dl="엑셀(증빙)" onclick="exportXlsx()">엑셀 (증빙)</button>
+    <button class="btn btn-navy" id="btnDocx" data-dl="보고서(docx)" onclick="exportDocx()">보고서 (docx)</button>
+    <button class="btn" data-dl="인쇄" onclick="window.print()">인쇄</button>
   </div>
 
   <div class="tie-card" id="tieCard">

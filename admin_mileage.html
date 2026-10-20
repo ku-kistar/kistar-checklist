@@ -227,11 +227,11 @@ tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace}
         </div>
         <div class="btn-group">
           <input type="text" class="table-search" id="tableSearch" placeholder="이름 또는 학번 검색" oninput="filterTable(this.value)">
-          <button class="btn-excel" onclick="exportCSV()">
+          <button class="btn-excel" data-dl="마일리지 CSV" onclick="exportCSV()">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2h6l3 3v6a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="white" stroke-width="1.3"/><path d="M7 2v4h4M4 7h5M4 9h3" stroke="white" stroke-width="1.1" stroke-linecap="round"/></svg>
             CSV 내보내기
           </button>
-          <button class="btn-print" onclick="printDash()">
+          <button class="btn-print" data-dl="인쇄" onclick="printDash()">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 4V1h7v3M3 9H1V5h11v4h-2M3 7h7v4H3V7z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             인쇄 / PDF
           </button>
