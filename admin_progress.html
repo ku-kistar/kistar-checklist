@@ -881,7 +881,7 @@ function open_(sid){
   <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:12px">
     <span style="font-size:34px;font-weight:800;letter-spacing:-1.5px">${d.tot}</span>
     <span style="color:var(--text2)">/ 36학점</span>
-    <span style="margin-left:auto" class="st ${d.tot>=36?'ok':'go'}">${d.tot>=36?'요건 충족':'남은 학점 '+(36-d.tot)}</span></div>
+    <span style="margin-left:auto" class="st ${['졸업','융전포기'].includes(d.st)?'no':d.tot>=36?'ok':'go'}">${['졸업','융전포기'].includes(d.st)?d.st:d.tot>=36?'요건 충족':'남은 학점 '+(36-d.tot)}</span></div>
   ${AREAS.map(([k,m,l])=>`<div class="arow"><span class="an">${l}</span>
     <span class="ab ${d.ar[k]>=m?'full':''}"><i style="width:${d.ar[k]/m*100}%"></i></span>
     <span class="av">${d.ar[k]}/${m}</span></div>`
