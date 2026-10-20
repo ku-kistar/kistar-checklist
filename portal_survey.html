@@ -1031,7 +1031,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
               <div class="admin-link-name">이수 현황</div>
               <div class="admin-link-desc">155명 이수 요건 · 조치 필요 목록</div>
             </a>
-            <a href="admin.html" class="admin-link" target="_blank" rel="noopener" data-perm="이수현황">
+            <a href="admin.html" class="admin-link" target="_blank" rel="noopener" data-perm="성적입력">
               <div class="admin-link-name">성적 입력 · 이수 판정</div>
               <div class="admin-link-desc">전체성적 xlsx 넣고 시트에 저장</div>
             </a>
@@ -1622,6 +1622,11 @@ function showUserBar() {
     // ★ T40 — 권한 없는 버튼은 숨기고, 버튼이 하나도 안 남은 카드도 숨긴다
     document.querySelectorAll('#admin-section [data-perm]').forEach(function (a) {
       a.style.display = _admCan(auth, a.getAttribute('data-perm')) ? '' : 'none';
+    });
+    // ★ 2026-10-20 — 권한 키가 없는 버튼(학생 화면·기준표·캘린더 등)과 카드 아래 「내 PC」 안내는 「전체」만 본다.
+    //   직원(예: 김규철 실장)에게는 「관리자」 탭에 적힌 화면만 보이게 한다.
+    document.querySelectorAll('#admin-section .admin-link:not([data-perm]), #admin-section .admin-card-foot').forEach(function (a) {
+      a.style.display = _full ? '' : 'none';
     });
     document.querySelectorAll('#admin-section .admin-card').forEach(function (c) {
       const left = Array.prototype.some.call(c.querySelectorAll('.admin-link'), function (a) { return a.style.display !== 'none'; });
