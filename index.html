@@ -567,6 +567,38 @@ function doAuth() {
 
   // 이미 인증된 경우 오버레이 바로 숨기기 + URL 파라미터 자동로그인
   function runAutoLogin() {
+    // 0. ★ 2026-10-20 — 관리자·직원: 데이터허브 대문 출입증(kistar_auth_url2 · 24자리)이 살아 있으면 서버 secWho로 확인하고 들어온다.
+    //    관리자 학번은 verifyBySid·생년월일 로그인이 거절되므로(v126) 이 길이 유일하다. 체크리스트는 보기용이라 출입증 원문은 저장하지 않는다.
+    try {
+      const a2 = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null');
+      const tok = a2 && String(a2.birth || a2.birthDate || '');
+      if (a2 && a2.isAdmin && /^\d{24}$/.test(tok) && (!a2.tokenExp || Date.now() < a2.tokenExp)) {
+        const SURL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+        const cbW = '__secWhoCb_' + Date.now();
+        window[cbW] = function (r) {
+          delete window[cbW];
+          const sc = document.getElementById('__secWhoScript'); if (sc) sc.remove();
+          if (r && r.status === 'ok' && String(r.sid) === String(a2.studentId)) {
+            const full = (r.perms || []).indexOf('전체') > -1;
+            localStorage.setItem('kistar_auth', JSON.stringify({
+              name: a2.name || '', dept: a2.dept || '', studentId: a2.studentId,
+              role: full ? 'admin' : 'staff', isAdmin: full, isStaff: true, loginTime: Date.now()
+            }));
+            const overlay = document.getElementById('auth-overlay');
+            if (overlay) overlay.classList.add('hidden');
+            showLogoutBtn();
+          } else { runAutoLoginStudent(); }
+        };
+        const sw = document.createElement('script'); sw.crossOrigin = 'anonymous'; sw.id = '__secWhoScript';
+        sw.onerror = function () { delete window[cbW]; runAutoLoginStudent(); };
+        sw.src = SURL + '?action=secWho&token=' + encodeURIComponent(tok) + '&callback=' + cbW;
+        (document.head || document.documentElement).appendChild(sw);
+        return;
+      }
+    } catch (e0) {}
+    runAutoLoginStudent();
+  }
+  function runAutoLoginStudent() {
     // 1. URL 파라미터 자동로그인 (데이터허브에서 넘어온 경우)
     try {
       const urlParams = new URLSearchParams(window.location.search);
