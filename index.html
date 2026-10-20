@@ -587,7 +587,11 @@ function doAuth() {
             const overlay = document.getElementById('auth-overlay');
             if (overlay) overlay.classList.add('hidden');
             showLogoutBtn();
-          } else { runAutoLoginStudent(); }
+          } else {
+            runAutoLoginStudent();
+            const m = document.getElementById('auth-msg');
+            if (m) { m.style.color = ''; m.textContent = '데이터허브 대문 출입증을 확인하지 못했습니다 (' + ((r && r.status) || '응답 없음') + ') — 대문에서 다시 로그인한 뒤 「이수 체크리스트」를 눌러 주세요.'; }
+          }
         };
         const sw = document.createElement('script'); sw.crossOrigin = 'anonymous'; sw.id = '__secWhoScript';
         sw.onerror = function () { delete window[cbW]; runAutoLoginStudent(); };
