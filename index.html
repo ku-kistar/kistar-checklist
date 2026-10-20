@@ -581,11 +581,13 @@ function doAuth() {
           if (r && r.status === 'ok' && String(r.sid) === String(a2.studentId)) {
             const full = (r.perms || []).indexOf('전체') > -1;
             localStorage.setItem('kistar_auth', JSON.stringify({
-              name: a2.name || '', dept: a2.dept || '', studentId: a2.studentId,
+              name: a2.name || '', dept: a2.dept || '사업단', studentId: a2.studentId,
               role: full ? 'admin' : 'staff', isAdmin: full, isStaff: true, loginTime: Date.now()
             }));
             const overlay = document.getElementById('auth-overlay');
             if (overlay) overlay.classList.add('hidden');
+            // 같은 창에 남아 있던 학생 로그인(본인 학과만 열림)으로 잠긴 학과 버튼을 푼다 — 직원은 5개 학과 모두
+            document.querySelectorAll('.dept-btn.disabled').forEach(function (x) { x.classList.remove('disabled'); });
             showLogoutBtn();
           } else {
             runAutoLoginStudent();
