@@ -845,7 +845,7 @@ function tblHtml(L){
     ${AREAS.map((a,i)=>`<th class="${i===0?'div':''}">${a[0]}</th>`).join('')}
     <th class="div">2026-2 신청</th><th>추가 필요</th></tr></thead><tbody>
     ${L.map((d,idx)=>{const p=Math.round(d.tot/36*100);
-      const st=d.tot>=36?['ok','충족']:!d.dg.active?['no',d.st]:d.dg.sev?['go','조치 필요']:['no','진행 중'];
+      const st=!d.dg.active?['no',d.st]:d.tot>=36?['ok','충족']:d.dg.sev?['go','조치 필요']:['no','진행 중'];   // ★ 2026-10-20 학적(수료·휴학·졸업 등)이 먼저 — 36학점 충족이어도 수료생은 「수료」
       // 미이수 드릴다운은 학년이 바뀌는 지점에 구분줄을 넣는다. 55명이면 경계가 안 보인다.
       const brk = String(drill_).startsWith('ai:') && (idx===0 || L[idx-1].yr!==d.yr)
         ? `<tr class="ybrk"><td colspan="${4+AREAS.length+2}">${d.yr}학년
