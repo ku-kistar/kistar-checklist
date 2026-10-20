@@ -543,6 +543,7 @@ var CDN_XLSX = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min
 var CDN_ZIP  = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
 
 var AUTH = null;      // {studentId, birthDate}
+var CAN_GPA = true;   // ★ 2026-10-20 — 「관리자」 탭 권한에 전체·평점입력이 없으면 평점 입력 카드를 숨긴다 (서버 setGpa도 따로 거절)
 var DATA = null;      // 서버 응답
 var SEM  = "";        // 보고 있는 학기. 빈 값이면 서버가 live 학기를 고른다
 var SEMS = null;      // 학기 목록 (최초 1회만 조회)
@@ -611,6 +612,7 @@ window.addEventListener("DOMContentLoaded", function(){
     $("access-denied").style.display="block"; return;
   }
   AUTH={studentId:auth.studentId, birthDate:""};
+  var _pm=auth.perms; CAN_GPA=!_pm||!_pm.length||_pm.indexOf("전체")>-1||_pm.indexOf("평점입력")>-1;
   var b=String(auth.birthDate||auth.birth||"").replace(/[^0-9]/g,"");
   if(b.length===8||b.length===24){ AUTH.birthDate=b; loadData(); }   // ★ 2026-10-08 T40 — 24자리 = 관리자 출입증
   else{ $("birth-gate").style.display="block"; $("birthInput").focus(); }
@@ -1007,6 +1009,7 @@ function copyDocList(){
 function renderTie(){
   var need=DATA.needGpa||[], unres=DATA.unresolved||[];
   var card=$("tieCard");
+  if(!CAN_GPA){ card.className="tie-card"; return; }
   if(!need.length&&!unres.length){ card.className="tie-card"; return; }
   card.className="tie-card show";
 
