@@ -216,6 +216,7 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .aist.q b{color:var(--text2)} .aist.r b{color:var(--dang)}
 .aist.r{border-color:#e8b4b4;background:#fdf5f5}
 .aist.cl{cursor:pointer} .aist.cl:hover{background:#fbeaea;border-color:#dc9a9a}
+.aist.q.on{background:#eef3fb;border-color:var(--navy)} .aist.q.on b{color:var(--navy)}
 .aist.hi{background:var(--dang);border-color:var(--dang)}
 .aist.hi b{color:#fff} .aist.hi em{color:#ffd9d9}
 .aist.hi.cl:hover{background:#a8302f;border-color:#a8302f}
@@ -512,28 +513,34 @@ function init(){
   c0.textContent=actList().length; c1.textContent=DATA.length;
   render();
 }
-const STATUS=['재학','휴학','수강유예','미수강유예','수료','졸업','융전포기'];
+const STATUS=['재학','초과학기','휴학','수강유예','미수강유예','수료','졸업','융전포기'];
+// ★ 2026-10-20 — 「재학」 줄은 장학금 대상(재학 · 초과학기 아님)만 센다. 초과학기는 따로 한 줄.
+//   학적 문자열이 아니라 재적정보(en.over)로 가른다. 줄을 누르면 명단 필터 _elig / _over 로 간다.
+const ST_KEY={'재학':'_elig','초과학기':'_over'};
+const stIs=(d,st)=> st==='재학' ? (d.st==='재학' && !(d.en&&d.en.over))
+                  : st==='초과학기' ? (d.st==='재학' && !!(d.en&&d.en.over))
+                  : d.st===st;
 function drawBoard(){
   const cur=fS.value;
   const row=st=>{
-    const g=DATA.filter(d=>d.st===st);
+    const g=DATA.filter(d=>stIs(d,st));
     const ok=g.filter(d=>d.tot>=36).length;
     const ac=g.filter(d=>d.dg.sev>0).length;
     const ur=g.filter(d=>d.dg.sev===1).length;
     return {st,n:g.length,ok,ac,ur};
   };
   const R=STATUS.map(row), T=R.filter(r=>r.n);
-  const enrolled=['재학','휴학','수강유예','미수강유예','수료'];
+  const enrolled=['재학','초과학기','휴학','수강유예','미수강유예','수료'];
   const sum=k=>T.filter(r=>enrolled.includes(r.st)).reduce((a,r)=>a+r[k],0);
   const open=LS('kistar_pop_open','1')==='1';
   const head=`<div class="aihd">
      <div class="aitt">인원 현황<span>차세대반도체 융합전공</span></div>
      <div class="aistat">
-       <div class="aist q cl" onclick="pickStatus('_all')"><b>${DATA.length}</b>
+       <div class="aist q cl${cur==='_all'?' on':''}" onclick="pickPop('_all')"><b>${DATA.length}</b>
          <em>전체 &rsaquo;</em></div>
-       <div class="aist q cl" onclick="pickStatus('')"><b>${sum('n')}</b>
+       <div class="aist q cl${cur===''?' on':''}" onclick="pickPop('')"><b>${sum('n')}</b>
          <em>양성인원 &rsaquo;</em></div>
-       <div class="aist q cl" onclick="pickStatus('_elig')"><b>${DATA.filter(POPSCOPES.elig.f).length}</b>
+       <div class="aist q cl${cur==='_elig'?' on':''}" onclick="pickPop('_elig')"><b>${DATA.filter(POPSCOPES.elig.f).length}</b>
          <em>장학금 대상 &rsaquo;</em></div>
        <div class="aist q${sum('ac')?' cl':''}"${sum('ac')?` onclick="drill('act')"`:''}>
          <b>${sum('ac')}</b><em>조치 필요${sum('ac')?' &rsaquo;':''}</em></div>
@@ -552,12 +559,13 @@ function drawBoard(){
    <thead><tr><th class="l">학적상태</th><th>인원</th><th>요건 충족</th><th>이수 중</th>
      <th>조치 필요</th><th>그중 긴급</th></tr></thead><tbody>
    ${T.map(r=>{const off=['졸업','융전포기'].includes(r.st);
-     return `<tr class="${off?'off':''} ${cur===r.st?'on':''}" onclick="pickStatus('${r.st}')">
-      <td class="l"><b>${r.st}</b></td><td>${r.n}</td>
-      <td class="${r.ok?'g kx':'z'}" ${r.ok?`onclick="event.stopPropagation();drill('ok','${r.st}')"`:''}>${r.ok||'—'}</td>
+     const k=ST_KEY[r.st]||r.st;
+     return `<tr class="${off?'off':''} ${cur===k?'on':''}" onclick="pickStatus('${k}')">
+      <td class="l"><b>${r.st}</b>${r.st==='재학'?'<span class="hintx">장학금 대상 · 초과학기 제외</span>':''}</td><td>${r.n}</td>
+      <td class="${r.ok?'g kx':'z'}" ${r.ok?`onclick="event.stopPropagation();drill('ok','${k}')"`:''}>${r.ok||'—'}</td>
       <td class="z">${off?'—':r.n-r.ok}</td>
-      <td class="${r.ac?'o kx':'z'}" ${r.ac?`onclick="event.stopPropagation();drill('act','${r.st}')"`:''}>${off?'—':(r.ac||'—')}</td>
-      <td class="${r.ur?'r kx':'z'}" ${r.ur?`onclick="event.stopPropagation();drill('urg','${r.st}')"`:''}>${off?'—':(r.ur||'—')}</td></tr>`;}).join('')}
+      <td class="${r.ac?'o kx':'z'}" ${r.ac?`onclick="event.stopPropagation();drill('act','${k}')"`:''}>${off?'—':(r.ac||'—')}</td>
+      <td class="${r.ur?'r kx':'z'}" ${r.ur?`onclick="event.stopPropagation();drill('urg','${k}')"`:''}>${off?'—':(r.ur||'—')}</td></tr>`;}).join('')}
    <tr class="sm ${cur===''?'on':''}" onclick="pickStatus('')"><td class="l"><b>양성인원</b>
        <span class="hintx">졸업·포기 제외</span></td>
      <td>${sum('n')}</td>
@@ -623,7 +631,7 @@ function popHtml(){
   };
   return `<div class="pscope">
      ${POPSHOW.map(k=>`<button class="psc ${POPSCOPE===k?'on':''}"
-       onclick="setScope('${k}')">${POPSCOPES[k].label}
+       onclick="setScopeSync('${k}')">${POPSCOPES[k].label}
        <span>${DATA.filter(POPSCOPES[k].f).length}명</span></button>`).join('')}
    </div>
    ${popChart(B,YS,DS,yk)}
@@ -759,6 +767,19 @@ function drillAI(dept,yr,state){
 }
 let drill_=null;
 function pickStatus(v){drill_=null;fS.value=v; render(); drawBoard();}
+// ★ 2026-10-20 — 위 숫자 카드(전체 · 양성인원 · 장학금 대상): 아래 명단 + 「학년 × 학과」 차트·표 모수를 함께 맞춘다.
+//   전체는 졸업·포기가 섞여 학년×학과가 의미가 없으므로 학적상태 표로 보여 준다.
+function pickPop(v){
+  drill_=null; fS.value=v; fD.value=''; fY.value=''; fQ.value='';
+  tab=1; t0.classList.remove('on'); t1.classList.add('on');
+  if(v===''){ POPSCOPE='mng'; LSet('kistar_pop_scope2','mng'); POPTAB=1; }
+  else if(v==='_elig'){ POPSCOPE='elig'; LSet('kistar_pop_scope2','elig'); POPTAB=1; }
+  else { POPTAB=0; }
+  LSet('kistar_pop_tab',POPTAB); LSet('kistar_pop_open','1');
+  render(); drawBoard();
+}
+// 모수 버튼(학년 × 학과 안)도 아래 명단을 같이 맞춘다
+function setScopeSync(k){ setScope(k); fS.value = k==='elig' ? '_elig' : ''; drill_=null; render(); drawBoard(); }
 function drill(kind, st){
   drill_=kind; fS.value=st||''; fD.value=''; fY.value=''; fQ.value='';
   tab=(kind==='ok')?1:0;
