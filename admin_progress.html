@@ -497,7 +497,7 @@ function rows(){
     (ss==='_all'?true
      : ss==='_nolv'? !['졸업','융전포기','휴학'].includes(d.st)
      : ss==='_elig'? !!(d.en && d.en.eligible)
-     : ss==='_over'? !!(d.en && d.en.over)
+     : ss==='_over'? (d.st==='재학' && !!(d.en && d.en.over))   // ★ 2026-10-20 재학 중 초과학기만 (수료생은 등록횟수가 많아도 수료 줄)
      : ss?d.st===ss : !['졸업','융전포기'].includes(d.st))&&
     (!q||d.name.toLowerCase().includes(q)||d.sid.includes(q)||d.seq.includes(q)));
   const bySeq=(a,b)=>parseInt(a.seq.split('-')[1])-parseInt(b.seq.split('-')[1]);
