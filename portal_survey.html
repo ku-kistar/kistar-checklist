@@ -160,6 +160,15 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .user-badge{font-size:11px;font-weight:600;color:rgba(14,165,233,.85);background:rgba(14,165,233,.1);border:1px solid rgba(14,165,233,.25);padding:5px 10px;border-radius:99px;white-space:nowrap}
 .logout-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.5);font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
 .logout-btn:hover{background:rgba(200,57,43,.15);border-color:rgba(200,57,43,.4);color:#f08070}
+/* ★ 2026-10-20 T96 — 관리자·직원 비밀번호 변경 (사용자 바 버튼 · 임시 비밀번호 첫 로그인) */
+.pw-btn:hover{background:rgba(14,165,233,.15);border-color:rgba(14,165,233,.45);color:#7dd3fc}
+#pw-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(7,19,31,.86);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1.5rem}
+#pw-modal.show{display:flex}
+#pw-modal .auth-card{background:#0f2440}
+.pw-rule{font-size:11px;color:rgba(255,255,255,.42);line-height:1.7;margin:-.2rem 0 1rem}
+.pw-cancel{display:block;width:100%;margin-top:.5rem;padding:10px;background:none;border:1px solid rgba(255,255,255,.14);border-radius:8px;color:rgba(255,255,255,.55);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
+.pw-cancel:hover{border-color:rgba(255,255,255,.3);color:#fff}
+@media(max-width:520px){.pw-btn .pw-btn-txt{display:none}}
 #admin-section{display:none;width:100%;max-width:680px;padding:0 2rem;margin:1.1rem 0 .2rem}
 #admin-section.show{display:block}
 .admin-box{border:1px solid rgba(200,57,43,.38);background:linear-gradient(135deg,rgba(200,57,43,.10),rgba(200,57,43,.05));border-radius:13px;padding:13px 14px 14px}
@@ -621,6 +630,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     교과목 허브
   </a>
   <span class="user-badge" id="user-name-badge"></span>
+  <button class="logout-btn pw-btn" id="pw-change-btn" type="button" onclick="openPwModal()" style="display:none" title="비밀번호 변경">
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="2" y="5" width="7" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5V3.5a2 2 0 0 1 4 0V5" stroke="currentColor" stroke-width="1.2"/></svg>
+    <span class="pw-btn-txt">비밀번호 변경</span>
+  </button>
   <button class="logout-btn" onclick="doLogout()">
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M4 2H2a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h2M7 8l3-3-3-3M10 5.5H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     로그아웃
@@ -655,6 +668,30 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
     <button class="auth-btn" id="auth-btn" onclick="doAuth()">확인</button>
     <div class="auth-msg" id="auth-msg"></div>
     <button type="button" class="auth-mode" id="auth-mode" onclick="toggleAdminMode()" style="display:none">관리자 로그인 (비밀번호)</button>
+  </div>
+</div>
+
+<!-- ★ 2026-10-20 T96 — 비밀번호 변경 창 (임시 비밀번호로 처음 로그인했을 때는 바꿔야 들어온다) -->
+<div id="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+  <div class="auth-card">
+    <div class="auth-title" id="pw-title">비밀번호 변경</div>
+    <div class="auth-sub" id="pw-sub">현재 비밀번호와 새 비밀번호를 입력해 주세요</div>
+    <div class="auth-field" id="pw-old-field">
+      <label for="pw-old">현재 비밀번호</label>
+      <input type="password" id="pw-old" autocomplete="current-password">
+    </div>
+    <div class="auth-field">
+      <label for="pw-new">새 비밀번호</label>
+      <input type="password" id="pw-new" autocomplete="new-password">
+    </div>
+    <div class="auth-field">
+      <label for="pw-new2">새 비밀번호 확인</label>
+      <input type="password" id="pw-new2" autocomplete="new-password">
+    </div>
+    <div class="pw-rule">8자 이상 · 영문 포함(숫자만은 안 됨) · 빈칸 없이<br>바꾸면 다른 기기의 로그인은 모두 끊깁니다.</div>
+    <button class="auth-btn" id="pw-save" type="button" onclick="submitPwChange()">변경</button>
+    <button class="pw-cancel" type="button" onclick="closePwModal()">취소</button>
+    <div class="auth-msg" id="pw-msg"></div>
   </div>
 </div>
 
@@ -1096,6 +1133,10 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
               <div class="admin-link-name">업무 · 학사 캘린더</div>
               <div class="admin-link-desc">학사일정 · 업무 마감 관리</div>
             </a>
+            <a href="admin_staff.html" class="admin-link" target="_blank" rel="noopener" data-perm="전체">
+              <div class="admin-link-name">권한 관리</div>
+              <div class="admin-link-desc">직원 등록 · 화면 권한 · 회수 · 비밀번호 초기화</div>
+            </a>
           </div>
           <div class="admin-card-foot"><b>내 PC</b> — 배너 편집기 (banner_template.html)</div>
         </div>
@@ -1519,24 +1560,12 @@ function doAuth() {
     const s = document.getElementById(cbName + '_script');
     if (s && s.parentNode) s.parentNode.removeChild(s);
     if (result.status === 'ok') {
-      showMsg('success', result.name + '님, 환영합니다!');
-      if (result.token) { try { localStorage.setItem('kistar_admin_device', '1'); } catch (e) {} }   // ★ T40 — 이 기기는 관리자 로그인 링크를 보인다
-      localStorage.setItem(AUTH_KEY, JSON.stringify({
-        name: result.name, dept: result.dept, studentId: sid,
-        birth: result.token || birth,       // ★ 관리자 = 출입증(24자리) · 학생 = 생년월일 (2026-10-08 T40)
-        role: result.role || '', isAdmin: result.isAdmin || false,
-        isStaff: result.isStaff || false, loginTime: Date.now(),
-        affiliation: result.affiliation || 'korea',
-        perms: result.perms || null,        // ★ T40 — 관리자 화면 권한 (「전체」 또는 화면 이름)
-        tokenExp: result.tokenExp || 0      // ★ T40 — 출입증 만료 시각
-      }));
-      setTimeout(() => {
-        document.getElementById('auth-overlay').classList.add('hidden');
-        showUserBar();
-        loadForms();
-        loadSurveys(sid);
-        checkNoticePopup();
-      }, 700);
+      _finishLogin(result, sid, birth);
+    } else if (result && result.status === 'mustChange') {
+      // ★ 2026-10-20 T96 — 임시 비밀번호: 새 비밀번호로 바꿔야 출입증을 받는다
+      showMsg('loading', result.message || '새 비밀번호로 바꿔 주세요.');
+      btn.disabled = false;
+      openPwModal({ sid: sid, old: birth });
     } else if (!_authAdminMode && result && result.status === 'fail' && /관리자 계정입니다/.test(result.message || '')) {
       // ★ T40 — 관리자 학번을 학생 칸에 넣으면 비밀번호 칸으로 바꿔 준다 (학생에게는 버튼이 안 보인다)
       _showAdminModeLink();
@@ -1564,6 +1593,98 @@ function doAuth() {
   script.src = EXEC_URL + '?action=verify&studentId=' + encodeURIComponent(sid) + '&birthDate=' + encodeURIComponent(birth) +
     '&userAgent=' + encodeURIComponent(navigator.userAgent || '') + '&callback=' + cbName;   // ★ 접속기록 브라우저정보 (2026-10-06)
   document.head.appendChild(script);
+}
+
+/** 로그인 성공 처리 — 학생·관리자 공통 (2026-10-20 T96: 비밀번호 변경 뒤에도 같은 처리) */
+function _finishLogin(result, sid, birth) {
+      showMsg('success', result.name + '님, 환영합니다!');
+      if (result.token) { try { localStorage.setItem('kistar_admin_device', '1'); } catch (e) {} }   // ★ T40 — 이 기기는 관리자 로그인 링크를 보인다
+      localStorage.setItem(AUTH_KEY, JSON.stringify({
+        name: result.name, dept: result.dept, studentId: sid,
+        birth: result.token || birth,       // ★ 관리자 = 출입증(24자리) · 학생 = 생년월일 (2026-10-08 T40)
+        role: result.role || '', isAdmin: result.isAdmin || false,
+        isStaff: result.isStaff || false, loginTime: Date.now(),
+        affiliation: result.affiliation || 'korea',
+        perms: result.perms || null,        // ★ T40 — 관리자 화면 권한 (「전체」 또는 화면 이름)
+        tokenExp: result.tokenExp || 0      // ★ T40 — 출입증 만료 시각
+      }));
+      setTimeout(() => {
+        document.getElementById('auth-overlay').classList.add('hidden');
+        showUserBar();
+        loadForms();
+        loadSurveys(sid);
+        checkNoticePopup();
+      }, 700);
+}
+
+/* ── ★ 2026-10-20 T96 — 비밀번호 변경 ─────────────────────────
+ *  보통: 사용자 바 「비밀번호 변경」 → 현재·새 비밀번호 → 새 출입증으로 바꿔 끼움(다른 기기 로그인은 끊김)
+ *  강제: 임시 비밀번호로 로그인(status mustChange) → 이 창이 먼저 뜨고, 바꿔야 들어온다
+ *  서버 = 데이터허브 GAS StaffAdmin.gs adminChangePw (POST — 비밀번호가 주소에 남지 않게)
+ */
+let _pwForce = null;   // { sid, old } — 임시 비밀번호 로그인 때만
+function openPwModal(force) {
+  _pwForce = (force && force.sid) ? force : null;
+  ['pw-old', 'pw-new', 'pw-new2'].forEach(function (id) { document.getElementById(id).value = ''; });
+  document.getElementById('pw-old-field').style.display = _pwForce ? 'none' : '';
+  document.getElementById('pw-title').textContent = _pwForce ? '새 비밀번호 설정' : '비밀번호 변경';
+  document.getElementById('pw-sub').textContent = _pwForce
+    ? '임시 비밀번호로 로그인했습니다. 앞으로 쓸 비밀번호를 정해 주세요.'
+    : '현재 비밀번호와 새 비밀번호를 입력해 주세요';
+  _pwMsg('', '');
+  document.getElementById('pw-save').disabled = false;
+  document.getElementById('pw-modal').classList.add('show');
+  setTimeout(function () { document.getElementById(_pwForce ? 'pw-new' : 'pw-old').focus(); }, 50);
+}
+function closePwModal() {
+  document.getElementById('pw-modal').classList.remove('show');
+  if (_pwForce) { document.getElementById('auth-birth').value = ''; showMsg('', ''); }
+  _pwForce = null;
+}
+function _pwMsg(type, text) { const el = document.getElementById('pw-msg'); el.className = 'auth-msg ' + type; el.textContent = text; }
+function _pwRule(sid, pw, old) {   // 서버(StaffAdmin.gs _staffPwRule_)와 같은 규칙 — 서버가 다시 확인한다
+  if (pw.length < 8) return '새 비밀번호는 8자 이상이어야 합니다.';
+  if (/^\d+$/.test(pw)) return '숫자만으로 된 비밀번호는 쓸 수 없습니다 — 영문을 섞어 주세요.';
+  if (/\s/.test(pw)) return '비밀번호에 빈칸은 쓸 수 없습니다.';
+  if (pw === sid) return '교번과 같은 비밀번호는 쓸 수 없습니다.';
+  if (old && pw === old) return '지금 비밀번호와 다른 비밀번호를 입력해 주세요.';
+  return '';
+}
+['pw-old', 'pw-new', 'pw-new2'].forEach(function (id) {
+  document.getElementById(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') submitPwChange(); });
+});
+function submitPwChange() {
+  const auth = checkAuth();
+  const sid = _pwForce ? _pwForce.sid : (auth && auth.studentId);
+  const old = _pwForce ? _pwForce.old : document.getElementById('pw-old').value;
+  const nw  = document.getElementById('pw-new').value, nw2 = document.getElementById('pw-new2').value;
+  if (!sid) { _pwMsg('error', '로그인이 만료되었습니다 — 다시 로그인해 주세요.'); return; }
+  if (!old) { _pwMsg('error', '현재 비밀번호를 입력해 주세요.'); return; }
+  const rule = _pwRule(sid, nw, old);
+  if (rule) { _pwMsg('error', rule); return; }
+  if (nw !== nw2) { _pwMsg('error', '새 비밀번호 두 칸이 서로 다릅니다.'); return; }
+  const btn = document.getElementById('pw-save');
+  btn.disabled = true; _pwMsg('loading', '바꾸는 중...');
+  const body = new URLSearchParams({ action: 'adminChangePw', studentId: sid, oldPw: old, newPw: nw, userAgent: navigator.userAgent || '' });
+  fetch(EXEC_URL, { method: 'POST', body: body })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res || res.status !== 'ok') { _pwMsg('error', (res && res.message) || '바꾸지 못했습니다. 다시 시도해 주세요.'); btn.disabled = false; return; }
+      if (_pwForce) {   // 첫 로그인 — 받은 출입증으로 로그인을 마친다
+        _pwForce = null;
+        document.getElementById('pw-modal').classList.remove('show');
+        _finishLogin(res, sid, '');
+        return;
+      }
+      try {             // 보통 변경 — 예전 출입증은 서버에서 무효가 되었으니 새 것으로 바꿔 끼운다
+        const a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null') || {};
+        a.birth = res.token; a.tokenExp = res.tokenExp || 0; a.perms = res.perms || a.perms; a.loginTime = Date.now();
+        localStorage.setItem(AUTH_KEY, JSON.stringify(a));
+      } catch (e) {}
+      _pwMsg('success', '비밀번호를 바꾸었습니다. 다른 기기에서는 다시 로그인해 주세요.');
+      setTimeout(closePwModal, 1600);
+    })
+    .catch(function () { _pwMsg('error', '네트워크 오류가 발생했습니다. 다시 시도해 주세요.'); btn.disabled = false; });
 }
 
 function showMsg(type, text) {
@@ -1601,6 +1722,8 @@ function showUserBar() {
   if (!auth) return;
   document.getElementById('user-name-badge').textContent = auth.name + '님';
   document.getElementById('user-bar').style.display = 'flex';
+  // ★ 2026-10-20 T96 — 「비밀번호 변경」은 비밀번호로 로그인한 관리자·직원만 (학생·예전 로그인은 숨김)
+  document.getElementById('pw-change-btn').style.display = (auth.isAdmin && /^\d{24}$/.test(String(auth.birth || ''))) ? 'flex' : 'none';
   const clBtn = document.getElementById('checklist-link');
   if (clBtn && auth.studentId) {
     if (auth.affiliation === 'exchange') {
@@ -1619,6 +1742,7 @@ function showUserBar() {
   loadInjeId();   // ★ 인제대 LMS 안내 (2026-08-31). 호출부는 여기 한 곳뿐이다 — 중복 호출 시 JSONP 경합
   if (auth.isAdmin) {
     const _full = _admCan(auth, '전체');
+
     const hubBtn = document.getElementById('hub-link');
     if (hubBtn && _admCan(auth, '교과목허브')) hubBtn.style.display = 'flex';
     document.getElementById('admin-section').classList.add('show');

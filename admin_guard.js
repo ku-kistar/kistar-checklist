@@ -21,7 +21,8 @@
     'admin_bulk_pdf.html':      '서류조회',
     'admin_mileage_input.html': '마일리지입력',   // T46 비교과 담당자 입력 화면 (만들면 자동 적용)
     'hub_course.html':          '교과목허브',
-    'calendar.html':            '전체'
+    'calendar.html':            '전체',
+    'admin_staff.html':         '전체'            // T97 권한 관리 (2026-10-20)
   };
 
   var auth = null;

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script src="admin_guard.js"></script><!-- ★ 2026-10-20 「전체」 권한자만 (T97) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>권한 관리 | KI-STAR 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<!--
+  admin_staff.html — 직원 등록 · 화면 권한 · 회수 · 비밀번호 초기화  (2026-10-20 · 작업현황 T96 · T97)
+  · 데이터허브 대문 「전체」 권한자(이지연)만. 서버(데이터허브 GAS StaffAdmin.gs)가 다시 확인한다
+  · 저장하면 「관리자」 탭 · 명단 E열 · 캐시 지우기를 서버가 한 번에 한다 (편집기 작업 불필요)
+  · 임시 비밀번호는 발급 때 한 번만 보인다. 비밀번호 원문은 어디에도 저장되지 않는다
+-->
+<style>
+:root{--navy:#0b1f3a;--blue:#0ea5e9;--green:#10b981;--amber:#f59e0b;--red:#f08070;
+  --surface:rgba(255,255,255,.05);--border:rgba(255,255,255,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--navy);min-height:100vh;color:#fff;word-break:keep-all}
+.bg-wrap{position:fixed;inset:0;z-index:0;background:linear-gradient(170deg,#0c2040 0%,#0b1f3a 40%,#07131f 100%)}
+.page{position:relative;z-index:1;min-height:100vh;padding:4.6rem 16px 4rem;max-width:880px;margin:0 auto}
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;background:rgba(11,31,58,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.back-btn{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);text-decoration:none;font-size:12px}
+.back-btn:hover{color:#fff}
+.top-right{display:flex;align-items:center;gap:10px}
+.top-user{font-size:12px;color:rgba(255,255,255,.4);white-space:nowrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:34px;padding:6px 13px;border-radius:7px;border:1px solid var(--border);background:transparent;color:rgba(255,255,255,.72);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:linear-gradient(135deg,#0ea5e9,#0284c7);border-color:transparent;color:#fff}
+.btn.primary:hover{opacity:.9;color:#fff}
+.btn.warn{border-color:rgba(245,158,11,.4);color:#fbbf24}
+.btn.warn:hover{background:rgba(245,158,11,.12)}
+.btn.danger{border-color:rgba(240,128,112,.4);color:var(--red)}
+.btn.danger:hover{background:rgba(200,57,43,.15)}
+.btn.danger.armed{background:#c8392b;border-color:#c8392b;color:#fff}
+
+.page-eyebrow{font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.08em;margin-bottom:6px}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+.page-sub{font-size:13px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:1.3rem}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:1rem}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border-bottom:1px solid var(--border)}
+.card-title{font-size:14px;font-weight:700}
+.card-body{padding:14px 16px}
+
+.staff{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 14px;padding:13px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.staff:first-child{border-top:none}
+.staff-main{flex:1 1 300px;min-width:0}
+.staff-name{font-size:14px;font-weight:700}
+.staff-sid{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:rgba(255,255,255,.4);margin-left:6px;font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.chip{font-size:11px;padding:3px 8px;border-radius:99px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.28);color:#7dd3fc}
+.chip.full{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.35);color:#6ee7b7}
+.state{font-size:11px;margin-top:7px;color:rgba(255,255,255,.42);line-height:1.6}
+.state b{font-weight:600}
+.ok{color:#6ee7b7}.wait{color:#fbbf24}.bad{color:var(--red)}
+.staff-act{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.locked{font-size:11px;color:rgba(255,255,255,.35)}
+
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11.5px;font-weight:600;color:rgba(14,165,233,.85);margin-bottom:5px}
+.field input[type=text]{width:100%;padding:10px 12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#fff;font-size:14px;font-family:inherit;outline:none}
+.field input[type=text]:focus{border-color:rgba(14,165,233,.6)}
+.field input[readonly]{opacity:.6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.perms{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px}
+.perm{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:pointer;min-height:44px}
+.perm:hover{border-color:rgba(14,165,233,.4)}
+.field label.perm{display:flex;color:#fff;font-size:inherit;font-weight:400;margin:0}   /* .field label 파란 글씨를 덮는다 */
+.perm input{margin-top:2px;width:16px;height:16px;accent-color:#0ea5e9;flex-shrink:0}
+.perm-name{font-size:12.5px;font-weight:700}
+.perm-desc{font-size:11px;color:rgba(255,255,255,.42);margin-top:2px;line-height:1.5}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:5px;vertical-align:1px}
+.tag.pi{background:rgba(245,158,11,.16);color:#fbbf24}
+.tag.wr{background:rgba(200,57,43,.2);color:#ffb3aa}
+.form-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+.note{font-size:11.5px;color:rgba(255,255,255,.4);line-height:1.75}
+.note b{color:rgba(255,255,255,.62);font-weight:600}
+.msg{font-size:12.5px;min-height:18px}
+.msg.error{color:var(--red)}.msg.loading{color:rgba(255,255,255,.5)}.msg.success{color:#6ee7b7}
+
+.tmp{display:none;border:1px solid rgba(16,185,129,.45);background:rgba(16,185,129,.08);border-radius:12px;padding:15px 16px;margin-bottom:1rem}
+.tmp.show{display:block}
+.tmp-title{font-size:13.5px;font-weight:700;color:#6ee7b7;margin-bottom:8px}
+.tmp-pw{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:6px 0 10px}
+.tmp-pw code{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;letter-spacing:.06em;padding:6px 12px;background:rgba(0,0,0,.3);border-radius:8px;user-select:all}
+
+.gate{max-width:420px;margin:70px auto;padding:28px;border:1px solid var(--border);border-radius:12px;background:var(--surface);text-align:center}
+.gate-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.gate-text{font-size:13px;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:16px}
+.empty{padding:22px 16px;text-align:center;font-size:12.5px;color:rgba(255,255,255,.4)}
+@media(max-width:560px){.row2{grid-template-columns:1fr}.page-title{font-size:19px}.top-user{display:none}.staff-act{width:100%}.staff-act .btn{flex:1}}
+</style>
+</head>
+<body>
+<div class="bg-wrap"></div>
+
+<div class="top-bar">
+  <a href="portal_survey.html" class="back-btn">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5L4 6l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    데이터허브 대문
+  </a>
+  <div class="top-right">
+    <span class="top-user" id="topUser"></span>
+    <button class="btn" type="button" id="refreshBtn" onclick="loadList()">새로고침</button>
+  </div>
+</div>
+
+<div class="page" id="page">
+  <div class="page-eyebrow">KI-STAR 관리자 · 권한 관리</div>
+  <div class="page-title">직원 권한 관리</div>
+  <div class="page-sub">직원에게 필요한 화면만 열어 줍니다. 저장하면 바로 반영됩니다(편집기 작업 없음).<br>비밀번호는 누구도 볼 수 없고, 잊어버리면 「비밀번호 초기화」로 임시 비밀번호를 새로 줍니다.</div>
+
+  <!-- 임시 비밀번호 (발급 때 한 번만) -->
+  <div class="tmp" id="tmpBox" role="status">
+    <div class="tmp-title" id="tmpTitle">임시 비밀번호</div>
+    <div class="tmp-pw"><code id="tmpPw"></code><button class="btn" type="button" onclick="copyTmp()" id="copyBtn">복사</button></div>
+    <div class="note">
+      직원에게 <b>교번과 이 임시 비밀번호</b>를 전달하세요. 데이터허브 대문 → 「관리자 로그인 (비밀번호)」으로 들어가면 <b>새 비밀번호를 정하는 창</b>이 먼저 뜹니다.<br>
+      이 상자를 닫거나 새로고침하면 <b>다시 볼 수 없습니다</b>. 잃어버리면 다시 초기화하면 됩니다.
+    </div>
+    <div class="form-foot"><button class="btn" type="button" onclick="hideTmp()">전달했습니다 · 닫기</button></div>
+  </div>
+
+  <!-- 직원 목록 -->
+  <div class="card">
+    <div class="card-head"><span class="card-title">직원 목록</span><span class="note" id="listNote"></span></div>
+    <div id="staffList"><div class="empty">불러오는 중...</div></div>
+  </div>
+
+  <!-- 등록 · 수정 -->
+  <div class="card" id="formCard">
+    <div class="card-head"><span class="card-title" id="formTitle">직원 등록</span>
+      <button class="btn" type="button" id="formReset" onclick="resetForm()" style="display:none">새 직원 등록으로</button></div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="field"><label for="fSid">교번</label><input type="text" id="fSid" maxlength="12" autocomplete="off" placeholder="예: 492859"></div>
+        <div class="field"><label for="fName">이름</label><input type="text" id="fName" maxlength="20" autocomplete="off" placeholder="예: 홍길동"></div>
+      </div>
+      <div class="field"><label>볼 수 있는 화면 (필요한 것만)</label><div class="perms" id="permBox"></div></div>
+      <div class="note"><span class="tag pi">개인정보</span> 학생 실명·학적·연락처가 보이는 화면 &nbsp; <span class="tag wr">쓰기</span> 값을 바꿀 수 있는 화면 — 꼭 필요한 사람에게만 주세요.<br>
+        「전체」·「학기확정」은 이 화면에서 줄 수 없습니다. 데이터허브 구글시트는 직원에게 공유하지 마세요.</div>
+      <div class="form-foot">
+        <button class="btn primary" type="button" id="saveBtn" onclick="saveStaff()">등록</button>
+        <span class="msg" id="formMsg"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">회수하면 「관리자」 탭 줄과 비밀번호가 지워지고, 그 사람이 열어 둔 화면도 바로 막힙니다. 명단 시트 행은 남기고 역할(E열)만 비웁니다.<br>
+    변경 내역은 데이터허브 시트 「접속기록」 탭에 [권한관리]로 남습니다.</div>
+</div>
+
+<script>
+const EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';   // 데이터허브 GAS
+const AUTH_KEY = 'kistar_auth_url2';
+
+/** 권한 이름 → 설명 (서버 SubAuth.gs SEC_SCREENS 키). 목록에 없는 새 권한은 이름 그대로 보인다 */
+const PERM_INFO = {
+  '마일리지대시보드': ['마일리지 대시보드', '학생별 점수·순위 (실명)', 'pi'],
+  '활동현황':        ['활동별 현황·증빙', '실명 격자 · 엑셀 내려받기', 'pi'],
+  '이수현황':        ['이수 현황', '학적·재적 정보 · 조회만', 'pi'],
+  '서류조회':        ['학생 제출 서류', '활동계획서·결과보고서 — 연락처·서명 포함', 'pi'],
+  '일정조사':        ['일정조사 현황', '응답 명단', 'pi'],
+  '개설과목':        ['개설 교과목', '수강 명단·집계 · 명단 올리기', 'wr'],
+  '마일리지입력':    ['마일리지 입력', '행사 점수 적립 (비교과 담당)', 'wr'],
+  '외부마일리지':    ['외부활동 판정 입력', '판정도구 → 허브 입력', 'wr'],
+  '평점입력':        ['평점 입력', '동점자 평점', 'wr'],
+  '성적입력':        ['성적 입력', '성적·확인 메모·재적·학적 반영', 'wr'],
+  '교과목허브':      ['교과목 허브', '조교 제출 서류 관리', ''],
+  '작업현황':        ['작업 현황', '대문 「지금 할 일」 (담당자 업무 목록)', '']
+};
+
+let AUTH = null, SCREENS = [], STAFF = [], EDIT_SID = '';
+
+function getAuth() {
+  try {
+    const a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    if (!a || !a.isAdmin || !/^\d{24}$/.test(String(a.birth || ''))) return null;
+    if (a.tokenExp && Date.now() > a.tokenExp) return null;
+    return a;
+  } catch (e) { return null; }
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function gate(msg) {
+  document.getElementById('page').innerHTML =
+    '<div class="gate"><div class="gate-title">권한 관리를 열 수 없습니다</div><div class="gate-text">' + msg + '</div>' +
+    '<a class="btn primary" href="portal_survey.html">데이터허브 대문으로</a></div>';
+  document.getElementById('refreshBtn').style.display = 'none';
+}
+
+function post(params) {
+  const a = getAuth();
+  if (!a) return Promise.resolve({ status: 'error', message: '관리자 출입증이 만료되었습니다 — 데이터허브 대문에서 다시 로그인해 주세요.', expired: true });
+  const body = new URLSearchParams(Object.assign({ adminId: a.studentId, adminBirth: a.birth }, params));
+  return fetch(EXEC_URL, { method: 'POST', body: body })
+    .then(r => r.json())
+    .catch(() => ({ status: 'error', message: '네트워크 오류가 발생했습니다. 다시 시도해 주세요.' }));
+}
+function setMsg(type, text) { const el = document.getElementById('formMsg'); el.className = 'msg ' + type; el.textContent = text; }
+
+/* ── 목록 ── */
+function loadList() {
+  document.getElementById('staffList').innerHTML = '<div class="empty">불러오는 중...</div>';
+  post({ action: 'staffList' }).then(res => {
+    if (!res || res.status !== 'ok') {
+      if (res && (res.expired || /다시 로그인/.test(res.message || ''))) return gate(esc(res.message));
+      document.getElementById('staffList').innerHTML = '<div class="empty bad">' + esc((res && res.message) || '불러오지 못했습니다.') + '</div>';
+      return;
+    }
+    STAFF = res.staff || []; SCREENS = res.screens || [];
+    renderList(); renderPerms(EDIT_SID ? (STAFF.find(s => s.sid === EDIT_SID) || {}).perms || [] : []);
+  });
+}
+
+function permLabel(k) { return (PERM_INFO[k] || [k])[0]; }
+
+function renderList() {
+  const box = document.getElementById('staffList');
+  document.getElementById('listNote').textContent = STAFF.length + '명';
+  if (!STAFF.length) { box.innerHTML = '<div class="empty">등록된 직원이 없습니다.</div>'; return; }
+  box.innerHTML = STAFF.map(s => {
+    const chips = s.full ? '<span class="chip full">전체</span>' : s.perms.map(p => '<span class="chip">' + esc(permLabel(p)) + '</span>').join('');
+    const pw = s.must ? '<b class="wait">첫 로그인 대기</b> (임시 비밀번호 발급됨)'
+             : s.hasPw ? '<b class="ok">비밀번호 설정됨</b>' : '<b class="bad">비밀번호 없음</b> — 로그인 불가';
+    const roster = s.inRoster ? '' : ' · <b class="bad">명단 시트에 관리자 행 없음</b>';
+    const upd = s.updated ? ' · 마지막 변경 ' + esc(s.updated) + (s.by ? ' (' + esc(s.by) + ')' : '') : '';
+    const act = (s.self || s.full)
+      ? '<span class="locked">' + (s.self ? '본인 계정' : '「전체」 계정') + ' — 이 화면에서 바꿀 수 없음</span>'
+      : '<button class="btn" type="button" onclick="editStaff(\'' + esc(s.sid) + '\')">권한 수정</button>' +
+        '<button class="btn warn" type="button" onclick="armBtn(this, () => resetPw(\'' + esc(s.sid) + '\'), \'정말 초기화\')">비밀번호 초기화</button>' +
+        '<button class="btn danger" type="button" onclick="armBtn(this, () => removeStaff(\'' + esc(s.sid) + '\'), \'정말 회수\')">회수</button>';
+    return '<div class="staff"><div class="staff-main"><div class="staff-name">' + esc(s.name || '(이름 없음)') +
+      '<span class="staff-sid">' + esc(s.sid) + '</span></div><div class="chips">' + chips + '</div>' +
+      '<div class="state">' + pw + roster + upd + '</div></div><div class="staff-act">' + act + '</div></div>';
+  }).join('');
+}
+
+function renderPerms(checked) {
+  document.getElementById('permBox').innerHTML = SCREENS.map(k => {
+    const info = PERM_INFO[k] || [k, '', ''];
+    const tag = info[2] === 'pi' ? '<span class="tag pi">개인정보</span>' : info[2] === 'wr' ? '<span class="tag wr">쓰기</span>' : '';
+    return '<label class="perm"><input type="checkbox" value="' + esc(k) + '"' + (checked.indexOf(k) > -1 ? ' checked' : '') + '>' +
+      '<span><span class="perm-name">' + esc(info[0]) + tag + '</span><span class="perm-desc" style="display:block">' + esc(info[1]) + '</span></span></label>';
+  }).join('');
+}
+
+/* 위험한 버튼 — 한 번 누르면 「정말 …」로 바뀌고 4초 안에 다시 눌러야 실행 (브라우저 확인창 대신) */
+function armBtn(btn, fn, label) {
+  if (btn.classList.contains('armed')) { btn.classList.remove('armed'); clearTimeout(btn._t); btn.textContent = btn._label; fn(); return; }
+  btn._label = btn.textContent; btn.textContent = label; btn.classList.add('armed');
+  if (!btn.classList.contains('danger')) btn.classList.add('danger');
+  btn._t = setTimeout(() => { btn.classList.remove('armed'); if (btn._label) btn.textContent = btn._label; if (btn.classList.contains('warn')) btn.classList.remove('danger'); }, 4000);
+}
+
+/* ── 등록 · 수정 ── */
+function editStaff(sid) {
+  const s = STAFF.find(x => x.sid === sid); if (!s) return;
+  EDIT_SID = sid;
+  document.getElementById('fSid').value = s.sid; document.getElementById('fSid').readOnly = true;
+  document.getElementById('fName').value = s.name;
+  document.getElementById('formTitle').textContent = '권한 수정 — ' + s.name;
+  document.getElementById('saveBtn').textContent = '저장';
+  document.getElementById('formReset').style.display = '';
+  renderPerms(s.perms); setMsg('', '');
+  document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function resetForm() {
+  EDIT_SID = '';
+  document.getElementById('fSid').value = ''; document.getElementById('fSid').readOnly = false;
+  document.getElementById('fName').value = '';
+  document.getElementById('formTitle').textContent = '직원 등록';
+  document.getElementById('saveBtn').textContent = '등록';
+  document.getElementById('formReset').style.display = 'none';
+  renderPerms([]); setMsg('', '');
+}
+function saveStaff() {
+  const sid = document.getElementById('fSid').value.trim(), name = document.getElementById('fName').value.trim();
+  const perms = Array.from(document.querySelectorAll('#permBox input:checked')).map(i => i.value);
+  if (!/^[0-9A-Za-z]{4,12}$/.test(sid)) return setMsg('error', '교번은 영문·숫자 4~12자입니다.');
+  if (/^\d{10}$/.test(sid)) return setMsg('error', '10자리 학번은 직원으로 등록할 수 없습니다.');
+  if (!name) return setMsg('error', '이름을 입력해 주세요.');
+  if (!perms.length) return setMsg('error', '화면을 하나 이상 고르세요. 모두 빼려면 목록에서 「회수」를 누르세요.');
+  if (!EDIT_SID && STAFF.some(s => s.sid === sid)) return setMsg('error', '이미 등록된 교번입니다 — 목록에서 「권한 수정」을 누르세요.');
+  const btn = document.getElementById('saveBtn'); btn.disabled = true; setMsg('loading', '저장하는 중...');
+  post({ action: 'staffSave', sid: sid, name: name, perms: perms.join(',') }).then(res => {
+    btn.disabled = false;
+    if (!res || res.status !== 'ok') return setMsg('error', (res && res.message) || '저장하지 못했습니다.');
+    resetForm();
+    setMsg('success', (res.isNew ? '등록했습니다' : '저장했습니다') + ' — ' + res.name + ' · ' + res.perms.map(permLabel).join(', '));
+    if (res.tempPw) showTmp(res.name + '(' + res.sid + ') 임시 비밀번호', res.tempPw);
+    loadList();
+  });
+}
+function resetPw(sid) {
+  post({ action: 'staffReset', sid: sid }).then(res => {
+    if (!res || res.status !== 'ok') { alertBox((res && res.message) || '초기화하지 못했습니다.'); return; }
+    showTmp(res.name + '(' + res.sid + ') 임시 비밀번호 — 예전 비밀번호와 열린 로그인은 모두 끊겼습니다', res.tempPw);
+    loadList();
+  });
+}
+function removeStaff(sid) {
+  post({ action: 'staffRemove', sid: sid }).then(res => {
+    if (!res || res.status !== 'ok') { alertBox((res && res.message) || '회수하지 못했습니다.'); return; }
+    if (EDIT_SID === sid) resetForm();
+    hideTmp(); loadList();   // 아래 안내는 resetForm 뒤에 쓴다
+    setMsg('success', res.name + '(' + res.sid + ') 권한을 회수했습니다.');
+  });
+}
+function alertBox(text) { setMsg('error', text); document.getElementById('formMsg').scrollIntoView({ block: 'center' }); }
+
+/* ── 임시 비밀번호 상자 ── */
+function showTmp(title, pw) {
+  document.getElementById('tmpTitle').textContent = title;
+  document.getElementById('tmpPw').textContent = pw;
+  document.getElementById('copyBtn').textContent = '복사';
+  document.getElementById('tmpBox').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function hideTmp() { document.getElementById('tmpPw').textContent = ''; document.getElementById('tmpBox').classList.remove('show'); }
+function copyTmp() {
+  const t = document.getElementById('tmpPw').textContent;
+  const done = () => { document.getElementById('copyBtn').textContent = '복사됨 ✓'; };
+  if (navigator.clipboard) navigator.clipboard.writeText(t).then(done, done); else done();
+}
+
+/* ── 시작 ── */
+(function () {
+  AUTH = getAuth();
+  if (!AUTH) return gate('관리자 출입증이 없거나 만료되었습니다.<br>데이터허브 대문에서 「관리자 로그인 (비밀번호)」으로 다시 로그인해 주세요.');
+  const p = AUTH.perms;
+  if (p && p.length && p.indexOf('전체') < 0) return gate('권한 관리는 「전체」 권한자만 쓸 수 있습니다.');
+  document.getElementById('topUser').textContent = (AUTH.name || '') + '님';
+  renderPerms([]);
+  loadList();
+})();
+</script>
+</body>
+</html>
