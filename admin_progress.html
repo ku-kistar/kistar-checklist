@@ -157,6 +157,19 @@ border-radius:8px;white-space:pre-wrap;max-height:180px;overflow:auto;line-heigh
 .dc-tot{font-size:12px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .dc-cap{font-size:11px;color:var(--text3);margin-top:4px}
 @media(max-width:600px){.dc-row{grid-template-columns:44px minmax(0,1fr) 38px;gap:6px}.dc-lb{font-size:11.5px}}
+/* ── 학과별 묶음 막대 (2026-10-20 개편 · 학과 5묶음 × 학년 막대) ── */
+.gc-wrap{padding:10px 16px 4px}
+.gc{display:flex;align-items:flex-end;gap:12px;height:190px;padding:18px 4px 0;border-bottom:1px solid var(--border)}
+.gc-grp{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:100%;min-width:0}
+.gc-bar{flex:1;max-width:34px;border-radius:4px 4px 0 0;position:relative;cursor:pointer;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.gc-bar:hover{filter:brightness(1.12)}
+.gc-bar b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:2px;
+  font-size:11px;font-weight:700;color:var(--text);white-space:nowrap}
+.gc-lab{display:flex;gap:12px;padding:6px 4px 0}
+.gc-lab span{flex:1;min-width:0;text-align:center;font-size:12px;font-weight:700;color:var(--text)}
+.gc-lab em{display:block;font-style:normal;font-weight:400;font-size:11px;color:var(--text3)}
+@media(max-width:600px){.gc,.gc-lab{gap:6px}.gc-grp{gap:2px}.gc-bar b{font-size:10px}.gc-lab span{font-size:11px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* 상단 현황판 */
@@ -325,7 +338,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
       <select id="fS"><option value="">재학·휴학·유예·수료</option>
       <option value="_nolv">휴학 제외</option>
       <option value="재학">재학</option>
-      <option value="_elig">재학 — 초과학기 제외</option>
+      <option value="_elig">장학금 대상 (재학·초과학기 제외)</option>
       <option value="_over">초과학기</option>
       <option value="휴학">휴학</option><option value="수강유예">수강유예</option>
       <option value="미수강유예">미수강유예</option><option value="수료">수료</option>
@@ -517,9 +530,11 @@ function drawBoard(){
      <div class="aitt">인원 현황<span>차세대반도체 융합전공</span></div>
      <div class="aistat">
        <div class="aist q cl" onclick="pickStatus('_all')"><b>${DATA.length}</b>
-         <em>전체 양성인원 &rsaquo;</em></div>
+         <em>전체 &rsaquo;</em></div>
        <div class="aist q cl" onclick="pickStatus('')"><b>${sum('n')}</b>
-         <em>관리 대상 &rsaquo;</em></div>
+         <em>양성인원 &rsaquo;</em></div>
+       <div class="aist q cl" onclick="pickStatus('_elig')"><b>${DATA.filter(POPSCOPES.elig.f).length}</b>
+         <em>장학금 대상 &rsaquo;</em></div>
        <div class="aist q${sum('ac')?' cl':''}"${sum('ac')?` onclick="drill('act')"`:''}>
          <b>${sum('ac')}</b><em>조치 필요${sum('ac')?' &rsaquo;':''}</em></div>
        <div class="aist r${sum('ur')?' cl':''}"${sum('ur')?` onclick="drill('urg')"`:''}>
@@ -543,14 +558,14 @@ function drawBoard(){
       <td class="z">${off?'—':r.n-r.ok}</td>
       <td class="${r.ac?'o kx':'z'}" ${r.ac?`onclick="event.stopPropagation();drill('act','${r.st}')"`:''}>${off?'—':(r.ac||'—')}</td>
       <td class="${r.ur?'r kx':'z'}" ${r.ur?`onclick="event.stopPropagation();drill('urg','${r.st}')"`:''}>${off?'—':(r.ur||'—')}</td></tr>`;}).join('')}
-   <tr class="sm ${cur===''?'on':''}" onclick="pickStatus('')"><td class="l"><b>관리 대상</b>
+   <tr class="sm ${cur===''?'on':''}" onclick="pickStatus('')"><td class="l"><b>양성인원</b>
        <span class="hintx">졸업·포기 제외</span></td>
      <td>${sum('n')}</td>
      <td class="g kx" onclick="event.stopPropagation();drill('ok')">${sum('ok')}</td>
      <td class="z">${sum('n')-sum('ok')}</td>
      <td class="o kx" onclick="event.stopPropagation();drill('act')">${sum('ac')}</td>
      <td class="r kx" onclick="event.stopPropagation();drill('urg')">${sum('ur')}</td></tr>
-   <tr class="sm all ${cur==='_all'?'on':''}" onclick="pickStatus('_all')"><td class="l"><b>전체 양성인원</b>
+   <tr class="sm all ${cur==='_all'?'on':''}" onclick="pickStatus('_all')"><td class="l"><b>전체</b>
        <span class="hintx">졸업·포기 포함</span></td>
      <td>${DATA.length}</td><td class="g">${DATA.filter(d=>d.tot>=36).length}</td>
      <td class="z">—</td><td class="z">—</td><td class="z">—</td></tr>
@@ -561,19 +576,21 @@ const lowYr=y=>{ const v=Number(y); return !!v && v<=2; };
 const LS=(k,dv)=>{ try{ const v=localStorage.getItem(k); return v==null?dv:v; }catch(e){ return dv; } };
 const LSet=(k,v)=>{ try{ localStorage.setItem(k,v); }catch(e){} };
 let POPTAB=Number(LS('kistar_pop_tab','0'))||0;
-let POPSCOPE=LS('kistar_pop_scope','mng');
+// ★ 2026-10-20 — 기본 모수 = 장학금 대상(92). 화면 버튼은 장학금 대상 · 양성인원 두 개만 (예전 저장값 키를 바꿔 초기화)
+let POPSCOPE=LS('kistar_pop_scope2','elig'); if(POPSCOPE!=='elig'&&POPSCOPE!=='mng') POPSCOPE='elig';
+const POPSHOW=['elig','mng'];
 // 모수 4가지. 정의를 한 곳에 모아 둔다 — 버튼과 필터가 갈라지면 숫자 근거가 사라진다.
 //   mng  졸업·포기 제외      재적정보에 행이 있는 학생 (양성인원)
 //   nolv 휴학 제외           위에서 휴학만 뺀 값. 수료·유예·초과학기는 아직 포함
 //   elig 마일리지 대상        재학 AND 등록횟수 < 초과학기 경계. progress.gs 가 계산한 eligible 을 그대로 쓴다
 //   all  전체                졸업·융전포기까지 전부 (KIAT 성과관리 모수)
 const POPSCOPES = {
-  mng:  { label:'졸업·포기 제외', f:d=>!['졸업','융전포기'].includes(d.st) },
+  mng:  { label:'양성인원',       f:d=>!['졸업','융전포기'].includes(d.st) },
   nolv: { label:'휴학 제외',      f:d=>!['졸업','융전포기','휴학'].includes(d.st) },
-  elig: { label:'마일리지 대상',   f:d=>!!(d.en && d.en.eligible) },
+  elig: { label:'장학금 대상',     f:d=>!!(d.en && d.en.eligible) },
   all:  { label:'전체',           f:()=>true }
 };
-function popScope(){ return POPSCOPES[POPSCOPE] || POPSCOPES.mng; }
+function popScope(){ return POPSCOPES[POPSCOPE] || POPSCOPES.elig; }
 function togglePop(){
   const el=document.getElementById('popDetail'), b=document.getElementById('popTg');
   if(!el||!b) return;
@@ -583,7 +600,7 @@ function togglePop(){
   LSet('kistar_pop_open', open?'1':'0');
 }
 function setPopTab(i){ POPTAB=i; LSet('kistar_pop_tab',i); drawBoard(); }
-function setScope(v){ POPSCOPE=v; LSet('kistar_pop_scope',v); drawBoard(); }
+function setScope(v){ POPSCOPE=v; LSet('kistar_pop_scope2',v); drawBoard(); }
 // 학년 × 학과 인원 분포. 모수는 전체 / 졸업·포기 제외 두 가지로 전환된다.
 function popHtml(){
   const all = POPSCOPE==='all';
@@ -605,7 +622,7 @@ function popHtml(){
       ?` onclick="setPop('${esc(dp)}','${y}')"`:''}>${t}${sub}</td>`;
   };
   return `<div class="pscope">
-     ${Object.keys(POPSCOPES).map(k=>`<button class="psc ${POPSCOPE===k?'on':''}"
+     ${POPSHOW.map(k=>`<button class="psc ${POPSCOPE===k?'on':''}"
        onclick="setScope('${k}')">${POPSCOPES[k].label}
        <span>${DATA.filter(POPSCOPES[k].f).length}명</span></button>`).join('')}
    </div>
@@ -627,25 +644,23 @@ function popHtml(){
      회색은 2학년(수강은 가능하나 잔여 여석 대상이라 아직 급하지 않음) ·
      <b style="font-weight:600">계 행의 붉은 숫자는 3·4학년만 센 값</b>이라 위 칸 합과 다릅니다 ·
      숫자를 누르면 그 학년·학과 명단이 열립니다<br>
-     <b style="font-weight:600">휴학 제외</b> = 졸업·포기 제외 − 휴학 (수료·유예·초과학기는 포함) ·
-     <b style="font-weight:600">마일리지 대상</b> = 재학이면서 등록횟수가 초과학기 경계 미만인 학생</div>`;
+     <b style="font-weight:600">장학금 대상</b> = 재학이면서 초과학기가 아닌 학생 (휴학·수료·유예·초과학기 제외 · 마일리지 대상과 같음) ·
+     <b style="font-weight:600">양성인원</b> = 졸업·융전포기 제외</div>`;
 }
-// 학년 × 학과 차트 (2026-10-20 · 김규철 실장 요청) — 위 표와 같은 모수(B)·같은 순서를 그대로 받는다.
-// 학년별 막대 1줄, 막대 안을 학과 색으로 쌓는다. 칸을 누르면 표 숫자와 같이 그 학년·학과 명단이 열린다.
-const DC_COLOR={'신소재공학부':'#1e4d8c','전기전자공학부':'#4a86c8','화공생명공학과':'#2d7a4f','기계공학부':'#c0832a','물리학과':'#7a5aa6'};
+// 학과 5묶음 × 학년 막대 (2026-10-20 개편). 위 표와 같은 모수(B)를 받는다. 막대를 누르면 그 학년·학과 명단.
+const GC_COL={'2':'#a9cbee','3':'#4a86c8','4':'#1e4d8c'};
 function popChart(B,YS,DS,yk){
-  const n=(y,dp)=>B.filter(d=>yk(d)===y&&(dp==null||d.dept===dp)).length;
-  const max=Math.max(1,...YS.map(y=>n(y)));
-  const col=dp=>DC_COLOR[dp]||'#8b98a9';
-  return `<div class="dchart">
-    <div class="dc-leg">${DS.map(dp=>`<span><i style="background:${col(dp)}"></i>${esc(deptShort(dp))}</span>`).join('')}</div>
-    ${YS.map(y=>{const t=n(y), lb=y==='미상'?'학년 미상':y+'학년';
-      return `<div class="dc-row"><span class="dc-lb">${lb}</span>
-        <div class="dc-bar" style="width:${t/max*100}%">${DS.map(dp=>{const v=n(y,dp); if(!v) return '';
-          return `<span class="dc-seg" style="flex:${v} 1 0;background:${col(dp)}" title="${esc(lb+' · '+deptShort(dp)+' '+v+'명')}"
-            ${y!=='미상'?`onclick="setPop('${esc(dp)}','${y}')"`:''}>${v/max>=0.05?v:''}</span>`;}).join('')}</div>
-        <span class="dc-tot">${t}명</span></div>`;}).join('')}
-    <div class="dc-cap">모수 = 위 버튼(${esc(popScope().label)}) · 칸을 누르면 그 학년·학과 명단 · 숫자가 안 보이는 좁은 칸은 마우스를 올리세요</div>
+  const n=(y,dp)=>B.filter(d=>(y==null||yk(d)===y)&&(dp==null||d.dept===dp)).length;
+  const GY=[...YS].filter(y=>y!=='미상').sort((a,b)=>Number(a)-Number(b));
+  let max=1; DS.forEach(dp=>GY.forEach(y=>{max=Math.max(max,n(y,dp));}));
+  const col=y=>GC_COL[y]||'#8b98a9';
+  return `<div class="dchart gc-wrap">
+    <div class="dc-leg">${GY.map(y=>`<span><i style="background:${col(y)}"></i>${y}학년</span>`).join('')}
+      <span style="margin-left:auto;color:var(--text3)">${esc(popScope().label)} ${B.length}명</span></div>
+    <div class="gc">${DS.map(dp=>`<div class="gc-grp">${GY.map(y=>{const v=n(y,dp);
+      return `<div class="gc-bar" style="height:${v/max*88}%;background:${col(y)}" title="${esc(deptShort(dp)+' '+y+'학년 '+v+'명')}"
+        onclick="setPop('${esc(dp)}','${y}')"><b>${v}</b></div>`;}).join('')}</div>`).join('')}</div>
+    <div class="gc-lab">${DS.map(dp=>`<span>${esc(deptShort(dp))}<em>${n(null,dp)}명</em></span>`).join('')}</div>
   </div>`;
 }
 function setPop(dept,yr){

@@ -105,6 +105,21 @@ table.gs tfoot td{background:var(--surface2);font-weight:700;border-bottom:none}
 .dc-cap{font-size:11px;color:var(--text3);margin-top:4px}
 @media(max-width:600px){.dc-row{grid-template-columns:44px minmax(0,1fr) 38px;gap:6px}.dc-lb{font-size:11.5px}}
 
+
+/* ── 학과별 묶음 막대 (2026-10-20 개편 · 학과 5묶음 × 학년 막대) ── */
+.gc-wrap{padding:10px 16px 4px}
+.gc{display:flex;align-items:flex-end;gap:12px;height:190px;padding:18px 4px 0;border-bottom:1px solid var(--border)}
+.gc-grp{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px;height:100%;min-width:0}
+.gc-bar{flex:1;max-width:34px;border-radius:4px 4px 0 0;position:relative;cursor:pointer;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+.gc-bar:hover{filter:brightness(1.12)}
+.gc-bar b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:2px;
+  font-size:11px;font-weight:700;color:var(--text);white-space:nowrap}
+.gc-lab{display:flex;gap:12px;padding:6px 4px 0}
+.gc-lab span{flex:1;min-width:0;text-align:center;font-size:12px;font-weight:700;color:var(--text)}
+.gc-lab em{display:block;font-style:normal;font-weight:400;font-size:11px;color:var(--text3)}
+@media(max-width:600px){.gc,.gc-lab{gap:6px}.gc-grp{gap:2px}.gc-bar b{font-size:10px}.gc-lab span{font-size:11px}}
+
 /* ── 학번 옆 노쇼 뱃지 ── */
 .nsb{display:inline-block;margin-left:4px;padding:0 4px;border-radius:99px;font-size:9px;
   font-weight:700;background:#f7dcd8;color:var(--accent);vertical-align:middle;
@@ -462,11 +477,13 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
       </div>
       <div class="stat-pane" id="paneDept">
         <div class="dchart" id="dcChart"></div>
+        <div style="overflow-x:auto">
         <table class="gs">
           <thead id="dcHead"></thead>
           <tbody id="dcBody"></tbody>
           <tfoot id="dcFoot"></tfoot>
         </table>
+        </div>
       </div>
     </div>
   </div>
@@ -909,21 +926,26 @@ function renderDeptChart(){
     return (x<0?99:x)-(y<0?99:y) || String(a).localeCompare(String(b),"ko");
   });
   function cnt(g,d){ return L.filter(function(s){ return String(s.grade||"미상")===g && (d==null || (s.dept||"기타")===d); }).length; }
-  var max=0; gs.forEach(function(g){ max=Math.max(max,cnt(g)); });
-  var h='<div class="dc-leg">'+ds.map(function(d){
-    return '<span><i style="background:'+(DC_COLOR[d]||"#8b98a9")+'"></i>'+esc(dcShort(d))+'</span>';
-  }).join("")+'</div>';
-  gs.forEach(function(g){
-    var tot=cnt(g), lb=/^\d+$/.test(g)?g+"학년":"학년 미상";
-    h+='<div class="dc-row"><span class="dc-lb">'+esc(lb)+'</span><div class="dc-bar" style="width:'+(max?tot/max*100:0)+'%">';
-    ds.forEach(function(d){
-      var v=cnt(g,d); if(!v) return;
-      h+='<span class="dc-seg" style="flex:'+v+' 1 0;background:'+(DC_COLOR[d]||"#8b98a9")+'" title="'+esc(lb+" · "+dcShort(d)+" "+v+"명")+
-         '" onclick="setGrade(\''+esc(g)+'\')">'+(v/(max||1)>=0.05?v:"")+'</span>';
+  // 학과 5묶음 × 학년 막대 (2026-10-20 개편)
+  var GC_COL={"2":"#a9cbee","3":"#4a86c8","4":"#1e4d8c"};
+  var gy=gs.filter(function(g){ return g!=="미상"; });
+  var max=1; ds.forEach(function(d){ gy.forEach(function(g){ max=Math.max(max,cnt(g,d)); }); });
+  var h='<div class="dc-leg">'+gy.map(function(g){
+    return '<span><i style="background:'+(GC_COL[g]||"#8b98a9")+'"></i>'+esc(g)+'학년</span>';
+  }).join("")+'<span style="margin-left:auto;color:var(--text3)">장학금 대상 '+L.length+'명</span></div><div class="gc">';
+  ds.forEach(function(d){
+    h+='<div class="gc-grp">';
+    gy.forEach(function(g){
+      var v=cnt(g,d);
+      h+='<div class="gc-bar" style="height:'+(v/max*88)+'%;background:'+(GC_COL[g]||"#8b98a9")+'" title="'+esc(dcShort(d)+" "+g+"학년 "+v+"명")+
+         '" onclick="setGrade(\''+esc(g)+'\')"><b>'+v+'</b></div>';
     });
-    h+='</div><span class="dc-tot">'+tot+'명</span></div>';
+    h+='</div>';
   });
-  h+='<div class="dc-cap">막대를 누르면 아래 격자가 그 학년으로 걸러집니다 · 칸이 좁아 숫자가 안 보이면 마우스를 올리세요</div>';
+  h+='</div><div class="gc-lab">'+ds.map(function(d){
+    return '<span>'+esc(dcShort(d))+'<em>'+L.filter(function(s){ return (s.dept||"기타")===d; }).length+'명</em></span>';
+  }).join("")+'</div>';
+  h+='<div class="dc-cap">막대를 누르면 아래 격자가 그 학년으로 걸러집니다</div>';
   $("dcChart").innerHTML=h;
   $("dcHead").innerHTML='<tr><th>학년</th>'+ds.map(function(d){ return '<th>'+esc(dcShort(d))+'</th>'; }).join("")+'<th>계</th></tr>';
   $("dcBody").innerHTML=gs.map(function(g){
