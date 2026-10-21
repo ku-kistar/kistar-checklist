@@ -136,7 +136,7 @@ table.gs tfoot td{background:var(--surface2);font-weight:700;border-bottom:none}
 .ginfo .muted{color:var(--text3)}
 th.pcol{cursor:pointer}
 th.pcol:hover{background:var(--hdr2)}
-td.no,td.lim{cursor:pointer}
+td.no,td.lim,td.skip{cursor:pointer}
 
 /* ── 접히는 구획 ── */
 .sect{background:var(--surface);border:.5px solid var(--border);border-radius:12px;
@@ -296,6 +296,7 @@ td.dw{color:var(--amber);font-size:10px;font-weight:700}
 td.dn{color:var(--text3);font-size:10px}
 td.dn.past{color:var(--red);font-weight:700}
 td.lim{background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)}
+td.skip{color:#9a978c;font-size:10px}
 td.nsn{width:34px;min-width:34px;color:var(--accent)}
 .cat-EDU{background:#1a5fa8}.cat-ATT{background:#7fa8d4}
 .cat-EXT{background:#2d7a4f}.cat-DOC{background:#a0620a}
@@ -365,6 +366,7 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
   th.c2,td.c2{width:44px!important;min-width:44px!important}
   th.c3,td.c3{width:32px!important;min-width:32px!important;border-right:1pt solid #0b1f3a!important}
   th.pcol,td.pcol{width:15px!important;min-width:15px!important;max-width:15px!important}
+  td.skip{font-size:4.5pt!important}
   td.meta{font-size:6pt!important;max-width:78px!important}
   /* 접어 놓은 카테고리는 인쇄에도 그대로 빠진다 — 필요한 범위만 뽑을 수 있게. */
 }
@@ -541,10 +543,11 @@ td.nsn{width:34px;min-width:34px;color:var(--accent)}
         <span class="lg"><span class="lg-box cat-OUT"></span>외부활동</span>
         <span class="lg"><span class="lg-box cat-PEN"></span>패널티</span>
         <span class="lg"><span style="color:var(--accent);font-weight:700">노</span> 노쇼</span>
+        <span class="lg"><span style="color:#9a978c;font-size:10px">제외</span> 대상 아님</span>
         <span class="lg"><span class="lg-box lim" style="background:repeating-linear-gradient(45deg,transparent,transparent 3px,#e5e3db 3px,#e5e3db 4px)"></span> 참여제한</span>
       </div>
     </div>
-    <div class="ginfo" id="gInfo"><span class="muted">헤더의 프로그램명을 누르면 전체 이름·개최일·참석 인원이 여기에 표시됩니다. 붉은 <b>노</b> 칸과 빗금 칸도 누를 수 있습니다.</span></div>
+    <div class="ginfo" id="gInfo"><span class="muted">헤더의 프로그램명을 누르면 전체 이름·개최일·참석 인원이 여기에 표시됩니다. 붉은 <b>노</b> 칸·빗금 칸·<b>제외</b> 칸도 누를 수 있습니다.</span></div>
     <div class="grid-scroll"><div id="gridHost"></div></div>
     <div class="grid-foot" id="gridFoot"></div>
   </div>
@@ -1325,6 +1328,7 @@ function renderGrid(){
   var sumTot=0, sumNs=0;
 
   rows.forEach(function(s){
+    var skip=skipCols(s.nsc,s.lim);   // 노쇼와 빗금 사이 = 대상 아님
     var nsb = s.ns ? '<span class="nsb'+(s.ns>=3?' hi':'')+'" title="노쇼 '+s.ns+'회'+
                      (s.ns>=3?' — 인재장학금 제외 대상':'')+'">노'+s.ns+'</span>' : '';
     h+='<tr><td class="fx c0">'+s.no+'</td><td class="fx c1">'+esc(s.sid)+nsb+'</td>'+
@@ -1333,14 +1337,14 @@ function renderGrid(){
        '<td class="meta">'+esc(s.dept)+'</td><td>'+esc(s.grade)+'</td><td>'+esc(s.gen)+'</td>';
     for(var j=0;j<P.length;j++){
       var v=s.s[j]||0;
-      var isNo=s.nsc.indexOf(j)>=0, isLim=s.lim.indexOf(j)>=0;
-      var cls="pcol gp-"+GK[j]+" "+(isNo?"no":(isLim?"lim ":"")+(v?"v":"z"));
+      var isNo=s.nsc.indexOf(j)>=0, isLim=s.lim.indexOf(j)>=0, isSkip=!v&&!isNo&&!isLim&&skip[j];
+      var cls="pcol gp-"+GK[j]+" "+(isNo?"no":(isLim?"lim ":(isSkip?"skip ":""))+(v?"v":"z"));
       var dk=DKEY[j], ds=(!v&&!isNo&&dk&&DPH&&DPH[dk]&&DPH[dk].open&&s.docs)?s.docs[dk]:"";
       if(ds&&DMK[ds]){
         cls="pcol gp-"+GK[j]+" "+DMK[ds][0]+(ds==="none"&&DPH[dk].past?" past":"");
         h+='<td class="'+cls+'">'+DMK[ds][1]+'</td>';
       } else
-      h+='<td class="'+cls+'">'+(isNo?"노":(v?v:"·"))+'</td>';
+      h+='<td class="'+cls+'">'+(isNo?"노":(v?v:(isSkip?"제외":"·")))+'</td>';
       if(v) colN[j]++;
     }
     sumTot+=s.tot; sumNs+=(s.ns||0);
@@ -1382,6 +1386,7 @@ function bindGridClicks(){
     if(j<0||j>=DATA.programs.length) return;
     if(td.classList.contains("no"))  return showCell(j,"no",td);
     if(td.classList.contains("lim")) return showCell(j,"lim",td);
+    if(td.classList.contains("skip")) return showCell(j,"skip",td);
     showProg(j);
   });
 }
@@ -1396,6 +1401,18 @@ function progInfo(j){
          ' <span class="muted">· '+esc(p.cat)+' · 참석 '+p.n+'명</span>';
 }
 
+/* 노쇼 칸과 그 뒤 첫 빗금 칸 사이의 열 = 참여제한 계산에서 건너뛴 행사(대상자가 아님).
+   mileage_board.html의 skipCols와 같게 유지한다. */
+function skipCols(nsl,lim){
+  var out={};
+  (nsl||[]).forEach(function(c){
+    var f=-1;
+    (lim||[]).forEach(function(l){ if(l>c&&(f<0||l<f)) f=l; });
+    for(var b=c+1;f>0&&b<f;b++) out[b]=1;
+  });
+  return out;
+}
+
 function showProg(j){ $("gInfo").innerHTML=progInfo(j); }
 
 function showCell(j,kind,td){
@@ -1403,6 +1420,8 @@ function showCell(j,kind,td){
   var nm=tr.cells[2]?tr.cells[2].textContent:"";
   var msg = (kind==="no")
     ? '<b>'+esc(nm)+'</b> — 이 행사에 <b style="color:var(--accent)">노쇼</b>했습니다. (원인)'
+    : (kind==="skip")
+    ? '<b>'+esc(nm)+'</b> — 대상자가 아닌 행사라 참여 제한에서 <b>제외</b>됐습니다.'
     : '<b>'+esc(nm)+'</b> — 노쇼로 <b>참여가 제한</b>된 행사입니다. (결과)';
   $("gInfo").innerHTML=msg+'<br>'+progInfo(j);
 }

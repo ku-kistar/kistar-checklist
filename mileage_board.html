@@ -259,6 +259,10 @@ tbody tr:hover .pt.ns{background:rgba(200,57,43,.24)}
 }
 .pt.lim:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 
+/* 참여제한 계산에서 건너뛴 행사 — 노쇼와 빗금 사이의 빈칸 (대상자가 아님) */
+.pt.skip{color:var(--ink3);font-size:10px;cursor:pointer}
+.pt.skip:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+
 .no{color:var(--ink3);font-family:'JetBrains Mono',monospace;font-size:11px}
 .gen{color:var(--ink3);font-size:10.5px;margin-right:5px}
 .sid{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.01em}
@@ -369,7 +373,7 @@ tbody .ph{border-bottom:1px solid var(--line2)}
   <ul>
     <li>누적 마일리지는 이수·출석·비교과·서류·외부활동을 합산한 값입니다. 2026-2학기 서류 마일리지(활동계획서·결과보고서)는 <b>2학년만</b> 해당합니다.</li>
     <li>서류 칸 — <b>제출</b>(기한 내·서명 확인) · <b>서명확인</b>(서명이 확인되지 않음) · <b>기한후</b> · <b>미제출</b>. 점수가 없는 학년도 제출 상태가 표시됩니다. <b>기한 내 미제출·기한 후 제출은 인재·우수학생 장학금 지급 불가</b>입니다. 칸을 누르면 설명이 나옵니다.</li>
-    <li>붉은 <b>노</b> 칸은 신청 후 참석하지 않은 행사, 빗금 칸은 그로 인해 참여가 제한된 행사입니다(대상자가 아닌 행사는 제외).</li>
+    <li>붉은 <b>노</b> 칸은 신청 후 참석하지 않은 행사, 빗금 칸은 그로 인해 참여가 제한된 행사, <b>제외</b> 칸은 대상자가 아니어서 건너뛴 행사입니다.</li>
     <li>학번 옆 <b>노쇼</b> 뒤의 숫자는 노쇼 횟수입니다. <b>한 학기 내</b> 3회부터 장학금 지급 대상에서 제외됩니다. (노쇼 횟수는 학기별로 초기화)</li>
   </ul>
   <div class="away">이 현황판은 데이터 허브 <b>공지사항</b>에서 들어올 수 있습니다.</div>
@@ -455,6 +459,19 @@ var GROUPS = [];            // 카테고리 이름별 묶음 (띠 = 이 단위)
 var SEGS   = [];            // 표에서 실제로 이어져 있는 구간 (colspan 단위)
 var OFF    = {};            // 접힌 카테고리 이름
 var hinted = false;
+
+/* 노쇼 칸과 그 뒤 첫 빗금 칸 사이의 열 = 참여제한 계산에서 건너뛴 행사(대상자가 아님).
+   빗금이 없으면(아직 막을 행사가 없음) 표시하지 않는다. */
+function skipCols(nsl, lim){
+  var out = {};
+  for (var i = 0; i < (nsl || []).length; i++){
+    var c = nsl[i], f = -1;
+    for (var j = 0; j < (lim || []).length; j++)
+      if (lim[j] > c && (f < 0 || lim[j] < f)) f = lim[j];
+    for (var b = c + 1; f > 0 && b < f; b++) out[b] = 1;
+  }
+  return out;
+}
 
 function info(text, opts){
   opts = opts || {};
@@ -633,6 +650,7 @@ function render(){
     // nsc 는 Board.gs v2 부터 내려온다. 구버전이면 조용히 넘어간다.
     var nsc = {}; var nsl = st.nsc || [];
     for (k = 0; k < nsl.length; k++) nsc[nsl[k]] = 1;
+    var skip = skipCols(nsl, st.lim);            // 노쇼와 빗금 사이 = 대상 아님
     var tc = st.tot < 0 ? ' minus' : (st.tot === 0 ? ' zero' : '');
 
     h += '<tr>' +
@@ -657,6 +675,9 @@ function render(){
         } else if (!v && lim[b]){                // 그 결과 막힌 행사
           cls += ' lim';
           attr = ' data-lim="' + b + '" tabindex="0"';
+        } else if (!v && skip[b]){               // 대상자가 아니어서 건너뛴 행사
+          cls += ' skip'; mark = '제외';
+          attr = ' data-skip="' + b + '" tabindex="0"';
         } else if (!v && st.d && DK[b] >= 0 && DOCMARK[st.d[DK[b]]]){   // 서류 — 점수 없는 칸만
           var dc = st.d[DK[b]], dm = DOCMARK[dc];
           cls += ' ' + dm[0];
@@ -781,6 +802,11 @@ document.getElementById('rankHead').addEventListener('click', function(){
                         : [nm + ' — 아직 제출하지 않았습니다' + due, true]
       }[ds] || [nm, false];
       info(T[0], { tag:'서류', warn:T[1] });
+      return;
+    }
+    var tk = e.target.closest('td[data-skip]');
+    if (tk){
+      info('대상자가 아닌 행사라 참여 제한에서 제외됐습니다 — ' + DATA.programs[+tk.dataset.skip].name, { tag:'제외' });
       return;
     }
     var td = e.target.closest('td[data-lim]');
