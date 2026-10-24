@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KI-STAR 외부마일리지 판정도구 v4 · 2026-2</title>
+<script src="admin_guard.js"></script><!-- ★ 2026-10-24 T115 데이터허브 대문 연결 — 「외부마일리지」 권한만 -->
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#c0392b;--red-l:#fdf3f2;--red-b:#f5c6c2;
+  --amber:#b45309;--amber-l:#fffbeb;--amber-b:#fde68a;
+  --green:#047857;--green-l:#ecfdf5;--green-b:#6ee7b7;
+  --blue:#1d4ed8;--blue-l:#eff6ff;--blue-b:#bfdbfe;
+  --purple:#6d28d9;--purple-l:#f5f3ff;--purple-b:#ddd6fe;
+  --orange:#c2410c;--orange-l:#fff7ed;--orange-b:#fed7aa;
+  --gray:#374151;--gray-l:#f9fafb;--gray-b:#e5e7eb;--gray-m:#9ca3af;
+  --ink:#111827;--ink2:#374151;--ink3:#6b7280;
+  --surf:#fff;--page:#f3f4f6;
+  --r:8px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --sh-md:0 4px 12px rgba(0,0,0,.1);
+}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic',-apple-system,sans-serif;background:var(--page);color:var(--ink);font-size:14px;line-height:1.5}
+
+/* ── 레이아웃 ── */
+.wrap{display:flex;height:100vh;overflow:hidden}
+.side{width:240px;flex-shrink:0;background:var(--ink);color:#fff;display:flex;flex-direction:column;overflow:hidden}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── 사이드바 ── */
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.sb-title{font-size:15px;font-weight:700}
+.sb-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.sb-kpi{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.1);display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.kpi-item .kl{font-size:10px;color:rgba(255,255,255,.45);margin-bottom:2px}
+.kpi-item .kv{font-size:16px;font-weight:700}
+.kv-ok{color:#34d399}.kv-warn{color:#fbbf24}.kv-pend{color:#fbbf24}.kv-rej{color:#f87171}.kv-blue{color:#93c5fd}
+/* KPI 클릭 필터 (v4) */
+.kpi-item.kpi-click{cursor:pointer;border-radius:6px;padding:2px 4px;margin:-2px -4px;transition:background .12s}
+.kpi-item.kpi-click:hover{background:rgba(255,255,255,.09)}
+.kpi-item.kpi-click.on{background:rgba(251,191,36,.20);box-shadow:inset 0 0 0 1px rgba(251,191,36,.55)}
+.kpi-filter-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;margin-bottom:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:6px;font-size:12.5px;font-weight:600;color:#92400e}
+.kpi-filter-bar .kfb-x{margin-left:auto;padding:4px 12px;border:1px solid #fbbf24;border-radius:5px;background:#fff;font-family:inherit;font-size:12px;color:#92400e;cursor:pointer}
+.kpi-filter-bar .kfb-x:hover{background:#fef3c7}
+.kv-dim{color:rgba(255,255,255,.45)}
+/* 시트 재동기화 미리보기 (v4) */
+.resync-box{border:1px solid #fbbf24;background:#fffbeb;border-radius:8px;padding:12px 14px;margin-bottom:14px}
+.resync-box .rs-head{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:#92400e;margin-bottom:6px}
+.resync-box .rs-btn{margin-left:auto;padding:5px 14px;border:1px solid #d97706;border-radius:6px;background:#d97706;color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.resync-box .rs-btn:hover{background:#b45309}
+.resync-box .rs-note{font-size:11.5px;color:#92400e;line-height:1.6;margin-bottom:8px}
+.resync-box .rs-row{display:flex;gap:8px;align-items:baseline;font-size:12px;padding:3px 0;border-top:1px solid #fde68a}
+.resync-box .rs-row b{flex-shrink:0;width:60px;color:#1f2937}
+.resync-box .rs-row span{flex:1;color:#4b5563;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resync-box .rs-row em{flex-shrink:0;font-style:normal;font-size:11px;font-weight:700;color:#b45309}
+.sb-nav{padding:10px 8px;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.08em;padding:8px 8px 4px}
+.nav-btn{width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:none;background:none;color:rgba(255,255,255,.6);font-size:13px;font-family:inherit;cursor:pointer;text-align:left;transition:all .12s}
+.nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-btn.on{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
+.nav-icon{width:18px;text-align:center;font-size:14px}
+.nav-cnt{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
+.nc-pend{background:var(--red);color:#fff}
+.nc-group{background:#7c3aed;color:#fff}
+.sb-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.1);font-size:10px;color:rgba(255,255,255,.3)}
+
+/* ── 헤더 ── */
+.topbar{background:var(--surf);border-bottom:1px solid var(--gray-b);height:50px;padding:0 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:var(--sh)}
+.topbar h2{font-size:15px;font-weight:700;flex:1}
+.refresh-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--gray-b);border-radius:6px;background:var(--surf);color:var(--ink2);font-size:12px;font-family:inherit;cursor:pointer;transition:all .12s}
+.refresh-btn:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+.loading-tag{font-size:12px;color:var(--ink3)}
+.srch-wrap{position:relative}
+.srch-wrap input{padding:5px 10px 5px 30px;border:1px solid var(--gray-b);border-radius:20px;font-size:12px;font-family:inherit;background:var(--gray-l);color:var(--ink);width:200px;outline:none}
+.srch-wrap input:focus{border-color:var(--blue);background:#fff}
+.srch-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--ink3);pointer-events:none;font-size:13px}
+
+/* ── 콘텐츠 ── */
+.content{flex:1;overflow-y:auto;padding:16px 20px 24px}
+.panel{display:none}.panel.on{display:block}
+
+/* ── 뱃지 ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-ok{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
+.b-adj{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b)}
+.b-pend{background:var(--red-l);color:var(--red);border:1px solid var(--red-b)}
+.b-skip{background:var(--gray-l);color:var(--gray-m);border:1px solid var(--gray-b)}
+.b-new{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-b);font-size:10px}
+.b-rej{background:var(--orange-l);color:var(--orange);border:1px solid var(--orange-b)}
+
+/* ── 우선순위 ── */
+.pri-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap}
+.pri-1{background:#dcfce7;color:#166534}
+.pri-2{background:#dbeafe;color:#1e40af}
+.pri-3{background:#fef9c3;color:#854d0e}
+.pri-4{background:#fee2e2;color:#991b1b}
+.pri-5{background:#f3f4f6;color:#6b7280}
+
+/* ── 판정 카드 ── */
+.judge-card{background:var(--surf);border:1px solid var(--gray-b);border-radius:10px;margin-bottom:10px;overflow:hidden;box-shadow:var(--sh);transition:border-color .15s}
+.judge-card:hover{border-color:#93c5fd}
+.judge-card.done{background:#f0fdf4;border-color:var(--green-b)}
+.judge-card.is-new{border-color:var(--blue-b);border-width:2px}
+/* 데이터허브 반영완료 — 한눈에 구분 (v4) */
+.judge-card.dh-in{border-left:5px solid var(--green);background:#f6fefa}
+.judge-card.dh-in .jc-head{background:#ecfdf5}
+.badge.b-dh{background:var(--green);color:#fff;border:1px solid var(--green)}
+
+.jc-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--gray-b);background:#fafafa;cursor:pointer;user-select:none}
+.jc-head.collapsed{border-bottom:none}
+.jc-no{font-size:11px;color:var(--ink3);width:24px;flex-shrink:0;text-align:right}
+.jc-who{display:flex;flex-direction:column;flex-shrink:0;min-width:80px}
+.jc-nm{font-weight:700;font-size:14px}
+.jc-sid{font-size:11px;color:var(--ink3)}
+.jc-prog{flex:1;min-width:0}
+.jc-prog-nm{font-weight:600;font-size:13px;line-height:1.4;color:var(--ink)}
+.jc-prog-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.jc-badges{display:flex;gap:5px;align-items:center;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.jc-arr{font-size:12px;color:var(--ink3);flex-shrink:0;transition:transform .2s}
+.jc-arr.open{transform:rotate(180deg)}
+
+.jc-body{padding:13px 14px}
+.jc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.jc-section h5{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.jc-text{font-size:12.5px;color:var(--ink2);line-height:1.6;background:var(--gray-l);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-all}
+.jc-links{display:flex;flex-wrap:wrap;gap:5px}
+.link-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border:1px solid var(--blue-b);border-radius:5px;background:var(--blue-l);color:var(--blue);font-size:11px;font-weight:600;text-decoration:none;transition:all .12s}
+.link-btn:hover{background:var(--blue);color:#fff}
+.note-text{font-size:12px;color:var(--red);background:var(--red-l);border-radius:5px;padding:7px 10px;margin-bottom:10px}
+.note-text:empty{display:none}
+
+/* ── 신청점수 vs 판정점수 ── */
+.score-compare{display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:8px 12px;border-radius:6px;background:var(--gray-l)}
+.score-compare .lbl{font-size:11px;color:var(--ink3)}
+.claim-score{font-size:14px;font-weight:700;color:var(--ink3)}
+.claim-score.diff{color:var(--amber);text-decoration:line-through}
+.arrow-icon{color:var(--ink3);font-size:12px}
+.judge-score-display{font-size:14px;font-weight:700;color:var(--green)}
+.score-diff-note{font-size:11px;color:var(--amber);background:var(--amber-l);padding:2px 7px;border-radius:4px}
+
+.jc-action{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--gray-b);flex-wrap:wrap}
+.act-label{font-size:12px;color:var(--ink3)}
+.score-inp{width:58px;padding:5px 7px;border:1px solid var(--gray-b);border-radius:5px;font-size:14px;font-weight:700;text-align:center;font-family:inherit;-moz-appearance:textfield}
+.score-inp::-webkit-outer-spin-button,.score-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.score-inp:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l)}
+.v-sel{padding:5px 8px;border:1px solid var(--gray-b);border-radius:5px;font-size:12px;font-family:inherit;background:#fff}
+.confirm-btn{padding:6px 14px;border:none;border-radius:5px;background:var(--green);color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.confirm-btn:hover{background:#065f46}
+.done-tag{font-size:12px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:4px}
+.undo-btn{padding:4px 9px;border:1px solid var(--green-b);border-radius:5px;background:#fff;color:var(--green);font-size:11px;cursor:pointer;font-family:inherit}
+.auto-hint{font-size:11px;color:var(--blue);background:var(--blue-l);padding:3px 8px;border-radius:5px;margin-left:auto}
+
+/* ── 그룹 카드 ── */
+.group-card{background:var(--surf);border:1.5px solid var(--purple-b);border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
+.gc-head{display:flex;align-items:center;gap:10px;padding:13px 16px;background:var(--purple-l);border-bottom:1px solid var(--purple-b);cursor:pointer}
+.gc-icon{font-size:18px}
+.gc-title{flex:1;font-weight:700;font-size:14px;color:var(--purple)}
+.gc-sub{font-size:12px;color:var(--ink3)}
+.gc-cnt{background:var(--purple);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px}
+.gc-arrow{color:var(--ink3);font-size:13px;transition:transform .2s}
+.gc-arrow.open{transform:rotate(180deg)}
+.gc-bulk{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#faf5ff;border-bottom:1px solid var(--purple-b)}
+.gc-bulk span{font-size:12px;color:var(--purple);font-weight:600}
+.bulk-score{width:58px;padding:4px 7px;border:1px solid var(--purple-b);border-radius:5px;font-size:13px;font-weight:700;text-align:center;font-family:inherit;-moz-appearance:textfield}
+.bulk-score::-webkit-outer-spin-button,.bulk-score::-webkit-inner-spin-button{-webkit-appearance:none}
+.bulk-btn{padding:5px 12px;border:none;border-radius:5px;background:var(--purple);color:#fff;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.gc-members{padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+.gc-member{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:7px;background:var(--gray-l);border:1px solid var(--gray-b)}
+.gc-member.done{background:var(--green-l);border-color:var(--green-b)}
+.gc-member.is-new{background:var(--blue-l);border-color:var(--blue-b);border-width:1.5px}
+.gm-who{flex-shrink:0;min-width:90px}
+.gm-nm{font-weight:600;font-size:13px}
+.gm-sid{font-size:11px;color:var(--ink3)}
+.gm-claim{font-size:11px;color:var(--ink3);background:var(--gray-l);border:1px solid var(--gray-b);border-radius:4px;padding:2px 6px;white-space:nowrap}
+.gm-claim.diff{color:var(--amber);background:var(--amber-l);border-color:var(--amber-b)}
+.gm-links{display:flex;gap:4px;flex-wrap:wrap}
+.gm-score{display:flex;align-items:center;gap:5px}
+.gm-inp{width:50px;padding:3px 6px;border:1px solid var(--gray-b);border-radius:5px;font-size:13px;font-weight:700;text-align:center;font-family:inherit;-moz-appearance:textfield}
+.gm-inp::-webkit-outer-spin-button,.gm-inp::-webkit-inner-spin-button{-webkit-appearance:none}
+.gm-done-btn{padding:4px 10px;border:1px solid var(--gray-b);border-radius:5px;background:#fff;color:var(--ink3);font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.gm-done-btn.done{background:var(--green-l);border-color:var(--green);color:var(--green);font-weight:700}
+
+/* ── 대시보드 ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-card{background:var(--surf);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);border-left:4px solid var(--gray-b)}
+.kpi-card.c-ok{border-left-color:var(--green)}
+.kpi-card.c-warn{border-left-color:var(--amber)}
+.kpi-card.c-pend{border-left-color:var(--red)}
+.kpi-card.c-blue{border-left-color:var(--blue)}
+.kpi-label{font-size:11px;color:var(--ink3);margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:700;line-height:1}
+.kpi-value.ok{color:var(--green)}.kpi-value.warn{color:var(--amber)}.kpi-value.pend{color:var(--red)}.kpi-value.blue{color:var(--blue)}
+.kpi-sub{font-size:11px;color:var(--ink3);margin-top:5px}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.dash-box{background:var(--surf);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.dash-box h4{font-size:12px;font-weight:600;color:var(--ink3);margin-bottom:12px}
+.bar-row{margin-bottom:10px}
+.bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.bar-track{height:8px;background:var(--gray-l);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bf-ok{background:var(--green)}.bf-warn{background:var(--amber)}.bf-pend{background:var(--red)}.bf-gray{background:var(--gray-b)}
+.pend-quick{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.pq-row{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;background:var(--red-l);border:1px solid var(--red-b);border-radius:6px;font-size:12px}
+.pq-who{flex-shrink:0}.pq-nm{font-weight:600;color:var(--red)}.pq-sid{font-size:11px;color:var(--ink3)}
+.pq-prog{flex:1;color:var(--ink2)}
+.pq-claim{font-size:11px;color:var(--amber);white-space:nowrap}
+.pq-memo{flex:1;color:var(--red);font-size:11px}
+.pq-go{flex-shrink:0;padding:3px 9px;border:1px solid var(--red-b);border-radius:4px;background:#fff;color:var(--red);font-size:11px;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+/* ── CSV ── */
+.csv-wrap{background:var(--surf);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-top:14px}
+.csv-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--gray-l);border-bottom:1px solid var(--gray-b)}
+.csv-head span{font-size:13px;font-weight:600;flex:1}
+.csv-head button{padding:5px 12px;border:1px solid var(--gray-b);border-radius:5px;background:#fff;color:var(--ink2);font-size:12px;font-family:inherit;cursor:pointer}
+.csv-head button:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+#csv-out{width:100%;height:140px;padding:10px 14px;border:none;resize:vertical;font-size:12px;font-family:'Consolas','SF Mono',monospace;background:#fff;color:var(--ink)}
+
+/* ── 기준표 ── */
+.crit-box{background:var(--surf);border-radius:var(--r);box-shadow:var(--sh);padding:20px 24px}
+.crit-box h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.crit-notice{font-size:12px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:6px;padding:8px 12px;margin-bottom:14px}
+.crit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.crit-block{background:var(--gray-l);border:1px solid var(--gray-b);border-radius:8px;padding:12px 14px}
+.crit-block h4{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:8px}
+.crit-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--gray-b)}
+.crit-row:last-child{border-bottom:none}
+.crit-row .cr-v{font-weight:700;color:var(--blue)}
+.crit-row .cr-v.highlight{color:var(--red);font-weight:900}
+
+/* ── 공통 ── */
+.empty{text-align:center;padding:40px;color:var(--ink3);font-size:13px}
+tr.hidden,.card.hidden{display:none}
+.notice-bar{padding:9px 13px;background:var(--blue-l);border-radius:var(--r);font-size:12px;color:var(--blue);margin-bottom:12px}
+
+/* ══════════════════════════════════
+   반응형 — 태블릿 (768px ~ 1024px)
+══════════════════════════════════ */
+@media (max-width: 1024px) {
+  .side { width: 200px; }
+  .sb-foot { display: none; }
+  .jc-grid { grid-template-columns: 1fr; }
+  .gc-bulk { flex-wrap: wrap; }
+}
+
+/* ══════════════════════════════════
+   반응형 — 모바일 (767px 이하)
+══════════════════════════════════ */
+@media (max-width: 767px) {
+  /* 레이아웃: 사이드바 숨기고 하단 탭바로 */
+  .wrap { flex-direction: column; }
+  .side { display: none; }
+  .main { height: 100dvh; }
+
+  /* 상단 헤더 */
+  .topbar { padding: 0 12px; height: 48px; gap: 8px; }
+  .topbar h2 { font-size: 14px; }
+  .refresh-btn { padding: 5px 10px; font-size: 11px; }
+  .srch-wrap input { width: 140px; font-size: 12px; }
+  .loading-tag { display: none; }
+
+  /* 콘텐츠 */
+  .content { padding: 10px 12px 80px; } /* 하단 탭바 높이만큼 패딩 */
+
+  /* 판정 카드 */
+  .jc-head { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+  .jc-who { min-width: 120px; }
+  .jc-prog { width: 100%; order: 3; }
+  .jc-badges { order: 2; }
+  .jc-arr { order: 1; }
+  .jc-grid { grid-template-columns: 1fr; gap: 8px; }
+  .jc-body { padding: 10px 12px; }
+  .jc-action { gap: 6px; }
+  .score-inp { width: 52px; font-size: 14px; }
+  .confirm-btn { font-size: 12px; padding: 6px 10px; }
+  .v-sel { font-size: 12px; }
+  .link-btn { font-size: 11px; padding: 4px 7px; }
+
+  /* 그룹 카드 */
+  .gc-head { flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
+  .gc-bulk { flex-wrap: wrap; padding: 8px 12px; }
+  .gc-members { padding: 8px 12px; }
+  .gc-member { flex-wrap: wrap; gap: 6px; padding: 8px; }
+  .gm-links { flex-wrap: wrap; }
+
+  /* 직접입력 패널 */
+  #direct-list > div { flex-wrap: wrap; gap: 6px; padding: 8px 12px; }
+
+  /* 하단 탭바 */
+  .bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,.1);
+    z-index: 100;
+  }
+  .bnav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: none;
+    background: none;
+    color: rgba(255,255,255,.5);
+    font-size: 10px;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+  }
+  .bnav-btn.on { color: #fff; }
+  .bnav-btn .bnav-icon { font-size: 18px; line-height: 1; }
+  .bnav-cnt {
+    position: absolute;
+    top: 6px; right: calc(50% - 14px);
+    background: var(--red);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 8px;
+    min-width: 14px;
+    text-align: center;
+  }
+
+  /* 플로팅 입력 버튼 */
+  .float-input-btn {
+    display: flex !important;
+    position: fixed;
+    bottom: 70px; right: 14px;
+    padding: 12px 18px;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 4px 14px rgba(4,120,87,.4);
+    cursor: pointer;
+    z-index: 99;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* 관리자 메모 */
+  .admin-memo-inp { font-size: 14px !important; }
+
+  /* KPI 그리드 2열 */
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi-value { font-size: 22px; }
+  .dash-grid { grid-template-columns: 1fr; }
+}
+
+/* 하단 탭바 & 플로팅 버튼 — PC에선 숨김 */
+.bottom-nav { display: none; }
+.float-input-btn { display: none; }
+
+/* ── 입력완료 카드 — 한 줄 요약형 ── */
+.judge-card.done-compact {
+  background: var(--green-l) !important;
+  border-color: var(--green-b) !important;
+  border-left: 4px solid var(--green) !important;
+  opacity: .85;
+}
+.judge-card.done-compact .jc-body { display: none !important; }
+.judge-card.done-compact .jc-head {
+  background: var(--green-l) !important;
+  border-bottom: none !important;
+  padding: 7px 12px !important;
+}
+.judge-card.done-compact .jc-prog-nm { font-size: 12px !important; color: var(--green) !important; }
+.judge-card.done-compact .jc-prog-sub { display: none; }
+.judge-card.done-compact .jc-arr { display: none; }
+.judge-card.done-compact .jc-nm { font-size: 13px !important; }
+.judge-card.done-compact .jc-sid { font-size: 10px !important; }
+
+/* ── 반려/제외 카드 — 회색 한 줄 ── */
+.judge-card.skip-compact {
+  background: #f9fafb !important;
+  border-color: var(--gray-b) !important;
+  opacity: .5;
+}
+.judge-card.skip-compact .jc-body { display: none !important; }
+.judge-card.skip-compact .jc-head {
+  background: #f9fafb !important;
+  border-bottom: none !important;
+  padding: 6px 12px !important;
+}
+.judge-card.skip-compact .jc-prog-nm {
+  font-size: 12px !important;
+  color: var(--ink3) !important;
+  text-decoration: line-through;
+}
+.judge-card.skip-compact .jc-prog-sub { display: none; }
+.judge-card.skip-compact .jc-arr { display: flex !important; font-size: 11px; color: var(--ink3); }
+.judge-card.skip-compact .jc-nm { font-size: 12px !important; color: var(--ink3) !important; }
+
+/* ── 보류 카드 — 빨간 테두리 강조 ── */
+.judge-card.pend-card {
+  border-left: 4px solid var(--red) !important;
+  border-color: var(--red-b) !important;
+  background: var(--red-l) !important;
+}
+
+/* ── 섹션 구분선 ── */
+.judge-section-sep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  margin: 4px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink3);
+  letter-spacing: .04em;
+}
+.judge-section-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray-b);
+}
+
+/* ══ 2026-2 전환 — 학기 구분 · 판단 필요 알림 ══ */
+.sem-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sem-seg{display:inline-flex;border:1px solid var(--gray-b);border-radius:7px;overflow:hidden;background:var(--surf)}
+.sem-seg button{padding:6px 12px;border:none;background:none;font-family:inherit;font-size:12.5px;color:var(--ink3);cursor:pointer}
+.sem-seg button+button{border-left:1px solid var(--gray-b)}
+.sem-seg button.on{background:var(--ink);color:#fff;font-weight:700}
+.sem-seg button:focus-visible,.chk-chip:focus-visible,.crit-tabs button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.sem-note{font-size:11.5px;color:var(--ink3)}
+.chk-chip{margin-left:auto;padding:6px 12px;border:1px solid var(--orange-b);background:var(--orange-l);color:var(--orange);border-radius:7px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.chk-chip.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.chk-chip.zero{opacity:.5;cursor:default}
+.judge-card.chk-card,.judge-card.pend-card.chk-card{border-left:5px solid var(--orange)}
+.chk-banner{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin-bottom:10px;background:var(--orange-l);border:1px solid var(--orange-b);border-radius:6px;font-size:12.5px;line-height:1.55;color:#7c2d12}
+.chk-banner b{flex-shrink:0;color:var(--orange)}
+.b-chk{background:var(--orange);color:#fff;border:1px solid var(--orange)}
+.kv-chk{color:#fb923c}
+.crit-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.crit-tabs button{padding:7px 14px;border:1px solid var(--gray-b);border-radius:7px;background:var(--surf);font-family:inherit;font-size:13px;color:var(--ink3);cursor:pointer}
+.crit-tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700}
+.crit-src{font-size:11.5px;color:var(--ink3);margin-bottom:12px}
+.crit-block .cr-note{font-size:11px;color:var(--ink3);padding-top:5px;line-height:1.5}
+@media (max-width: 767px){
+  .sem-bar{gap:8px}
+  .sem-note{width:100%;order:3}
+  .chk-chip{margin-left:0}
+  .chk-banner{flex-direction:column;gap:4px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 사이드바 -->
+<aside class="side">
+  <div class="sb-logo">
+    <div class="sb-brand">KI-STAR</div>
+    <div class="sb-title">마일리지 판정도구</div>
+    <div class="sb-sub" id="sb-sub">2026-2학기 · GAS 실시간 연동</div>
+  </div>
+  <div class="sb-kpi" id="sb-kpi"></div>
+  <nav class="sb-nav">
+    <div class="nav-label">판정 뷰</div>
+    <button class="nav-btn on" onclick="showPanel('judge',this)"><span class="nav-icon">⚡</span> 빠른 판정<span class="nav-cnt nc-pend" id="nc-todo">—</span></button>
+    <button class="nav-btn" onclick="showPanel('group',this)"><span class="nav-icon">🗂️</span> 동일활동 그룹<span class="nav-cnt nc-group" id="nc-group">—</span></button>
+    <button class="nav-btn" onclick="showPanel('overview',this)"><span class="nav-icon">📊</span> 전체 현황</button>
+    <button class="nav-btn" onclick="showPanel('done',this)"><span class="nav-icon">✅</span> 판정완료</button>
+    <div class="nav-label" style="margin-top:6px">내보내기</div>
+    <button class="nav-btn" onclick="showPanel('csv',this)"><span class="nav-icon">📥</span> 데이터허브 직접 입력</button>
+    <div class="nav-label" style="margin-top:6px">참고</div>
+    <button class="nav-btn" onclick="showPanel('crit',this)"><span class="nav-icon">📐</span> 마일리지 기준표</button>
+  </nav>
+  <div class="sb-foot">차세대AI반도체특성화대학사업단<br>☎ 02-3290-4988<br>판정도구 2026-10-24판 · 데이터허브 대문 연결<br><a href="portal_survey.html" style="color:rgba(255,255,255,.55)">⌂ 데이터허브 대문</a></div>
+</aside>
+
+<!-- 메인 -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="panel-title">⚡ 빠른 판정</h2>
+    <span class="loading-tag" id="loading-tag">데이터 로드 중...</span>
+    <span class="loading-tag" id="sync-tag" style="margin-left:8px"></span>
+    <button class="refresh-btn" onclick="loadData()">⟳ 새로고침</button>
+    <div class="srch-wrap">
+      <span class="srch-icon">🔍</span>
+      <input type="text" placeholder="이름·학번·프로그램" oninput="doSearch(this.value)" id="srch">
+    </div>
+  </div>
+  <div class="content">
+    <div class="sem-bar" id="sem-bar"></div>
+    <div class="panel on" id="panel-judge"><div id="judge-list"></div></div>
+    <div class="panel" id="panel-group"><div id="group-list"></div></div>
+    <div class="panel" id="panel-overview">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="dash-grid">
+        <div class="dash-box"><h4>📊 판정 현황</h4><div id="status-bars"></div></div>
+        <div class="dash-box"><h4>⚠️ 보류 건 빠른 보기</h4><div class="pend-quick" id="pend-quick"></div></div>
+      </div>
+    </div>
+    <div class="panel" id="panel-done"><div id="done-list"></div></div>
+    <div class="panel" id="panel-csv">
+      <div style="background:var(--surf);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden">
+        <!-- 헤더 -->
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--green-l);border-bottom:1px solid var(--green-b)">
+          <span style="font-size:14px;font-weight:700;color:var(--green);flex:1">📥 데이터허브 마일리지내역 직접 입력</span>
+          <span style="font-size:12px;color:var(--ink3)" id="direct-count"></span>
+          <button onclick="selectAll(true)" style="padding:5px 10px;border:1px solid var(--gray-b);border-radius:5px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer">전체선택</button>
+          <button onclick="selectAll(false)" style="padding:5px 10px;border:1px solid var(--gray-b);border-radius:5px;background:#fff;font-size:12px;font-family:inherit;cursor:pointer">선택해제</button>
+          <button onclick="directInput()" id="direct-btn"
+            style="padding:7px 18px;border:none;border-radius:5px;background:var(--green);color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">
+            ✔ 선택 건 입력하기
+          </button>
+        </div>
+        <!-- 결과 메시지 -->
+        <div id="direct-result" style="display:none;padding:10px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--gray-b)"></div>
+        <!-- 목록 -->
+        <div id="direct-list" style="display:flex;flex-direction:column"></div>
+      </div>
+    </div>
+    <div class="panel" id="panel-crit">
+      <div class="crit-tabs">
+        <button class="on" id="ct-26-2" onclick="showCrit('26-2')">2026-2학기 기준 (현행)</button>
+        <button id="ct-26-1" onclick="showCrit('26-1')">2026-1학기 기준 (보관)</button>
+      </div>
+      <div class="crit-box" id="crit-26-2">
+        <h3>마일리지 기준표 — 2026-2학기 적용 기준</h3>
+        <div class="crit-src">학생 공개 배점표(mileage_criteria.html)와 같은 값입니다. 2026-2학기부터 전면 적용하며, 1학기 건에는 적용하지 않습니다.</div>
+        <div class="crit-grid">
+          <div class="crit-block"><h4>🎓 교육 — 오프라인</h4>
+            <div class="crit-row"><span>2일 · 16시간 이상</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>1일 · 6~15시간</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>반일 · 3~5시간</span><span class="cr-v">10점</span></div>
+          </div>
+          <div class="crit-block"><h4>💻 교육 — 온라인 (수료증 필수)</h4>
+            <div class="crit-row"><span>16시간 이상</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>8~15시간</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>3~7시간</span><span class="cr-v">5점</span></div>
+            <div class="cr-note">3시간 미만은 간담회·설명회 항목(5점)으로 처리</div>
+          </div>
+          <div class="crit-block"><h4>🎤 행사·세미나</h4>
+            <div class="crit-row"><span>세미나·포럼·컨퍼런스 3시간 이상</span><span class="cr-v highlight">10점</span></div>
+            <div class="crit-row"><span>간담회·설명회·세미나 등 3시간 미만</span><span class="cr-v">5점</span></div>
+          </div>
+          <div class="crit-block"><h4>🏭 현장체험</h4>
+            <div class="crit-row"><span>기업탐방</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>전시회 적극 참여 (부스운영·발표)</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>전시회 참관</span><span class="cr-v">5점</span></div>
+          </div>
+          <div class="crit-block"><h4>🏛️ 학술대회</h4>
+            <div class="crit-row"><span>국제 구두 발표</span><span class="cr-v">40점</span></div>
+            <div class="crit-row"><span>국제 포스터 발표</span><span class="cr-v">15점</span></div>
+            <div class="crit-row"><span>국내 구두 발표 (주저자)</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>국내 포스터 발표 (주저자)</span><span class="cr-v">15점</span></div>
+            <div class="crit-row"><span>학술대회 수상</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>참관 (청중)</span><span class="cr-v">5점</span></div>
+            <div class="cr-note">국제: 국제 학술단체 주관 또는 영문 논문집(Proceedings) 등재 학회</div>
+          </div>
+          <div class="crit-block"><h4>📄 학술논문 · 특허</h4>
+            <div class="crit-row"><span>SCI/SCIE 주저자</span><span class="cr-v">50점</span></div>
+            <div class="crit-row"><span>SCI/SCIE 공저자</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>KCI 주저자</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>KCI 공저자</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>특허 등록</span><span class="cr-v">40점</span></div>
+            <div class="crit-row"><span>특허 출원</span><span class="cr-v">20점</span></div>
+          </div>
+          <div class="crit-block"><h4>🏆 경진대회 · 공모전</h4>
+            <div class="crit-row"><span>1등 (대상·최우수상)</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>2등 (우수상)</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>3등 (장려상)</span><span class="cr-v">15점</span></div>
+            <div class="crit-row"><span>4등 (입선)</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>결선 진출</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>예선 참가</span><span class="cr-v">3점</span></div>
+            <div class="cr-note">결선 진출은 수상자에게 적용하지 않음 (수상과 중복 불가)</div>
+          </div>
+          <div class="crit-block"><h4>🔬 연구·실습</h4>
+            <div class="crit-row"><span>학부연구생 한 학기 이상</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>학부연구생 1~2개월</span><span class="cr-v">15점</span></div>
+            <div class="crit-row"><span>학부연구생 1개월 미만</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>채용연계형 인턴</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>일반 인턴 (4주 이상)</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>공동활용장비 교육</span><span class="cr-v">15점</span></div>
+            <div class="cr-note">학부연구생: 지도교수 확인서 필수 · 인턴: 재직증명서 등 필수</div>
+          </div>
+          <div class="crit-block"><h4>🤝 산학연계</h4>
+            <div class="crit-row"><span>산학공동기술 개발 과제</span><span class="cr-v">40점</span></div>
+            <div class="crit-row"><span>기업연계 프로그램</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>취업연계 프로그램 / 반도체 관련 대학원 합격</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>운영위원회 참여</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>현직자 멘토링·인터뷰 (회당)</span><span class="cr-v">10점</span></div>
+          </div>
+          <div class="crit-block"><h4>📌 내부 판정 선례 (2학기에도 적용)</h4>
+            <div class="cr-note">· KDC: 차시가 보이면 차시로, 안 보이면 고용부 등록 훈련시간으로<br>· 정규직 입사 사내연수·산학장학생 선발 → 취업연계 30점<br>· 현직자 인터뷰: 수료증 장수로 판정, 최대 2개 조<br>· 차반융 진입 전 사업단 비교과 참여 → 비교과로 처리, 원본은 제외<br>· 동일 활동 중복 인정 불가</div>
+          </div>
+        </div>
+      </div>
+      <div class="crit-box" id="crit-26-1" style="display:none">
+        <h3>마일리지 기준표 — 2026-1학기 적용 기준</h3>
+        <div class="crit-notice">⚠️ 아래는 <strong>2026-1학기 기준</strong>입니다. 간담회·설명회·세미나는 시간에 관계없이 5점. 개정 기준(시간별 차등)은 2026-2학기부터 적용됩니다.</div>
+        <div class="crit-grid">
+          <div class="crit-block"><h4>🎓 교육 — 오프라인</h4>
+            <div class="crit-row"><span>2일 이상 (16h+)</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>1일 (6~15h)</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>반일 (3~5h)</span><span class="cr-v">10점</span></div>
+          </div>
+          <div class="crit-block"><h4>💻 교육 — 온라인 (수료증 필수)</h4>
+            <div class="crit-row"><span>16h 이상</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>8~15h</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>3~7h</span><span class="cr-v">5점</span></div>
+            <div class="crit-row"><span>3h 미만</span><span class="cr-v" style="color:var(--gray-m)">미인정</span></div>
+          </div>
+          <div class="crit-block"><h4>🎤 행사·세미나 <span style="font-size:10px;color:var(--red)">(1학기: 시간무관)</span></h4>
+            <div class="crit-row"><span>간담회·설명회·세미나·포럼 <strong>전체</strong></span><span class="cr-v highlight">5점</span></div>
+          </div>
+          <div class="crit-block"><h4>🏛️ 학술대회</h4>
+            <div class="crit-row"><span>국제 구두발표</span><span class="cr-v">40점</span></div>
+            <div class="crit-row"><span>국제 포스터</span><span class="cr-v">25점</span></div>
+            <div class="crit-row"><span>국내 구두발표</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>국내 포스터</span><span class="cr-v">15점</span></div>
+            <div class="crit-row"><span>참관</span><span class="cr-v">5점</span></div>
+          </div>
+          <div class="crit-block"><h4>🏭 현장체험·산학</h4>
+            <div class="crit-row"><span>전시회 참관</span><span class="cr-v">5점</span></div>
+            <div class="crit-row"><span>전시회 적극참여</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>기업탐방</span><span class="cr-v">20점</span></div>
+            <div class="crit-row"><span>기업연계 프로그램</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>취업연계 / 대학원 합격</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>현직자 멘토링·인터뷰</span><span class="cr-v">10점</span></div>
+          </div>
+          <div class="crit-block"><h4>🔬 학부연구생·인턴·논문</h4>
+            <div class="crit-row"><span>학부연구생 1학기+</span><span class="cr-v">30점</span></div>
+            <div class="crit-row"><span>학부연구생 1~2개월</span><span class="cr-v">15점</span></div>
+            <div class="crit-row"><span>학부연구생 1개월 미만</span><span class="cr-v">10점</span></div>
+            <div class="crit-row"><span>논문 제1저자 (SCI)</span><span class="cr-v">50점</span></div>
+            <div class="crit-row"><span>논문 공저자 (SCI)</span><span class="cr-v">40점</span></div>
+            <div class="crit-row"><span>경진대회 예선참가</span><span class="cr-v">3점</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// 설정
+// ══════════════════════════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxOQp1tb6g5jWrXxpWLguD9ijxHUJciej04eUDapRivQjHwPZ2xbh7ZMZeYTNQBv-Ft/exec';
+const DATAHUB_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const SK = 'kistar_judge_v2';   // 키를 바꾸지 않는다 — 1학기 판정 기록 보존
+
+// ── 학기 설정 (2026-2 전환) ──
+// 다음 학기 전환 시: SEM_CUR · SEM_PREV · SEM_SWITCH 세 줄과 autoJudge 분기만 고친다.
+const SEM_CUR        = '2026-2';       // 현재 판정 학기. 미판정 건은 모두 이 학기
+const SEM_PREV       = '2026-1';
+const SEM_SWITCH     = '2026-09-01';   // 학기 경계. 이 날 이전에 제출되어 판정이 끝난 건 = 1학기 (보관)
+                                       // 근거: 1학기 마지막 실제 제출 08-26 · 2학기 첫 제출 09-14
+                                       // ※ 처리일시(N열)는 기준으로 쓰지 않는다 — 메모만 고쳐도 시트 저장 때 갱신되는 값이다
+let   semFilter      = SEM_CUR;        // 학기 보기 필터. '' = 전체
+const DH_DONE_KEY = 'kistar_dhdone_v2'; // 데이터허브 반영완료 별도 저장
+
+// ── 학생 안내 메모 자동문구 ──
+const STUDENT_MSG_PRESETS = {
+  ok: [
+    { label: '인정', text: '외부활동 마일리지가 인정되었습니다.' },
+    { label: '점수조정 인정', text: '신청 점수와 다르게 기준에 따라 조정되어 인정되었습니다.' },
+    { label: '직접 입력', text: '' }
+  ],
+  adj: [
+    { label: '점수조정 인정', text: '신청 점수와 다르게 기준에 따라 조정되어 인정되었습니다.' },
+    { label: '인정', text: '외부활동 마일리지가 인정되었습니다.' },
+    { label: '직접 입력', text: '' }
+  ],
+  pend: [
+    { label: '추가 서류 필요', text: '추가 증빙 서류가 필요합니다. 사업단으로 문의해주세요.' },
+    { label: '이수시간 확인 필요', text: '증빙 자료의 이수시간 확인이 필요합니다. 수료증을 다시 제출해주세요.' },
+    { label: '내부 검토 중', text: '현재 내부 검토 중입니다. 결과는 추후 안내드립니다.' },
+    { label: '직접 입력', text: '' }
+  ],
+  rej: [
+    { label: '기준 미충족', text: '마일리지 인정 기준에 해당하지 않아 반려되었습니다.' },
+    { label: '기간 미달', text: '활동 기간이 기준에 미달하여 인정이 어렵습니다.' },
+    { label: '중복 신청', text: '중복 신청으로 반려되었습니다.' },
+    { label: '해당 학기 대상 아님', text: '해당 학기 이수생 활동이 아니어서 인정이 어렵습니다.' },
+    { label: '이수시간 미달', text: '온라인 교육 이수시간이 기준(3시간)에 미달하여 인정이 어렵습니다.' },
+    { label: '직접 입력', text: '' }
+  ],
+  skip: [
+    { label: '교과 처리', text: '해당 활동은 교과 마일리지로 별도 처리됩니다.' },
+    { label: '직접 입력', text: '' }
+  ]
+};
+
+// ★ 2026-10-24 T115 — 학생이 폼에 쓴 값(이름·학번·프로그램명·진술·문의 등)은 글자로만 넣는다.
+//   그대로 innerHTML에 넣으면 학생이 넣은 코드가 이 창에서 실행돼 교번·생년월일·출입증을 읽어 갈 수 있었다.
+function esc(v){ return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// onclick="f(…)" 안에 넣는 값 — JS 문자열로 감싼 뒤 HTML 처리 (따옴표로 빠져나가지 못함)
+function jsA(v){ return esc(JSON.stringify(v)); }
+// _id 의 학번 부분 — 영문·숫자·한글·_- 만 (정상 학번은 그대로라 기존 판정 기록과 같은 키)
+function sidKey(v){ return String(v == null ? '' : v).replace(/[^0-9A-Za-z가-힣_-]/g,''); }
+
+function loadDhDone(){try{return JSON.parse(localStorage.getItem(DH_DONE_KEY)||'{}')}catch{return{}}}
+function saveDhDone(map){try{localStorage.setItem(DH_DONE_KEY,JSON.stringify(map))}catch{}}
+let DH_DONE = loadDhDone();
+
+// ══════════════════════════════════════════
+// 시트 동기화 (v3 신규)
+//  - 판정 결과를 판정대기 탭에 즉시 저장
+//  - L열 '확정/조정'은 데이터허브 반영된 건에만 (미반영이면 '미판정' 유지)
+// ══════════════════════════════════════════
+const SYNC_TIMERS = {};
+let   SYNC_BUSY   = 0;
+
+function sheetStatusOf(id){
+  const v = ST[id]?.v;
+  if(v === 'pend') return '보류';
+  if(v === 'rej')  return '반려';
+  if(v === 'skip') return '제외';
+  if(v === 'ok' || v === 'adj'){
+    if(!DH_DONE[id]) return '미판정';           // 아직 데이터허브 미반영
+    return v === 'adj' ? '조정' : '확정';
+  }
+  return '미판정';
+}
+
+function showSync(txt, cls){
+  const el = document.getElementById('sync-tag');
+  if(!el) return;
+  el.textContent = txt;
+  el.style.color = cls === 'err' ? 'var(--red)' : (cls === 'ok' ? 'var(--green)' : 'var(--ink3)');
+  if(cls === 'ok') setTimeout(()=>{ if(el.textContent === txt) el.textContent = ''; }, 2500);
+}
+
+// 실제 전송 (JSONP)
+function pushRow(id){
+  const r = DATA.find(x => x._id === id);
+  if(!r || !r._rowIndex){ return; }
+  const s = ST[id] || {};
+
+  SYNC_BUSY++;
+  showSync('⏳ 시트 저장 중…');
+
+  const cb = 'sync_cb_' + Date.now() + '_' + Math.floor(Math.random()*10000);
+  window[cb] = function(res){
+    delete window[cb];
+    SYNC_BUSY--;
+    if(res && res.status === 'ok'){
+      if(SYNC_BUSY === 0) showSync('✔ 시트 저장됨', 'ok');
+    } else {
+      if(res && res.status === 'denied'){ _DH_CRED = null; showSync('⚠ 시트 저장 거부 — 관리자 인증 실패. 새로고침 후 다시 입력', 'err'); }   // ★ T41
+      else showSync('⚠ 시트 저장 실패 — 새로고침 후 재시도', 'err');
+      console.error('sync fail', id, res);
+    }
+  };
+
+  const q = [
+    'action=updateStatus',
+    'rowIndex=' + encodeURIComponent(r._rowIndex),
+    '판정상태=' + encodeURIComponent(sheetStatusOf(id)),
+    '판정점수=' + encodeURIComponent(s.j === null || s.j === undefined ? '' : s.j),
+    '학생안내메모=' + encodeURIComponent(s.studentMsg || ''),
+    '내부메모=' + encodeURIComponent(s.memo || ''),
+    '데이터허브반영일=' + encodeURIComponent(DH_DONE[id] ? 'Y' : ''),
+    'callback=' + cb
+  ].join('&');
+
+  const sc = document.createElement('script');
+  sc.src = GAS_URL + '?' + q + _dhCredQS();   // ★ 2026-10-08 T41 — 폼 응답 GAS도 관리자 인증을 확인한다
+  sc.onerror = () => {
+    delete window[cb];
+    SYNC_BUSY--;
+    showSync('⚠ 네트워크 오류 — 시트 저장 안 됨', 'err');
+  };
+  document.body.appendChild(sc);
+}
+
+// 연타 대비 디바운스 (0.8초)
+function syncRow(id, immediate){
+  if(!id) return;
+  if(SYNC_TIMERS[id]) clearTimeout(SYNC_TIMERS[id]);
+  if(immediate){ pushRow(id); return; }
+  SYNC_TIMERS[id] = setTimeout(()=>{ delete SYNC_TIMERS[id]; pushRow(id); }, 800);
+}
+
+// ── 1학기 기준 자동 판정 함수 (2026-1 보관 — 수정하지 않음) ──
+// ※ 722줄 `||` 버그(2일 이상 자동 30점)는 1학기 원형 그대로 둔다. 1학기 건은 모두 판정 완료라
+//   이 함수는 판정 근거 표시에만 쓰인다. 2학기 판정은 autoJudge_26_2 가 한다.
+function autoJudge_26_1(r) {
+  const prog  = (r['프로그램명'] || '').toLowerCase();
+  const claim = r['학생신청항목'] || '';
+  const period = r['활동기간'] || '';
+  const claimPt = parseInt(r['학생신청점수']) || 0;
+
+  // 시간 파싱
+  const hourMatch = period.match(/(\d+(?:\.\d+)?)\s*시간/);
+  const dayMatch  = period.match(/(\d+)\s*일/);
+  const hours = hourMatch ? parseFloat(hourMatch[1]) : (dayMatch ? parseInt(dayMatch[1]) * 6 : 0);
+
+  // 간담회·설명회·세미나·포럼 → 1학기 기준 5점
+  const isSeminar = /세미나|포럼|간담회|설명회|컨퍼런스|forum|seminar|강연회|조찬/.test(prog + claim);
+  // 전시회 참관
+  const isExpo = /전시회|엑스포|expo|나노|광융합|코리아/.test(prog) && /참관/.test(claim);
+  // 학술대회
+  const isConf = /학회|학술대회|conference|proceedings/.test(prog);
+  // 온라인 교육
+  const isOnline = /온라인|mooc|k-mooc|e-러닝|이러닝|step|kmooc/.test(prog + claim);
+  // 오프라인 교육
+  const isOffline = /오프라인|실습|idec|캠퍼스|강의|교육/.test(prog + claim) && !isOnline;
+  // 경진대회
+  const isContest = /경진|공모|대회/.test(prog + claim);
+  // 학부연구생
+  const isResearch = /학부연구생|인턴/.test(prog + claim);
+  // 취업연계
+  const isEmploy = /취업연계|채용연계|인턴.*채용|채용.*인턴/.test(prog + claim);
+
+  if (isSeminar) return { score: 5, hint: '행사·세미나 → 1학기 기준 5점' };
+  if (isExpo) return { score: 5, hint: '전시회 참관 5점' };
+  if (isConf) return { score: 5, hint: '학술대회 참관 5점' };
+  if (isEmploy) return { score: 30, hint: '취업연계 30점' };
+  if (isResearch) {
+    const monthMatch = period.match(/(\d+)\s*개월/);
+    const months = monthMatch ? parseInt(monthMatch[1]) : 0;
+    if (period.includes('학기') || months >= 3) return { score: 30, hint: '학부연구생 한 학기이상 30점' };
+    if (months >= 1 && months <= 2) return { score: 15, hint: '학부연구생 1~2개월 15점' };
+    return { score: 10, hint: '학부연구생 1개월 미만 10점' };
+  }
+  if (isContest && /예선/.test(claim)) return { score: 3, hint: '경진대회 예선 3점' };
+  // v4: 활동기간이 단위 없는 숫자(예: "8")면 시간인지 일인지 알 수 없다.
+  //     추측해서 점수를 매기면 8일→30점처럼 크게 틀릴 수 있으므로 원인만 표시하고 보류.
+  if (!hourMatch && !dayMatch && /^\s*\d+(?:\.\d+)?\s*$/.test(period) && (isOnline || isOffline)) {
+    return { score: null, hint: `활동기간 단위 없음("${period.trim()}") — 시간·일 확인 필요` };
+  }
+  if (isOnline) {
+    if (hours >= 16) return { score: 20, hint: `온라인 ${hours}h → 20점` };
+    if (hours >= 8)  return { score: 10, hint: `온라인 ${hours}h → 10점` };
+    if (hours >= 3)  return { score: 5,  hint: `온라인 ${hours}h → 5점` };
+    return { score: null, hint: `온라인 ${hours}h → 3h미만 미인정. 수동 판정 필요` };
+  }
+  if (isOffline) {
+    if (hours >= 16 || (dayMatch && parseInt(dayMatch[1]) >= 2)) return { score: 30, hint: `오프라인 ${hours}h → 30점` };
+    if (hours >= 6)  return { score: 20, hint: `오프라인 ${hours}h → 20점` };
+    if (hours >= 3)  return { score: 10, hint: `오프라인 ${hours}h → 10점` };
+  }
+  return { score: claimPt || null, hint: '자동 판정 불가 — 수동 확인 필요' };
+}
+
+// ══════════════════════════════════════════
+// 2026-2학기 자동 판정 (공식 배점표 기준)
+//  - 확실한 건만 점수를 넣는다.
+//  - 애매한 건은 점수를 비우고 chk:true → 카드에 「⚠️ 관리자 판단 필요」 표시
+// ══════════════════════════════════════════
+function autoJudge(r) {
+  return (r._sem === SEM_PREV) ? autoJudge_26_1(r) : autoJudge_26_2(r);
+}
+function CHK(hint){ return { score:null, hint:hint, chk:true }; }
+function OK(score, hint){ return { score:score, hint:hint, chk:false }; }
+
+function autoJudge_26_2(r) {
+  const prog   = (r['프로그램명'] || '').toLowerCase();
+  const claim  = (r['학생신청항목'] || '').toLowerCase();
+  const period = String(r['활동기간'] || '');
+  const all    = prog + ' ' + claim;
+  const claimPt = parseInt(r['학생신청점수']) || 0;
+  const claimTxt = claimPt ? ` (학생 신청 ${claimPt}점)` : '';
+
+  // 시간 파싱 — 「시간」이 명시된 값만 쓴다. 일수는 시간으로 환산하지 않는다 (v4 722줄 버그 원인)
+  // 「9시간 53분」은 9.88h로 본다 (16h 경계 판정용)
+  const hourAll   = [...period.matchAll(/(\d+(?:\.\d+)?)\s*시간(?:\s*(\d+)\s*분)?/g)].map(m=>Math.round((parseFloat(m[1])+(m[2]?parseInt(m[2])/60:0))*100)/100);
+  const totalHit  = period.match(/총\s*(\d+(?:\.\d+)?)\s*시간/);
+  const dayMatch  = period.match(/(\d+)\s*일/);
+  const hasHour   = hourAll.length > 0;
+  const multiHour = hourAll.length > 1 && !totalHit;
+  const hours     = totalHit ? parseFloat(totalHit[1]) : (hasHour ? hourAll[0] : null);
+  const lessThan  = /미만/.test(period);
+  const bareNum   = /^\s*\d+(?:\.\d+)?\s*$/.test(period);
+
+  // 공통: 시간이 필요한 항목에서 시간이 애매한 경우
+  function hourIssue(kind){
+    if (multiHour) return CHK(`${kind} — 시간 값이 여러 개(${hourAll.join(', ')}h). 총 시간 확인` + claimTxt);
+    if (!hasHour && dayMatch) return CHK(`${kind} — 일수만 기재(「${period.trim()}」). 총 시간 확인` + claimTxt);
+    if (!hasHour && bareNum) return CHK(`${kind} — 활동기간 단위 없음(「${period.trim()}」). 시간·일 확인` + claimTxt);
+    if (!hasHour) return CHK(`${kind} — 시간 미기재. 증빙에서 총 시간 확인` + claimTxt);
+    return null;
+  }
+
+  // ① 증빙으로 등급·저자·단계를 봐야 하는 항목 → 알림만
+  if (/논문|sci|kci|게재|저널|journal/.test(all))
+    return CHK('학술논문 — 등재지·저자 확인 (SCI/SCIE 주 50·공 30 / KCI 주 20·공 10)' + claimTxt);
+  if (/특허/.test(all))
+    return CHK('특허 — 등록 40 · 출원 20. 증빙으로 단계 확인' + claimTxt);
+  if (/산학공동|공동기술|기술\s*개발\s*과제/.test(all))
+    return CHK('산학공동기술 개발 과제 40 — 참여 증빙 확인' + claimTxt);
+  if (/운영위원/.test(all))
+    return CHK('운영위원회 참여 30 — 참여 증빙 확인' + claimTxt);
+
+  const isConf    = /학회|학술대회|conference|proceedings|심포지엄|symposium/.test(all);
+  const isContest = /경진|공모|대회|해커톤|아이디어톤|전전톤|hackathon|-thon/.test(all) && !isConf;
+  if (isConf && /수상/.test(all))
+    return CHK('학술대회 수상 30 — 수상 증빙 확인' + claimTxt);
+  if (isConf && /발표|포스터|구두|poster|oral/.test(all) && !/발표\s*(는|를|을)?\s*(하지|안|않)/.test(all))
+    return CHK('학술대회 발표 — 국제 구두 40·포스터 15 / 국내 구두 20·포스터 15 (주저자). 발표 형태 확인' + claimTxt);
+  if (isContest) {
+    if (/수상|대상|최우수|우수상|장려|입선|[1-4]\s*등|금상|은상|동상/.test(all))
+      return CHK('경진대회 수상 — 1등 30·2등 20·3등 15·4등 10. 등수 확인' + claimTxt);
+    if (/결선|본선/.test(all)) return OK(10, '경진대회 결선 진출 10점');
+    if (/예선/.test(all))      return OK(3,  '경진대회 예선 참가 3점');
+    return CHK('경진대회 — 참가 단계 확인 (결선 10 · 예선 3 · 수상 별도)' + claimTxt);
+  }
+
+  // ② 인턴 · 학부연구생 · 취업연계
+  if (/인턴/.test(all) && !/학부연구생/.test(all))
+    return CHK('인턴 — 채용연계형 30 · 일반(4주 이상) 20. 재직증명서·기간 확인' + claimTxt);
+  if (/학부연구생|연구실/.test(all)) {
+    const monthMatch = period.match(/(\d+)\s*개월/);
+    const months = monthMatch ? parseInt(monthMatch[1]) : 0;
+    if (/학기/.test(period) || months >= 3) return OK(30, '학부연구생 한 학기 이상 30점 — 지도교수 확인서 확인');
+    if (months >= 1 && months <= 2)          return OK(15, '학부연구생 1~2개월 15점 — 지도교수 확인서 확인');
+    return CHK('학부연구생 — 기간 확인 (한 학기 이상 30 · 1~2개월 15 · 1개월 미만 10)' + claimTxt);
+  }
+  if (/취업연계|채용연계|대학원\s*합격|대학원합격|산학\s*장학|입사/.test(all))
+    return CHK('취업연계·대학원 합격·산학장학생 30 — 합격·선발 증빙 확인' + claimTxt);
+  if (/기업연계/.test(all))
+    return CHK('기업연계 프로그램 30 — 프로그램 성격 확인' + claimTxt);
+
+  // ③ 현장체험
+  if (/기업\s*탐방|견학|팹\s*투어|fab\s*tour/.test(all)) return OK(20, '기업탐방 20점');
+  if (/공동활용|장비\s*교육/.test(all))                   return OK(15, '공동활용장비 교육 15점');
+  const isExpo = /전시회|엑스포|expo|박람회|semicon|nano\s*korea|나노코리아|광융합/.test(all);
+  if (isExpo) {
+    if (/부스|운영|발표|적극|전시\s*참가/.test(all))
+      return CHK('전시회 적극 참여(부스운영·발표) 20 — 역할 증빙 확인' + claimTxt);
+    return OK(5, '전시회 참관 5점');
+  }
+  if (/현직자|멘토링|인터뷰|멘토/.test(all)) {
+    const times = period.match(/(\d+)\s*회/) || claim.match(/(\d+)\s*회/);
+    if (times && parseInt(times[1]) > 1)
+      return CHK(`현직자 멘토링·인터뷰 회당 10 — ${times[1]}회. 수료증 장수로 판정(최대 2개 조)` + claimTxt);
+    return OK(10, '현직자 멘토링·인터뷰 10점 (1회) — 수료증 확인');
+  }
+  if (isConf) return OK(5, '학술대회 참관 5점');
+
+  // ④ 교육 vs 행사·세미나 — 프로그램명 기준으로 먼저 가른다
+  const SEM_RE    = /세미나|포럼|간담회|설명회|컨퍼런스|forum|seminar|강연|조찬|특강|채용설명회/;
+  const EDU_RE    = /교육|강의|강좌|과정|수강|워크숍|workshop|course|mooc|kdc|k-디지털|수료/;
+  const isOnline  = /온라인|mooc|k-mooc|kmooc|e-러닝|이러닝|step|kdc|k-디지털|simplilearn|코멘토|렛유인|udemy|coursera|sunny|mysuni|비대면/.test(all);
+  const isOffline = !isOnline && /오프라인|대면|현장|실습|공동연구소|합숙/.test(all);
+  const progIsSem = SEM_RE.test(prog) && !/교육|강의|강좌|과정|course/.test(prog);
+
+  function seminar(){
+    if (lessThan && hasHour && hours <= 3) return OK(5, '행사·세미나 3시간 미만 → 5점');
+    const iss = hourIssue('행사·세미나 (3h 이상 10 · 미만 5)'); if (iss) return iss;
+    if (hours >= 3) return OK(10, `행사·세미나 ${hours}h → 3시간 이상 10점`);
+    return OK(5, `행사·세미나 ${hours}h → 3시간 미만 5점`);
+  }
+  if (progIsSem) return seminar();
+
+  if (isOnline || isOffline || EDU_RE.test(all)) {
+    if (isOnline) {
+      const iss = hourIssue('온라인 교육'); if (iss) return iss;
+      if (hours >= 16) return OK(20, `온라인 ${hours}h → 20점 (수료증 확인)`);
+      if (hours >= 8)  return OK(10, `온라인 ${hours}h → 10점 (수료증 확인)`);
+      if (hours >= 3)  return OK(5,  `온라인 ${hours}h → 5점 (수료증 확인)`);
+      return OK(5, `온라인 ${hours}h → 3h 미만, 간담회·설명회 5점으로 처리`);
+    }
+    if (isOffline) {
+      const iss = hourIssue('오프라인 교육'); if (iss) return iss;
+      if (hours >= 16) return OK(30, `오프라인 ${hours}h → 30점`);
+      if (hours >= 6)  return OK(20, `오프라인 ${hours}h → 20점`);
+      if (hours >= 3)  return OK(10, `오프라인 ${hours}h → 10점`);
+      return CHK(`오프라인 ${hours}h — 3시간 미만. 기준표에 없는 구간, 판정 필요` + claimTxt);
+    }
+    const hs = hasHour ? ` ${multiHour ? hourAll.join('+') : hours}h` : '';
+    return CHK(`교육${hs} — 온라인/오프라인 구분 확인 (온라인 16h↑ 20·8~15h 10·3~7h 5 / 오프라인 16h↑ 30·6~15h 20·3~5h 10)` + claimTxt);
+  }
+
+  // ⑤ 행사·세미나 — 2학기부터 시간 차등 (3h 이상 10 · 미만 5)
+  if (SEM_RE.test(all)) return seminar();
+
+  return CHK('항목 분류 불가 — 학생 진술·증빙 보고 직접 판정' + claimTxt);
+}
+
+// 우선순위
+function calcPri(r, s) {
+  if (s.v === 'skip' || s.v === 'rej') return 5;
+  if (s.v === 'pend') return 4;
+  const note = r['학생문의'] || '';
+  if (note && note.length > 5) return 3;
+  if (s.v === 'adj') return 2;
+  return 1;
+}
+const PRI_LBL = {1:'⚡ 즉시확정',2:'🔵 빠른확정',3:'🟡 확인필요',4:'🔴 보류',5:'⛔ 제외'};
+const PRI_CLS = {1:'pri-1',2:'pri-2',3:'pri-3',4:'pri-4',5:'pri-5'};
+const V_LBL = {ok:'✅ 확정',adj:'🔶 조정',pend:'⚠️ 보류',rej:'❌ 반려',skip:'⛔ 제외'};
+const V_BC  = {ok:'b-ok',adj:'b-adj',pend:'b-pend',rej:'b-rej',skip:'b-skip'};
+// v4: 시트 L열(판정상태) 한글값 → 내부 코드. '미판정'은 매핑하지 않는다(자동판정에 맡김)
+const SHEET_V = {'확정':'ok','조정':'adj','보류':'pend','반려':'rej','제외':'skip'};
+
+// ── 상태 관리 ──
+let ST = {};
+function loadST(){try{return JSON.parse(localStorage.getItem(SK)||'{}')}catch{return{}}}
+function saveST(){try{localStorage.setItem(SK,JSON.stringify(ST))}catch{}}
+ST = loadST();
+
+// ── 데이터 ──
+let DATA = []; // GAS에서 로드한 원본 데이터
+let searchWord = '';
+let kpiFilter  = '';   // v4: 사이드바 KPI 클릭 필터. '' = 전체
+let RESYNC_IDS = [];   // v4: 시트와 어긋난 반영완료 건
+// KPI 항목별 필터 정의 — 라벨과 판정 조건을 한 곳에 둔다
+const KPI_DEF = {
+  chk:      { label:'⚠️ 판단 필요',   fn:(s,id)=> !!s.chk },
+  judged:   { label:'확정·조정',      fn:(s,id)=> s.v==='ok'||s.v==='adj' },
+  dh:       { label:'✅ 허브반영',     fn:(s,id)=> !!DH_DONE[id] },
+  notInput: { label:'⏳ 허브 미반영',  fn:(s,id)=> (s.v==='ok'||s.v==='adj') && !DH_DONE[id] },
+  pend:     { label:'⚠️ 보류',        fn:(s,id)=> s.v==='pend' },
+  rej:      { label:'❌ 반려',         fn:(s,id)=> s.v==='rej' },
+  skip:     { label:'⛔ 제외',         fn:(s,id)=> s.v==='skip' }
+};
+
+// ── 학기 판별 ──
+// 판정 완료 건: 제출일시가 SEM_SWITCH 이전이면 1학기 (제출일시는 바뀌지 않는 값)
+// 미판정 건: 모두 현재 학기
+function ymd(v){
+  const m = String(v||'').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  return m ? `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}` : '';
+}
+function isJudgedRow(r){
+  const L = String(r['판정상태']||'').trim();
+  return (!!L && L !== '미판정') || String(r['판정점수']??'').trim() !== '';
+}
+function rowSem(r){
+  if(!isJudgedRow(r)) return SEM_CUR;
+  const d = ymd(r['제출일시']);
+  if(!d) return SEM_CUR;
+  return d < SEM_SWITCH ? SEM_PREV : SEM_CUR;
+}
+function semRule(sem){ return sem === SEM_PREV ? '26-1' : '26-2'; }
+function semSuffix(sem){ return '_' + String(sem||SEM_CUR).slice(2); }   // '2026-2' → '_26-2'
+// 학기 필터가 적용된 목록 — 화면·집계는 모두 이것을 쓴다
+function VIEW(){ return semFilter ? DATA.filter(r=>r._sem===semFilter) : DATA; }
+
+// ── GAS 데이터 로드 ──
+function loadData() {
+  // ★ 2026-10-08 T41 — 폼 응답 GAS가 관리자 학번+생년월일을 확인한다. 창을 연 뒤 처음 한 번만 묻는다
+  //   (데이터허브 입력과 같은 값을 함께 쓴다 — 두 번 묻지 않는다)
+  if(!_dhCredQS(true)){
+    document.getElementById('loading-tag').textContent = '관리자 인증 필요 — ⟳ 새로고침을 눌러 학번·생년월일을 입력하세요';
+    return;
+  }
+  document.getElementById('loading-tag').textContent = '로드 중...';
+  const cb = 'cb_' + Date.now();
+  window[cb] = function(res) {
+    document.getElementById('loading-tag').textContent = '';
+    if (!res || res.status !== 'ok') {
+      if (res && res.status === 'denied') {           // ★ T41 — 틀렸으면 지우고 다음 새로고침에 다시 묻는다
+        if (window._HUB_TOKEN === true) {             // ★ T115 — 대문 출입증이 만료·권한 없음 → 대문에서 다시 로그인
+          document.getElementById('loading-tag').textContent = '인증 실패 — ' + (res.message || '') + ' · 데이터허브 대문에서 다시 로그인해 주세요';
+          return;
+        }
+        _DH_CRED = null;
+        document.getElementById('loading-tag').textContent = '인증 실패 — ' + (res.message || '') + ' ⟳ 새로고침으로 다시 입력';
+      } else {
+        document.getElementById('loading-tag').textContent = '로드 실패';
+      }
+      return;
+    }
+    DATA = res.records || [];
+    // 기존 판정 상태 없는 신규 건 초기화
+    DATA.forEach((r, i) => {
+      // _id: 분리처리 건은 중복여부 컬럼값 포함하여 고유 ID 생성
+      const dupFlag = r['중복여부'] || '';
+      r._id = sidKey(r['학번']) + '_' + String(r['제출일시']||'').replace(/\D/g,'') + (dupFlag ? '_' + dupFlag.replace(/[^a-zA-Z0-9가-힣]/g,'') : '');
+      // 시트의 데이터허브반영일이 있으면 반영완료로 간주 (localStorage보다 우선)
+      const dhCell = r['데이터허브반영일시'] || r['데이터허브반영일'] || '';
+      if (dhCell) DH_DONE[r._id] = true;
+      r._sem = rowSem(r);
+      // 2학기 미판정 건은 예전 버전(1학기 규칙)으로 캐시된 자동판정이 있으면 새 규칙으로 다시 계산
+      const cached = ST[r._id];
+      const reopened = cached && !isJudgedRow(r) && (cached.v==='skip' || cached.v==='rej');   // 시트에서 미판정으로 되돌림
+      const stale  = reopened || (cached && cached.isNew && !isJudgedRow(r) && cached.rule !== semRule(r._sem));
+      if (!ST[r._id] || stale) {
+        const auto    = autoJudge(r);
+        // v4: 시트 L열에 판정이 있으면 그것이 진실. 없을 때만 자동판정을 쓴다.
+        const sheetV  = SHEET_V[String(r['판정상태'] || '').trim()] || '';
+        const sheetPt = parseInt(r['판정점수']);
+        const hasPt   = !isNaN(sheetPt);
+        // L열이 '미판정'이어도 M열에 점수가 있으면 이미 판정한 건이다 (L열 불변식 때문에
+        // 허브 미반영 건은 L열이 '미판정'으로 남는다). 점수는 시트가 우선.
+        const judged  = !!sheetV || hasPt;
+        ST[r._id] = {
+          j:    (sheetV==='skip' || sheetV==='rej') ? null : (hasPt ? sheetPt : auto.score),   // ★ 2026-10-12
+          v:    sheetV || (auto.score !== null ? 'ok' : 'pend'),
+          done: judged,
+          hint: auto.hint,
+          chk:  !judged && !!auto.chk,            // 2026-2: 관리자 판단 필요
+          rule: semRule(r._sem),
+          memo: r['내부메모'] || '',
+          studentMsg: r['학생안내메모'] || '',
+          isNew: !judged                        // 판정 흔적이 없는 건만 NEW
+        };
+      } else {
+        // 시트에서 직접 고친 판정(예: L열을 「제외」로)이 브라우저 캐시에 가려지지 않도록
+        // 시트 L·M열 값이 있으면 캐시를 시트에 맞춘다
+        const s0 = ST[r._id];
+        const sV = SHEET_V[String(r['판정상태'] || '').trim()] || '';
+        const sP = parseInt(r['판정점수']);
+        if (sV) { s0.v = sV; s0.isNew = false; s0.chk = false; if (sV==='rej'||sV==='skip') s0.done = false; }
+        if (sV==='skip' || sV==='rej') s0.j = null;   // ★ 2026-10-12 — 제외·반려는 M열에 값이 남아 있어도 점수로 보지 않는다
+        else if (!isNaN(sP)) { s0.j = sP; s0.isNew = false; s0.chk = false; }
+      }
+    });
+    saveST(); saveDhDone(DH_DONE);
+    document.getElementById('loading-tag').textContent = `총 ${DATA.length}건 로드됨`;
+    renderAll();
+  };
+  const script = document.createElement('script');
+  script.src = GAS_URL + '?action=getList' + _dhCredQS() + '&callback=' + cb;
+  script.onerror = () => {
+    document.getElementById('loading-tag').textContent = '네트워크 오류';
+  };
+  document.body.appendChild(script);
+}
+
+function renderAll() {
+  renderSemBar();
+  renderSbKpi();
+  renderJudge();
+  renderGroup();
+  renderOverview();
+}
+
+// ── 사이드바 KPI ──
+// 빈 key('')는 「전체 보기」 = 필터 해제
+function kpiCell(key, label, value, cls){
+  const on = (kpiFilter===key) ? ' on' : '';
+  const tip = key ? `${KPI_DEF[key].label} 건만 보기` : '필터 해제 — 전체 보기';
+  return `<div class="kpi-item kpi-click${on}" onclick="toggleKpiFilter('${key}')" title="${tip}">`
+       + `<div class="kl">${label}</div><div class="kv ${cls}">${value}</div></div>`;
+}
+
+function renderSbKpi() {
+  const c = calc();
+  const notInput = VIEW().filter(r=>{const s=ST[r._id];return s&&(s.v==='ok'||s.v==='adj')&&!DH_DONE[r._id];}).length;   // 판정됐지만 아직 허브 미반영
+  document.getElementById('sb-kpi').innerHTML = `
+    ${kpiCell('',        '총 제출',    c.total,        'kv-blue')}
+    ${kpiCell('chk',     '⚠️ 판단 필요', c.chk+'건',   'kv-chk')}
+    ${kpiCell('judged',  '확정 합계',  c.pts+'점',     'kv-ok')}
+    ${kpiCell('dh',      '✅ 허브반영', c.dh+'건',      'kv-ok')}
+    ${kpiCell('notInput','⏳ 미반영',   notInput+'건',  'kv-warn')}
+    ${kpiCell('pend',    '⚠️ 보류',    c.pend+'건',    'kv-pend')}
+    ${kpiCell('rej',     '❌ 반려',     c.rej+'건',     'kv-rej')}
+    ${kpiCell('skip',    '⛔ 제외',     c.skip+'건',    'kv-dim')}`;
+  const todoCount = VIEW().filter(r=>!ST[r._id]?.done&&(ST[r._id]?.v==='ok'||ST[r._id]?.v==='adj')).length;
+  document.getElementById('nc-todo').textContent = todoCount;
+  // 모바일 하단 탭바 뱃지
+  const bnavTodo=document.getElementById('bnav-cnt-todo');
+  if(bnavTodo)bnavTodo.textContent=todoCount;
+}
+
+function calc() {
+  let ok=0,adj=0,pend=0,rej=0,skip=0,done=0,dh=0,pts=0,chk=0;
+  const V=VIEW();
+  V.forEach(r=>{
+    const s=ST[r._id];if(!s)return;
+    if(s.chk)chk++;
+    if(s.v==='ok')ok++;
+    else if(s.v==='adj')adj++;
+    else if(s.v==='pend')pend++;
+    else if(s.v==='rej')rej++;
+    else skip++;
+    if(s.done)done++;
+    if(DH_DONE[r._id])dh++;                       // 시트 Q열 기준 (실제 반영)
+    if((s.v==='ok'||s.v==='adj')&&s.j)pts+=s.j;
+  });
+  return{ok,adj,pend,rej,skip,done,dh,pts,chk,total:V.length};
+}
+
+// ── 빠른 판정 뷰 ──
+function renderJudge() {
+  const list = document.getElementById('judge-list');
+  list.innerHTML = '';
+  let sorted = [...VIEW()].filter(r=>{
+    if(kpiFilter && KPI_DEF[kpiFilter]){
+      if(!KPI_DEF[kpiFilter].fn(ST[r._id]||{}, r._id)) return false;
+    }
+    if(!searchWord)return true;
+    return(r['이름']+r['학번']+r['프로그램명']+r['학생신청항목']).toLowerCase().includes(searchWord);
+  });
+
+  // ── 정렬: 보류(4) → 확정미입력(1) → 조정미입력(2) → 확인필요(3) → 입력완료(5) → 반려/제외(6) ──
+  sorted.sort((a,b)=>{
+    const sa=ST[a._id]||{}, sb=ST[b._id]||{};
+    const rankA = sa.chk ? 0 : sa.done ? 5 : (sa.v==='rej'||sa.v==='skip') ? 6 : calcPri(a,sa);   // 판단 필요 = 맨 위
+    const rankB = sb.chk ? 0 : sb.done ? 5 : (sb.v==='rej'||sb.v==='skip') ? 6 : calcPri(b,sb);
+    return rankA-rankB || (a['제출일시']||'').localeCompare(b['제출일시']||'');
+  });
+
+  // 필터 안내 줄 — 0건이어도 항상 보여 준다 (어떤 필터가 켜졌는지 알 수 있게)
+  const fbar = (kpiFilter && KPI_DEF[kpiFilter])
+    ? `<div class="kpi-filter-bar">${KPI_DEF[kpiFilter].label} 필터 적용 중 · ${sorted.length}건`
+      + `<button class="kfb-x" onclick="toggleKpiFilter('')">필터 해제</button></div>`
+    : '';
+  if(!sorted.length){
+    let msg;
+    if(!DATA.length)            msg = '데이터가 없습니다. 새로고침 버튼을 눌러주세요.';
+    else if(kpiFilter)          msg = '이 필터에 해당하는 건이 없습니다.';
+    else if(searchWord)         msg = `「${esc(searchWord)}」 검색 결과가 없습니다.`;
+    else if(!VIEW().length)     msg = (semFilter ? semFilter+'학기에' : '')+' 접수된 제출이 아직 없습니다.';
+    else                        msg = '조건에 맞는 건이 없습니다.';
+    list.innerHTML = fbar + `<div class="empty">${msg}</div>`;
+    return;
+  }
+
+  if(fbar) list.innerHTML = fbar;
+
+  let shownDone=false, shownSkip=false;
+
+  sorted.forEach((r,idx)=>{
+    const s = ST[r._id]||{};
+    const pri = calcPri(r,s);
+    const canDone = s.v==='ok'||s.v==='adj';
+    const isSkip = s.v==='rej'||s.v==='skip';
+    const isDone = !!s.done && canDone;
+    const claimPt = parseInt(r['학생신청점수'])||0;
+    const isDiff = claimPt && s.j && claimPt !== s.j;
+    const isNew = s.isNew;
+    // 접힘 여부: 입력완료 or 반려/제외
+    const isCollapsed = isDone || isSkip;
+
+    // 구분선
+    if(isDone && !shownDone){
+      shownDone=true;
+      const sep=document.createElement('div');
+      sep.className='judge-section-sep';
+      sep.innerHTML='✅ 입력완료 — 접힌 상태 (클릭하면 펼침)';
+      list.appendChild(sep);
+    }
+    if(isSkip && !shownSkip){
+      shownSkip=true;
+      const sep=document.createElement('div');
+      sep.className='judge-section-sep';
+      sep.innerHTML='❌ 반려·제외';
+      list.appendChild(sep);
+    }
+
+    // 카드 클래스
+    let cardClass = 'judge-card';
+    if(DH_DONE[r._id]) cardClass += ' dh-in';        // v4: 데이터허브 반영완료
+    if(isDone) cardClass += ' done-compact';
+    else if(isSkip) cardClass += ' skip-compact';
+    else if(s.v==='pend') cardClass += ' pend-card';
+    if(s.chk && !isCollapsed) cardClass += ' chk-card';
+    else if(isNew) cardClass += ' is-new';
+
+    const div = document.createElement('div');
+    div.className = cardClass;
+    div.id = 'jc_'+r._id;
+
+    // 증빙 링크 파싱
+    const rawLinks = r['증빙링크'] || '';
+    const linkIds = [...rawLinks.matchAll(/id=([a-zA-Z0-9_-]{10,})/g)].map(m=>m[1]);
+    const linksHtml = linkIds.length
+      ? linkIds.map((id,i)=>`<a href="https://drive.google.com/open?id=${id}" target="_blank" class="link-btn">📎 증빙${i+1}</a>`).join('')
+      : '<span style="font-size:11px;color:var(--ink3)">증빙 링크 없음</span>';
+
+    div.innerHTML = `
+<div class="jc-head${isCollapsed?' collapsed':''}" onclick="toggleCard('${r._id}')">
+  <div class="jc-no">${idx+1}</div>
+  <div class="jc-who">
+    <div class="jc-nm">${esc(r['이름'])}${isNew&&!isCollapsed?'<span class="badge b-new" style="margin-left:4px">NEW</span>':''}</div>
+    <div class="jc-sid">${esc(r['학번'])} · ${esc(r['소속(학부)']||'')}</div>
+  </div>
+  <div class="jc-prog">
+    <div class="jc-prog-nm">${esc(r['프로그램명'])}</div>
+    <div class="jc-prog-sub">📅 ${esc(String(r['제출일시']||'').slice(0,10))} · ⏱️ ${esc(r['활동기간']||'')} · 증빙 ${linkIds.length}개</div>
+  </div>
+  <div class="jc-badges">
+    ${s.chk?'<span class="badge b-chk" id="chkb_'+r._id+'">⚠️ 판단 필요</span>':''}
+    ${!isCollapsed&&!s.chk?`<span class="pri-badge ${PRI_CLS[pri]}">${PRI_LBL[pri]}</span>`:''}
+    <span class="badge ${V_BC[s.v]||'b-skip'}" id="vbadge_${r._id}">${V_LBL[s.v]||'미판정'}</span>
+    ${DH_DONE[r._id]?'<span class="badge b-dh">✅ 허브반영</span>':''}
+    ${isDone?'<span class="badge b-ok" style="background:#047857;color:#fff;border-color:#047857">✔ 입력완료</span>':''}
+    ${s.j?`<span style="font-size:12px;font-weight:700;color:${isDone?'var(--green)':'var(--blue)'};">${s.j}점</span>`:''}
+  </div>
+  ${!isCollapsed?`<span class="jc-arr open" id="arr_${r._id}">▲</span>`:'<span style="font-size:11px;color:var(--ink3);flex-shrink:0">펼치기</span>'}
+</div>
+<div class="jc-body" id="jcb_${r._id}" style="${isCollapsed?'display:none':''}">
+  ${s.chk?`<div class="chk-banner" id="chkn_${r._id}"><b>⚠️ 관리자 판단 필요</b><span>${esc(s.hint||'')}<br>증빙을 확인한 뒤 점수와 판정을 직접 넣어 주세요. 넣으면 이 알림은 사라집니다.</span></div>`:''}
+  ${claimPt?`<div class="score-compare">
+    <span class="lbl">학생 신청</span>
+    <span class="claim-score ${isDiff?'diff':''}">${claimPt}점</span>
+    ${isDiff?`<span class="arrow-icon">→</span><span class="judge-score-display">${s.j}점</span><span class="score-diff-note">기준 적용 조정</span>`:''}
+  </div>`:''}
+  <div class="jc-grid">
+    <div class="jc-section"><h5>💬 학생 진술</h5><div class="jc-text">${esc(r['학생신청항목']||'(없음)')}</div></div>
+    <div class="jc-section"><h5>📁 증빙 자료 (${linkIds.length}개)</h5><div class="jc-links">${linksHtml}</div></div>
+  </div>
+  ${r['학생문의']?`<div class="note-text">💬 학생 문의: ${esc(r['학생문의'])}</div>`:''}
+  <div class="admin-memo-wrap" style="margin-bottom:8px">
+    <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px">
+      📝 내부 메모 <span style="font-weight:400;color:#9ca3af">(학생 비공개 — CSV 비고란 포함)</span>
+    </div>
+    <input type="text" class="admin-memo-inp" id="memo_${r._id}"
+      value="${esc(s.memo||'')}"
+      placeholder="예: 세미나 4시간(포스터로 확인) → 10점"
+      oninput="onMemo('${r._id}',this.value)"
+      style="width:100%;padding:6px 10px;border:1px solid #e5e7eb;border-radius:5px;font-size:12px;font-family:inherit;background:#f9fafb;color:#111827;outline:none"
+      onfocus="this.style.borderColor='#1d4ed8';this.style.background='#fff'"
+      onblur="this.style.borderColor='#e5e7eb';this.style.background='#f9fafb'">
+  </div>
+  <div style="margin-bottom:10px;padding:10px;background:#f0fdf4;border:1px solid #6ee7b7;border-radius:6px">
+    <div style="font-size:11px;font-weight:700;color:#047857;margin-bottom:6px">
+      📢 학생 안내 메모 <span style="font-weight:400;color:#6b7280">(학생 포털에 공개)</span>
+    </div>
+    <select id="smsg_sel_${r._id}"
+      onchange="onStudentMsgPreset('${r._id}',this)"
+      style="width:100%;padding:5px 8px;border:1px solid #6ee7b7;border-radius:5px;font-size:12px;font-family:inherit;background:#fff;margin-bottom:5px">
+      <option value="">— 자동문구 선택 —</option>
+      ${(STUDENT_MSG_PRESETS[s.v]||STUDENT_MSG_PRESETS.skip).map(p=>
+        `<option value="${esc(p.text===''?'__custom__':p.text)}" ${(s.studentMsg&&s.studentMsg===p.text)?'selected':''}>${p.label}</option>`
+      ).join('')}
+    </select>
+    <input type="text" id="smsg_inp_${r._id}"
+      value="${esc(s.studentMsg||'')}"
+      placeholder="학생에게 보여질 메모를 입력하세요"
+      oninput="onStudentMsg('${r._id}',this.value)"
+      style="width:100%;padding:6px 10px;border:1px solid #6ee7b7;border-radius:5px;font-size:12px;font-family:inherit;background:#fff;color:#111827;outline:none;${s.studentMsg?'display:block':'display:none'}"
+      onfocus="this.style.borderColor='#047857'"
+      onblur="this.style.borderColor='#6ee7b7'">
+  </div>
+  <div class="jc-action">
+    <span class="act-label">판정 점수</span>
+    <input type="number" class="score-inp" inputmode="numeric" id="si_${r._id}" value="${s.j??''}" min="0" max="50"
+      ${s.v==='skip'||s.v==='rej'?'disabled':''} onchange="onJ('${r._id}',this.value)">
+    <span class="act-label">점</span>
+    <select class="v-sel" id="vs_${r._id}" onchange="onV('${r._id}',this.value)">
+      <option value="ok" ${s.v==='ok'?'selected':''}>✅ 확정</option>
+      <option value="adj" ${s.v==='adj'?'selected':''}>🔶 조정</option>
+      <option value="pend" ${s.v==='pend'?'selected':''}>⚠️ 보류</option>
+      <option value="rej" ${s.v==='rej'?'selected':''}>❌ 반려</option>
+      <option value="skip" ${s.v==='skip'?'selected':''}>⛔ 제외</option>
+    </select>
+    ${canDone
+      ? (s.done
+          ? `<span class="done-tag">✔ 입력완료</span><button class="undo-btn" onclick="onDone('${r._id}')">취소</button>`
+          : `<button class="confirm-btn" onclick="onDone('${r._id}')">✔ 입력완료 처리</button>`)
+      : ''}
+    <span class="auto-hint" title="자동 판정 근거">${esc(s.hint||'')}</span>
+  </div>
+</div>`;
+    list.appendChild(div);
+  });
+}
+
+function toggleCard(id) {
+  const body = document.getElementById('jcb_'+id);
+  const arr  = document.getElementById('arr_'+id);
+  const head = document.querySelector('#jc_'+id+' .jc-head');
+  const card = document.getElementById('jc_'+id);
+  if(!body) return;
+  const hidden = body.style.display==='none';
+  // skip/rej 카드: important로 숨겨진 것도 override
+  body.style.cssText = hidden ? 'display:block!important' : 'display:none!important';
+  if(arr){arr.textContent=hidden?'▲':'▼';hidden?arr.classList.add('open'):arr.classList.remove('open');}
+  if(head){hidden?head.classList.remove('collapsed'):head.classList.add('collapsed');}
+}
+
+
+function onMemo(id, val) {
+  if(!ST[id]) ST[id] = {};
+  ST[id].memo = val;
+  saveST(); syncRow(id);
+}
+function onStudentMsg(id, val) {
+  if(!ST[id]) ST[id] = {};
+  ST[id].studentMsg = val;
+  saveST(); syncRow(id);
+}
+function onStudentMsgPreset(id, selectEl) {
+  const val = selectEl.value;
+  if(val === '__custom__') {
+    // 직접 입력 선택 시 텍스트박스 활성화
+    const inp = document.getElementById('smsg_inp_'+id);
+    if(inp) { inp.style.display='block'; inp.focus(); }
+  } else {
+    const inp = document.getElementById('smsg_inp_'+id);
+    if(inp) { inp.style.display = val ? 'none' : 'block'; inp.value = val; }
+    onStudentMsg(id, val);
+  }
+}
+
+// 관리자가 직접 점수·판정을 넣으면 「판단 필요」 알림을 내린다
+function clearChk(id){
+  if(!ST[id]||!ST[id].chk) return;
+  ST[id].chk=false;
+  ['chkb_','chkn_'].forEach(p=>{const el=document.getElementById(p+id); if(el) el.remove();});
+  const card=document.getElementById('jc_'+id); if(card) card.classList.remove('chk-card');
+  renderSemBar();
+}
+function onJ(id,val){
+  if(!ST[id])ST[id]={};
+  ST[id].j=val===''?null:parseInt(val);
+  if(val!=='') clearChk(id);
+  ST[id].isNew=false;
+  saveST();renderSbKpi();syncRow(id);
+}
+function onV(id,val){
+  if(!ST[id])ST[id]={};
+  ST[id].v=val;
+  if(val==='skip'||val==='rej'){ ST[id].j=null; const _si=document.getElementById('si_'+id); if(_si) _si.value=''; }   // ★ 2026-10-12 — 제외·반려는 M열(판정점수)을 비운다
+  if(val!=='pend') clearChk(id);
+  ST[id].isNew=false;
+  saveST();renderSbKpi();syncRow(id);
+  const s=ST[id];
+  const canDone=val==='ok'||val==='adj';
+  // 뱃지 업데이트
+  const vb=document.getElementById('vbadge_'+id);
+  if(vb){vb.className='badge '+(V_BC[val]||'b-skip');vb.textContent=V_LBL[val]||val;}
+  // 점수 입력 비활성화
+  const si=document.getElementById('si_'+id);
+  if(si)si.disabled=(val==='skip'||val==='rej');
+  // 카드 클래스
+  const card=document.getElementById('jc_'+id);
+  if(card){
+    card.className='judge-card'+(s.done&&canDone?' done':'')+(s.isNew?' is-new':'')+(s.chk?' chk-card':'');
+  }
+  // 입력완료 버튼 동적 업데이트
+  const action=card?.querySelector('.jc-action');
+  if(action){
+    const old=action.querySelectorAll('.confirm-btn,.undo-btn,.done-tag');
+    old.forEach(b=>b.remove());
+    if(canDone){
+      if(s.done){
+        const tag=document.createElement('span');tag.className='done-tag';tag.textContent='✔ 입력완료';action.insertBefore(tag,action.querySelector('.auto-hint'));
+        const ub=document.createElement('button');ub.className='undo-btn';ub.textContent='취소';ub.onclick=()=>onDone(id);action.insertBefore(ub,action.querySelector('.auto-hint'));
+      } else {
+        const cb=document.createElement('button');cb.className='confirm-btn';cb.textContent='✔ 입력완료 처리';cb.onclick=()=>onDone(id);action.insertBefore(cb,action.querySelector('.auto-hint'));
+      }
+    }
+  }
+  // 입력완료 헤드 뱃지 정리 (확정 아닐 때 제거)
+  const badges=card?.querySelector('.jc-badges');
+  if(badges&&!canDone){
+    const old=badges.querySelector('.b-ok:last-child');if(old)old.remove();
+  }
+}
+function onDone(id){
+  if(!ST[id])ST[id]={};
+  ST[id].done=!ST[id].done;
+  ST[id].isNew=false;
+  saveST();renderSbKpi();syncRow(id);
+  // 카드 갱신
+  const s=ST[id];
+  const card=document.getElementById('jc_'+id);
+  const canDone=s.v==='ok'||s.v==='adj';
+  if(card)card.className='judge-card'+(s.done&&canDone?' done':'')+(s.isNew?' is-new':'')+(s.chk?' chk-card':'');
+  const badges=card?.querySelector('.jc-badges');
+  if(badges){
+    const old=badges.querySelector('.b-ok:last-child');if(old)old.remove();
+    if(s.done){const nb=document.createElement('span');nb.className='badge b-ok';nb.textContent='✔ 입력완료';badges.appendChild(nb);}
+  }
+  const action=card?.querySelector('.jc-action');
+  if(action&&canDone){
+    const old=action.querySelectorAll('.confirm-btn,.undo-btn,.done-tag');old.forEach(b=>b.remove());
+    if(s.done){
+      const tag=document.createElement('span');tag.className='done-tag';tag.textContent='✔ 입력완료';action.insertBefore(tag,action.querySelector('.auto-hint'));
+      const ub=document.createElement('button');ub.className='undo-btn';ub.textContent='취소';ub.onclick=()=>onDone(id);action.insertBefore(ub,action.querySelector('.auto-hint'));
+    }else{
+      const cb=document.createElement('button');cb.className='confirm-btn';cb.textContent='✔ 입력완료 처리';cb.onclick=()=>onDone(id);action.insertBefore(cb,action.querySelector('.auto-hint'));
+    }
+  }
+}
+
+// ── 동일활동 그룹 뷰 ──
+function renderGroup() {
+  const groups={};
+  VIEW().forEach(r=>{
+    const key = normalizeGroupKey(r['프로그램명']);
+    if(!groups[key])groups[key]={name:r['프로그램명'],members:[]};
+    groups[key].members.push(r);
+  });
+  const multiGroups = Object.entries(groups).filter(([k,g])=>g.members.length>=2);
+  document.getElementById('nc-group').textContent = multiGroups.length;
+
+  const list = document.getElementById('group-list');
+  list.innerHTML = '';
+  if(!multiGroups.length){list.innerHTML='<div class="empty">동일 활동 그룹이 없습니다.</div>';return;}
+
+  multiGroups.forEach(([key,g])=>{
+    const hasNew = g.members.some(r=>ST[r._id]?.isNew);
+    const allDone = g.members.every(r=>ST[r._id]?.done);
+    const safeKey = key.replace(/[^a-zA-Z0-9가-힣]/g,'_');
+    const div = document.createElement('div');
+    div.className = 'group-card';
+    const membersHtml = g.members.map(r=>{
+      const s = ST[r._id]||{};
+      const claimPt = parseInt(r['학생신청점수'])||0;
+      const isDiff = claimPt && s.j && claimPt !== s.j;
+      const rawLinks = r['증빙링크']||'';
+      const linkIds = [...rawLinks.matchAll(/id=([a-zA-Z0-9_-]{10,})/g)].map(m=>m[1]);
+      const linksHtml = linkIds.map((id,i)=>`<a href="https://drive.google.com/open?id=${id}" target="_blank" class="link-btn">📎${i+1}</a>`).join('');
+      const gmCanDone = s.v==='ok'||s.v==='adj';
+      return `<div class="gc-member ${s.done?'done':''} ${s.isNew?'is-new':''} ${s.v==='rej'?'r-skip':''}" id="gm_${r._id}">
+        <div class="gm-who">
+          <div class="gm-nm">${esc(r['이름'])}${s.isNew?'<span class="badge b-new" style="margin-left:3px;font-size:9px">NEW</span>':''}</div>
+          <div class="gm-sid">${esc(r['학번'])}</div>
+        </div>
+        ${claimPt?`<span class="gm-claim ${isDiff?'diff':''}">신청 ${claimPt}점</span>`:''}
+        <div class="gm-links">${linksHtml}</div>
+        <div class="gm-score">
+          <input type="number" class="gm-inp" inputmode="numeric" id="gmi_${r._id}" value="${s.j??''}" placeholder="점"
+            ${s.v==='rej'||s.v==='skip'?'disabled':''}
+            onchange="onJ('${r._id}',this.value)">
+          <span style="font-size:11px;color:var(--ink3)">점</span>
+        </div>
+        <select class="v-sel" style="font-size:11px;padding:3px 6px" id="gmvs_${r._id}" onchange="gmOnV('${r._id}',this.value)">
+          <option value="ok" ${s.v==='ok'?'selected':''}>✅ 확정</option>
+          <option value="adj" ${s.v==='adj'?'selected':''}>🔶 조정</option>
+          <option value="pend" ${s.v==='pend'?'selected':''}>⚠️ 보류</option>
+          <option value="rej" ${s.v==='rej'?'selected':''}>❌ 반려</option>
+          <option value="skip" ${s.v==='skip'?'selected':''}>⛔ 제외</option>
+        </select>
+        <button class="gm-done-btn ${s.done?'done':''} ${!gmCanDone?'disabled':''}"
+          id="gmdb_${r._id}" onclick="${gmCanDone?`gmDone('${r._id}')`:''}"
+          ${!gmCanDone?'style="opacity:.35;cursor:default"':''}>
+          ${s.done?'✔ 완료':'입력완료'}
+        </button>
+      </div>`;
+    }).join('');
+
+    div.innerHTML = `
+<div class="gc-head" onclick="toggleGroup('gcb_${safeKey}','gca_${safeKey}')">
+  <span class="gc-icon">🗂️</span>
+  <div class="gc-title">${esc(g.name)}${hasNew?'<span class="badge b-new" style="margin-left:6px">NEW 멤버</span>':''}</div>
+  <span class="gc-sub">${esc(g.members[0]['활동기간']||'')}</span>
+  <span class="gc-cnt">${g.members.length}명</span>
+  ${allDone?'<span class="badge b-ok" style="margin-left:4px">전원완료</span>':''}
+  <span class="gc-arrow open" id="gca_${safeKey}">▲</span>
+</div>
+<div class="gc-bulk" id="gcbulk_${safeKey}">
+  <span>일괄 판정</span>
+  <input type="number" class="bulk-score" inputmode="numeric" id="bulk_${safeKey}" placeholder="점" value="${ST[g.members[0]._id]?.j??''}">
+  <span style="font-size:12px;color:var(--ink3)">점</span>
+  <button class="bulk-btn" onclick="bulkJudge(${jsA(safeKey)},${jsA(g.members.map(r=>r._id))})">전원 일괄 적용</button>
+</div>
+<div class="gc-members" id="gcb_${safeKey}">${membersHtml}</div>`;
+    list.appendChild(div);
+  });
+}
+
+function normalizeGroupKey(name){
+  return (name||'').toLowerCase()
+    .replace(/\s+/g,'').replace(/2026|포럼|세미나|행사|korea|2026년/g,'')
+    .substring(0,20);
+}
+
+function toggleGroup(bodyId,arrowId){
+  const body=document.getElementById(bodyId);
+  const bulk=document.getElementById(bodyId.replace('gcb_','gcbulk_'));
+  const arrow=document.getElementById(arrowId);
+  const hidden=body?.style.display==='none';
+  if(body)body.style.display=hidden?'':'none';
+  if(bulk)bulk.style.display=hidden?'':'none';
+  if(arrow){arrow.textContent=hidden?'▲':'▼';hidden?arrow.classList.add('open'):arrow.classList.remove('open');}
+}
+
+function bulkJudge(safeKey,ids){
+  const inp=document.getElementById('bulk_'+safeKey);
+  const score=inp?.value===''?null:parseInt(inp?.value||'0');
+  ids.forEach(id=>{
+    if(!ST[id])ST[id]={};
+    ST[id].j=score;ST[id].v='ok';ST[id].isNew=false;clearChk(id);
+    const gmi=document.getElementById('gmi_'+id);if(gmi)gmi.value=score??'';
+  });
+  saveST();renderSbKpi();
+  ids.forEach((id,k)=>setTimeout(()=>syncRow(id,true), k*250));
+  alert(`✅ ${ids.length}명에게 ${score}점 일괄 적용!\n판정 뷰에서 확인 후 입력완료 처리해주세요.`);
+}
+
+function gmOnV(id, val) {
+  if(!ST[id])ST[id]={};
+  ST[id].v = val;
+  if(val==='skip'||val==='rej'){ ST[id].j=null; const _gi=document.getElementById('gmi_'+id); if(_gi) _gi.value=''; }   // ★ 2026-10-12 — 제외·반려는 점수를 비운다
+  if(val!=='pend') clearChk(id);
+  ST[id].isNew = false;
+  saveST(); renderSbKpi(); syncRow(id);
+  const gm = document.getElementById('gm_'+id);
+  if(gm) {
+    const s = ST[id];
+    const canDone = val==='ok'||val==='adj';
+    gm.className = 'gc-member' + (s.done&&canDone?' done':'') + (s.isNew?' is-new':'') + (val==='rej'||val==='skip'?' r-skip':'');
+    const inp = document.getElementById('gmi_'+id);
+    if(inp) inp.disabled = (val==='rej'||val==='skip');
+    const btn = document.getElementById('gmdb_'+id);
+    if(btn) {
+      btn.className = 'gm-done-btn' + (s.done&&canDone?' done':'') + (!canDone?' disabled':'');
+      btn.style.opacity = canDone?'':'0.35';
+      btn.style.cursor = canDone?'':'default';
+      btn.onclick = canDone ? function(){gmDone(id)} : null;
+    }
+  }
+}
+
+function gmDone(id){
+  if(!ST[id])ST[id]={};
+  ST[id].done=!ST[id].done;ST[id].isNew=false;
+  saveST();renderSbKpi();syncRow(id);
+  const gm=document.getElementById('gm_'+id);const s=ST[id];
+  if(gm){gm.className='gc-member'+(s.done?' done':'');}
+  const btn=document.getElementById('gmdb_'+id);
+  if(btn){btn.className='gm-done-btn'+(s.done?' done':'');btn.textContent=s.done?'✔ 완료':'입력완료';}
+}
+
+// ── 전체 현황 ──
+function renderOverview(){
+  const c=calc();const t=c.total||1;
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi-card c-blue"><div class="kpi-label">총 제출 건수</div><div class="kpi-value blue">${c.total}</div><div class="kpi-sub">제외 ${c.skip}건 포함</div></div>
+    <div class="kpi-card c-ok"><div class="kpi-label">확정 합계 점수</div><div class="kpi-value ok">${c.pts}점</div><div class="kpi-sub">확정+조정 ${c.ok+c.adj}건</div></div>
+    <div class="kpi-card c-pend"><div class="kpi-label">보류 건수</div><div class="kpi-value pend">${c.pend}</div><div class="kpi-sub">판정 필요</div></div>
+    <div class="kpi-card c-ok">
+      <div class="kpi-label">데이터허브 입력 현황</div>
+      <div class="kpi-value ok">${c.done}<span style="font-size:14px;color:var(--ink3)">건 완료</span></div>
+      <div class="kpi-sub" style="display:flex;gap:10px;margin-top:6px">
+        <span style="color:var(--amber)">⏳ 미입력 ${c.ok+c.adj-c.done}건</span>
+        <span style="color:var(--red)">⚠️ 보류 ${c.pend}건</span>
+      </div>
+    </div>`;
+  document.getElementById('status-bars').innerHTML=`
+    <div class="bar-row"><div class="bar-label"><span>✅ 확정</span><span style="font-weight:600;color:var(--green)">${c.ok}건</span></div><div class="bar-track"><div class="bar-fill bf-ok" style="width:${Math.round(c.ok/t*100)}%"></div></div></div>
+    <div class="bar-row"><div class="bar-label"><span>🔶 조정</span><span style="font-weight:600;color:var(--amber)">${c.adj}건</span></div><div class="bar-track"><div class="bar-fill bf-warn" style="width:${Math.round(c.adj/t*100)}%"></div></div></div>
+    <div class="bar-row"><div class="bar-label"><span>⚠️ 보류</span><span style="font-weight:600;color:var(--red)">${c.pend}건</span></div><div class="bar-track"><div class="bar-fill bf-pend" style="width:${Math.round(c.pend/t*100)}%"></div></div></div>
+    <div class="bar-row"><div class="bar-label"><span>❌ 반려/제외</span><span style="font-weight:600;color:var(--gray-m)">${c.skip}건</span></div><div class="bar-track"><div class="bar-fill bf-gray" style="width:${Math.round(c.skip/t*100)}%"></div></div></div>`;
+  const pq=document.getElementById('pend-quick');
+  const pendItems=VIEW().filter(r=>ST[r._id]?.v==='pend');
+  pq.innerHTML=pendItems.length?pendItems.map(r=>{
+    const claimPt=parseInt(r['학생신청점수'])||0;
+    return `<div class="pq-row">
+      <div class="pq-who"><div class="pq-nm">${esc(r['이름'])}</div><div class="pq-sid">${esc(r['학번'])}</div></div>
+      <div class="pq-prog">${esc(r['프로그램명'])}</div>
+      ${claimPt?`<span class="pq-claim">신청 ${claimPt}점</span>`:''}
+      <div class="pq-memo">${esc(ST[r._id]?.hint||'')}</div>
+      <button class="pq-go" onclick="goToPend()">처리</button>
+    </div>`;
+  }).join(''):'<div class="empty">보류 건이 없습니다 ✅</div>';
+}
+
+function goToPend(){
+  document.querySelectorAll('.nav-btn')[0].click();
+}
+
+// ── 판정완료 목록 ──
+function renderDoneList(){
+  const list=document.getElementById('done-list');
+  const items=VIEW().filter(r=>ST[r._id]?.done);
+  if(!items.length){list.innerHTML='<div class="empty">입력완료 처리된 건 없음</div>';return;}
+  list.innerHTML=items.map(r=>{
+    const s=ST[r._id];
+    return `<div class="judge-card done" style="padding:11px 14px;display:flex;align-items:center;gap:10px;">
+      <div style="min-width:80px"><div style="font-weight:700">${esc(r['이름'])}</div><div style="font-size:11px;color:var(--ink3)">${esc(r['학번'])}</div></div>
+      <div style="flex:1;font-size:13px;font-weight:500">${esc(r['프로그램명'])}</div>
+      <div style="font-weight:700;color:var(--green);font-size:15px">${s.j??'?'}점</div>
+      <span class="badge b-ok">✔ 완료</span>
+      <button onclick="onDone('${r._id}')" style="padding:3px 9px;border:1px solid var(--green-b);border-radius:5px;background:#fff;color:var(--green);font-size:11px;cursor:pointer;font-family:inherit">취소</button>
+    </div>`;
+  }).join('');
+}
+
+// ── CSV 생성 ──
+// ── 직접입력 패널 렌더링 (체크박스 선택형) ──
+function renderDirectPanel() {
+  const list    = document.getElementById('direct-list');
+  const countEl = document.getElementById('direct-count');
+  const resultEl= document.getElementById('direct-result');
+  if(resultEl) resultEl.style.display='none';
+  if(!list) return;
+  list.innerHTML='';
+
+  // v4: 허브엔 반영됐는데 시트 판정상태가 확정·조정이 아닌 건 = 어긋난 건
+  RESYNC_IDS = DATA.filter(r=>{
+    const st = ST[r._id]; if(!st) return false;
+    if(!(st.v==='ok' || st.v==='adj')) return false;      // 보류·반려·제외는 대상 아님
+    if(!DH_DONE[r._id]) return false;                      // 허브 미반영은 대상 아님
+    const L = String(r['판정상태']||'').trim();
+    return L !== '확정' && L !== '조정';                    // 이미 맞는 건은 제외
+  }).map(r=>r._id);
+
+  if(RESYNC_IDS.length){
+    const rows = DATA.filter(r=>RESYNC_IDS.indexOf(r._id)>-1).map(r=>
+      `<div class="rs-row"><b>${esc(r['이름'])}</b><span>${esc(r['프로그램명'])}</span>`
+      + `<em>${esc(String(r['판정상태']||'').trim() || '(빈칸)')} → ${esc(sheetStatusOf(r._id))}</em></div>`).join('');
+    const box = document.createElement('div');
+    box.className = 'resync-box';
+    box.innerHTML = `<div class="rs-head">🔄 시트와 어긋난 반영완료 ${RESYNC_IDS.length}건`
+      + `<button class="rs-btn" onclick="runResync()">시트에 반영</button></div>`
+      + `<div class="rs-note">데이터허브엔 들어갔는데 판정상태가 「미판정」으로 남은 건입니다. `
+      + `학생 화면이 「검토 중」에 머무는 원인입니다. 누르면 <b>판정상태·처리일시·반영일시만</b> 갱신하며, `
+      + `데이터허브는 건드리지 않습니다.</div>${rows}`;
+    list.appendChild(box);
+  }
+
+  // 판정완료(done) + 데이터허브 반영완료(dhDone) 건 모두 표시
+  const candidates = VIEW().filter(r=>{
+    const s=ST[r._id];
+    return (s?.v==='ok'||s?.v==='adj') && s?.j;
+  });
+
+  // 정렬: 미반영(상단) → 판정필요(중간) → 반영완료(하단)
+  candidates.sort((a,b)=>{
+    const sa=ST[a._id], sb=ST[b._id];
+    const pa = DH_DONE[a._id] ? 2 : (sa?.done ? 0 : 1);
+    const pb = DH_DONE[b._id] ? 2 : (sb?.done ? 0 : 1);
+    return pa-pb;
+  });
+
+  const unreflected = candidates.filter(r=>ST[r._id]?.done && !DH_DONE[r._id]).length;
+  const dhDoneCnt   = candidates.filter(r=>DH_DONE[r._id]).length;
+  if(countEl) countEl.textContent = `전체 ${candidates.length}건 · 미반영 ${unreflected}건 · 반영완료 ${dhDoneCnt}건`;
+
+  if(!candidates.length){
+    list.innerHTML='<div style="padding:20px;font-size:12px;color:var(--ink3);text-align:center">판정완료된 건이 없습니다.</div>';
+    return;
+  }
+
+  let shownMid=false, shownDone=false;
+
+  candidates.forEach((r,i)=>{
+    const s = ST[r._id];
+    const isDhDone = !!DH_DONE[r._id];
+    const isReady  = !!s?.done && !isDhDone;
+
+    // 구분선
+    if(!isDhDone && s?.done && !shownMid){
+      shownMid=true;
+      const sep=document.createElement('div');
+      sep.style.cssText='padding:6px 16px;font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);border-bottom:1px solid var(--green-b)';
+      sep.textContent='⬇ 미반영 — 선택 후 입력하기';
+      list.appendChild(sep);
+    }
+    if(isDhDone && !shownDone){
+      shownDone=true;
+      const sep=document.createElement('div');
+      sep.style.cssText='padding:6px 16px;font-size:11px;font-weight:700;color:var(--ink3);background:var(--gray-l);border-bottom:1px solid var(--gray-b)';
+      sep.textContent='✅ 데이터허브 반영 완료';
+      list.appendChild(sep);
+    }
+
+    const row = document.createElement('div');
+    row.id = 'drow_'+r._id;
+    row.style.cssText = [
+      'display:flex;align-items:center;gap:10px;padding:10px 16px',
+      'border-bottom:1px solid var(--gray-b);font-size:13px',
+      isDhDone ? 'background:var(--green-l);opacity:.75' : (!s?.done ? 'opacity:.45;background:var(--gray-l)' : 'background:#fff')
+    ].join(';');
+
+    // "이미 반영됨" 버튼 (미반영 건에만 표시)
+    const statusHtml = isDhDone
+      ? '<span style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);padding:2px 8px;border-radius:10px;border:1px solid var(--green-b);white-space:nowrap;flex-shrink:0">✅ 반영완료</span>'
+      : (!s?.done
+        ? '<span style="font-size:11px;color:var(--ink3);white-space:nowrap;flex-shrink:0">판정완료 필요</span>'
+        : `<span style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+             <span style="font-size:11px;color:var(--amber);white-space:nowrap">⏳ 미반영</span>
+             <button onclick="markAsDhDone('${r._id}')"
+               style="padding:2px 8px;border:1px solid var(--blue-b);border-radius:5px;background:var(--blue-l);color:var(--blue);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
+               이미 반영됨
+             </button>
+           </span>`);
+
+    const memoHtml = s?.memo&&!s.memo.startsWith('활동기간')
+      ? `<span style="font-size:10px;color:var(--amber);background:var(--amber-l);padding:1px 6px;border-radius:4px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.memo)}">📝 ${esc(s.memo)}</span>`
+      : '';
+
+    row.innerHTML = `
+      <input type="checkbox" id="chk_${r._id}"
+        ${isDhDone ? 'disabled checked' : (!isReady ? 'disabled' : '')}
+        style="width:16px;height:16px;flex-shrink:0;accent-color:var(--green);cursor:${isReady?'pointer':'default'}"
+        onchange="updateSelectCount()">
+      <span style="color:var(--ink3);width:22px;text-align:right;flex-shrink:0;font-size:11px">${i+1}</span>
+      <span style="font-weight:700;width:58px;flex-shrink:0">${esc(r['이름']||'')}</span>
+      <span style="font-size:11px;color:var(--ink3);width:82px;flex-shrink:0">${esc(r['학번']||'')}</span>
+      <span style="flex:1;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r['프로그램명']||'')}</span>
+      <span style="font-size:11px;color:var(--ink3);white-space:nowrap">${esc(r['활동기간']||'')}</span>
+      <span style="font-weight:700;color:var(--green);width:34px;text-align:right;flex-shrink:0">${s?.j||'?'}점</span>
+      ${memoHtml}
+      ${statusHtml}`;
+    list.appendChild(row);
+  });
+
+  updateSelectCount();
+}
+
+// ── "이미 반영됨" 클릭 → GAS 호출 없이 DH_DONE만 업데이트 ──
+function markAsDhDone(id) {
+  DH_DONE[id] = true;
+  saveDhDone(DH_DONE);
+  syncRow(id, true);
+  renderSbKpi();
+  renderDirectPanel();
+}
+
+function updateSelectCount() {
+  const checked = document.querySelectorAll('#direct-list input[type=checkbox]:checked:not(:disabled)');
+  const btn = document.getElementById('direct-btn');
+  if(btn) btn.textContent = `✔ 선택한 ${checked.length}건 입력하기`;
+}
+
+function selectAll(sel) {
+  document.querySelectorAll('#direct-list input[type=checkbox]:not(:disabled)').forEach(c=>{
+    c.checked = sel;
+  });
+  updateSelectCount();
+}
+
+// ── 선택한 건만 데이터허브에 입력 ──
+function directInput() {
+  const checked = [...document.querySelectorAll('#direct-list input[type=checkbox]:checked:not(:disabled)')];
+  if(!checked.length){ alert('입력할 건을 선택해주세요.'); return; }
+
+  const records = [];
+  const recIds  = [];
+  checked.forEach(chk=>{
+    const id = chk.id.replace('chk_','');
+    const r  = DATA.find(x=>x._id===id);
+    const s  = ST[id];
+    if(!r||!s?.j) return;
+    const progId = '외부활동_' + (r['프로그램명']||'').replace(/\s+/g,'').substring(0,20) + semSuffix(r._sem);   // 2026-2: 학기별 접미사 (예전 '_26-1' 고정)
+    const memo   = s.memo || ('활동기간:' + (r['활동기간']||''));
+    records.push({
+      sid:    r['학번']||'',
+      name:   r['이름']||'',
+      dept:   r['소속(학부)']||'',
+      progId, prog: r['프로그램명']||'',
+      date:   (r['제출일시']||'').slice(0,10),
+      score:  s.j, memo
+    });
+    recIds.push(id);
+  });
+
+  const btn = document.getElementById('direct-btn');
+  const resultEl = document.getElementById('direct-result');
+  btn.textContent = '⏳ 입력 중...';
+  btn.disabled = true;
+
+  // 1건씩 순서대로 전송 (URL 길이 제한 우회)
+  let successCount = 0;
+  const notFoundAll = [];
+  const okIds = [], failedIds = [];
+
+  function sendOne(idx) {
+    if(idx >= records.length) {
+      // 전체 완료
+      btn.textContent = `✔ 선택한 ${records.length}건 입력하기`;
+      btn.disabled = false;
+      if(resultEl){
+        resultEl.style.cssText = 'display:block;padding:10px 16px;font-size:13px;font-weight:600;color:var(--green);background:var(--green-l);border-bottom:1px solid var(--green-b)';
+        resultEl.innerHTML = `✅ ${successCount}건이 데이터허브 마일리지내역 탭에 반영됐습니다!`
+          + (notFoundAll.length ? `<br><span style="color:var(--amber);font-size:12px">⚠️ 명단 미확인: ${esc(notFoundAll.join(', '))}</span>` : '');
+        // 반영완료 상태 저장
+        checked.forEach(chk=>{
+          const id = chk.id.replace('chk_','');
+          DH_DONE[id] = true;
+          const row = document.getElementById('drow_'+id);
+          if(row){
+            row.style.background='var(--green-l)';
+            chk.disabled=true;chk.checked=true;
+          }
+        });
+        saveDhDone(DH_DONE);
+        renderSbKpi();
+        updateSelectCount();
+        renderDirectPanel();
+      }
+      return;
+    }
+
+    btn.textContent = `⏳ 입력 중... (${idx+1}/${records.length})`;
+    const r = records[idx];
+    const cb = 'dh_cb_' + Date.now() + '_' + idx;
+    const rid = recIds[idx];
+    window[cb] = function(res) {
+      delete window[cb];
+      if(res && res.status === 'ok' && (res.added || 0) > 0){
+        successCount += res.added;
+        DH_DONE[rid] = true;      // 성공한 건만 반영완료
+        okIds.push(rid);
+        // v4: 허브 반영이 끝났으니 시트 L열(확정/조정)·Q열(반영일시)도 갱신한다.
+        //     이 호출이 없으면 L열이 '미판정'으로 남아 학생 화면이 「검토 중」에 머문다.
+        syncRow(rid, true);
+        const _rec = DATA.find(x => x._id === rid);
+        if(_rec) _rec['판정상태'] = sheetStatusOf(rid);
+      } else {
+        failedIds.push(rid);
+        if(res && /인증|권한|출입증|만료|로그인/.test(res.message || '')) _DH_TOK = null;   // ★ T40 — 출입증이 거절되면 다음 입력 때 비밀번호를 다시 묻는다
+        console.error('데이터허브 입력 실패', rid, res);
+      }
+      if(res && res.notFound?.length) notFoundAll.push(...res.notFound);
+      // 다음 건 전송
+      setTimeout(() => sendOne(idx + 1), 300);
+    };
+    const script = document.createElement('script');
+    script.onerror = () => {
+      delete window[cb];
+      failedIds.push(recIds[idx]);
+      console.error('데이터허브 전송 네트워크 오류', recIds[idx]);
+      setTimeout(() => sendOne(idx + 1), 300);
+    };
+    script.src = DATAHUB_URL
+      + '?action=addExternalMileage'
+      + '&records=' + encodeURIComponent(JSON.stringify([r]))
+      + _dhTokQS()   // ★ 2026-10-09 T40 — 데이터허브는 출입증(24자리)으로 확인한다
+      + '&callback=' + cb;
+    document.body.appendChild(script);
+  }
+
+  if(resultEl){
+    resultEl.style.cssText='display:block;padding:10px 16px;font-size:13px;color:var(--blue)';
+    resultEl.textContent=`⏳ 0/${records.length}건 입력 중...`;
+  }
+  // ★ 2026-10-09 T40 — 데이터허브는 v126부터 관리자 생년월일 원값을 받지 않는다.
+  //   교번+비밀번호로 출입증(24자리 · 6시간)을 받아 그것으로 보낸다. 출입증이 살아 있으면 다시 묻지 않는다
+  if(_dhTokValid()){ sendOne(0); return; }
+  if(resultEl){ resultEl.style.cssText='display:block;padding:10px 16px;font-size:13px;color:var(--blue)';
+                resultEl.textContent='⏳ 데이터허브 관리자 로그인 중...'; }
+  _dhLogin(function(ok, msg){
+    if(ok){ sendOne(0); return; }
+    btn.textContent = `✔ 선택한 ${records.length}건 입력하기`;
+    btn.disabled = false;
+    if(resultEl){ resultEl.style.cssText='display:block;padding:10px 16px;font-size:13px;color:var(--amber)';
+                  resultEl.textContent='데이터허브 로그인 실패 — ' + (msg || '') + ' · 교번·비밀번호를 확인해 다시 누르세요. (5회 틀리면 10분 잠금)'; }
+  });
+}
+
+// ★ 2026-10-07 T37 — 관리자 인증값. 파일에 저장하지 않고 창을 닫으면 사라진다
+let _DH_CRED = null;
+function _dhCredQS(ask){
+  if(!_DH_CRED && ask){
+    const id = (prompt('데이터허브 관리자 학번(교번)을 입력하세요') || '').trim();
+    const bd = (prompt('생년월일 8자리를 입력하세요 (예: 19900101)') || '').replace(/[^0-9]/g,'');
+    if(id && bd.length === 8) _DH_CRED = { id, bd };
+  }
+  if(!_DH_CRED) return '';
+  return '&reqId=' + encodeURIComponent(_DH_CRED.id) + '&reqBirth=' + encodeURIComponent(_DH_CRED.bd);
+}
+
+// ★ 2026-10-09 T40 — 데이터허브 출입증. 폼 응답 GAS(목록·판정 저장)는 아직 생년월일 방식이라 위 _DH_CRED를 그대로 쓴다 (T47)
+//   비밀번호·출입증은 파일·브라우저 저장소에 남기지 않는다. 창을 닫으면 사라진다
+let _DH_TOK = null;   // { id, tok, exp }
+function _dhTokValid(){ return !!(_DH_TOK && _DH_TOK.tok && Date.now() < _DH_TOK.exp - 60000); }
+function _dhTokQS(){
+  if(!_dhTokValid()) return '';
+  return '&reqId=' + encodeURIComponent(_DH_TOK.id) + '&reqBirth=' + encodeURIComponent(_DH_TOK.tok);
+}
+function _dhLogin(done){
+  const id = ((_DH_CRED && _DH_CRED.id) || (prompt('데이터허브 관리자 교번을 입력하세요') || '')).trim();
+  if(!id){ done(false, '교번 미입력'); return; }
+  _pwAsk(id, function(pw){
+    if(!pw){ done(false, '비밀번호 미입력'); return; }
+    // 비밀번호는 POST 로만 보낸다 (주소에 남지 않게) — portal_survey 관리자 로그인과 같은 방식
+    const body = new URLSearchParams({ action:'adminLogin', studentId:id, password:pw, userAgent:navigator.userAgent||'' });
+    fetch(DATAHUB_URL, { method:'POST', body:body })
+      .then(r => r.json())
+      .then(res => {
+        if(res && res.status === 'ok' && /^\d{24}$/.test(String(res.token || ''))){
+          _DH_TOK = { id:id, tok:String(res.token), exp:Number(res.tokenExp) || (Date.now() + 6*3600*1000) };
+          done(true);
+        } else done(false, (res && res.message) || '교번 또는 비밀번호가 맞지 않습니다');
+      })
+      .catch(() => done(false, '네트워크 오류'));
+  });
+}
+// 비밀번호 입력 창 — prompt()는 글자가 그대로 보여서 따로 만든다
+function _pwAsk(id, cb){
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(17,24,39,.55);z-index:1000;display:flex;align-items:center;justify-content:center';
+  ov.innerHTML = '<div style="background:#fff;border-radius:10px;padding:20px 22px;width:320px;box-shadow:0 10px 30px rgba(0,0,0,.25)">'
+    + '<div style="font-size:15px;font-weight:700;margin-bottom:4px">데이터허브 관리자 로그인</div>'
+    + '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">교번 ' + String(id).replace(/[<>&"]/g,'') + ' · 비밀번호는 저장되지 않습니다</div>'
+    + '<input type="password" id="_pw_in" autocomplete="current-password" placeholder="비밀번호" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-family:inherit">'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">'
+    + '<button id="_pw_no" style="padding:6px 14px;border:1px solid #d1d5db;border-radius:6px;background:#fff;font-family:inherit;cursor:pointer">취소</button>'
+    + '<button id="_pw_ok" style="padding:6px 14px;border:none;border-radius:6px;background:#047857;color:#fff;font-weight:700;font-family:inherit;cursor:pointer">확인</button>'
+    + '</div></div>';
+  document.body.appendChild(ov);
+  const inp = ov.querySelector('#_pw_in');
+  const close = v => { ov.remove(); cb(v); };
+  ov.querySelector('#_pw_ok').onclick = () => close(inp.value);
+  ov.querySelector('#_pw_no').onclick = () => close('');
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter') close(inp.value); if(e.key === 'Escape') close(''); });
+  setTimeout(() => inp.focus(), 0);
+}
+
+// ── 패널 전환 ──
+const PT={judge:'⚡ 빠른 판정',group:'🗂️ 동일활동 그룹',overview:'📊 전체 현황',done:'✅ 판정완료',csv:'📥 데이터허브 직접 입력',crit:'📐 마일리지 기준표'};
+function showPanel(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  document.getElementById('panel-title').textContent=PT[id]||'';
+  const sb=document.getElementById('sem-bar'); if(sb) sb.style.display = (id==='crit') ? 'none' : '';   // 기준표에서는 학기 바 숨김
+  if(id==='done')renderDoneList();
+  if(id==='overview')renderOverview();
+  if(id==='csv')renderDirectPanel();
+  // 모바일 하단 탭바 동기화
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));
+  const bnav=document.getElementById('bnav-'+id);
+  if(bnav)bnav.classList.add('on');
+}
+
+function showPanelMobile(id,btn){
+  showPanel(id,null);
+  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  // 상단 스크롤 초기화
+  const content=document.querySelector('.content');
+  if(content)content.scrollTop=0;
+}
+function doSearch(v){searchWord=v.trim().toLowerCase();renderJudge();}
+
+// ── v4: 사이드바 KPI 클릭 → 빠른 판정 필터 (같은 항목 재클릭 시 해제) ──
+// v4: 어긋난 건만 골라 시트에 다시 기록. 데이터허브는 호출하지 않는다.
+function runResync(){
+  if(!RESYNC_IDS.length) return;
+  if(!confirm(RESYNC_IDS.length + '건의 판정상태·반영일시를 시트에 기록합니다.\n\n데이터허브에는 아무것도 보내지 않습니다.\n진행할까요?')) return;
+  const ids = RESYNC_IDS.slice();
+  ids.forEach((id, i) => {
+    setTimeout(() => {
+      syncRow(id, true);
+      const rec = DATA.find(x => x._id === id);
+      if(rec) rec['판정상태'] = sheetStatusOf(id);
+      if(i === ids.length - 1){
+        setTimeout(() => { renderDirectPanel(); renderSbKpi(); showSync('✔ ' + ids.length + '건 시트 반영 완료', 'ok'); }, 900);
+      }
+    }, i * 250);
+  });
+}
+
+function toggleKpiFilter(k){
+  kpiFilter = (!k || kpiFilter===k) ? '' : k;   // 빈 값 또는 같은 항목 재클릭 = 해제
+  const judgeOn = document.getElementById('panel-judge').classList.contains('on');
+  if(!judgeOn){ const nb=document.querySelectorAll('.nav-btn')[0]; if(nb) nb.click(); }
+  renderSemBar();
+  renderSbKpi();
+  renderJudge();
+  const c = document.querySelector('.content'); if(c) c.scrollTop = 0;
+}
+
+// ── 학기 보기 전환 (2026-2) ──
+function renderSemBar(){
+  const bar = document.getElementById('sem-bar'); if(!bar) return;
+  const opts = [[SEM_CUR, SEM_CUR+'학기'], [SEM_PREV, SEM_PREV+'학기 (보관)'], ['', '전체']];
+  const n = VIEW().filter(r=>ST[r._id]?.chk).length;
+  const on = kpiFilter==='chk';
+  const note = semFilter===SEM_PREV
+    ? '1학기 판정 기록입니다. 판정은 끝났고, 기록 확인용으로만 봅니다.'
+    : (semFilter==='' ? '모든 학기를 함께 봅니다. 새로 판정할 건은 '+SEM_CUR+'학기에서 보세요.' : '');
+  bar.innerHTML = '<div class="sem-seg" role="group" aria-label="학기 선택">'
+    + opts.map(([v,l])=>`<button class="${semFilter===v?'on':''}" aria-pressed="${semFilter===v}" onclick="setSem('${v}')">${l}</button>`).join('')
+    + '</div>'
+    + (note ? `<span class="sem-note">${note}</span>` : '')
+    + `<button class="chk-chip${n?'':' zero'}${on?' on':''}" ${n?'':'disabled'} onclick="toggleKpiFilter('chk')" title="관리자 판단이 필요한 건만 보기">⚠️ 판단 필요 ${n}건</button>`;
+  const sub = document.getElementById('sb-sub');
+  if(sub) sub.textContent = (semFilter ? semFilter+'학기' : '전체 학기') + ' · GAS 실시간 연동';
+}
+function setSem(v){
+  semFilter = v;
+  kpiFilter = '';          // 학기를 바꾸면 KPI 필터는 해제 (다른 학기에서 켠 필터가 남아 빈 화면이 되는 것 방지)
+  renderAll();
+  if(document.getElementById('panel-done').classList.contains('on')) renderDoneList();
+  if(document.getElementById('panel-csv').classList.contains('on'))  renderDirectPanel();
+}
+function showCrit(k){
+  ['26-2','26-1'].forEach(x=>{
+    const box=document.getElementById('crit-'+x); if(box) box.style.display = (x===k)?'':'none';
+    const b=document.getElementById('ct-'+x); if(b) b.classList.toggle('on', x===k);
+  });
+}
+
+// ★ 2026-10-24 T115 — 데이터허브 대문에서 연 경우: 대문 관리자 출입증(24자리 · 6시간)을 그대로 쓴다.
+//   폼 응답 GAS(버전 5)·데이터허브 GAS 모두 출입증을 받으므로 교번·생년월일·비밀번호를 다시 묻지 않는다.
+//   출입증이 없거나 만료면 → 대문에서 다시 로그인하라고 안내 (내 PC 파일로 열 때만 예전처럼 직접 입력)
+(function useHubToken(){
+  let a = null;
+  try { a = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null'); } catch (e) {}
+  const perms = (a && a.perms) || [];
+  const permOk = !perms.length || perms.indexOf('전체') > -1 || perms.indexOf('외부마일리지') > -1;   // 권한 없는 직원은 불러오지 않는다
+  const ok = a && a.isAdmin && permOk && /^\d{24}$/.test(String(a.birth || '')) && (!a.tokenExp || Date.now() < a.tokenExp);
+  if (ok) {
+    _DH_CRED = { id: String(a.studentId), bd: String(a.birth) };
+    _DH_TOK  = { id: String(a.studentId), tok: String(a.birth), exp: Number(a.tokenExp) || (Date.now() + 6*3600*1000) };
+    window._HUB_TOKEN = true;
+  } else if (location.protocol !== 'file:') {
+    window._HUB_TOKEN = 'none';
+  }
+})();
+
+// ── 초기 로드 ──
+if (window._HUB_TOKEN === 'none') {
+  document.getElementById('loading-tag').textContent = '';
+  document.getElementById('judge-list').innerHTML =
+    '<div class="empty">데이터허브 관리자 로그인이 필요합니다 (출입증 6시간).<br><br>'
+    + '<a href="portal_survey.html" style="color:var(--blue);font-weight:700">데이터허브 대문에서 관리자 로그인</a> 후 「외부마일리지 판정」 버튼으로 다시 열어 주세요.</div>';
+} else {
+  loadData();
+}
+</script>
+
+<!-- ══ 모바일 하단 탭바 ══ -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bnav-btn on" id="bnav-judge" onclick="showPanelMobile('judge',this)">
+    <span class="bnav-icon">⚡</span>
+    <span>빠른판정</span>
+    <span class="bnav-cnt" id="bnav-cnt-todo">0</span>
+  </button>
+  <button class="bnav-btn" id="bnav-group" onclick="showPanelMobile('group',this)">
+    <span class="bnav-icon">🗂️</span>
+    <span>그룹</span>
+    <span class="bnav-cnt" id="bnav-cnt-group" style="background:#7c3aed">0</span>
+  </button>
+  <button class="bnav-btn" id="bnav-overview" onclick="showPanelMobile('overview',this)">
+    <span class="bnav-icon">📊</span>
+    <span>현황</span>
+  </button>
+  <button class="bnav-btn" id="bnav-csv" onclick="showPanelMobile('csv',this)">
+    <span class="bnav-icon">📥</span>
+    <span>입력</span>
+  </button>
+  <button class="bnav-btn" id="bnav-crit" onclick="showPanelMobile('crit',this)">
+    <span class="bnav-icon">📐</span>
+    <span>기준표</span>
+  </button>
+</nav>
+
+<!-- ══ 모바일 플로팅 새로고침 버튼 ══ -->
+<button class="float-input-btn" onclick="loadData()" style="background:var(--blue);box-shadow:0 4px 14px rgba(29,78,216,.4);bottom:70px;right:14px">
+  ⟳ 새로고침
+</button>
+</body>
+</html>

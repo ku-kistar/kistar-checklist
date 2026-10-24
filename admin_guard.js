@@ -29,7 +29,8 @@
     'admin_mileage_input.html': '마일리지입력',   // T46 비교과 담당자 입력 화면 (만들면 자동 적용)
     'hub_course.html':          '교과목허브',
     'calendar.html':            '전체',
-    'admin_staff.html':         '전체'            // T97 권한 관리 (2026-10-20)
+    'admin_staff.html':         '전체',           // T97 권한 관리 (2026-10-20)
+    'admin_ext_judge.html':     '외부마일리지'    // T115 외부마일리지 판정도구 (2026-10-24 — 내 PC 파일 → 대문 연결)
   };
 
   var EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
