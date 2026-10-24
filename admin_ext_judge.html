@@ -448,6 +448,27 @@ tr.hidden,.card.hidden{display:none}
 .crit-tabs button.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:700}
 .crit-src{font-size:11.5px;color:var(--ink3);margin-bottom:12px}
 .crit-block .cr-note{font-size:11px;color:var(--ink3);padding-top:5px;line-height:1.5}
+/* ★ 2026-10-24 T115 — 휴대폰 화면 정리 (대문에서 휴대폰으로 열게 되면서)
+   ① 카드 제목줄: 프로그램명이 오른쪽 좁은 칸에 한 글자씩 세로로 서던 것 → 이름·뱃지 아래 한 줄 전체
+   ② 직접 입력 머리: 제목이 세로로 서던 것 → 제목 한 줄 · 버튼 아래 줄
+   ③ 둥근 「새로고침」 버튼이 카드를 가리던 것 → 숨김 (위쪽 새로고침과 같은 기능) */
+@media (max-width: 767px){
+  .topbar h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .jc-head{flex-wrap:wrap;align-items:center}
+  .jc-no{width:auto}
+  .jc-who{flex:1 1 auto;min-width:0}
+  .jc-badges{order:2;justify-content:flex-start}
+  .jc-arr{order:2}
+  .jc-prog{order:3;flex:1 1 100%;width:100%}
+  .jc-prog-nm{font-size:14px;word-break:keep-all}
+  .jc-action .auto-hint{margin-left:0;flex:1 1 100%}
+  #panel-csv > div > div:first-child{flex-wrap:wrap;gap:8px}
+  #panel-csv > div > div:first-child > span:first-child{flex:1 1 100%}
+  #panel-csv > div > div:first-child > span:nth-child(2){flex:1 1 100%}
+  #direct-list > div > span:nth-of-type(4){order:10;flex:1 1 100%;white-space:normal!important}
+  .float-input-btn{display:none!important}
+  .gc-title{flex:1 1 100%}
+}
 @media (max-width: 767px){
   .sem-bar{gap:8px}
   .sem-note{width:100%;order:3}
@@ -487,7 +508,7 @@ tr.hidden,.card.hidden{display:none}
     <h2 id="panel-title">⚡ 빠른 판정</h2>
     <span class="loading-tag" id="loading-tag">데이터 로드 중...</span>
     <span class="loading-tag" id="sync-tag" style="margin-left:8px"></span>
-    <button class="refresh-btn" onclick="loadData()">⟳ 새로고침</button>
+    <button class="refresh-btn" onclick="location.reload()" title="화면을 새로 불러옵니다 (휴대폰에서 아래로 당겨 새로고침과 같음)">⟳ 새로고침</button>
     <div class="srch-wrap">
       <span class="srch-icon">🔍</span>
       <input type="text" placeholder="이름·학번·프로그램" oninput="doSearch(this.value)" id="srch">
