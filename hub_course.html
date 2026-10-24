@@ -405,7 +405,9 @@ var CHIP = '<svg width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hid
 
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s)
-  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }   // ★ T115 작은따옴표
+// ★ 2026-10-24 T115 — 링크·이동 주소는 http(s)만 (javascript: 차단)
+function safeUrl(u){ var s = String(u == null ? '' : u).trim(); return /^https?:\/\//i.test(s) ? s : ''; }
 
 function call(params){
   return new Promise(function(res, rej){
@@ -1147,7 +1149,9 @@ function openForm(kind, row, btn){
         return;
       }
       showErr('');
-      if (w) w.location.href = d.url; else location.href = d.url;
+      var go = safeUrl(d.url);
+      if (!go) { if (w) w.close(); showErr('주소 형식이 올바르지 않습니다.'); return; }
+      if (w) w.location.href = go; else location.href = go;
     })
     .catch(function(e){
       btn.disabled = false; btn.textContent = back;
@@ -1315,8 +1319,10 @@ function openFolder(kind, row, btn){
         return;
       }
       showErr('');
-      if (w) w.location.href = d.url;
-      else location.href = d.url;
+      var go2 = safeUrl(d.url);
+      if (!go2) { if (w) w.close(); showErr('주소 형식이 올바르지 않습니다.'); return; }
+      if (w) w.location.href = go2;
+      else location.href = go2;
     })
     .catch(function(e){
       btn.disabled = false; btn.textContent = back;
@@ -1357,17 +1363,17 @@ function formBlock(){
   var mine = forms.filter(function(f){
     return curKind === 'speaker' ? f.no > 0 : !f.no;
   });
-  var has = mine.filter(function(f){ return !!f.url; });
+  var has = mine.filter(function(f){ return !!safeUrl(f.url); });
   if (!has.length) return '';
   var links = has.map(function(f){
-    return '<a class="dl" href="' + esc(f.url) + '" target="_blank" rel="noopener">'
+    return '<a class="dl" href="' + esc(safeUrl(f.url)) + '" target="_blank" rel="noopener">'
       + (f.mark ? esc(f.mark) + ' ' : '') + esc(f.name) + '</a>';
   }).join('');
   // 지정 양식이 없는 서류는 _양식 탭에서 링크가 빈 줄로 관리한다
-  var none = mine.filter(function(f){ return !f.url; });
+  var none = mine.filter(function(f){ return !safeUrl(f.url); });
   var extra = none.length
     ? '<span class="dl-note">' + none.map(function(f){
-        return (f.mark ? f.mark + ' ' : '') + esc(f.name);
+        return (f.mark ? esc(f.mark) + ' ' : '') + esc(f.name);
       }).join(' · ') + '는 지정 양식이 없습니다</span>'
     : '';
   return '<div class="forms"><span class="dl-label">양식 받기</span>' + links + extra + '</div>';
@@ -1423,7 +1429,7 @@ function guideBlock(ro, left){
   var files = sp ? mine : [{ no:1, name:'대학원생 활용일지 (수업사진 포함)' }];
 
   var list = '<div class="guide-files">' + files.map(function(f){
-      return '<span class="gf"><b>' + f.no + '.</b> ' + esc(f.name) + '</span>';
+      return '<span class="gf"><b>' + esc(f.no) + '.</b> ' + esc(f.name) + '</span>';
     }).join('') + '</div>'
     + (sp ? '' : '<span class="gs-sub">활용일지 양식 뒤쪽에 수업사진 자리가 있습니다. '
                  + '① 교수자(연사) 강의 모습 · ② 수강생 전체 · ③④ 교수자(연사)와 수강생이 함께 '

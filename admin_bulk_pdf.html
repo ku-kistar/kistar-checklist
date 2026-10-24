@@ -200,7 +200,9 @@ function renderList() {
     const chk = selected.has(s.studentId) ? 'checked' : '';
     const dateStr = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric'}) : '—';
     return `<tr>
-      <td><input type="checkbox" ${chk} onchange="toggleSel('${s.studentId}',this.checked)"></td>
+      <td>${okSid(s.studentId)
+        ? `<input type="checkbox" ${chk} onchange="toggleSel(${jsArg(s.studentId)},this.checked)">`
+        : `<input type="checkbox" disabled title="학번 형식이 아니라 명령어에 넣지 않습니다">`}</td>
       <td><b>${escHtml(s.name||'')}</b></td>
       <td>${escHtml(String(s.studentId))}</td>
       <td><span class="dept-badge">${escHtml(s.dept||'')}</span></td>
@@ -219,7 +221,7 @@ function renderList() {
     </table>`;
 
   // 전체선택 체크박스 상태 동기화
-  const visibleIds = list.map(s => s.studentId);
+  const visibleIds = list.map(s => s.studentId).filter(okSid);   // ★ T115 — 선택할 수 없는 행은 빼고 셈
   const allChecked = visibleIds.length > 0 && visibleIds.every(id => selected.has(id));
   document.getElementById('chkAll').checked = allChecked;
 
@@ -237,7 +239,7 @@ function toggleAll(checked) {
   const list = allData[currentTab].filter(s =>
     !q || (s.name||'').toLowerCase().includes(q) || String(s.studentId).includes(q)
   );
-  list.forEach(s => checked ? selected.add(s.studentId) : selected.delete(s.studentId));
+  list.forEach(s => { if (!okSid(s.studentId)) return; checked ? selected.add(s.studentId) : selected.delete(s.studentId); });
   renderList();
   updateCmd();
 }
@@ -259,7 +261,7 @@ function updateSelCount() {
 }
 
 function updateCmd() {
-  const sids = [...selected];
+  const sids = [...selected].filter(okSid);   // ★ T115 — 학번 형식만 명령어에
   const planCmd   = sids.length ? `node generate_pdf.js plan ${sids.join(' ')}` : '— (학생을 선택하세요)';
   const reportCmd = sids.length ? `node generate_pdf.js report ${sids.join(' ')}` : '— (학생을 선택하세요)';
 
@@ -270,7 +272,7 @@ function updateCmd() {
 }
 
 async function copyCmd(type) {
-  const sids = [...selected];
+  const sids = [...selected].filter(okSid);   // ★ T115
   if (!sids.length) return;
   const cmd = `node generate_pdf.js ${type} ${sids.join(' ')}`;
   try {
@@ -290,8 +292,12 @@ async function copyCmd(type) {
 }
 
 function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+// ★ 2026-10-24 T115 — onclick 안의 값은 JS 문자열로 감싼다
+function jsArg(v) { return escHtml(JSON.stringify(String(v == null ? '' : v))); }
+// ★ T115 — CMD 명령어에는 영문·숫자 학번만 (「x & 명령」 같은 값이 내 PC에서 실행되지 않게)
+function okSid(v) { return /^[0-9A-Za-z]{4,15}$/.test(String(v == null ? '' : v)); }
 </script>
 </body>
 </html>

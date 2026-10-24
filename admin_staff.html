@@ -223,6 +223,8 @@ function getAuth() {
   } catch (e) { return null; }
 }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+// ★ 2026-10-24 T115 — onclick="f(…)" 안의 값은 JS 문자열로 감싼 뒤 HTML 처리 (따옴표로 빠져나가지 못함)
+function jsA(v) { return esc(JSON.stringify(String(v == null ? '' : v))); }
 function gate(msg) {
   document.getElementById('page').innerHTML =
     '<div class="gate"><div class="gate-title">권한 관리를 열 수 없습니다</div><div class="gate-text">' + msg + '</div>' +
@@ -304,9 +306,9 @@ function renderList() {
     const upd = s.updated ? ' · 마지막 변경 ' + esc(s.updated) + (s.by ? ' (' + esc(s.by) + ')' : '') : '';
     const act = (s.self || s.full)
       ? '<span class="locked">' + (s.self ? '본인 계정' : '「전체」 계정') + ' — 이 화면에서 바꿀 수 없음</span>'
-      : '<button class="btn" type="button" onclick="editStaff(\'' + esc(s.sid) + '\')">권한 수정</button>' +
-        '<button class="btn warn" type="button" onclick="armBtn(this, () => resetPw(\'' + esc(s.sid) + '\'), \'정말 초기화\')">비밀번호 초기화</button>' +
-        '<button class="btn danger" type="button" onclick="armBtn(this, () => removeStaff(\'' + esc(s.sid) + '\'), \'정말 회수\')">회수</button>';
+      : '<button class="btn" type="button" onclick="editStaff(' + jsA(s.sid) + ')">권한 수정</button>' +
+        '<button class="btn warn" type="button" onclick="armBtn(this, () => resetPw(' + jsA(s.sid) + '), \'정말 초기화\')">비밀번호 초기화</button>' +
+        '<button class="btn danger" type="button" onclick="armBtn(this, () => removeStaff(' + jsA(s.sid) + '), \'정말 회수\')">회수</button>';
     return '<div class="staff"><div class="staff-main"><div class="staff-name">' + esc(s.name || '(이름 없음)') +
       '<span class="staff-sid">' + esc(s.sid) + '</span></div><div class="chips">' + chips + '</div>' +
       '<div class="state">' + pw + roster + upd + '</div></div><div class="staff-act">' + act + '</div></div>';

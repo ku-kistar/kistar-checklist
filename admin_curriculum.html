@@ -244,8 +244,9 @@ const gate = msg => {
   document.getElementById('gate').style.display='block';
   if(msg) document.getElementById('gateMsg').textContent = msg;
 };
-const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c =>
-  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));   // ★ T115 작은따옴표 추가
+const safeUrl = u => { const s = String(u==null?'':u).trim(); return /^https?:\/\//i.test(s) ? s : ''; };   // ★ T115 링크는 http(s)만
 
 async function boot(){
   if(!AUTH || !AUTH.studentId){ gate('로그인이 필요합니다.'); return; }
@@ -334,7 +335,7 @@ function courseCards(){
       </dl>
       ${c.note ? `<div class="note">${esc(c.note)}</div>` : ''}
       ${enr}
-      ${c.banner ? `<div class="bn"><a href="${esc(c.banner)}" target="_blank" rel="noopener">강의 안내 보기</a></div>` : ''}
+      ${safeUrl(c.banner) ? `<div class="bn"><a href="${esc(safeUrl(c.banner))}" target="_blank" rel="noopener">강의 안내 보기</a></div>` : ''}
     </div>`;
   }).join('') + '</div>';
 }
@@ -509,7 +510,7 @@ function paintExchState(){
   if(!el) return;
   const ex = STAT && STAT.exchange;
   if(ex && ex.count){
-    el.innerHTML = `${esc(SEM)}학기 · <b>${ex.count}명</b> 반영됨`
+    el.innerHTML = `${esc(SEM)}학기 · <b>${esc(ex.count)}명</b> 반영됨`
       + (ex.at ? ` <span class="no">(${esc(ex.at)})</span>` : '');
   } else {
     el.innerHTML = `<span class="no">${esc(SEM)}학기 교류생 명단이 아직 없습니다.</span>`;

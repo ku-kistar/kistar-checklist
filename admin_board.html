@@ -595,7 +595,9 @@ var CATS = [
 /* ═══════════════════════════════════════════════════════════
    공용
    ═══════════════════════════════════════════════════════════ */
-function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+/* ★ 2026-10-24 T115 — onclick="f(…)" 안의 값은 JS 문자열로 감싼 뒤 HTML 처리 (따옴표로 빠져나가지 못함) */
+function jsA(v){return esc(JSON.stringify(String(v==null?"":v)));}
 function $(id){return document.getElementById(id);}
 
 function toast(msg, isErr){
@@ -702,8 +704,8 @@ function renderSemTabs(){
   if(!box || !SEMS || !SEMS.length){ if(box) box.innerHTML=""; return; }
   var cur=DATA && DATA.semester;
   var html=SEMS.map(function(x){
-    return '<button class="sem-tab'+(x.sem===cur?" active":"")+'" onclick="setSem(\''+x.sem+'\')">'+
-           x.sem+"학기"+(x.status==="closed"?" ✓":"")+"</button>";
+    return '<button class="sem-tab'+(x.sem===cur?" active":"")+'" onclick="setSem('+jsA(x.sem)+')">'+
+           esc(x.sem)+"학기"+(x.status==="closed"?" ✓":"")+"</button>";
   }).join("");
   if(DATA && DATA.closed){
     html+='<span class="sem-lock">확정본 · '+esc((DATA.closedAt||"").slice(0,10))+
@@ -754,7 +756,7 @@ function renderAll(){
   d.students.forEach(function(s){ if(s.grade&&grades.indexOf(s.grade)<0) grades.push(s.grade); });
   grades.sort(function(a,b){return parseInt(a,10)-parseInt(b,10);});
   var html='<button class="grade-tab active" data-g="" onclick="setGrade(\'\')">전체</button>';
-  grades.forEach(function(g){ html+='<button class="grade-tab" data-g="'+esc(g)+'" onclick="setGrade(\''+esc(g)+'\')">'+esc(g)+'학년</button>'; });
+  grades.forEach(function(g){ html+='<button class="grade-tab" data-g="'+esc(g)+'" onclick="setGrade('+jsA(g)+')">'+esc(g)+'학년</button>'; });
   $("gradeTabs").innerHTML=html;
 
   renderTie();
@@ -889,7 +891,7 @@ function statsBy(field){
 
 function statRowsHtml(rows,fn,suffix){
   return rows.map(function(r){
-    return '<tr data-k="'+esc(r.k)+'" onclick="'+fn+'(\''+esc(r.k)+'\')">'+
+    return '<tr data-k="'+esc(r.k)+'" onclick="'+fn+'('+jsA(r.k)+')">'+
       '<td>'+esc(r.k)+(/^\d+$/.test(r.k)?suffix:"")+'</td>'+
       '<td>'+r.n+'</td>'+
       '<td class="gs-ok">'+r.ok+'</td>'+
@@ -955,7 +957,7 @@ function renderDeptChart(){
     gy.forEach(function(g){
       var v=cnt(g,d);
       h+='<div class="gc-bar" style="height:'+(v/max*88)+'%;background:'+(GC_COL[g]||"#8b98a9")+'" title="'+esc(dcShort(d)+" "+g+"학년 "+v+"명")+
-         '" onclick="pickGD(\''+esc(g)+'\',\''+esc(d)+'\')"><b>'+v+'</b></div>';
+         '" onclick="pickGD('+jsA(g)+','+jsA(d)+')"><b>'+v+'</b></div>';
     });
     h+='</div>';
   });
@@ -967,7 +969,7 @@ function renderDeptChart(){
   $("dcHead").innerHTML='<tr><th>학년</th>'+ds.map(function(d){ return '<th>'+esc(dcShort(d))+'</th>'; }).join("")+'<th>계</th></tr>';
   $("dcBody").innerHTML=gs.map(function(g){
     var lb=/^\d+$/.test(g)?g+"학년":"학년 미상";
-    return '<tr data-k="'+esc(g)+'" onclick="pickGrade(\''+esc(g)+'\')"><td>'+esc(lb)+'</td>'+
+    return '<tr data-k="'+esc(g)+'" onclick="pickGrade('+jsA(g)+')"><td>'+esc(lb)+'</td>'+
       ds.map(function(d){ var v=cnt(g,d); return '<td>'+(v||"—")+'</td>'; }).join("")+'<td><b>'+cnt(g)+'</b></td></tr>';
   }).join("");
   $("dcFoot").innerHTML='<tr><td>전체</td>'+ds.map(function(d){
@@ -1062,7 +1064,7 @@ function renderTie(){
        '<span class="tie-meta">'+n.tot+'점</span>'+
        '<span style="margin-left:auto;display:flex;align-items:center;gap:6px">'+
        '<span style="font-size:11px;color:var(--text2)">평점평균</span>'+
-       '<input class="tie-input" data-sid="'+esc(n.sid)+'" inputmode="decimal" placeholder="미입력" value="'+(n.gpa===null?"":n.gpa)+'">'+
+       '<input class="tie-input" data-sid="'+esc(n.sid)+'" inputmode="decimal" placeholder="미입력" value="'+(n.gpa===null?"":esc(n.gpa))+'">'+
        '</span></div>';
   });
   $("tieRows").innerHTML=h||'<div style="font-size:12px;color:var(--text2)">입력이 필요한 학생은 없습니다.</div>';
@@ -1071,7 +1073,7 @@ function renderTie(){
   if(unres.length){
     var u='<strong>평점평균까지 같아 순위를 가리지 못했습니다.</strong><br>';
     unres.forEach(function(x){
-      u+=esc(x.grade)+"학년 "+x.rank+"위 · "+esc(x.name)+" ("+esc(x.sid)+") · "+x.tot+"점 · 평점 "+x.gpa+"<br>";
+      u+=esc(x.grade)+"학년 "+esc(x.rank)+"위 · "+esc(x.name)+" ("+esc(x.sid)+") · "+esc(x.tot)+"점 · 평점 "+esc(x.gpa)+"<br>";
     });
     u+='규정에 3차 기준이 없어 자동 판정하지 않습니다. 담당자 판단이 필요합니다.';
     $("tieUnres").innerHTML=u; $("tieUnres").style.display="block";
@@ -1123,7 +1125,7 @@ function docChips(w){
   ['plan','report'].forEach(function(k){
     var st=w.docs[k]; if(!st) return;
     var m=DOC_ST[st]||['warn',st];
-    s+='<span class="rank-doc '+m[0]+'">'+DOC_LB[k]+' '+m[1]+'</span>';
+    s+='<span class="rank-doc '+esc(m[0])+'">'+esc(DOC_LB[k])+' '+esc(m[1])+'</span>';
   });
   return s;
 }
@@ -1132,7 +1134,7 @@ function renderRanks(){
   var RULE=DATA.rankRule||null;
   if(RULE){
     var dn=(RULE.docs||[]).map(function(k){return DOC_LB[k]==='계획서'?'활동계획서':'결과보고서';});
-    h+='<p class="rank-rule">선발 요건 — 사업단 주관활동('+esc((RULE.excl||[]).join('·'))+' 제외) <b>'+RULE.min+'점 이상</b>'+
+    h+='<p class="rank-rule">선발 요건 — 사업단 주관활동('+esc((RULE.excl||[]).join('·'))+' 제외) <b>'+esc(RULE.min)+'점 이상</b>'+
        (dn.length?' · <b>'+esc(dn.join('·'))+' 기한 내 제출</b>':' · 서류요건 미적용 (학기 탭 I열)')+
        '. 순위는 '+esc((RULE.excl||[]).join('·'))+' 포함 누적 마일리지.</p>';
   }

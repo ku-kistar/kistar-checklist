@@ -1083,7 +1083,8 @@ function fillFormWithData(data) {
   }
 
   // [FIX 5] 서명 이미지 복원 (base64) — 알파값 기준 크롭 (form_report와 동일)
-  if (data['서명이미지Base64'] && data['서명이미지Base64'].length > 100) {
+  // ★ 2026-10-24 T115 — 서명은 data:image 만 받는다 (외부 주소를 넣으면 관리자가 열 때 IP·브라우저가 밖으로 전송됨)
+  if (data['서명이미지Base64'] && data['서명이미지Base64'].length > 100 && /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(data['서명이미지Base64'])) {
     const preview = document.getElementById('signPreview');
     if (preview) {
       const tmpImg = new Image();

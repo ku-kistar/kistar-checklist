@@ -258,6 +258,8 @@ function jsonp(params, onOk, onErr){
 }
 
 /* ── 화면 상태 ── */
+// ★ 2026-10-24 T115 — 서버 값은 글자로만
+function esc(v){ return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function showMsg(type, html){
   var el = document.getElementById('msg');
   el.className = 'msg ' + type;
@@ -291,13 +293,13 @@ function renderSeat(d){
     due.textContent = '결과는 개별 안내합니다';
   } else if(left <= 0){
     box.className = 'full';
-    text.innerHTML = '<strong>정원 마감</strong> · 현재 대기 ' + d.waitCount + '명';
+    text.innerHTML = '<strong>정원 마감</strong> · 현재 대기 ' + esc(d.waitCount) + '명';
   } else if(left <= 5){
     box.className = 'warn';
-    text.innerHTML = '<strong>잔여 ' + left + '석</strong> / ' + d.capacity + '석 · 마감 임박';
+    text.innerHTML = '<strong>잔여 ' + esc(left) + '석</strong> / ' + esc(d.capacity) + '석 · 마감 임박';
   } else {
     box.className = 'ok';
-    text.innerHTML = '<strong>잔여 ' + left + '석</strong> / ' + d.capacity + '석';
+    text.innerHTML = '<strong>잔여 ' + esc(left) + '석</strong> / ' + esc(d.capacity) + '석';
   }
 }
 
@@ -364,7 +366,7 @@ function loadStatus(){
     function(err){
       document.getElementById('loading').className = 'hide';
       document.getElementById('main').className = '';
-      showMsg('err', '신청 정보를 불러오지 못했습니다.<br>' + err);
+      showMsg('err', '신청 정보를 불러오지 못했습니다.<br>' + esc(err));
       document.getElementById('submitBtn').disabled = true;
     });
 }
@@ -390,7 +392,7 @@ function submitApply(){
       window.scrollTo({ top:0, behavior:'smooth' });
     },
     function(err){
-      showMsg('err', '신청이 접수되지 않았습니다.<br>' + err);
+      showMsg('err', '신청이 접수되지 않았습니다.<br>' + esc(err));
       btn.textContent = isWait ? '대기 신청하기' : '신청하기';
       btn.disabled = !document.getElementById('agree').checked;
       window.scrollTo({ top:0, behavior:'smooth' });

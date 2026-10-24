@@ -222,6 +222,11 @@ const LUNCH  = ['LUNCH1','LUNCH2'];
 
 let allRecords = []; // 전체 응답 원본
 
+// ★ 2026-10-24 T115 — 학생이 낸 값(학번·이름·학과)은 글자로만 넣는다
+function esc(v) {
+  return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function callGAS(params) {
   return new Promise(function(resolve, reject) {
     const cbName = "_cb_" + Date.now() + Math.random().toString(36).slice(2);
@@ -415,11 +420,11 @@ function render() {
   sorted.forEach(r => {
     const tr = document.createElement('tr');
     tr.innerHTML =
-      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px">' + (r['학번'] || '') + '</td>' +
-      '<td style="font-weight:500">' + (r['이름'] || '') + '</td>' +
-      '<td style="color:rgba(255,255,255,.5)">' + (r['학과'] || '') + '</td>' +
-      '<td><span class="slot-count">' + (r['선택건수'] || 0) + '개</span></td>' +
-      '<td class="submitted-at">' + fmtDate(r['제출일시']) + '</td>';
+      '<td style="font-family:\'JetBrains Mono\',monospace;font-size:11px">' + esc(r['학번'] || '') + '</td>' +
+      '<td style="font-weight:500">' + esc(r['이름'] || '') + '</td>' +
+      '<td style="color:rgba(255,255,255,.5)">' + esc(r['학과'] || '') + '</td>' +
+      '<td><span class="slot-count">' + esc(r['선택건수'] || 0) + '개</span></td>' +
+      '<td class="submitted-at">' + esc(fmtDate(r['제출일시'])) + '</td>';
     tbody.appendChild(tr);
   });
 }
@@ -438,7 +443,7 @@ function showDetail(slotKey, names, cnt) {
     body.innerHTML = '<div class="detail-empty">선택한 학생이 없습니다.</div>';
   } else {
     body.innerHTML = '<div class="detail-list">' +
-      names.map(n => '<span class="detail-chip">' + n + '</span>').join('') +
+      names.map(n => '<span class="detail-chip">' + esc(n) + '</span>').join('') +
       '</div>';
   }
   panel.classList.add('show');

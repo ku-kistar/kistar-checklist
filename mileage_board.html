@@ -431,7 +431,7 @@ function shortName(id, name, abbr){
 
 function esc(v){
   return String(v === null || v === undefined ? '' : v)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');   // ★ T115 작은따옴표
 }
 
 /* ── JSONP ────────────────────────────────────── */
@@ -581,8 +581,8 @@ function render(){
 
   /* 요약 */
   document.getElementById('stats').innerHTML =
-    '<div class="stat"><b>' + DATA.stats.students + '</b><span>전체 학생</span></div>' +
-    '<div class="stat goal"><b>' + DATA.stats.goalCount + '</b><span>' + DATA.goal + '점 이상</span></div>' +
+    '<div class="stat"><b>' + esc(DATA.stats.students) + '</b><span>전체 학생</span></div>' +
+    '<div class="stat goal"><b>' + esc(DATA.stats.goalCount) + '</b><span>' + esc(DATA.goal) + '점 이상</span></div>' +
     docChip() +
     '<a class="reload go" href="portal_survey.html">내 마일리지</a>' +
     '<button class="reload" id="reload" onclick="load(true)">새로고침</button>';
@@ -734,11 +734,11 @@ function renderRanks(){
   if (RULE) {
     var dn = (RULE.docs || []).map(function(k){ return DOCN[k] || k; });
     note += '순위표는 <b>사업단 주관활동 마일리지(' + esc((RULE.excl || []).join('·')) + ' 제외) ' +
-            RULE.min + '점 이상</b>' +
+            esc(RULE.min) + '점 이상</b>' +
             (dn.length ? ' · <b>' + esc(dn.join('·')) + ' 기한 내 제출</b>' : '') +
             '인 학생만 대상으로, ' + esc((RULE.excl || []).join('·')) + '을 포함한 누적 마일리지 순입니다.<br>';
   }
-  note += '누적 마일리지가 동점인 경우 <b>' + DATA.semester + '학기 성적 평점평균 상위자</b>가 선발됩니다.';
+  note += '누적 마일리지가 동점인 경우 <b>' + esc(DATA.semester) + '학기 성적 평점평균 상위자</b>가 선발됩니다.';
   h += '<p class="rank-note">' + note + '</p>';
   document.getElementById('rankBody').innerHTML = h;
 }

@@ -1446,8 +1446,8 @@ function renderPersonalAlert(data) {
       remainHtml = '<span style="display:inline-block;background:rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:9px;font-weight:800;padding:1px 6px;border-radius:99px;margin-top:3px">제한 해소</span>';
     }
     return '<div style="background:rgba(0,0,0,.15);border:1px solid ' + cardColor.border + ';border-radius:7px;padding:7px 10px;margin-bottom:5px">'
-      + '<div style="font-size:11px;font-weight:700;color:' + cardColor.ttlColor + ';margin-bottom:2px;word-break:keep-all">' + (n.program||'') + '</div>'
-      + '<div style="font-size:10px;color:rgba(255,255,255,.45)">' + (n.semester||'') + '학기</div>'
+      + '<div style="font-size:11px;font-weight:700;color:' + cardColor.ttlColor + ';margin-bottom:2px;word-break:keep-all">' + escHtml(n.program||'') + '</div>'
+      + '<div style="font-size:10px;color:rgba(255,255,255,.45)">' + escHtml(n.semester||'') + '학기</div>'
       + remainHtml + '</div>';
   }).join('');
 
@@ -1908,14 +1908,14 @@ function createCard(form) {
   const docKey = form.id === 'form_plan' ? 'plan' : (form.id === 'form_report' ? 'report' : '');
 
   const a = document.createElement('a');
-  a.href = form.link || '#';
+  a.href = _safeUrl(form.link);
   a.className = 'form-card';
   if (dl !== null && dl < 0) { a.style.opacity='.4'; a.style.pointerEvents='none'; }
   a.innerHTML = dday +
-    '<div class="card-ic" style="background:'+th.icBg+'">'+(form.icon||'📋')+'</div>'+
+    '<div class="card-ic" style="background:'+th.icBg+'">'+escHtml(form.icon||'📋')+'</div>'+
     '<div class="card-cat" style="color:'+th.ic+'">설문 · 제출</div>'+
-    '<div class="card-name">'+form.name+'</div>'+
-    '<div class="card-desc">'+form.desc+'</div>'+ due +
+    '<div class="card-name">'+escHtml(form.name)+'</div>'+
+    '<div class="card-desc">'+escHtml(form.desc)+'</div>'+ due +
     (docKey ? '<div class="card-warn" data-warn="'+docKey+'" data-dl="'+(dl===null?'':dl)+'" hidden></div>' : '') +
     '<div class="card-row">' +
       '<span class="card-cta" style="background:'+th.cta+';color:'+th.ic+'">참여하기 <span class="arrow">→</span></span>' +
@@ -2114,9 +2114,9 @@ function renderSurveyCards() {
     card.className = 'survey-card' + (isDone ? ' done' : '');
     card.innerHTML =
       (isDone ? '<div class="survey-done-badge">✓ 완료</div>' : '') +
-      '<div class="survey-card-sem">' + c.semester + '</div>' +
+      '<div class="survey-card-sem">' + escHtml(c.semester) + '</div>' +
       '<div class="survey-card-name">' + escHtml(c.name) + '</div>' +
-      '<div class="survey-card-type">' + typeLabel + ' · ' + escHtml(c.code) + '</div>' +
+      '<div class="survey-card-type">' + escHtml(typeLabel) + ' · ' + escHtml(c.code) + '</div>' +
       '<div class="survey-card-cta">' + (isDone ? '다시 참여 →' : '설문 참여 →') + '</div>';
     card.onclick = function() {
       location.href = 'form_survey.html?course=' + encodeURIComponent(c.code) +
@@ -2347,7 +2347,18 @@ function loadSurveys(studentId) {
 }
 
 function escHtml(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // ★ 2026-10-24 T115 — 따옴표까지 막는다 (속성 값에도 안전)
+  return String(str==null?'':str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// ★ T115 — onclick="f(…)" 안에 넣는 값: JS 문자열로 감싼 뒤 HTML 처리 (따옴표로 빠져나가지 못함)
+function _jsArg(v) { return escHtml(JSON.stringify(String(v==null?'':v))); }
+// ★ T115 — 링크는 http(s) 또는 같은 사이트 주소만. javascript: 등은 '#'
+function _safeUrl(u) {
+  const s = String(u==null?'':u).trim();
+  if (!s) return '#';
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^[a-z][a-z0-9+.\-]*:/i.test(s) || /^\/\//.test(s)) return '#';
+  return s;
 }
 
 (function() {
@@ -2724,7 +2735,7 @@ function _todoRender(items, work) {
     (_t2DoneN ? '<span class="todo-head-meta">· 오늘 ' + _t2DoneN + '건 처리</span>' : '') +
     '<div class="todo-head-line"></div>' +
     '<button class="todo-head-refresh" onclick="loadTodoStrip(true)">↻</button>' +
-    (work.sheetUrl ? '<a class="todo-head-link" href="' + _todoEsc(work.sheetUrl) + '" target="_blank" rel="noopener">시트 ↗</a>' : '') +
+    (work.sheetUrl ? '<a class="todo-head-link" href="' + _todoEsc(_safeUrl(work.sheetUrl)) + '" target="_blank" rel="noopener">시트 ↗</a>' : '') +
     '</div>';
 
   SEC.forEach(function (sc) {
@@ -3049,7 +3060,7 @@ function _admPrevResolve(raw) {
       el.className = 'admprev-msg on';
       el.innerHTML = '「' + escHtml(v) + '」 ' + hit.length + '명 — 조회할 학생을 고르세요<br>'
         + hit.slice(0, 12).map(function (r) {
-            return '<button type="button" class="admprev-pick" onclick="_admPrevApply(\'' + r.sid + '\')">'
+            return '<button type="button" class="admprev-pick" onclick="_admPrevApply(' + _jsArg(r.sid) + ')">'
               + escHtml(_admRosterLabel(r)) + '</button>';
           }).join('') + (hit.length > 12 ? '<br>… 더 있습니다. 이름을 더 입력하세요.' : '');
     });
@@ -3169,8 +3180,8 @@ function renderMileage(data) {
   const fbox = document.getElementById('mileageFilter');
   if (fbox) {
     fbox.innerHTML = [CUR_SEM, prevSem_(CUR_SEM)].map(sm =>
-      '<button class="mileage-filter-btn" data-sem="' + sm + '" onclick="filterMileage(\'' + sm + '\', this)">' +
-      sm + '학기' + (sm === CUR_SEM ? '' : ' (기록)') + '</button>').join('');
+      '<button class="mileage-filter-btn" data-sem="' + escHtml(sm) + '" onclick="filterMileage(' + _jsArg(sm) + ', this)">' +
+      escHtml(sm) + '학기' + (sm === CUR_SEM ? '' : ' (기록)') + '</button>').join('');
   }
   filterMileage(CUR_SEM, null);
   }
@@ -3429,7 +3440,7 @@ function renderExtRelogin(msg) {
   const listEl = document.getElementById('extList');
   if(listEl) listEl.innerHTML = '<div class="ext-error">🔒 신청 현황은 본인 확인 후 보입니다. '
     + '<a href="#" onclick="doLogout();return false;" style="color:inherit;font-weight:700;text-decoration:underline">로그아웃</a> 후 학번·생년월일로 다시 로그인해 주세요.'
-    + (msg && /10분/.test(msg) ? '<br>' + msg : '') + '</div>';
+    + (msg && /10분/.test(msg) ? '<br>' + escHtml(msg) : '') + '</div>';
   const section = document.getElementById('extSection');
   if(section) section.style.display = 'block';
 }
@@ -3519,15 +3530,15 @@ function renderExtMileage(records) {
     div.className = 'ext-item ' + map.cls;
     div.innerHTML =
       '<div class="ext-item-top">' +
-        '<div class="ext-item-name">' + progName + '</div>' +
+        '<div class="ext-item-name">' + escHtml(progName) + '</div>' +   // ★ T115 학생 입력값
         '<span class="ext-status-badge ' + map.badge + '">' + map.label + '</span>' +
         '<span class="ext-item-pts' + (pts === '' ? ' pts-none' : '') + '">' +
           (pts === '' ? '—' : '+' + pts) + '</span>' +
       '</div>' +
       (studentMsg ? '<div class="ext-item-msg msg-alert">' +
         '<span class="msg-label">' + (needAction ? '사유' : '안내') + '</span>' +
-        studentMsg + '</div>' : '') +
-      (date ? '<div class="ext-item-date">제출일: ' + date + '</div>' : '');
+        escHtml(studentMsg) + '</div>' : '') +
+      (date ? '<div class="ext-item-date">제출일: ' + escHtml(date) + '</div>' : '');
     return div;
   }
 

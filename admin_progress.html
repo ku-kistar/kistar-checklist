@@ -459,7 +459,11 @@ const AREAS=[['트랙',12,'[1] 전공트랙'],['공동',6,'[2] 공동운영'],['
              ['자유',6,'[4] 자유이수'],['학부',6,'[5] 학부인정']];
 const INACT=['휴학','수강유예','미수강유예','수료','졸업','융전포기'];
 let tab=1, sel=null;   // 1 = 전체 명단 (기본) · 0 = 조치 필요
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// ★ 2026-10-24 T115 — onclick="f(…)" 안의 값은 JS 문자열로 감싼 뒤 HTML 처리
+const jsA=v=>esc(JSON.stringify(String(v??'')));
+// ★ T115 — CSV 칸: 엑셀이 수식(= + - @)으로 실행하지 않게 앞에 '
+const csvSafe=v=>{const s=String(v??'');return /^[=+\-@\t\r]/.test(s)?"'"+s:s;};
 
 // ── 학생별 조치 사유 산출 ──
 function diag(d){
@@ -518,7 +522,7 @@ function init(){
   meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · 수강신청 기준`
     + (ENR_N ? ` · 재적정보 ${ENR_N}명 연결` : ' · 재적정보 미연결');
   deptSort([...new Set(DATA.map(d=>d.dept))]).forEach(v=>fD.insertAdjacentHTML('beforeend',`<option>${esc(v)}</option>`));
-  [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${v}학년</option>`));
+  [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${esc(v)}학년</option>`));
   [fD,fY].forEach(e=>e.onchange=()=>{drill_=null;render();}); fS.onchange=()=>{drill_=null;render();drawBoard();}; fQ.oninput=()=>{drill_=null;render();};
 
   drawBoard(); drawAI();
@@ -578,7 +582,7 @@ function drawBoard(){
      <th>조치 필요</th><th>그중 긴급</th></tr></thead><tbody>
    ${T.map(r=>{const off=['졸업','융전포기'].includes(r.st);
      const k=ST_KEY[r.st]||r.st;
-     return `<tr class="${off?'off':''} ${cur===k?'on':''}" onclick="pickStatus('${k}')">
+     return `<tr class="${off?'off':''} ${cur===k?'on':''}" onclick="pickStatus(${jsA(k)})">
       <td class="l"><b>${r.st}</b>${r.st==='재학'?'<span class="hintx">장학금 대상 · 초과학기 제외</span>':''}</td><td>${r.n}</td>
       ${r.st==='졸업'?'<td class="z" title="졸업은 졸업사정으로 확정 — 이수현황 학점으로 다시 판정하지 않습니다">—</td>'
         :`<td class="${r.ok?'g kx':'z'}" ${r.ok?`onclick="event.stopPropagation();drill('ok','${k}')"`:''}>${r.ok||'—'}</td>`}
@@ -646,7 +650,7 @@ function popHtml(){
     const t=bold?`<b>${v||'—'}</b>`:(v||'—');
     const sub=m>0?` <i class="${y!=='' && lowYr(y)?'lo':'hi'}">${m}</i>`:'';
     return `<td class="${v?'':'z'}${on?' kx':''}"${on
-      ?` onclick="setPop('${esc(dp)}','${y}')"`:''}>${t}${sub}</td>`;
+      ?` onclick="setPop(${jsA(dp)},${jsA(y)})"`:''}>${t}${sub}</td>`;
   };
   return `<div class="pscope">
      ${POPSHOW.map(k=>`<button class="psc ${POPSCOPE===k?'on':''}"
@@ -686,7 +690,7 @@ function popChart(B,YS,DS,yk){
       <span style="margin-left:auto;color:var(--text3)">${esc(popScope().label)} ${B.length}명</span></div>
     <div class="gc">${DS.map(dp=>`<div class="gc-grp">${GY.map(y=>{const v=n(y,dp);
       return `<div class="gc-bar" style="height:${v/max*88}%;background:${col(y)}" title="${esc(deptShort(dp)+' '+y+'학년 '+v+'명')}"
-        onclick="setPop('${esc(dp)}','${y}')"><b>${v}</b></div>`;}).join('')}</div>`).join('')}</div>
+        onclick="setPop(${jsA(dp)},${jsA(y)})"><b>${v}</b></div>`;}).join('')}</div>`).join('')}</div>
     <div class="gc-lab">${DS.map(dp=>`<span>${esc(deptShort(dp))}<em>${n(null,dp)}명</em></span>`).join('')}</div>
   </div>`;
 }
@@ -728,7 +732,7 @@ function drawAI(){
     const on = v>0, hot = c==='r' && on && !lowYr(y);
     const t = bold?`<b>${v||'—'}</b>`:(v||'—');
     return `<td class="${hot?'r':'z'}${on?' kx':''}"${on
-      ?` onclick="drillAI('${esc(dp)}','${y}','${st}')"`:''}>${t}</td>`;
+      ?` onclick="drillAI(${jsA(dp)},${jsA(y)},${jsA(st)})"`:''}>${t}</td>`;
   };
   const stat=AI_ST.map(([s2,c])=>{
     const v=n(d=>aiState(d)===s2), hot=c==='r', on=v>0;
@@ -838,10 +842,10 @@ function render(){
 }
 const memoLast=s=>{const a=String(s||'').split('\n').map(x=>x.trim()).filter(Boolean);
   return a.length?a[a.length-1]:'';};
-const actRow=d=>`<div class="act s${d.dg.sev}${d.memo?' done':''}" onclick="open_('${d.sid}')">
+const actRow=d=>`<div class="act s${d.dg.sev}${d.memo?' done':''}" onclick="open_(${jsA(d.sid)})">
   <div class="sev"></div>
   <div class="who"><div class="nm"><span class="seq">${esc(d.seq)}</span>${esc(d.name)}</div>
-    <div class="sub">${d.sid} · ${esc(d.dept)} · ${d.yr}학년</div></div>
+    <div class="sub">${esc(d.sid)} · ${esc(d.dept)} · ${esc(d.yr)}학년</div></div>
   <div class="why"><div class="rsn">${d.dg.rsn}</div>
     ${d.dg.hint?`<div class="hint">${esc(d.dg.hint)}</div>`:''}
     ${d.memo?`<div class="memo-tag"><span class="ck">✔ 확인함</span>${esc(memoLast(d.memo))}</div>`:''}</div>
@@ -860,10 +864,10 @@ function tblHtml(L){
       const brk = String(drill_).startsWith('ai:') && (idx===0 || L[idx-1].yr!==d.yr)
         ? `<tr class="ybrk"><td colspan="${4+AREAS.length+2}">${d.yr}학년
              <span>${L.filter(x=>x.yr===d.yr).length}명</span></td></tr>` : '';
-      return brk+`<tr onclick="open_('${d.sid}')">
+      return brk+`<tr onclick="open_(${jsA(d.sid)})">
       <td class="l"><span class="seq">${esc(d.seq)}</span><b>${esc(d.name)}</b>
-        <span style="color:var(--text3)"> ${d.sid} · ${esc(d.dept)}</span></td>
-      <td>${d.yr}</td><td><span class="st ${st[0]}">${esc(st[1])}</span></td>
+        <span style="color:var(--text3)"> ${esc(d.sid)} · ${esc(d.dept)}</span></td>
+      <td>${esc(d.yr)}</td><td><span class="st ${st[0]}">${esc(st[1])}</span></td>
       <td class="div"><span class="tot">${d.tot}</span><span style="color:var(--text3)">/36</span>
         <span class="bar2 ${p>=100?'full':''}"><i style="width:${Math.min(p,100)}%"></i></span></td>
       ${AREAS.map(([k,m],i)=>{const lack=k==='트랙'?Object.keys(d.tr).filter(t=>!d.tr[t]):[];
@@ -986,7 +990,7 @@ function enrollHtml(d){
   if(e.status && d.st!=='융전포기' && e.status!==d.st)
     w.push(`학적상태가 다릅니다 — 이수현황 <b>${esc(d.st)}</b> · 재적 <b>${esc(e.status)}</b>`);
   if(e.year && d.yr && Number(e.year)!==Number(d.yr))
-    w.push(`학년 기준이 다릅니다 — 이수현황 <b>${d.yr}학년</b>(2026-2 가진급) · 재적 <b>${e.year}학년</b>(2026-1). 둘 다 맞습니다.`);
+    w.push(`학년 기준이 다릅니다 — 이수현황 <b>${esc(d.yr)}학년</b>(2026-2 가진급) · 재적 <b>${esc(e.year)}학년</b>(2026-1). 둘 다 맞습니다.`);
 
   const v=(x,suf)=>x===null||x===undefined||x===''?'<span class="no">—</span>':esc(String(x))+(suf||'');
   const gpa=[e.gpaAll!=null?'전체 '+e.gpaAll:'', e.gpaMajor!=null?'전공 '+e.gpaMajor:'']
@@ -994,7 +998,7 @@ function enrollHtml(d){
   return `<div class="sec">재적 정보 <span class="hintx">학사시스템 재적생목록 · ${esc(e.updated||'')}</span></div>
   <table class="et"><tbody>
     <tr><td class="k">학적</td><td class="v">${v(e.status)}${e.changeDate?` <span class="hintx">변동 ${esc(e.changeDate)}${e.changeCode?' ('+esc(e.changeCode)+')':''}</span>`:''}</td></tr>
-    <tr><td class="k">등록</td><td class="v">${v(e.reg)}${e.regCount!=null?` <span class="hintx">${e.regCount}회</span>`:''}</td></tr>
+    <tr><td class="k">등록</td><td class="v">${v(e.reg)}${e.regCount!=null?` <span class="hintx">${esc(e.regCount)}회</span>`:''}</td></tr>
     <tr><td class="k">학년</td><td class="v">${v(e.year,'학년')} <span class="hintx">2026-1 기준</span></td></tr>
     <tr><td class="k">입학</td><td class="v">${v(e.admit)}</td></tr>
     <tr><td class="k">취득학점</td><td class="v">${v(e.credits)} <span class="hintx">졸업 기준 전체 학점</span></td></tr>
@@ -1026,7 +1030,7 @@ function csv(){
     ...AREAS.map(a=>a[2]),'2026-2 신청건수','추가 필요 과목수','조치 사유'];
   const b=L.map(d=>[d.seq,d.sid,d.name,d.dept,d.yr,d.st,aiState(d),d.tot,d.tot>=36?'충족':'미충족',
     ...AREAS.map(a=>d.ar[a[0]]),d.nw,d.dg.need.length,d.dg.rsn.replace(/<[^>]+>/g,'')]);
-  const t=[h,...b].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const t=[h,...b].map(r=>r.map(c=>`"${csvSafe(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8'}));
   a.download='차반융_이수현황_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();

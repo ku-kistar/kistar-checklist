@@ -537,11 +537,12 @@ function showSuccess(data) {
   const now = new Date();
   const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   const meta = document.getElementById('successMeta');
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));   // ★ T115
   meta.innerHTML = `
     <strong>제출 정보 요약</strong><br>
-    학번: ${data.student_id} · 이름: ${data.name}<br>
-    프로그램: ${data.program}<br>
-    출국: ${data.depart_date} → 귀국: ${data.return_date}<br>
+    학번: ${esc(data.student_id)} · 이름: ${esc(data.name)}<br>
+    프로그램: ${esc(data.program)}<br>
+    출국: ${esc(data.depart_date)} → 귀국: ${esc(data.return_date)}<br>
     <span style="font-size:11px;opacity:.7">제출 시각: ${ts}</span>
   `;
   document.getElementById('successScreen').classList.add('show');

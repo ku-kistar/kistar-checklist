@@ -776,7 +776,7 @@ const pd  = s => { const a = s.split('-').map(Number); return new Date(a[0], a[1
 const db  = (a,b) => Math.round((b-a)/86400000);
 const fmt = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const shift = (s,n) => { const t = pd(s); t.setDate(t.getDate()+n); return fmt(t); };
-const md = s => s.slice(5).replace('-','.');
+const md = s => esc(String(s == null ? '' : s).slice(5).replace('-','.'));   // ★ T115 — innerHTML에 쓰이므로 글자로만
 const DOW = '일월화수목금토';
 const TS = fmt(new Date()), TODAY = pd(TS);
 const THIS_Y = TODAY.getFullYear(), THIS_M = TODAY.getMonth()+1;
@@ -820,8 +820,8 @@ function fallback(msg){
   const useLast = last && last.events && last.events.length;
   events = useLast ? last.events : BACKUP.slice();
   setStatus('bad', (useLast ? '지난 사본 ' : '백업 ') + events.length + '건');
-  showWarn('<b>구글시트에서 일정을 불러오지 못했습니다</b> — ' + msg + '<br>' +
-    (useLast ? '지금 보이는 것은 이 기기에서 마지막으로 불러온 일정(' + last.at + ')입니다. '
+  showWarn('<b>구글시트에서 일정을 불러오지 못했습니다</b> — ' + esc(msg) + '<br>' +
+    (useLast ? '지금 보이는 것은 이 기기에서 마지막으로 불러온 일정(' + esc(last.at) + ')입니다. '
              : '지금 보이는 것은 2026-08-06 시점의 내장 백업입니다. 그 뒤 시트에서 바꾼 내용은 빠져 있습니다. ') +
     '<b>↻ 새로고침</b>으로 다시 시도하세요.');
   renderAll();
@@ -1020,9 +1020,9 @@ function itemEl(e, dn){
   bd.className = 'bd';
   const t = document.createElement('span');
   t.className = 'tt';
-  if(e.u){
+  if(safeUrl(e.u)){
     const a = document.createElement('a');
-    a.href = e.u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = e.t;
+    a.href = safeUrl(e.u); a.target = '_blank'; a.rel = 'noopener'; a.textContent = e.t;
     t.appendChild(a);
   } else t.textContent = e.t;
   bd.appendChild(t);
@@ -1038,7 +1038,9 @@ function itemEl(e, dn){
   row.appendChild(bd);
   return row;
 }
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// ★ 2026-10-24 T115 — 일정 「링크」는 http(s)만. javascript: 등은 링크로 만들지 않는다
+function safeUrl(u){ const s = String(u == null ? '' : u).trim(); return /^https?:\/\//i.test(s) ? s : ''; }
 
 /* ── 작년 이맘때 ── */
 function renderLook(){
@@ -1447,12 +1449,12 @@ function detailEl(e){
     ['기간',   period],
     ['남은 날', '<b>' + when + '</b>'],
     ['분류',   cat.n + '  ·  담당 ' + (OWN[e.o] || '')],
-    ['반복',   e.r || '—'],
+    ['반복',   e.r ? esc(e.r) : '—'],
     ['비고',   e.n ? esc(e.n) : '—'],
-    ['일정ID', e.i]
+    ['일정ID', esc(e.i)]
   ];
-  if(e.d) rows.splice(2, 0, ['완료', '<b>' + e.d + '</b> 처리됨']);
-  if(e.u) rows.push(['링크', '<a href="' + e.u + '" target="_blank" rel="noopener">' + esc(e.u) + '</a>']);
+  if(e.d) rows.splice(2, 0, ['완료', '<b>' + esc(e.d) + '</b> 처리됨']);
+  if(e.u) rows.push(['링크', safeUrl(e.u) ? '<a href="' + esc(safeUrl(e.u)) + '" target="_blank" rel="noopener">' + esc(e.u) + '</a>' : esc(e.u)]);
 
   rows.forEach(r => {
     const d = document.createElement('dl');
@@ -1614,7 +1616,7 @@ function exportIcs(){
     L.push('SUMMARY:' + icsEsc((e.d ? '[완료] ' : '') + e.t));
     const ds = [OWN[e.o] ? '담당: '+OWN[e.o] : '', e.n||''].filter(Boolean).join(' / ');
     if(ds) L.push('DESCRIPTION:' + icsEsc(ds));
-    if(e.u) L.push('URL:' + e.u);
+    if(safeUrl(e.u)) L.push('URL:' + safeUrl(e.u).replace(/[\r\n]+/g, ''));
     L.push('END:VEVENT');
   });
   L.push('END:VCALENDAR');
