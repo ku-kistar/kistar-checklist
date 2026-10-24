@@ -704,6 +704,11 @@ function esc(v){ return String(v == null ? '' : v).replace(/&/g,'&amp;').replace
 // onclick="f(…)" 안에 넣는 값 — JS 문자열로 감싼 뒤 HTML 처리 (따옴표로 빠져나가지 못함)
 function jsA(v){ return esc(JSON.stringify(v)); }
 // _id 의 학번 부분 — 영문·숫자·한글·_- 만 (정상 학번은 그대로라 기존 판정 기록과 같은 키)
+// ★ T115 — 불러오기 상태를 목록 자리에 보여 준다 (휴대폰은 위쪽 안내 칸이 숨겨져 빈 화면만 보였다)
+function _listMsg(msg, isHtml){
+  const el = document.getElementById('judge-list'); if(!el) return;
+  el.innerHTML = '<div class="empty">' + (isHtml ? msg : esc(msg)) + '</div>';   // isHtml 은 호출하는 쪽이 esc 한 글 + 고정 링크만
+}
 function sidKey(v){ return String(v == null ? '' : v).replace(/[^0-9A-Za-z가-힣_-]/g,''); }
 
 function loadDhDone(){try{return JSON.parse(localStorage.getItem(DH_DONE_KEY)||'{}')}catch{return{}}}
@@ -771,7 +776,7 @@ function pushRow(id){
     'callback=' + cb
   ].join('&');
 
-  const sc = document.createElement('script');
+  const sc = document.createElement('script'); sc.crossOrigin = 'anonymous';   // ★ T115 — 휴대폰 구글 계정 여러 개여도 정상 (T63과 같은 처리)
   sc.src = GAS_URL + '?' + q + _dhCredQS();   // ★ 2026-10-08 T41 — 폼 응답 GAS도 관리자 인증을 확인한다
   sc.onerror = () => {
     delete window[cb];
@@ -1062,12 +1067,14 @@ function loadData() {
       if (res && res.status === 'denied') {           // ★ T41 — 틀렸으면 지우고 다음 새로고침에 다시 묻는다
         if (window._HUB_TOKEN === true) {             // ★ T115 — 대문 출입증이 만료·권한 없음 → 대문에서 다시 로그인
           document.getElementById('loading-tag').textContent = '인증 실패 — ' + (res.message || '') + ' · 데이터허브 대문에서 다시 로그인해 주세요';
+          _listMsg(esc('인증 실패 — ' + (res.message || '')) + '<br><a href="portal_survey.html" style="color:var(--blue);font-weight:700">데이터허브 대문에서 다시 로그인</a>해 주세요.', true);
           return;
         }
         _DH_CRED = null;
         document.getElementById('loading-tag').textContent = '인증 실패 — ' + (res.message || '') + ' ⟳ 새로고침으로 다시 입력';
       } else {
         document.getElementById('loading-tag').textContent = '로드 실패';
+        _listMsg('목록을 불러오지 못했습니다' + (res && res.message ? ' — ' + res.message : '') + '. ⟳ 새로고침을 눌러 주세요.');
       }
       return;
     }
@@ -1120,11 +1127,13 @@ function loadData() {
     document.getElementById('loading-tag').textContent = `총 ${DATA.length}건 로드됨`;
     renderAll();
   };
-  const script = document.createElement('script');
+  const script = document.createElement('script'); script.crossOrigin = 'anonymous';   // ★ T115 — 휴대폰 구글 계정 여러 개여도 정상 (T63)
   script.src = GAS_URL + '?action=getList' + _dhCredQS() + '&callback=' + cb;
   script.onerror = () => {
     document.getElementById('loading-tag').textContent = '네트워크 오류';
+    _listMsg('목록을 불러오지 못했습니다 (네트워크 오류). ⟳ 새로고침을 눌러 주세요.');
   };
+  _listMsg('목록 불러오는 중…');
   document.body.appendChild(script);
 }
 
@@ -1904,7 +1913,7 @@ function directInput() {
       // 다음 건 전송
       setTimeout(() => sendOne(idx + 1), 300);
     };
-    const script = document.createElement('script');
+    const script = document.createElement('script'); script.crossOrigin = 'anonymous';   // ★ T115 (T63)
     script.onerror = () => {
       delete window[cb];
       failedIds.push(recIds[idx]);
