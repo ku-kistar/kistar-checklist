@@ -1061,7 +1061,10 @@ function loadData() {
   }
   document.getElementById('loading-tag').textContent = '로드 중...';
   const cb = 'cb_' + Date.now();
+  // ★ T115 — 응답이 아예 안 오면(계정 선택 화면 등) 20초 뒤 목록 자리에 안내
+  const _lt = setTimeout(() => { if (window[cb]) _listMsg('20초 동안 응답이 없습니다. ⟳ 새로고침을 눌러 주세요. 계속되면 데이터허브 대문에서 다시 로그인해 주세요.'); }, 20000);
   window[cb] = function(res) {
+    clearTimeout(_lt); delete window[cb];
     document.getElementById('loading-tag').textContent = '';
     if (!res || res.status !== 'ok') {
       if (res && res.status === 'denied') {           // ★ T41 — 틀렸으면 지우고 다음 새로고침에 다시 묻는다
