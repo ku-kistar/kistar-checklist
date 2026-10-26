@@ -210,7 +210,12 @@ td.no,td.lim,td.skip{cursor:pointer}
 .rank-head{background:var(--navy);color:#fff;padding:9px 15px;font-size:12.5px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
 .rank-head span{font-weight:400;font-size:11px;color:rgba(255,255,255,.65)}
 .rank-body{padding:4px 0}
-.rank-row{display:flex;align-items:center;gap:9px;padding:7px 15px;border-bottom:.5px solid var(--border);font-size:12.5px}
+.rank-row{display:flex;align-items:center;gap:10px;padding:8px 15px;border-bottom:.5px solid var(--border);font-size:12.5px}
+.rank-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rank-l1{display:flex;align-items:baseline;gap:8px;min-width:0}
+.rank-l2{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
+.rank-row.out{background:#fdf0ee}
+.rank-row.out .rank-nm{text-decoration:line-through;color:var(--text3)}
 .rank-row:last-child{border-bottom:none}
 .rank-row.tie{background:var(--amber-light)}
 .rank-no{width:22px;height:22px;border-radius:50%;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'JetBrains Mono',monospace}
@@ -223,7 +228,9 @@ td.no,td.lim,td.skip{cursor:pointer}
 .rank-q{font-size:10px;color:var(--ink3,#6b6960);white-space:nowrap;font-family:'JetBrains Mono',monospace}
 .rank-doc{font-size:10px;padding:1px 6px;border-radius:99px;white-space:nowrap}
 .rank-doc.ok{background:#edf7f1;color:#2d7a4f}.rank-doc.warn{background:#fdf5e6;color:#a0620a}.rank-doc.bad{background:#fdf0ee;color:#c8392b}
-.rank-rule{font-size:12px;color:var(--ink3,#6b6960);margin:0 0 10px;line-height:1.6}
+.rank-doc.wait{background:var(--surface2);color:var(--text3)}
+/* 안내 문장이 격자 칸 하나를 차지해 카드가 좁아졌다 → 맨 위 한 줄 전체로 (2026-10-26) */
+.rank-rule{font-size:12px;color:var(--ink3,#6b6960);margin:0;line-height:1.6;grid-column:1/-1}
 .rank-ns{font-size:10px;background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:99px;white-space:nowrap}
 /* 휴대폰: 상위 5명 줄이 넘치면 아랫줄로 (2026-10-14) */
 @media(max-width:600px){.rank-wrap{grid-template-columns:1fr}.rank-row{flex-wrap:wrap;row-gap:4px}.rank-dp{white-space:normal}}
@@ -1157,12 +1164,17 @@ function scholState(s){
 /* ── 학년별 상위 5명 ── */
 var DOC_LB={plan:'계획서',report:'보고서'};
 var DOC_ST={ok:['ok','✓'],nosign:['warn','서명?'],late:['bad','지각'],none:['bad','미제출']};
+/* 서류 칩 (2026-10-26 정리) — 열리기 전 서류는 표시하지 않는다(결과보고서가 12월 오픈 전부터 빨간 「미제출」로 보였다).
+   열려 있고 마감 전이면 미제출을 회색 「접수 중」으로, 마감이 지나야 빨간 「미제출」. 확정 학기(docPhase 없음)는 예전대로. */
 function docChips(w){
   if(!w.docs) return '';
-  var s='';
+  var ph=DATA.docPhase||null, s='';
   ['plan','report'].forEach(function(k){
     var st=w.docs[k]; if(!st) return;
+    var x=ph?ph[k]:null;
+    if(ph && (!x || (!x.open && !x.past))) return;          // 아직 안 열린 서류
     var m=DOC_ST[st]||['warn',st];
+    if(st==="none" && x && !x.past) m=['wait','접수 중'];    // 열렸지만 마감 전
     s+='<span class="rank-doc '+esc(m[0])+'">'+esc(DOC_LB[k])+' '+esc(m[1])+'</span>';
   });
   return s;
@@ -1182,16 +1194,24 @@ function renderRanks(){
     var cnt={}; r.rows.forEach(function(w){cnt[w.rank]=(cnt[w.rank]||0)+1;});
     h+='<div class="rank-card"><div class="rank-head"><span style="color:#fff">'+esc(r.grade)+'학년 상위 '+DATA.topN+'명</span><span>'+r.rows.length+'명'+(RULE&&r.pool!=null?' · 요건 충족 '+r.pool+'/'+r.total+'명':'')+'</span></div><div class="rank-body">';
     r.rows.forEach(function(w){
-      h+='<div class="rank-row'+(cnt[w.rank]>1?' tie':'')+'">'+
+      // 두 줄 (2026-10-26) — 1줄: 순위 · 이름 · 학번 · 총점 / 2줄: 학과 · 주관점수 · 평점 · 노쇼 · 서류
+      // 한 줄에 다 넣었을 때 카드 폭(약 370px)을 넘어 총점이 잘려 안 보였다
+      h+='<div class="rank-row'+(cnt[w.rank]>1?' tie':'')+(w.ns>=3?' out':'')+'">'+
          '<span class="rank-no">'+w.rank+'</span>'+
-         '<span class="rank-nm">'+esc(w.name)+'</span>'+
-         '<span class="rank-sid">'+esc(w.sid)+'</span>'+
-         '<span class="rank-dp">'+esc(w.dept)+'</span>'+
-         (w.gpa!==null?'<span class="rank-gpa">'+w.gpa.toFixed(2)+'</span>':'')+
-         (w.ns>=3?'<span class="rank-ns">노쇼 '+w.ns+'</span>':'')+
-         (w.q!=null&&RULE?'<span class="rank-q">주관 '+w.q+'</span>':'')+
-         docChips(w)+
-         '<span class="rank-sp">'+w.tot+'점</span>'+
+         '<div class="rank-main">'+
+           '<div class="rank-l1">'+
+             '<span class="rank-nm">'+esc(w.name)+'</span>'+
+             '<span class="rank-sid">'+esc(w.sid)+'</span>'+
+             '<span class="rank-sp">'+w.tot+'점</span>'+
+           '</div>'+
+           '<div class="rank-l2">'+
+             '<span class="rank-dp">'+esc(w.dept)+'</span>'+
+             (w.q!=null&&RULE?'<span class="rank-q">주관 '+w.q+'</span>':'')+
+             (w.gpa!==null?'<span class="rank-gpa">평점 '+w.gpa.toFixed(2)+'</span>':'')+
+             (w.ns>=3?'<span class="rank-ns" title="노쇼 3회 이상 — 인재장학금 제외">노쇼 '+w.ns+' · 제외</span>':'')+
+             docChips(w)+
+           '</div>'+
+         '</div>'+
          '</div>';
     });
     h+='</div></div>';
