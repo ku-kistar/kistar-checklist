@@ -215,6 +215,7 @@ td.no,td.lim,td.skip{cursor:pointer}
 .rank-l1{display:flex;align-items:baseline;gap:8px;min-width:0}
 .rank-l2{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;min-width:0}
 .rank-row.out{background:#fdf0ee}
+.rank-empty{padding:28px 15px;text-align:center;font-size:12px;color:var(--text3)}
 .rank-row.out .rank-nm{text-decoration:line-through;color:var(--text3)}
 .rank-row:last-child{border-bottom:none}
 .rank-row.tie{background:var(--amber-light)}
@@ -233,7 +234,7 @@ td.no,td.lim,td.skip{cursor:pointer}
 .rank-rule{font-size:12px;color:var(--ink3,#6b6960);margin:0;line-height:1.6;grid-column:1/-1}
 .rank-ns{font-size:10px;background:var(--accent-light);color:var(--accent);padding:1px 6px;border-radius:99px;white-space:nowrap}
 /* 휴대폰: 상위 5명 줄이 넘치면 아랫줄로 (2026-10-14) */
-@media(max-width:600px){.rank-wrap{grid-template-columns:1fr}.rank-row{flex-wrap:wrap;row-gap:4px}.rank-dp{white-space:normal}}
+@media(max-width:600px){.rank-wrap{grid-template-columns:1fr!important}.rank-row{flex-wrap:wrap;row-gap:4px}.rank-dp{white-space:normal}}
 
 /* ── 격자 ── */
 .grid-card{background:var(--surface);border:.5px solid var(--border);border-radius:12px;overflow:hidden}
@@ -1214,9 +1215,13 @@ function renderRanks(){
          '</div>'+
          '</div>';
     });
+    if(!r.rows.length) h+='<div class="rank-empty">선발 요건을 충족한 학생이 아직 없습니다.</div>';
     h+='</div></div>';
   });
   $("rankWrap").innerHTML=h;
+  // 카드 수만큼 칸을 나눠 꽉 채운다 (2026-10-26 — auto-fit 이 빈 칸을 남겨 오른쪽이 비었다). 휴대폰은 CSS 가 1열로 덮는다
+  var nCard=$("rankWrap").querySelectorAll(".rank-card").length;
+  $("rankWrap").style.gridTemplateColumns = nCard ? "repeat("+nCard+",minmax(0,1fr))" : "";
 }
 
 /* ── 격자 ── */
