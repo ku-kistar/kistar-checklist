@@ -117,6 +117,11 @@ box-shadow:-6px 0 30px rgba(11,31,58,.18);transform:translateX(100%);transition:
 .dwh{background:var(--navy);color:#fff;padding:17px 22px;display:flex;align-items:flex-start;gap:10px}
 .dwh h3{font-size:19px;font-weight:700}
 .dwh .s{font-size:12px;opacity:.8;margin-top:4px}
+.dwh .dph{width:60px;height:80px;flex-shrink:0;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.12);
+  display:none;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,.7);text-align:center;line-height:1.3}
+.dwh .dph.on{display:flex}
+.dwh .dph img{width:100%;height:100%;object-fit:cover;display:block}
+@media(max-width:600px){.dwh .dph{width:48px;height:64px}}
 .dwh .x{margin-left:auto;background:none;border:none;color:#fff;font-size:23px;cursor:pointer;opacity:.75;line-height:1}
 .dwb{padding:20px 22px 50px;overflow:auto;flex:1}
 .sec{font-size:12px;font-weight:700;color:var(--navy);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
@@ -366,7 +371,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 </div>
 
 <div class="ovl" id="ovl" onclick="close_()"></div>
-<aside class="dw" id="dw"><div class="dwh"><div><h3 id="dN"></h3><div class="s" id="dS"></div></div>
+<aside class="dw" id="dw"><div class="dwh"><div class="dph" id="dP" aria-hidden="true"></div><div><h3 id="dN"></h3><div class="s" id="dS"></div></div>
 <button class="x" onclick="close_()">×</button></div><div class="dwb" id="dB"></div></aside>
 
 <script>
@@ -785,6 +790,27 @@ const IS_STAFF=(()=>{ const p=AUTH&&AUTH.perms; return !!(p&&p.length&&p.indexOf
 // ★ 2026-10-20 — 쓰기(성적 입력 · 확인 메모)는 「전체」 또는 「성적입력」 권한만. 서버(SubAuth)도 따로 거절한다.
 const CAN_WRITE=(()=>{ const p=AUTH&&AUTH.perms; return !p||!p.length||p.indexOf('전체')>-1||p.indexOf('성적입력')>-1; })();
 if(!CAN_WRITE){ const g=document.getElementById('navGrade'); if(g) g.style.display='none'; }
+// ★ 2026-10-26 학생 사진 — 「전체」 관리자만 (서버 Photo.gs · SubAuth 「학생사진」 도 따로 거절한다)
+//   사진은 드라이브 비공개 폴더에서 한 장씩 받는다. 화면 파일·브라우저 저장소에는 남기지 않는다(메모리에만)
+const IS_FULL=(()=>{ const p=AUTH&&AUTH.perms; return !p||!p.length||p.indexOf('전체')>-1; })();
+const PHOTO={}; let photoSeq=0;
+async function loadPhoto_(sid){
+  const box=document.getElementById('dP'); if(!box) return;
+  if(!IS_FULL){ box.className='dph'; box.innerHTML=''; return; }
+  const my=++photoSeq;
+  box.className='dph on';
+  const show=v=>{ if(my!==photoSeq) return;
+    if(v){ const im=new Image(); im.alt=''; im.src=v; box.innerHTML=''; box.appendChild(im); }
+    else box.textContent='사진 없음'; };
+  if(PHOTO[sid]!==undefined){ show(PHOTO[sid]); return; }
+  box.textContent='사진 불러오는 중';
+  try{
+    const r=await jsonp({action:'getStudentPhoto', adminId:AUTH.studentId, adminBirth:(AUTH.birth||AUTH.birthDate||''), studentId:sid});
+    const v=(r&&r.status==='ok'&&/^data:image\/(jpeg|png);base64,/.test(r.photo||''))?r.photo:'';
+    if(r&&(r.status==='ok'||r.status==='none')) PHOTO[sid]=v;
+    show(v);
+  }catch(e){ show(''); }
+}
 function aiAllOpen(){ try{ return localStorage.getItem('kistar_ai_all')==='1'; }catch(e){ return false; } }
 function toggleAIAll(){ try{ localStorage.setItem('kistar_ai_all', aiAllOpen()?'0':'1'); }catch(e){} drawAI(); }
 function toggleAI(){
@@ -881,6 +907,7 @@ function tblHtml(L){
 function open_(sid){
   const d=DATA.find(x=>x.sid===sid); sel=sid;
   dN.textContent=d.name;
+  loadPhoto_(d.sid);
   dS.textContent=`${d.seq} · ${d.sid} · ${d.dept} · ${d.yr}학년 · ${d.st}`
     + (d.source ? ` · ${d.source}${d.updated?' '+d.updated:''}` : '');
   const rows=CAT[d.dk]||[], tk=new Set(d.tk);
@@ -997,6 +1024,7 @@ function enrollHtml(d){
             .filter(Boolean).join('  ·  ');
   return `<div class="sec">재적 정보 <span class="hintx">학사시스템 재적생목록 · ${esc(e.updated||'')}</span></div>
   <table class="et"><tbody>
+    <tr><td class="k">소속</td><td class="v">${v(e.univ)}${d.dept?` · ${esc(d.dept)}`:''}</td></tr>
     <tr><td class="k">학적</td><td class="v">${v(e.status)}${e.changeDate?` <span class="hintx">변동 ${esc(e.changeDate)}${e.changeCode?' ('+esc(e.changeCode)+')':''}</span>`:''}</td></tr>
     <tr><td class="k">등록</td><td class="v">${v(e.reg)}${e.regCount!=null?` <span class="hintx">${esc(e.regCount)}회</span>`:''}</td></tr>
     <tr><td class="k">학년</td><td class="v">${v(e.year,'학년')} <span class="hintx">2026-1 기준</span></td></tr>
