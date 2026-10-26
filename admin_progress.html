@@ -122,6 +122,17 @@ box-shadow:-6px 0 30px rgba(11,31,58,.18);transform:translateX(100%);transition:
 .dwh .dph.on{display:flex}
 .dwh .dph img{width:100%;height:100%;object-fit:cover;display:block}
 @media(max-width:600px){.dwh .dph{width:48px;height:64px}}
+.dwh .dph.big{cursor:zoom-in}
+/* ★ 2026-10-26 사진 크게 보기 */
+.plb{position:fixed;inset:0;z-index:120;background:rgba(11,31,58,.72);display:none;align-items:center;justify-content:center;padding:16px}
+.plb.on{display:flex}
+.plb figure{margin:0;background:#fff;border-radius:12px;padding:12px 12px 10px;box-shadow:0 12px 40px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;align-items:center;position:relative;max-width:calc(100vw - 32px)}
+.plb img{display:block;max-height:min(400px,70vh);max-width:min(300px,80vw);width:auto;height:auto;border-radius:6px}
+.plb figcaption{font-size:13px;color:var(--text2);margin-top:8px;text-align:center;word-break:keep-all}
+.plb figcaption b{color:var(--text);font-weight:700}
+.plb .px{position:absolute;top:-12px;right:-12px;width:30px;height:30px;border-radius:50%;border:none;
+  background:var(--navy);color:#fff;font-size:18px;line-height:30px;cursor:pointer;padding:0}
 .dwh .x{margin-left:auto;background:none;border:none;color:#fff;font-size:23px;cursor:pointer;opacity:.75;line-height:1}
 .dwb{padding:20px 22px 50px;overflow:auto;flex:1}
 .sec{font-size:12px;font-weight:700;color:var(--navy);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
@@ -371,6 +382,9 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 </div>
 
 <div class="ovl" id="ovl" onclick="close_()"></div>
+<div class="plb" id="pLb" onclick="if(event.target===this)closePhoto_()" role="dialog" aria-modal="true" aria-label="학생 사진">
+  <figure><button class="px" type="button" onclick="closePhoto_()" aria-label="닫기">×</button>
+  <img id="pLbI" alt=""><figcaption id="pLbC"></figcaption></figure></div>
 <aside class="dw" id="dw"><div class="dwh"><div class="dph" id="dP" aria-hidden="true"></div><div><h3 id="dN"></h3><div class="s" id="dS"></div></div>
 <button class="x" onclick="close_()">×</button></div><div class="dwb" id="dB"></div></aside>
 
@@ -794,16 +808,30 @@ if(!CAN_WRITE){ const g=document.getElementById('navGrade'); if(g) g.style.displ
 //   사진은 드라이브 비공개 폴더에서 한 장씩 받는다. 화면 파일·브라우저 저장소에는 남기지 않는다(메모리에만)
 const IS_FULL=(()=>{ const p=AUTH&&AUTH.perms; return !p||!p.length||p.indexOf('전체')>-1; })();
 const PHOTO={}; let photoSeq=0;
+// ★ 2026-10-26 사진 크게 보기 — 이미 받은 사진을 다시 쓴다 (서버 호출 없음)
+function openPhoto_(sid){
+  const v=PHOTO[sid]; if(!v) return;
+  const d=DATA.find(x=>x.sid===sid)||{};
+  document.getElementById('pLbI').src=v;
+  document.getElementById('pLbC').innerHTML=`<b>${esc(d.name||'')}</b> · ${esc(d.sid||sid)}${d.seq?' · '+esc(d.seq):''}`;
+  document.getElementById('pLb').classList.add('on');
+}
+function closePhoto_(){
+  const lb=document.getElementById('pLb'); if(!lb||!lb.classList.contains('on')) return false;
+  lb.classList.remove('on'); document.getElementById('pLbI').removeAttribute('src'); return true;
+}
 async function loadPhoto_(sid){
   const box=document.getElementById('dP'); if(!box) return;
   if(!IS_FULL){ box.className='dph'; box.innerHTML=''; return; }
   const my=++photoSeq;
   box.className='dph on';
   const show=v=>{ if(my!==photoSeq) return;
-    if(v){ const im=new Image(); im.alt=''; im.src=v; box.innerHTML=''; box.appendChild(im); }
-    else box.textContent='사진 없음'; };
+    if(v){ const im=new Image(); im.alt='사진 크게 보기'; im.src=v; box.innerHTML=''; box.appendChild(im);
+           box.classList.add('big'); box.title='누르면 크게 보입니다'; box.onclick=()=>openPhoto_(sid); }
+    else { box.textContent='사진 없음'; box.classList.remove('big'); box.title=''; box.onclick=null; } };
+  box.classList.remove('big'); box.title=''; box.onclick=null;
   if(PHOTO[sid]!==undefined){ show(PHOTO[sid]); return; }
-  box.textContent='사진 불러오는 중';
+  box.textContent='불러오는 중';
   try{
     const r=await jsonp({action:'getStudentPhoto', adminId:AUTH.studentId, adminBirth:(AUTH.birth||AUTH.birthDate||''), studentId:sid});
     const v=(r&&r.status==='ok'&&/^data:image\/(jpeg|png);base64,/.test(r.photo||''))?r.photo:'';
@@ -1049,8 +1077,8 @@ function jump(){
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('jS'); if(el) el.addEventListener('keydown',e=>{if(e.key==='Enter')jump();});
 });
-function close_(){dw.classList.remove('on');ovl.classList.remove('on');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')close_();});
+function close_(){closePhoto_();dw.classList.remove('on');ovl.classList.remove('on');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){ if(closePhoto_()) return; close_(); }});
 
 function csv(){
   const L=rows();
