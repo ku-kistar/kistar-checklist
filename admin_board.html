@@ -1135,12 +1135,14 @@ function saveGpa(){
 /* ── 장학금 자격 (2026-10-26) ──
    마감이 지난 서류(docPhase[k].past)만 본다. 미제출·기한 후 = 제외(out), 서명 미확인 = 확인 필요(check).
    마일리지 40점·장학금 신청서는 학기 말에 정해지므로 여기서 판정하지 않는다(진행 중).
-   노쇼는 규정이 공지되지 않아 넣지 않는다. 확정 학기(closed)는 판정하지 않는다. */
+   노쇼 3회 이상 = 인재장학금 제외 (1학기 공지 규정 · 2026-10-26 담당자 확인 · 격자 노쇼 배지와 같은 기준 3).
+   확정 학기(closed)는 판정하지 않는다. */
 function scholState(s){
+  if(DATA.closed) return {st:"", why:[]};
   var ph=DATA.docPhase||null;
-  if(DATA.closed || !ph || !s.docs) return {st:"", why:[]};
   var out=[], chk=[];
-  [["plan","활동계획서"],["report","결과보고서"]].forEach(function(p){
+  if((s.ns||0)>=3) out.push("노쇼 "+s.ns+"회");
+  if(ph && s.docs) [["plan","활동계획서"],["report","결과보고서"]].forEach(function(p){
     var x=ph[p[0]]; if(!x || !x.past) return;
     var v=s.docs[p[0]];
     if(v==="none") out.push(p[1]+" 미제출");
