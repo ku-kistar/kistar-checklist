@@ -285,6 +285,26 @@ font-variant-numeric:tabular-nums;font-weight:600}
 .warnbox{background:var(--dangbg);border:1px solid #f0cccc;border-radius:8px;padding:10px 12px;
   font-size:12px;color:var(--dang);line-height:1.7;margin:10px 0 0}
 .nodata{font-size:12.5px;color:var(--text3);padding:10px 0;line-height:1.7}
+/* ★ 2026-10-27 T19 — 이번 학기 수강 중 · 과정별 충족 */
+.ct .tag.wip{background:#e8f0fe;color:#1d4ed8;border:1px solid #bcd0f7}
+.pgwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 14px}
+@media(max-width:820px){.pgwrap{grid-template-columns:1fr}}
+.pgbox{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pgbox h4{margin:0;padding:9px 12px;font-size:12.5px;background:#f7f9fc;border-bottom:1px solid var(--border)}
+.pgbox h4 span{font-weight:400;color:var(--text3);font-size:11px;margin-left:6px}
+.pgt{width:100%;border-collapse:collapse;font-size:12.5px}
+.pgt th,.pgt td{padding:7px 10px;border-top:1px solid var(--line);text-align:center;white-space:nowrap}
+.pgt th{color:var(--text2);font-size:11px;font-weight:600;border-top:0}
+.pgt td.l,.pgt th.l{text-align:left;white-space:normal}
+.pgt .n{font-weight:700;font-variant-numeric:tabular-nums}
+.pgt .n.cl{cursor:pointer;color:var(--navy)} .pgt .n.cl:hover{text-decoration:underline}
+.pgt .n.w{color:#1d4ed8}
+.pgt tr.sep td{border-top:2px solid var(--border)}
+.pg{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700;white-space:nowrap}
+.pg.ok{background:var(--okbg);color:var(--ok)} .pg.wip{background:#e8f0fe;color:#1d4ed8} .pg.no{background:var(--dangbg);color:var(--dang)}
+.pgx{font-size:11px;color:var(--text3)}
+@media(max-width:820px){.tbl .pgc{display:none}}
+.pgnote{padding:0 16px 12px;font-size:11px;color:var(--text3);line-height:1.6}
 .ct .tag{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:600;padding:1px 6px;
   border-radius:4px;background:#eef4ff;color:#1d4ed8;border:1px solid #d6e4ff;white-space:nowrap}
 .leg{font-size:11px;color:var(--text3);margin:-4px 0 8px;line-height:1.7}/* ── 확인 메모 (2026-08-13) ── */
@@ -347,6 +367,7 @@ border:1px solid var(--border);border-radius:14px;text-align:center;display:none
 <div class="wrap" id="wrap" style="display:none">
   <div class="board" id="board"></div>
   <div class="board" id="aiBoard"></div>
+  <div class="board" id="pgBoard"></div>
   <div class="tabs">
     <button class="tab on" id="t1" onclick="go(1)">전체 명단 <span class="c" id="c1"></span></button>
     <button class="tab" id="t0" onclick="go(0)">조치 필요 <span class="c" id="c0"></span></button>
@@ -440,7 +461,7 @@ function shape(r){
     ok:{트랙:ar.트랙>=12, 공동:ar.공동>=6, 산학:ar.산학>=6, 자유:ar.자유>=6, 학부:ar.학부>=6},
     tr:{소자:r.tracks.소자==='O', 공정:r.tracks.공정==='O',
         소재:r.tracks.소재==='O', 패키징:r.tracks.패키징==='O'},
-    ai:r.required==='이수', nw:wish.length, w26,
+    ai:r.required==='이수', nw:wish.length, w26, wish,
     dk:DK[r.dept]||'mseng', tk,
     crs:(r.semesters||[]).map(x => { const [c,s]=x.split(':'); return {c, s, n:c, ym:''}; }),
     source:r.source, updated:r.updated, memo:r.memo||'',
@@ -519,6 +540,8 @@ function rows(){
   else if(drill_==='ok')  base=DATA.filter(d=>d.tot>=36);
   else if(String(drill_).startsWith('ai:')){
     const w=String(drill_).slice(3); base=aiBase().filter(d=>aiState(d)===w); }
+  else if(String(drill_).startsWith('pg:')){                          // ★ 2026-10-27 T19 과정별 충족
+    const [,k,m]=String(drill_).split(':'); base=pgBase().filter(d=>pgHit(d,k,m)); }
   let L=base.filter(d=>
     (!dd||d.dept===dd)&&(!yy||d.yr+'학년'===yy)&&
     // 특수 값 3개는 학적 문자열이 아니라 재적정보(en)로 판정한다.
@@ -538,13 +561,13 @@ function rows(){
   return L;
 }
 function init(){
-  meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · 수강신청 기준`
+  meta.textContent=`전체 ${DATA.length}명 · 2026-2학기 기준 · KUPID 성적·수강 조회 기준`
     + (ENR_N ? ` · 재적정보 ${ENR_N}명 연결` : ' · 재적정보 미연결');
   deptSort([...new Set(DATA.map(d=>d.dept))]).forEach(v=>fD.insertAdjacentHTML('beforeend',`<option>${esc(v)}</option>`));
   [...new Set(DATA.map(d=>d.yr))].sort().forEach(v=>fY.insertAdjacentHTML('beforeend',`<option>${esc(v)}학년</option>`));
   [fD,fY].forEach(e=>e.onchange=()=>{drill_=null;render();}); fS.onchange=()=>{drill_=null;render();drawBoard();}; fQ.oninput=()=>{drill_=null;render();};
 
-  drawBoard(); drawAI();
+  drawBoard(); drawAI(); drawPg();
   c0.textContent=actList().length; c1.textContent=DATA.length;
   render();
 }
@@ -889,7 +912,8 @@ function render(){
             act:'조치 필요 — 연락·안내가 필요한 학생',
             ok:'요건 충족 — 36학점 전부 이수'};
   const lb = String(drill_).startsWith('ai:')
-    ? `AI반도체개론 — ${String(drill_).slice(3)}` : DN[drill_];
+    ? `AI반도체개론 — ${String(drill_).slice(3)}`
+    : String(drill_).startsWith('pg:') ? pgLabel(drill_) : DN[drill_];
   cnt.innerHTML = drill_ ? `<b style="color:var(--navy)">${lb}</b> · ${L.length}명` : `${L.length}명`;
   if(!L.length){body.innerHTML='<div class="empty">해당하는 학생이 없습니다.</div>';return;}
   body.innerHTML = tab===0 ? L.map(actRow).join('') : tblHtml(L);
@@ -911,12 +935,12 @@ function tblHtml(L){
     <th class="l">순번 · 학생</th><th>학년</th><th>상태</th>
     <th class="div">이수 학점</th>
     ${AREAS.map((a,i)=>`<th class="${i===0?'div':''}">${a[0]}</th>`).join('')}
-    <th class="div">2026-2 신청</th><th>추가 필요</th></tr></thead><tbody>
+    <th class="div">2026-2 수강</th><th>추가 필요</th><th class="div pgc">과정 (과목 기준)</th></tr></thead><tbody>
     ${L.map((d,idx)=>{const p=Math.round(d.tot/36*100);
       const st=!d.dg.active?['no',d.st]:d.tot>=36?['ok','충족']:d.dg.sev?['go','조치 필요']:['no','진행 중'];   // ★ 2026-10-20 학적(수료·휴학·졸업 등)이 먼저 — 36학점 충족이어도 수료생은 「수료」
       // 미이수 드릴다운은 학년이 바뀌는 지점에 구분줄을 넣는다. 55명이면 경계가 안 보인다.
       const brk = String(drill_).startsWith('ai:') && (idx===0 || L[idx-1].yr!==d.yr)
-        ? `<tr class="ybrk"><td colspan="${4+AREAS.length+2}">${d.yr}학년
+        ? `<tr class="ybrk"><td colspan="${4+AREAS.length+3}">${d.yr}학년
              <span>${L.filter(x=>x.yr===d.yr).length}명</span></td></tr>` : '';
       return brk+`<tr onclick="open_(${jsA(d.sid)})">
       <td class="l"><span class="seq">${esc(d.seq)}</span><b>${esc(d.name)}</b>
@@ -928,7 +952,8 @@ function tblHtml(L){
         return `<td class="${i===0?'div':''}"><span class="cell ${d.ar[k]>=m?'done':d.ar[k]?'part':'zero'}">${d.ar[k]}/${m}</span>${
         lack.length?`<div class="lack">${lack.join('·')} 부족</div>`:''}</td>`;}).join('')}
       <td class="div">${d.nw||'—'}</td>
-      <td><span class="need ${d.dg.need.length?'':'z'}">${d.dg.need.length||'—'}</span></td></tr>`;}).join('')}
+      <td><span class="need ${d.dg.need.length?'':'z'}">${d.dg.need.length||'—'}</span></td>
+      <td class="div pgc" style="font-size:11.5px;white-space:nowrap">${pgBest(d)}</td></tr>`;}).join('')}
     </tbody></table>`;
 }
 
@@ -946,6 +971,7 @@ function open_(sid){
   dB.innerHTML=`
   ${memoHtml(d)}
   ${enrollHtml(d)}
+  ${pgDetailHtml(d)}
   <div class="sec">이수 요약</div>
   <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:12px">
     <span style="font-size:34px;font-weight:800;letter-spacing:-1.5px">${d.tot}</span>
@@ -970,7 +996,7 @@ function open_(sid){
   <div class="sec">2026-2학기 개설과목</div>
   <table class="ct"><tbody>${OPEN.map(([c,l])=>{
     const v=d.w26[c];
-    const t=v.startsWith('✅')?['이수 완료','var(--ok)']:v.startsWith('📝')?['이번 학기 신청','#1d4ed8']
+    const t=v.startsWith('✅')?['이수 완료','var(--ok)']:v.startsWith('📝')?['이번 학기 수강 중','#1d4ed8']
            :v.startsWith('➖')?['수강 불필요','var(--text3)']:['미이수 · 미신청','var(--dang)'];
     return `<tr><td>${l}<span class="code"> ${c}</span></td>
       <td style="text-align:right;color:${t[1]};font-weight:600;white-space:nowrap">${t[0]}</td></tr>`;}).join('')}
@@ -991,6 +1017,7 @@ function open_(sid){
        const sem=dn?(d.crs.find(x=>c.codes.includes(x.c))||{}).s:'';
        let tag='';
        if(dn){ if(need===1 && dn_i>=1) tag='<span class="tag">자유이수 전환</span>'; dn_i++; }
+       else if(c.codes.some(x=>(d.wish||[]).includes(x))) tag='<span class="tag wip">2026-2 수강 중</span>';   // ★ 2026-10-27 T19
        return `<tr class="${dn?'dn':''}"><td class="c">${dn?'<span class="mk">✓</span>':''}</td>
          <td>${dn?'<b>':''}${esc(c.name)}${dn?'</b>':''}<span class="code"> ${esc(c.codes.join(' / '))}</span>${tag}</td>
          <td style="text-align:right" class="code">${esc(sem||'')}</td></tr>`;}).join('');}).join('')}
@@ -1080,12 +1107,118 @@ document.addEventListener('DOMContentLoaded',()=>{
 function close_(){closePhoto_();dw.classList.remove('on');ovl.classList.remove('on');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){ if(closePhoto_()) return; close_(); }});
 
+// ── ★ 2026-10-27 T19 과정별 충족 — 융합전공 36 · 전공트랙 24(2개) · 마이크로디그리 12(4개) ─────────
+//   근거: 3차년도 사업계획서(고려대) p.44 운영유형 — 융합전공 = 개설교과 30 + 학부인정 6 /
+//         전공트랙 = 개설교과 18 + 학부인정 6 / 마이크로디그리 = 개설교과 12 · 사업단 운영표(2026-01-27)
+//     전공트랙 = 트랙 과목 3개(9) + PBL(3) + 공동운영 2과목(6) + 학부인정(6)
+//     마이크로디그리 = 그 트랙 1과목(3) + PBL(3) + 공동운영 2과목(6)
+//   과목 기준 = 실제 이수한 과목으로 셈 (🔵 = 이번 학기 수강 중 과목까지 넣으면 충족)
+//   규정상   = 융합전공 36학점 충족이면 상위 과정 이수로 보고 전공트랙·MD 모두 충족
+//   PG_RULE 은 담당자 확정 전 기본값 — 트랙 3과목은 두 분야 합산 · 산학은 PBL만 · 공동운영은 AI반도체개론 + 1과목
+//   이 판정은 화면에서만 계산한다 (이수현황 시트·GAS 무변경)
+const PG_RULE={AI:['KISE302','KMSE330'],JOINT:['KISE301','313KISE','312KISE'],PBL:['KISE407','KISE408'],TRACK_N:3,RECOG:6};
+const PG_LIST=[
+  {k:'fuse', l:'융합전공 36', s:'융합전공'},
+  {k:'tDP',  l:'전공트랙 소자·공정 24', s:'트랙 소자·공정', g:['소자','공정']},
+  {k:'tMP',  l:'전공트랙 소재·패키징 24', s:'트랙 소재·패키징', g:['소재','패키징']},
+  {k:'mD',   l:'MD 소자 12', s:'MD 소자', g:['소자']},
+  {k:'mP',   l:'MD 공정 12', s:'MD 공정', g:['공정']},
+  {k:'mM',   l:'MD 소재 12', s:'MD 소재', g:['소재']},
+  {k:'mK',   l:'MD 패키징 12', s:'MD 패키징', g:['패키징']}
+];
+const PG_TXT={ok:'충족',wip:'수강 중 포함 시 충족',no:'미충족'};
+const pgBase=()=>DATA.filter(d=>!['졸업','융전포기'].includes(d.st));
+function pgEval(d){
+  if(d._pg) return d._pg;
+  const cat=CAT[d.dk]||[], tk=new Set(d.tk), wish=d.wish||[];
+  const run=withWish=>{
+    const S=new Set(tk); if(withWish) wish.forEach(c=>S.add(c));
+    const has=cs=>cs.some(c=>S.has(c));
+    const ai=has(PG_RULE.AI), jn=has(PG_RULE.JOINT), pbl=has(PG_RULE.PBL);
+    const cnt={}; ['소자','공정','소재','패키징'].forEach(g=>{cnt[g]=cat.filter(c=>c.grp===g&&has(c.codes)).length;});
+    const rcAdd=withWish ? cat.filter(c=>c.grp==='학부인정'&&!c.codes.some(x=>tk.has(x))&&c.codes.some(x=>wish.includes(x))).length*3 : 0;
+    const recog=Math.min(PG_RULE.RECOG,(Number(d.ar.학부)||0)+rcAdd);
+    const base=[]; if(!ai) base.push('AI반도체개론'); if(!jn) base.push('공동운영 1과목'); if(!pbl) base.push('PBL');
+    const out={fuse: d.tot>=36 ? [] : ['남은 '+(36-d.tot)+'학점']};
+    PG_LIST.forEach(p=>{ if(!p.g) return;
+      const m=[...base];
+      if(p.g.length===2){
+        const n=cnt[p.g[0]]+cnt[p.g[1]];
+        if(n<PG_RULE.TRACK_N) m.push(p.g.join('·')+' '+(PG_RULE.TRACK_N-n)+'과목');
+        if(recog<PG_RULE.RECOG) m.push('학부인정 '+(PG_RULE.RECOG-recog)+'학점');
+      } else if(cnt[p.g[0]]<1) m.push(p.g[0]+' 1과목');
+      out[p.k]=m; });
+    return out;
+  };
+  const now=run(false), wip=run(true), st={}, rule={};
+  PG_LIST.forEach(p=>{
+    st[p.k] = !now[p.k].length ? 'ok' : (p.k!=='fuse' && !wip[p.k].length) ? 'wip' : 'no';
+    rule[p.k] = d.tot>=36 ? 'ok' : st[p.k];
+  });
+  return d._pg={now,wip,st,rule};
+}
+function pgHit(d,k,m){ const e=pgEval(d);
+  return m==='rule' ? e.rule[k]==='ok' : m==='wip' ? e.st[k]==='wip' : e.st[k]==='ok'; }
+function pgLabel(dr){ const [,k,m]=String(dr).split(':'); const p=PG_LIST.find(x=>x.k===k)||{l:k};
+  return p.l+' — '+(m==='rule'?'규정상 충족':m==='wip'?'이번 학기 수강 중 과목을 넣으면 충족':'과목 기준 충족'); }
+function pgBest(d){
+  const e=pgEval(d);
+  if(['졸업','융전포기'].includes(d.st)) return '<span class="pgx">—</span>';
+  if(e.st.fuse==='ok') return '<span class="pg ok">융합전공</span>';
+  const tr=PG_LIST.filter(p=>p.k[0]==='t'&&e.st[p.k]==='ok').map(p=>p.s);
+  const md=PG_LIST.filter(p=>p.k[0]==='m'&&e.st[p.k]==='ok').length;
+  const w=PG_LIST.filter(p=>e.st[p.k]==='wip').length;
+  const a=[]; if(tr.length) a.push(`<span class="pg ok">${esc(tr.join(' · '))}</span>`);
+  else if(md) a.push(`<span class="pg ok">MD ${md}개</span>`);
+  if(w) a.push(`<span class="pg wip">+수강 중 ${w}</span>`);
+  return a.length ? a.join(' ') : '<span class="pgx">—</span>';
+}
+function drillPg(k,m){
+  drill_='pg:'+k+':'+m; fS.value=''; fD.value=''; fY.value=''; fQ.value='';
+  tab=1; t0.classList.remove('on'); t1.classList.add('on');
+  render(); drawBoard();
+  document.querySelector('.tabs').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function drawPg(){
+  const B=pgBase(); if(!B.length){ pgBoard.innerHTML=''; return; }
+  const n=(k,m)=>B.filter(d=>pgHit(d,k,m)).length;
+  const cell=(k,m,cls)=>{const v=n(k,m); return `<td><span class="n${v?' cl':''}${cls?' '+cls:''}"${v?` onclick="drillPg('${k}','${m}')"`:''}>${v}</span></td>`;};
+  const sep=p=>p.k==='tDP'||p.k==='mD'?' class="sep"':'';
+  pgBoard.innerHTML=`<div class="aihd"><div class="aitt">과정별 충족<span>양성인원 ${B.length}명 · 과목 기준과 규정상을 따로 셈</span></div></div>
+  <div class="pgwrap">
+    <div class="pgbox"><h4>과목 기준<span>실제 이수한 과목으로 셈</span></h4>
+      <table class="pgt"><thead><tr><th class="l">과정</th><th>충족</th><th>🔵 수강 중 포함 시</th></tr></thead><tbody>
+      ${PG_LIST.map(p=>`<tr${sep(p)}><td class="l">${esc(p.l)}</td>${cell(p.k,'now')}${p.k==='fuse'?'<td class="pgx">—</td>':cell(p.k,'wip','w')}</tr>`).join('')}
+      </tbody></table></div>
+    <div class="pgbox"><h4>규정상<span>융합전공 36 충족 = 전공트랙·MD 모두 충족</span></h4>
+      <table class="pgt"><thead><tr><th class="l">과정</th><th>충족</th><th>과목 기준과 차이</th></tr></thead><tbody>
+      ${PG_LIST.map(p=>{const d1=n(p.k,'rule')-n(p.k,'now');
+        return `<tr${sep(p)}><td class="l">${esc(p.l)}</td>${cell(p.k,'rule')}<td class="pgx">${d1?'+'+d1+'명':'—'}</td></tr>`;}).join('')}
+      </tbody></table></div>
+  </div>
+  <div class="pgnote">전공트랙 = 해당 두 분야 과목 3개 + PBL + 공동운영 2과목(AI반도체개론 포함) + 학부인정 6학점 ·
+    마이크로디그리 = 해당 분야 1과목 + PBL + 공동운영 2과목 (사업계획서 3차년도 운영유형 · 운영표 기준).
+    「수강 중 포함 시」 = 이번 학기 수강 과목을 모두 이수한다고 가정한 인원(이미 충족한 학생 제외). 숫자를 누르면 아래 명단이 바뀝니다.</div>`;
+}
+function pgDetailHtml(d){
+  if(['졸업','융전포기'].includes(d.st)) return '';
+  const e=pgEval(d);
+  const tg=v=>`<span class="pg ${v}">${v==='ok'?'충족':v==='wip'?'🔵 수강 중 포함 시 충족':'미충족'}</span>`;
+  return `<div class="sec">과정별 충족</div>
+  <table class="ct"><thead><tr><th>과정</th><th>과목 기준</th><th>규정상</th><th>부족한 것 (과목 기준)</th></tr></thead><tbody>
+  ${PG_LIST.map(p=>`<tr><td>${esc(p.l)}</td><td>${tg(e.st[p.k])}</td><td>${tg(e.rule[p.k])}</td>
+    <td class="pgx" style="white-space:normal">${e.now[p.k].length?esc(e.now[p.k].join(' · ')):'—'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
 function csv(){
   const L=rows();
   const h=['순번','학번','이름','학과','학년','학적상태','AI반도체개론','총학점','졸업요건',
-    ...AREAS.map(a=>a[2]),'2026-2 신청건수','추가 필요 과목수','조치 사유'];
+    ...AREAS.map(a=>a[2]),'2026-2 신청건수','추가 필요 과목수','조치 사유',
+    ...PG_LIST.map(p=>p.l+' (과목 기준)'),...PG_LIST.map(p=>p.l+' (규정상)'),'2026-2 수강 중 과목'];
   const b=L.map(d=>[d.seq,d.sid,d.name,d.dept,d.yr,d.st,aiState(d),d.tot,d.tot>=36?'충족':'미충족',
-    ...AREAS.map(a=>d.ar[a[0]]),d.nw,d.dg.need.length,d.dg.rsn.replace(/<[^>]+>/g,'')]);
+    ...AREAS.map(a=>d.ar[a[0]]),d.nw,d.dg.need.length,d.dg.rsn.replace(/<[^>]+>/g,''),
+    ...PG_LIST.map(p=>PG_TXT[pgEval(d).st[p.k]]),...PG_LIST.map(p=>PG_TXT[pgEval(d).rule[p.k]]),(d.wish||[]).join(' ')]);
   const t=[h,...b].map(r=>r.map(c=>`"${csvSafe(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\uFEFF'+t],{type:'text/csv;charset=utf-8'}));
