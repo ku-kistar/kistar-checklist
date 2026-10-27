@@ -1677,7 +1677,7 @@ function runBatch(){
         var before = await hubCall({action:'getProgressOne', studentId:st.sid, adminId:auth.studentId, adminBirth:_admBirth(auth)});
         var b = (before && before.student) || {};
         row.name = b.name || ''; row.dept = b.dept || '';
-        row.beforeTotal = b.total; row.beforeSource = b.source || ''; row.beforeCodes = String(b.codes || '').split('|').filter(String).length;
+        row.beforeTotal = b.total; row.beforeSource = b.source || ''; row.beforeCodes = (Array.isArray(b.codes) ? b.codes : String(b.codes || '').split('|')).filter(String).length;
         var stObj = await lookupStudent(st.sid);
         if(!stObj){ row.result = '명단에서 학번을 찾지 못함'; _batchRows.push(row); continue; }
         var gt = _batchGradeText(st);
