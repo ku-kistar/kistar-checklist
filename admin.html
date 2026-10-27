@@ -242,6 +242,21 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
     전체성적_2022170155.xlsx · 파일명의 학번으로 학생을 찾습니다</div>
   <input type="file" id="gradeFile" accept=".xlsx,.xls,.csv" style="display:none">
 </div>
+<!-- ★ 2026-10-27 KUPID 일괄 입력 (T19) — KUPID 조회 결과 파일(json) 하나로 여러 학생을 판정·저장 -->
+<div id="batchBox" style="border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--surface2)">
+  <div style="font-size:13px;font-weight:700;color:var(--text1,#1f2937);margin-bottom:4px">KUPID 일괄 입력</div>
+  <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
+    이수현황_KUPID_*.json 파일을 고르면 학생마다 학과 전환 → 성적 판정 → 저장을 차례로 합니다.<br>
+    이번 학기 수강 과목(2026-2 신청과목 · 신청 건수)도 같이 갱신하고, 이수과목코드·수강학기는 최신 성적으로 전부 바꿉니다.</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    <input type="file" id="batchFile" accept=".json" style="font-size:12px;max-width:100%">
+    <label style="font-size:12px">처음 <input type="number" id="batchLimit" value="3" min="0" style="width:56px"> 명만 (0 = 전체)</label>
+    <label style="font-size:12px"><input type="checkbox" id="batchDry" checked> 저장 없이 미리보기</label>
+    <button type="button" class="grade-run-btn" id="batchRun" onclick="runBatch()">일괄 실행</button>
+    <button type="button" class="grade-clear-btn" id="batchCsv" onclick="batchCsv()" disabled>결과 CSV</button>
+  </div>
+  <div id="batchMsg" style="font-size:12px;margin-top:8px;color:var(--text2);white-space:pre-wrap"></div>
+</div>
 <textarea class="grade-textarea" id="gradeInput" placeholder="여기에 성적 데이터를 붙여넣으세요..."></textarea>
     <div class="grade-actions">
       <button class="grade-run-btn" onclick="runAutoCheck()">
@@ -1561,6 +1576,26 @@ function collectCodes(){
   return out;
 }
 
+// ★ 2026-10-27 — 화면 저장(saveResult)과 KUPID 일괄 저장(runBatch)이 같은 계산을 쓰도록 분리
+function _buildSaveParams(){
+  const c1=Math.min(raw[1],12), c2=Math.min(raw[2],6), c3=Math.min(raw[3],6),
+        c4=Math.min(raw[4],6), c5=Math.min(raw[5],6);
+  // raw[3]=학부인정  raw[4]=산학연계  raw[5]=자유이수  (화면 번호와 다름에 주의)
+  const total  = c1+c2+c3+c4+c5;
+  const codes = collectCodes();
+  const sems  = codes.filter(c=>gradeSemMap[c]).map(c=>c+':'+gradeSemMap[c]).join('|');
+  const T = t => trackCounts[t]>=1 ? 'O' : 'X';
+  return { total: total, codes: codes, sems: sems, p: {
+    total:    total,
+    track:    c1, joint: c2, industry: c4, free: c5, recog: c3,
+    required: aiChecked ? '이수' : '미이수',
+    t1: T('socha'), t2: T('gongjeong'), t3: T('sojai'), t4: T('packaging'),
+    codes:     codes.join('|'),
+    semesters: sems,
+    source:    sems ? '성적확정' : '수동입력'
+  }};
+}
+
 function saveResult(){
   const sid=document.getElementById('f-id').value.trim();
   const sname=document.getElementById('f-name').value.trim();
@@ -1568,16 +1603,8 @@ function saveResult(){
     showSaveResult('error','학번과 이름을 입력해주세요.');return;
   }
 
-  const c1=Math.min(raw[1],12), c2=Math.min(raw[2],6), c3=Math.min(raw[3],6),
-        c4=Math.min(raw[4],6), c5=Math.min(raw[5],6);
-  // raw[3]=학부인정  raw[4]=산학연계  raw[5]=자유이수  (화면 번호와 다름에 주의)
-  const total  = c1+c2+c3+c4+c5;
-  const pbl4ok = pblChecked!==null && colChecked!==null;
-  const gd6    = aiChecked && Object.values(gdChecked).filter(Boolean).length>=1;
-
-  const codes = collectCodes();
-  const sems  = codes.filter(c=>gradeSemMap[c]).map(c=>c+':'+gradeSemMap[c]).join('|');
-  const T = t => trackCounts[t]>=1 ? 'O' : 'X';
+  const B = _buildSaveParams();
+  const total = B.total, codes = B.codes, sems = B.sems;
 
   const el = document.getElementById('saveResult');
   el.className = 'save-result show success';
@@ -1586,19 +1613,12 @@ function saveResult(){
   const auth = _admAuth();   // ★ 2026-10-15 T40 후속
   if (!auth) { showSaveResult('error','관리자 로그인이 만료됐습니다. 데이터허브 대문에서 다시 로그인한 뒤 저장해 주세요. (입력한 내용은 이 창에 그대로 있습니다)'); return; }
 
-  hubCall({
+  hubCall(Object.assign({
     action:'saveProgress',
     studentId: sid,
     adminId:   auth.studentId,     // 서버가 이 값으로 관리자 여부를 재확인한다
-    adminBirth: _admBirth(auth),   // ★ 2026-10-07 T37 — 생년월일까지 확인
-    total:    total,
-    track:    c1, joint: c2, industry: c4, free: c5, recog: c3,
-    required: aiChecked ? '이수' : '미이수',
-    t1: T('socha'), t2: T('gongjeong'), t3: T('sojai'), t4: T('packaging'),
-    codes:     codes.join('|'),
-    semesters: sems,
-    source:    sems ? '성적확정' : '수동입력'
-  }).then(function(r){
+    adminBirth: _admBirth(auth)    // ★ 2026-10-07 T37 — 생년월일까지 확인
+  }, B.p)).then(function(r){
     if (r && r.status === 'ok') {
       showSaveResult('success',
         '✅ ' + sname + '(' + sid + ') 이수현황 저장 완료 — 총 ' + total + '학점 · 과목 ' + codes.length + '개'
@@ -1607,6 +1627,99 @@ function saveResult(){
       showSaveResult('error','저장 실패: ' + ((r && r.message) || '알 수 없는 오류'));
     }
   }).catch(function(e){ showSaveResult('error','저장 실패: ' + e.message); });
+}
+
+// ── ★ 2026-10-27 KUPID 일괄 입력 (T19) ───────────────────────────────
+//   파일: KUPID 탭에서 만든 json — students[{sid, grades[], enroll2026_2[], dropped2026_2[], ml312KISE}]
+//   · 성적 → 기존 판정 로직(runAutoCheck) 그대로. 성적 칸이 빈 행은 이수로 세지 않고 결과에 따로 적는다
+//   · 이번 학기 수강 과목 = KUPID 수강신청(포기 제외) ∩ 이 학과 체크리스트 과목 + 융합전공 과목(KISE·312KISE·313KISE)
+//     312KISE(반도체머신러닝·인제대)는 고려대 수강신청에 안 잡혀 데이터허브 확정자 명단으로 붙인다(ml312KISE)
+//   · 저장은 saveProgress 그대로 + wishCodes(X·T열) + full=1(V·W열을 빈 값이어도 덮어씀) — progress.gs 2026-10-27
+//   · 성적 텍스트·결과는 이 창 메모리에만 있다. 어디에도 올리지 않는다
+var _batchRows = [];
+function _bmsg(t){ document.getElementById('batchMsg').textContent = t; }
+function _batchGradeText(st){
+  var empty = [];
+  var lines = st.grades.map(function(g){
+    if(!g.grade && !g.del){ empty.push(g.code); return ''; }
+    var sem = g.syy + '-' + g.smt;                       // '2025-2학기' · '2025-계절수업(여름)' → normSem 이 읽는다
+    return [sem, g.code, g.name, g.div, g.cdt, g.grade, g.del].join('\t');
+  }).filter(Boolean);
+  return { text: lines.join('\n'), empty: empty };
+}
+function _batchWish(st){
+  var CMAP = COURSE_CODE_MAPS[currentDept] || {};
+  var codes = (st.enroll2026_2 || []).map(function(e){ return String(e.code || '').toUpperCase(); })
+    .filter(function(c){ return CMAP[c] || /^KISE\d|^31[23]KISE$/.test(c); });
+  if(st.ml312KISE && codes.indexOf('312KISE') < 0) codes.push('312KISE');
+  return codes.filter(function(c, i){ return codes.indexOf(c) === i; });
+}
+function runBatch(){
+  var f = document.getElementById('batchFile').files[0];
+  if(!f){ _bmsg('json 파일을 먼저 골라 주세요.'); return; }
+  var auth = _admAuth();
+  if(!auth){ _bmsg('관리자 로그인이 만료됐습니다. 데이터허브 대문에서 다시 로그인해 주세요.'); return; }
+  var dry = document.getElementById('batchDry').checked;
+  var lim = parseInt(document.getElementById('batchLimit').value, 10) || 0;
+  if(!dry && !confirm((lim ? lim + '명' : '전체') + '을 이수현황 탭에 저장합니다. 진행할까요?')) return;
+  var btn = document.getElementById('batchRun'); btn.disabled = true;
+  var rd = new FileReader();
+  rd.onload = async function(){
+    var data;
+    try{ data = JSON.parse(rd.result); }catch(e){ _bmsg('json 을 읽지 못했습니다.'); btn.disabled = false; return; }
+    if(!data || data.kind !== 'kistar-kupid-batch'){ _bmsg('KUPID 일괄 입력 파일이 아닙니다.'); btn.disabled = false; return; }
+    var list = data.students.slice(0, lim || undefined);
+    _batchRows = [];
+    for(var i = 0; i < list.length; i++){
+      var st = list[i], row = { sid: st.sid };
+      _bmsg((dry ? '미리보기 ' : '저장 ') + (i + 1) + ' / ' + list.length + ' · ' + st.sid);
+      try{
+        var before = await hubCall({action:'getProgressOne', studentId:st.sid, adminId:auth.studentId, adminBirth:_admBirth(auth)});
+        var b = (before && before.student) || {};
+        row.name = b.name || ''; row.dept = b.dept || '';
+        row.beforeTotal = b.total; row.beforeSource = b.source || ''; row.beforeCodes = String(b.codes || '').split('|').filter(String).length;
+        var stObj = await lookupStudent(st.sid);
+        if(!stObj){ row.result = '명단에서 학번을 찾지 못함'; _batchRows.push(row); continue; }
+        var gt = _batchGradeText(st);
+        resetAll();                                        // 앞 학생 판정이 남지 않게 (과목이 하나도 없으면 runAutoCheck 가 중간에 멈춘다)
+        document.getElementById('gradeInput').value = gt.text;
+        runAutoCheck();
+        var B = _buildSaveParams();
+        var wish = _batchWish(st);
+        row.total = B.total; row.codes = B.codes.length; row.wish = wish.join('|');
+        row.emptyGrade = gt.empty.join('|'); row.dropped = (st.dropped2026_2 || []).join('|');
+        if(dry){ row.result = '미리보기'; }
+        else{
+          var r = await hubCall(Object.assign({action:'saveProgress', studentId:st.sid, adminId:auth.studentId,
+                    adminBirth:_admBirth(auth), wishCodes: wish.join('|'), full:'1'}, B.p));
+          row.result = (r && r.status === 'ok') ? '저장' : ('실패: ' + ((r && r.message) || '응답 없음'));
+        }
+      }catch(e){ row.result = '오류: ' + e.message; }
+      _batchRows.push(row);
+    }
+    var ok = _batchRows.filter(function(r){ return r.result === '저장' || r.result === '미리보기'; }).length;
+    var lines = _batchRows.map(function(r){
+      var diff = (r.beforeTotal !== undefined && r.beforeTotal !== '' && Number(r.beforeTotal) !== r.total)
+        ? ' (전 ' + r.beforeTotal + '학점 · ' + (r.beforeSource || '') + ')' : '';
+      return r.sid + ' ' + (r.name || '') + ' — ' + (r.total !== undefined ? r.total + '학점' : '') + diff
+        + (r.wish ? ' · 수강 중 ' + r.wish : '') + (r.emptyGrade ? ' · 성적 빈칸 ' + r.emptyGrade : '') + ' · ' + r.result;
+    });
+    _bmsg((dry ? '미리보기 끝' : '저장 끝') + ' — ' + ok + ' / ' + _batchRows.length + '명\n' + lines.join('\n'));
+    document.getElementById('batchCsv').disabled = false;
+    btn.disabled = false;
+  };
+  rd.readAsText(f, 'utf-8');
+}
+function batchCsv(){
+  var H = ['학번','이름','학과','이전 학점','이전 출처','새 학점','이수과목 수','2026-2 수강 중','성적 빈칸','2026-2 포기','결과'];
+  var esc = function(v){ v = (v === undefined || v === null) ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
+  var csv = [H.join(',')].concat(_batchRows.map(function(r){
+    return [r.sid, r.name, r.dept, r.beforeTotal, r.beforeSource, r.total, r.codes, r.wish, r.emptyGrade, r.dropped, r.result].map(esc).join(',');
+  })).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], {type:'text/csv'}));
+  a.download = '이수현황_일괄결과.csv'; a.setAttribute('data-dl','1');
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
 }
 
 function showSaveResult(type,msg){
