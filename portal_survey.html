@@ -310,43 +310,51 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .t2-acts button,.t2-acts a{font-family:inherit;font-size:11px;font-weight:700;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.22);background:transparent;border-radius:6px;padding:5px 10px;cursor:pointer;text-decoration:none;min-height:30px;display:inline-flex;align-items:center}
 .t2-acts button:hover,.t2-acts a:hover{color:#fff;border-color:rgba(255,255,255,.5)}
 .t3-h{font-size:14px}
-.t3-card{border-left:3px solid #ff6b5a;background:rgba(255,107,90,.08);border-radius:0 10px 10px 0;margin-top:8px}
-.t3-amber{border-left-color:#f0a04b;background:rgba(240,160,75,.07)}
-.t3-cline{display:flex;align-items:flex-start;gap:10px;padding:10px;cursor:pointer;border-radius:0 10px 10px 0}
-.t3-cline .t2-ck{margin-top:1px}
-.t3-cbody{flex:1;min-width:0}
-.t3-ctitle{font-size:14.5px;font-weight:700;color:#fff;line-height:1.45;overflow-wrap:anywhere}
-.t3-cnext{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px;line-height:1.55;overflow-wrap:anywhere}
-.t3-cdd{flex-shrink:0;font-size:12px;font-weight:800;color:#ff9d90;white-space:nowrap;margin-top:2px}
-.t3-amber .t3-cdd{color:#f0b46b}
-.t3-sec{margin:16px 0 2px;font-size:12px;font-weight:800;color:rgba(255,255,255,.7)}
-.t3-sec span{font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,.4);margin-left:3px}
+.t3-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:4px 0 6px}
+.t3-wd{font-size:10.5px;color:rgba(255,255,255,.4);text-align:center;padding-bottom:1px}
+.t3-cell{min-height:58px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:4px 5px;text-align:left;font-family:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.t3-cell:hover{border-color:rgba(255,255,255,.3)}
+.t3-past{opacity:.45}
+.t3-today{border-color:#7dd3fc;background:rgba(14,165,233,.12)}
+.t3-sel{border-color:#fff;opacity:1}
+.t3-cd{font-size:11px;font-weight:700;color:rgba(255,255,255,.7)}
+.t3-today .t3-cd{color:#7dd3fc}
+.t3-ci{font-size:10.5px;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:rgba(255,255,255,.08);border-radius:4px;padding:1px 4px}
+.t3-cm{font-size:10px;color:rgba(255,255,255,.45)}
+.t3-cn{display:none}
+.t3-dayl{background:rgba(255,255,255,.03);border-radius:8px;padding:2px 8px 6px;margin-bottom:4px}
+.t3-dayh{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.6);padding:6px 0 2px}
+.t3-sec{margin:12px 0 2px;font-size:12px;font-weight:800;color:rgba(255,255,255,.75)}
+.t3-sec span{font-family:'JetBrains Mono',monospace;color:#ffb3aa;margin-left:3px}
 .t3-row{border-top:1px solid rgba(255,255,255,.06)}
-.t3-rline{display:flex;align-items:center;gap:10px;padding:7px 4px;cursor:pointer;border-radius:8px}
-.t3-rline:hover,.t3-cline:hover{background:rgba(255,255,255,.04)}
-.t3-rtitle{flex:1;min-width:0;font-size:13px;color:rgba(255,255,255,.82);line-height:1.45;overflow-wrap:anywhere}
-.t3-rdd{flex-shrink:0;font-size:11.5px;color:rgba(255,255,255,.45);white-space:nowrap}
-.t3-rnext{font-size:11.5px;color:rgba(255,255,255,.55);padding:0 4px 0 34px;line-height:1.6;overflow-wrap:anywhere}
-.t3-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 10px 10px 40px}
+.t3-line{display:flex;align-items:center;gap:10px;padding:8px 4px;cursor:pointer;border-radius:8px}
+.t3-line:hover{background:rgba(255,255,255,.04)}
+.t3-name{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:rgba(255,255,255,.88);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t3-hot .t3-name{font-size:14px;color:#fff}
+.t3-dd{flex-shrink:0;font-size:12px;color:rgba(255,255,255,.5);white-space:nowrap}
+.t3-dd-red{color:#ff9d90;font-weight:800}
+.t3-more{padding:0 6px 10px 34px}
+.t3-full{font-size:12.5px;color:rgba(255,255,255,.8);line-height:1.5;overflow-wrap:anywhere}
+.t3-meta{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.t3-next{font-size:12px;color:rgba(255,255,255,.68);margin-top:5px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere}
+.t3-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:8px}
 .t3-acts button,.t3-acts a,.t3-add button{font-family:inherit;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.75);border:1px solid rgba(255,255,255,.22);background:transparent;border-radius:6px;padding:5px 10px;cursor:pointer;text-decoration:none;min-height:30px;display:inline-flex;align-items:center}
 .t3-acts button:hover,.t3-acts a:hover,.t3-add button:hover{color:#fff;border-color:rgba(255,255,255,.5)}
 .t3-acts .t3-on{background:rgba(14,165,233,.22);border-color:#7dd3fc;color:#fff}
 .t3-acts .t3-done{border-color:#5fd39a;color:#9be8bf}
 .t3-gap{width:6px}
-.t3-tag{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.6);background:rgba(255,255,255,.08);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px;white-space:nowrap}
-.t3-tag-nudge{color:#f0b46b;background:rgba(240,160,75,.16)}
-.t3-moreb{background:none;border:none;color:rgba(255,255,255,.45);font-family:inherit;font-size:11.5px;padding:7px 4px;cursor:pointer}
-.t3-moreb:hover{color:rgba(255,255,255,.8)}
-.t3-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.1)}
+.t3-tag-nudge{font-size:9.5px;font-weight:700;color:#f0b46b;background:rgba(240,160,75,.16);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+.t3-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.1)}
 .t3-chip{font-family:inherit;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.6);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:5px 11px;cursor:pointer;min-height:30px}
+.t3-chip b{font-weight:800;color:rgba(255,255,255,.9);margin-left:2px}
 .t3-chip:hover,.t3-chip-on{color:#fff;border-color:rgba(255,255,255,.4)}
 .t3-chip-nudge{border-color:rgba(240,160,75,.5);color:#f0b46b}
 .t3-chiplist{margin-top:6px}
-.t3-empty{font-size:12.5px;color:rgba(255,255,255,.5);padding:8px 2px}
+.t3-none{font-size:12px;color:rgba(255,255,255,.45);padding:6px 2px}
 .t3-add{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
 .t3-add input{flex:1 1 200px;min-width:0;font-family:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:7px 10px}
 .t3-add input[type=date]{flex:0 0 150px;color-scheme:dark}
-@media(max-width:600px){.t3-acts{padding-left:10px}.t3-rnext{padding-left:4px}.t3-add input[type=date]{flex:1 1 140px}}
+@media(max-width:600px){.t3-ci,.t3-cm{display:none}.t3-cn{display:block;align-self:flex-start;font-size:10px;font-weight:800;color:#7dd3fc;background:rgba(14,165,233,.2);border-radius:99px;padding:0 6px}.t3-cell{min-height:44px;padding:3px 4px}.t3-more{padding-left:4px}.t3-add input[type=date]{flex:1 1 140px}}
 .t2-undo{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);display:flex;align-items:center;gap:14px;background:#0b1f3a;border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12.5px;padding:9px 10px 9px 16px;border-radius:10px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px)}
 .t2-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%)}
 .t2-undo span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2908,14 +2916,14 @@ function _t2ShowUndo(msg, fn) {
   _t2UndoTimer = setTimeout(function () { t.classList.remove('show'); _t2Undo = null; }, 5000);
 }
 
-/* ── 「지금 할 일」 v3 (2026-10-27 · T34 · GAS v136) ──────────────────
-   서버(_wsTodo_)가 나눈 구간을 그대로 쓴다 — 월요일 메일과 같은 규칙.
-   맨 위 「오늘 할 일」 최대 3건(크게 · 다음 할 일 한 줄) → 이번 주(4건 + 더 보기)
-   → 접힘 묶음: 회신 기다림 · 진행 중(기한 없음) · 금요일 문서 정리 · 나중
-   줄을 누르면 상태 버튼(진행·회신대기·보류·완료) · 미루기 · 이어서 하기.
-   빨강은 오늘·지난 일에만. 문서 정리는 빨강이 되지 않는다.               */
-const _T3_SEC = [['wait', '회신 기다림'], ['doing', '진행 중 · 기한 없음'], ['docs', '금요일 문서 정리'], ['later', '나중']];
-let _t3 = { list: [], exp: null, more: false, chip: null, adding: false };
+/* ── 「지금 할 일」 v4 (2026-10-27 · T34 · GAS v137) ──────────────────
+   한 줄 = 짧은 이름(작업현황 K열) + 날짜. 자세한 것(전체 이름 · ▶ 할 일 · 버튼)은 눌러서 펼친다.
+   위: 2주 띠(이번 주·다음 주 14칸) — 칸을 누르면 그날 할 일
+   가운데: 오늘 할 일(지남·오늘·내일 중 급한 순 최대 3)
+   아래: 숫자만 — 이번 주 · 회신 기다림 · 진행 중 · 문서 정리 · 나중 (눌러서 펼침)
+   서버(_wsTodo_)가 나눈 구간을 그대로 쓴다 — 월요일 메일·평일 알림과 같은 규칙.          */
+const _T3_SEC = [['week', '이번 주'], ['wait', '회신 기다림'], ['doing', '진행 중'], ['docs', '문서 정리'], ['later', '나중']];
+let _t3 = { list: [], exp: null, chip: null, day: null, adding: false };
 
 function _t3Md(n) {
   const d = _todoToday(); d.setDate(d.getDate() + n);
@@ -2935,8 +2943,8 @@ function _t3Build(items, work) {
   (work.todo || []).forEach(function (t) {
     L.push({ kind: t.src === 'cal' ? 'cal' : 'work', key: t.src === 'cal' ? 'cal:' + t.calId : 'work:' + t.id,
       id: t.id || '', calId: t.calId || '', title: t.title, short: t.short || t.title, area: t.area || '',
-      status: t.status || '', dday: t.dday, next: t.next || '', sec: t.sec, top: !!t.top,
-      waitDays: t.waitDays, nudge: !!t.nudge,
+      status: t.status || '', dday: t.dday, ymd: t.ymd || (t.dday !== null && t.dday !== undefined ? _t2Ymd(t.dday) : ''),
+      next: t.next || '', sec: t.sec, waitDays: t.waitDays, nudge: !!t.nudge,
       work: (work.all || []).filter(function (w) { return w.id === t.id; })[0] || null });
   });
   const hid = _t2Hidden();
@@ -2946,10 +2954,9 @@ function _t3Build(items, work) {
     if (hid.indexOf(key) >= 0) return;
     const n = it.dday;
     L.push({ kind: 'auto', key: key, title: it.title, short: it.title, area: it.area || '', status: '',
-      dday: n, next: it.sub || '', href: it.href || '', top: false,
+      dday: n, ymd: (n === null || n === undefined) ? '' : _t2Ymd(n), next: it.sub || '', href: it.href || '',
       sec: n === null || n === undefined ? 'week' : (n < 0 ? 'over' : (n <= 1 ? 'today' : 'week')) });
   });
-  // 맨 위 3건 다시 정한다 (자동 경보가 끼어들 수 있으므로)
   const hot = L.filter(function (x) { return x.sec === 'over' || x.sec === 'today'; })
                .sort(function (a, b) { return (a.dday === null ? 0 : a.dday) - (b.dday === null ? 0 : b.dday); });
   L.forEach(function (x) { x.top = false; });
@@ -2975,37 +2982,56 @@ function _t3Acts(x, i) {
   return '<div class="t3-acts">' + a + '</div>';
 }
 
-function _t3Ck(x, i) {
-  return x.kind === 'auto' ? '<span class="t2-ck t2-ck-auto" title="자동 경보">!</span>'
-    : '<button type="button" class="t2-ck" aria-label="완료" title="완료" onclick="event.stopPropagation();_t3Check(' + i + ')"></button>';
-}
-function _t3Tag(x) {
-  if (x.status === '회신대기') return '<span class="t3-tag">회신대기</span>';
-  if (x.status === '진행') return '<span class="t2-st">진행</span>';
-  return '';
-}
-
-function _t3Card(x) {
-  const i = _t3.list.indexOf(x), exp = _t3.exp === x.key;
-  const lv = (x.dday !== null && x.dday !== undefined && x.dday <= 0) ? 'red' : 'amber';
-  return '<div class="t3-card t3-' + lv + (exp ? ' t3-exp' : '') + '">' +
-    '<div class="t3-cline" onclick="_t3Expand(' + i + ')">' + _t3Ck(x, i) +
-      '<div class="t3-cbody"><div class="t3-ctitle">' + _todoEsc(x.title) + _t3Tag(x) + '</div>' +
-      (x.next ? '<div class="t3-cnext">' + _todoEsc(x.next) + '</div>' : '') + '</div>' +
-      '<span class="t3-cdd">' + _todoEsc(_t3Dd(x)) + '</span></div>' +
-    (exp ? _t3Acts(x, i) : '') + '</div>';
-}
-
-function _t3Row(x) {
+/* 한 줄 — ○ 짧은 이름 ··· 날짜. 펼치면 전체 이름 · 구분 · ▶ 할 일 · 버튼 */
+function _t3Row(x, hot) {
   const i = _t3.list.indexOf(x), exp = _t3.exp === x.key;
   let dd = _t3Dd(x);
   if (x.sec === 'wait' && x.waitDays !== null && x.waitDays !== undefined) dd = x.waitDays + '일째';
-  return '<div class="t3-row' + (x.nudge ? ' t3-nudge' : '') + (exp ? ' t3-exp' : '') + '">' +
-    '<div class="t3-rline" onclick="_t3Expand(' + i + ')">' + _t3Ck(x, i) +
-      '<span class="t3-rtitle">' + (x.area ? '<span class="t2-area">' + _todoEsc(x.area) + '</span>' : '') + _todoEsc(x.title) + _t3Tag(x) +
-      (x.nudge ? '<span class="t3-tag t3-tag-nudge">재촉</span>' : '') + '</span>' +
-      '<span class="t3-rdd">' + _todoEsc(dd) + '</span></div>' +
-    (exp ? ((x.next ? '<div class="t3-rnext">' + _todoEsc(x.next) + '</div>' : '') + _t3Acts(x, i)) : '') + '</div>';
+  const red = hot && x.dday !== null && x.dday !== undefined && x.dday <= 0;
+  const ck = x.kind === 'auto' ? '<span class="t2-ck t2-ck-auto" title="자동 경보">!</span>'
+    : '<button type="button" class="t2-ck" aria-label="완료" title="완료" onclick="event.stopPropagation();_t3Check(' + i + ')"></button>';
+  let more = '';
+  if (exp) {
+    const meta = [x.area, x.status, x.id].filter(Boolean).join(' · ');
+    more = '<div class="t3-more">' +
+      (x.short !== x.title ? '<div class="t3-full">' + _todoEsc(x.title) + '</div>' : '') +
+      (meta ? '<div class="t3-meta">' + _todoEsc(meta) + '</div>' : '') +
+      (x.next ? '<div class="t3-next">' + _todoEsc(x.next) + '</div>' : '') +
+      _t3Acts(x, i) + '</div>';
+  }
+  return '<div class="t3-row' + (hot ? ' t3-hot' : '') + (exp ? ' t3-exp' : '') + '">' +
+    '<div class="t3-line" onclick="_t3Expand(' + i + ')">' + ck +
+      '<span class="t3-name">' + _todoEsc(x.short) + (x.nudge ? '<span class="t3-tag-nudge">재촉</span>' : '') + '</span>' +
+      '<span class="t3-dd' + (red ? ' t3-dd-red' : '') + '">' + _todoEsc(dd) + '</span></div>' + more + '</div>';
+}
+
+/* 2주 띠 — 이번 주 월요일부터 14칸 */
+function _t3Strip(L) {
+  const t = _todoToday(), mon = new Date(t); mon.setDate(t.getDate() - ((t.getDay() + 6) % 7));
+  const ymd = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+  const byDay = {};
+  L.forEach(function (x) { if (x.ymd && x.sec !== 'docs') (byDay[x.ymd] = byDay[x.ymd] || []).push(x); });
+  let h = '<div class="t3-strip">';
+  ['월', '화', '수', '목', '금', '토', '일'].forEach(function (w) { h += '<div class="t3-wd">' + w + '</div>'; });
+  for (let k = 0; k < 14; k++) {
+    const d = new Date(mon); d.setDate(mon.getDate() + k);
+    const key = ymd(d), arr = byDay[key] || [];
+    const past = d < t, today = d.getTime() === t.getTime(), sel = _t3.day === key;
+    h += '<button type="button" class="t3-cell' + (past ? ' t3-past' : '') + (today ? ' t3-today' : '') + (sel ? ' t3-sel' : '') +
+      (arr.length ? '' : ' t3-empty') + '" onclick="_t3Day(\'' + key + '\')">' +
+      '<span class="t3-cd">' + d.getDate() + '</span>' +
+      arr.slice(0, 2).map(function (x) { return '<span class="t3-ci">' + _todoEsc(x.short) + '</span>'; }).join('') +
+      (arr.length > 2 ? '<span class="t3-cm">+' + (arr.length - 2) + '</span>' : '') +
+      (arr.length ? '<span class="t3-cn">' + arr.length + '</span>' : '') + '</button>';
+  }
+  h += '</div>';
+  if (_t3.day) {
+    const arr = byDay[_t3.day] || [];
+    const d = _t3.day.split('-');
+    h += '<div class="t3-dayl"><div class="t3-dayh">' + (+d[1]) + '/' + (+d[2]) + ' 할 일 ' + arr.length + '</div>' +
+      (arr.length ? arr.map(function (x) { return _t3Row(x, false); }).join('') : '<div class="t3-none">없음</div>') + '</div>';
+  }
+  return h;
 }
 
 function _t3Render(items, work) {
@@ -3015,14 +3041,12 @@ function _t3Render(items, work) {
   _t3.list = _t3Build(items, work);
   const L = _t3.list;
   const top = L.filter(function (x) { return x.top; });
-  const week = L.filter(function (x) { return !x.top && (x.sec === 'over' || x.sec === 'today' || x.sec === 'week'); });
 
   let h = '<div class="todo-box t3">';
   if (work.ok && work.staleDays !== null && work.staleDays > TODO_STALE_DAYS) {
     h += '<div class="todo-warn">⚠ 작업현황 탭이 ' + work.staleDays + '일째 갱신되지 않았습니다</div>';
   }
-  h += '<div class="todo-head"><span class="todo-head-title t3-h">오늘 할 일</span>' +
-    '<span class="todo-head-count">' + top.length + '</span>' +
+  h += '<div class="todo-head"><span class="todo-head-title t3-h">할 일</span>' +
     (_t2DoneN ? '<span class="todo-head-meta">· 오늘 ' + _t2DoneN + '건 처리</span>' : '') +
     '<div class="todo-head-line"></div>' +
     '<button class="todo-head-refresh" onclick="_t3ToggleAdd()" title="새 할 일">＋ 추가</button>' +
@@ -3033,24 +3057,26 @@ function _t3Render(items, work) {
     h += '<div class="t3-add"><input id="t3-add-title" type="text" maxlength="120" placeholder="할 일 (예: 연사 공문 상신)" onkeydown="if(event.key===\'Enter\')_t3Add()">' +
       '<input id="t3-add-due" type="date"><button type="button" onclick="_t3Add()">추가</button></div>';
   }
-  h += top.length ? top.map(_t3Card).join('') : '<div class="t3-empty">오늘·지난 할 일 없음</div>';
+  h += _t3Strip(L);
 
-  if (week.length) {
-    const show = _t3.more ? week : week.slice(0, 4);
-    h += '<div class="t3-sec">이번 주 <span>' + week.length + '</span></div>' + show.map(_t3Row).join('');
-    if (week.length > 4) h += '<button type="button" class="t3-moreb" onclick="_t3.more=!_t3.more;_t3Rerender()">' +
-      (_t3.more ? '▴ 접기' : '+ ' + (week.length - 4) + '건 더 보기') + '</button>';
-  }
+  h += '<div class="t3-sec">오늘 할 일 <span>' + top.length + '</span></div>';
+  h += top.length ? top.map(function (x) { return _t3Row(x, true); }).join('') : '<div class="t3-none">지난·오늘 할 일 없음</div>';
 
+  const rest = function (s) {
+    return L.filter(function (x) {
+      if (s === 'week') return !x.top && (x.sec === 'over' || x.sec === 'today' || x.sec === 'week');
+      return x.sec === s;
+    });
+  };
   const chips = _T3_SEC.map(function (s) {
-    const n = L.filter(function (x) { return x.sec === s[0]; }).length;
+    const n = rest(s[0]).length;
     if (!n) return '';
     const nudge = s[0] === 'wait' && L.some(function (x) { return x.sec === 'wait' && x.nudge; });
     return '<button type="button" class="t3-chip' + (_t3.chip === s[0] ? ' t3-chip-on' : '') + (nudge ? ' t3-chip-nudge' : '') +
-      '" onclick="_t3Chip(\'' + s[0] + '\')">' + s[1] + ' ' + n + (_t3.chip === s[0] ? ' ▴' : ' ▾') + '</button>';
+      '" onclick="_t3Chip(\'' + s[0] + '\')">' + s[1] + ' <b>' + n + '</b></button>';
   }).join('');
   if (chips) h += '<div class="t3-chips">' + chips + '</div>';
-  if (_t3.chip) h += '<div class="t3-chiplist">' + L.filter(function (x) { return x.sec === _t3.chip; }).map(_t3Row).join('') + '</div>';
+  if (_t3.chip) h += '<div class="t3-chiplist">' + rest(_t3.chip).map(function (x) { return _t3Row(x, false); }).join('') + '</div>';
   h += '</div>';
 
   wrap.innerHTML = h;
@@ -3060,6 +3086,7 @@ function _t3Render(items, work) {
 function _t3Rerender() { _t3Render(_t2Last.items, _t2Last.work); }
 function _t3Expand(i) { const x = _t3.list[i]; if (!x) return; _t3.exp = _t3.exp === x.key ? null : x.key; _t3Rerender(); }
 function _t3Chip(s) { _t3.chip = _t3.chip === s ? null : s; _t3.exp = null; _t3Rerender(); }
+function _t3Day(k) { _t3.day = _t3.day === k ? null : k; _t3.exp = null; _t3Rerender(); }
 function _t3ToggleAdd() { _t3.adding = !_t3.adding; _t3Rerender(); if (_t3.adding) { const el = document.getElementById('t3-add-title'); if (el) el.focus(); } }
 
 /* 목록에서 한 줄을 빼거나 값만 바꿔 바로 그린다 — 서버 응답 실패 시 되살린다 */
@@ -3117,7 +3144,7 @@ function _t3Status(i, val) {
 function _t3Snooze(i, days) {
   const x = _t3.list[i]; if (!x || x.kind !== 'work') return;
   const due = _t2Ymd(days), snap = _t3Snap(), t = _t3Find(x);
-  if (t) { t.dday = days; t.sec = days <= 1 ? 'today' : 'week'; t.top = false; }
+  if (t) { t.dday = days; t.ymd = due; t.sec = days <= 1 ? 'today' : 'week'; }
   _t3.exp = null; _t3Rerender();
   _t2Work({ op: 'snooze', id: x.id, due: due }, function (ok, msg) {
     if (!ok) { _t3Restore(snap); _todoToast('저장하지 못했습니다 — ' + msg); return; }
