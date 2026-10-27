@@ -325,6 +325,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .t3-dayl{background:rgba(255,255,255,.03);border-radius:8px;padding:2px 8px 6px;margin-bottom:4px}
 .t3-dayh{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.6);padding:6px 0 2px}
 .t3-sec{margin:12px 0 2px;font-size:12px;font-weight:800;color:rgba(255,255,255,.75)}
+.t3-flash{color:#7dd3fc!important}
 .t3-sec span{font-family:'JetBrains Mono',monospace;color:#ffb3aa;margin-left:3px}
 .t3-row{border-top:1px solid rgba(255,255,255,.06)}
 .t3-line{display:flex;align-items:center;gap:10px;padding:8px 4px;cursor:pointer;border-radius:8px}
@@ -355,6 +356,28 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .t3-add input{flex:1 1 200px;min-width:0;font-family:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:7px 10px}
 .t3-add input[type=date]{flex:0 0 150px;color-scheme:dark}
 @media(max-width:600px){.t3-ci,.t3-cm{display:none}.t3-cn{display:block;align-self:flex-start;font-size:10px;font-weight:800;color:#7dd3fc;background:rgba(14,165,233,.2);border-radius:99px;padding:0 6px}.t3-cell{min-height:44px;padding:3px 4px}.t3-more{padding-left:4px}.t3-add input[type=date]{flex:1 1 140px}}
+.t3-calbar{display:flex;align-items:center;gap:6px;margin:6px 0 4px;flex-wrap:wrap}
+.t3-seg{display:inline-flex;border:1px solid rgba(255,255,255,.18);border-radius:7px;overflow:hidden}
+.t3-seg button{font-family:inherit;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);background:transparent;border:0;padding:4px 10px;cursor:pointer;min-height:26px}
+.t3-seg button+button{border-left:1px solid rgba(255,255,255,.14)}
+.t3-seg .t3-seg-on{background:rgba(14,165,233,.25);color:#fff}
+.t3-mt{font-size:12px;font-weight:800;color:rgba(255,255,255,.8);margin-left:auto}
+.t3-nav{font-family:inherit;font-size:13px;font-weight:700;color:rgba(255,255,255,.7);background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:6px;min-width:28px;min-height:26px;cursor:pointer}
+.t3-nav:hover,.t3-seg button:hover{color:#fff}
+.t3-month .t3-cell{min-height:54px}
+.t3-out{opacity:.28}
+.t3-ci-done{text-decoration:line-through;opacity:.6}
+.t3-go{flex-shrink:0;font-size:12px;font-weight:700;color:#7dd3fc;text-decoration:none;border:1px solid rgba(125,211,252,.35);border-radius:6px;padding:1px 7px;line-height:1.5}
+.t3-go:hover{background:rgba(14,165,233,.2)}
+.t3-acts .t3-lk{border-color:rgba(125,211,252,.4);color:#9bdcfb}
+.t3-tag-rep{font-size:9.5px;font-weight:700;color:#c4b5fd;background:rgba(139,92,246,.18);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:1px}
+html.todo-only .page>:not(.header):not(#todo):not(#todo-strip):not(.footer):not(#todo-only-note){display:none!important}
+html.todo-only #notice-banner,html.todo-only #notice-popup,html.todo-only .header-org,html.todo-only .chip-wrap{display:none!important}
+html.todo-only .header{padding-top:1rem;padding-bottom:.2rem}
+#todo-only-note{display:none;font-size:12px;color:rgba(255,255,255,.55);padding:.6rem 2rem}
+html.todo-only #todo-only-note{display:block}
+html.todo-only.todo-ready #todo-only-note{display:none}
+#todo-only-note a{color:#7dd3fc}
 .t2-undo{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);display:flex;align-items:center;gap:14px;background:#0b1f3a;border:1px solid rgba(255,255,255,.22);color:#fff;font-size:12.5px;padding:9px 10px 9px 16px;border-radius:10px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100% - 32px)}
 .t2-undo.show{opacity:1;pointer-events:auto;transform:translateX(-50%)}
 .t2-undo span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -675,6 +698,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .inje-err{font-size:11.5px;color:rgba(248,113,113,.85);margin-top:7px}
 @media(max-width:520px){.inje-idval{font-size:20px}.inje-btn{flex:1;justify-content:center}}
 </style>
+<script>try{if(/[?&]todo=1(&|$)/.test(location.search))document.documentElement.classList.add('todo-only')}catch(e){}</script>
 </head>
 <body>
 <div id="user-bar">
@@ -911,6 +935,7 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 
   <!-- ★ 지금 할 일 (관리자 전용 · 할 일 0이면 미표시) -->
   <a id="todo" aria-hidden="true"></a><div id="todo-strip"></div>
+  <div id="todo-only-note">할 일 목록을 불러오는 중입니다 — 관리자(전체) 출입증으로 로그인해야 보입니다 · <a href="portal_survey.html">전체 대문 ↗</a></div>
 
   <!-- ★ 공지사항 아코디언 -->
   <div class="notice-section">
@@ -2879,6 +2904,7 @@ function _t2Work(q, cb) {
     (q.due ? '&due=' + q.due : '') +
     (q.val ? '&val=' + encodeURIComponent(q.val) : '') +
     (q.title ? '&title=' + encodeURIComponent(q.title) : '') +
+    (q.rep ? '&rep=' + encodeURIComponent(q.rep) + '&ymd=' + encodeURIComponent(q.ymd || '') : '') +
     '&adminId=' + encodeURIComponent(auth.studentId || '') +
     '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
     if (d && d.status === 'ok') cb(true, '', d);
@@ -2923,7 +2949,10 @@ function _t2ShowUndo(msg, fn) {
    아래: 숫자만 — 이번 주 · 회신 기다림 · 진행 중 · 문서 정리 · 나중 (눌러서 펼침)
    서버(_wsTodo_)가 나눈 구간을 그대로 쓴다 — 월요일 메일·평일 알림과 같은 규칙.          */
 const _T3_SEC = [['week', '이번 주'], ['wait', '회신 기다림'], ['doing', '진행 중'], ['docs', '문서 정리'], ['later', '나중']];
-let _t3 = { list: [], exp: null, chip: null, day: null, adding: false };
+let _t3 = { list: [], exp: null, chip: null, day: null, adding: false, mOff: 0,
+  view: (function () { try { return localStorage.getItem('kistar_todo_cal') || '2w'; } catch (e) { return '2w'; } })() };
+function _t3Key(t) { return t.src === 'cal' ? 'cal:' + t.calId : (t.src === 'rep' ? 'rep:' + t.rep + ':' + t.ymd : 'work:' + t.id); }
+function _t3Ymd(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
 
 function _t3Md(n) {
   const d = _todoToday(); d.setDate(d.getDate() + n);
@@ -2941,8 +2970,8 @@ function _t3Dd(x) {
 function _t3Build(items, work) {
   const L = [];
   (work.todo || []).forEach(function (t) {
-    L.push({ kind: t.src === 'cal' ? 'cal' : 'work', key: t.src === 'cal' ? 'cal:' + t.calId : 'work:' + t.id,
-      id: t.id || '', calId: t.calId || '', title: t.title, short: t.short || t.title, area: t.area || '',
+    L.push({ kind: t.src === 'cal' ? 'cal' : (t.src === 'rep' ? 'rep' : 'work'), key: _t3Key(t),
+      id: t.id || '', calId: t.calId || '', rep: t.rep || '', links: t.links || [], title: t.title, short: t.short || t.title, area: t.area || '',
       status: t.status || '', dday: t.dday, ymd: t.ymd || (t.dday !== null && t.dday !== undefined ? _t2Ymd(t.dday) : ''),
       next: t.next || '', sec: t.sec, waitDays: t.waitDays, nudge: !!t.nudge,
       work: (work.all || []).filter(function (w) { return w.id === t.id; })[0] || null });
@@ -2973,12 +3002,18 @@ function _t3Acts(x, i) {
     a += '<button type="button" class="t3-done" onclick="_t3Check(' + i + ')">완료</button>';
     a += '<span class="t3-gap"></span><button type="button" onclick="_t3Snooze(' + i + ',1)">내일로</button><button type="button" onclick="_t3Snooze(' + i + ',7)">다음 주로</button>';
     if (x.work) { const ci = _todoCopyBuf.push(_todoCopyText(x.work)) - 1; a += '<button type="button" onclick="_todoCopy(' + ci + ')">이어서 하기</button>'; }
+  } else if (x.kind === 'rep') {
+    a += '<button type="button" class="t3-done" onclick="_t3Check(' + i + ')">이번 회 완료</button>';
   } else if (x.kind === 'cal') {
     a += '<button type="button" class="t3-done" onclick="_t3Check(' + i + ')">완료</button><a href="calendar.html" target="_blank" rel="noopener">캘린더 ↗</a>';
   } else {
     a += '<button type="button" onclick="_t3Check(' + i + ')">오늘 숨기기</button>';
     if (x.href) a += '<a href="' + _todoEsc(x.href) + '" target="_blank" rel="noopener">열기 ↗</a>';
   }
+  (x.links || []).forEach(function (l) {
+    const u = _safeUrl(l.u); if (u === '#' || !/^https?:/i.test(u)) return;
+    a += '<a class="t3-lk" href="' + _todoEsc(u) + '" target="_blank" rel="noopener">' + _todoEsc(l.l) + ' ↗</a>';
+  });
   return '<div class="t3-acts">' + a + '</div>';
 }
 
@@ -3001,28 +3036,60 @@ function _t3Row(x, hot) {
   }
   return '<div class="t3-row' + (hot ? ' t3-hot' : '') + (exp ? ' t3-exp' : '') + '">' +
     '<div class="t3-line" onclick="_t3Expand(' + i + ')">' + ck +
-      '<span class="t3-name">' + _todoEsc(x.short) + (x.nudge ? '<span class="t3-tag-nudge">재촉</span>' : '') + '</span>' +
+      '<span class="t3-name">' + _todoEsc(x.short) + (x.kind === 'rep' ? '<span class="t3-tag-rep">반복</span>' : '') + (x.nudge ? '<span class="t3-tag-nudge">재촉</span>' : '') + '</span>' +
+      _t3Go(x) +
       '<span class="t3-dd' + (red ? ' t3-dd-red' : '') + '">' + _todoEsc(dd) + '</span></div>' + more + '</div>';
 }
 
-/* 2주 띠 — 이번 주 월요일부터 14칸 */
+/* 줄 오른쪽 바로가기 — 첫 링크 하나 */
+function _t3Go(x) {
+  const l = (x.links || [])[0]; if (!l) return '';
+  const u = _safeUrl(l.u); if (u === '#' || !/^https?:/i.test(u)) return '';
+  return '<a class="t3-go" href="' + _todoEsc(u) + '" target="_blank" rel="noopener" title="' + _todoEsc(l.l) + ' 열기" onclick="event.stopPropagation()">↗</a>';
+}
+
+/* 달력 — 2주 띠 ⇄ 월 ⇄ 접기 (선택은 이 브라우저에 기억) */
+function _t3Cell(d, byDay, t, out) {
+  const key = _t3Ymd(d), arr = byDay[key] || [];
+  const past = d < t, today = d.getTime() === t.getTime(), sel = _t3.day === key;
+  return '<button type="button" class="t3-cell' + (past ? ' t3-past' : '') + (today ? ' t3-today' : '') + (sel ? ' t3-sel' : '') +
+    (out ? ' t3-out' : '') + (arr.length ? '' : ' t3-empty') + '" onclick="_t3Day(\'' + key + '\')">' +
+    '<span class="t3-cd">' + d.getDate() + '</span>' +
+    arr.slice(0, 2).map(function (x) { return '<span class="t3-ci' + (x.sec === 'past' ? ' t3-ci-done' : '') + '">' + _todoEsc(x.short) + '</span>'; }).join('') +
+    (arr.length > 2 ? '<span class="t3-cm">+' + (arr.length - 2) + '</span>' : '') +
+    (arr.length ? '<span class="t3-cn">' + arr.length + '</span>' : '') + '</button>';
+}
 function _t3Strip(L) {
-  const t = _todoToday(), mon = new Date(t); mon.setDate(t.getDate() - ((t.getDay() + 6) % 7));
-  const ymd = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+  const t = _todoToday(), v = _t3.view;
   const byDay = {};
   L.forEach(function (x) { if (x.ymd && x.sec !== 'docs') (byDay[x.ymd] = byDay[x.ymd] || []).push(x); });
-  let h = '<div class="t3-strip">';
+  let mt = '';
+  let first, days;
+  if (v === 'month') {
+    const m0 = new Date(t.getFullYear(), t.getMonth() + _t3.mOff, 1);
+    const last = new Date(m0.getFullYear(), m0.getMonth() + 1, 0);
+    first = new Date(m0); first.setDate(1 - ((m0.getDay() + 6) % 7));
+    days = Math.ceil((((m0.getDay() + 6) % 7) + last.getDate()) / 7) * 7;
+    mt = m0.getFullYear() + '년 ' + (m0.getMonth() + 1) + '월';
+    _t3._mon = m0.getMonth();
+  } else {
+    first = new Date(t); first.setDate(t.getDate() - ((t.getDay() + 6) % 7));
+    days = 14;
+  }
+  const seg = [['2w', '2주'], ['month', '월'], ['off', '접기']].map(function (o) {
+    return '<button type="button" class="' + (v === o[0] ? 't3-seg-on' : '') + '" onclick="_t3View(\'' + o[0] + '\')">' + o[1] + '</button>';
+  }).join('');
+  let h = '<div class="t3-calbar"><span class="t3-seg">' + seg + '</span>' +
+    (v === 'month' ? '<span class="t3-mt">' + mt + '</span>' +
+      (_t3.mOff ? '<button type="button" class="t3-nav" onclick="_t3Month(0)" title="이번 달">•</button>' : '') +
+      '<button type="button" class="t3-nav" onclick="_t3Month(-1)" title="이전 달">‹</button>' +
+      '<button type="button" class="t3-nav" onclick="_t3Month(1)" title="다음 달">›</button>' : '') + '</div>';
+  if (v === 'off') return h;
+  h += '<div class="t3-strip' + (v === 'month' ? ' t3-month' : '') + '">';
   ['월', '화', '수', '목', '금', '토', '일'].forEach(function (w) { h += '<div class="t3-wd">' + w + '</div>'; });
-  for (let k = 0; k < 14; k++) {
-    const d = new Date(mon); d.setDate(mon.getDate() + k);
-    const key = ymd(d), arr = byDay[key] || [];
-    const past = d < t, today = d.getTime() === t.getTime(), sel = _t3.day === key;
-    h += '<button type="button" class="t3-cell' + (past ? ' t3-past' : '') + (today ? ' t3-today' : '') + (sel ? ' t3-sel' : '') +
-      (arr.length ? '' : ' t3-empty') + '" onclick="_t3Day(\'' + key + '\')">' +
-      '<span class="t3-cd">' + d.getDate() + '</span>' +
-      arr.slice(0, 2).map(function (x) { return '<span class="t3-ci">' + _todoEsc(x.short) + '</span>'; }).join('') +
-      (arr.length > 2 ? '<span class="t3-cm">+' + (arr.length - 2) + '</span>' : '') +
-      (arr.length ? '<span class="t3-cn">' + arr.length + '</span>' : '') + '</button>';
+  for (let k = 0; k < days; k++) {
+    const d = new Date(first); d.setDate(first.getDate() + k);
+    h += _t3Cell(d, byDay, t, v === 'month' && d.getMonth() !== _t3._mon);
   }
   h += '</div>';
   if (_t3.day) {
@@ -3033,6 +3100,8 @@ function _t3Strip(L) {
   }
   return h;
 }
+function _t3View(v) { _t3.view = v; _t3.day = null; if (v !== 'month') _t3.mOff = 0; try { localStorage.setItem('kistar_todo_cal', v); } catch (e) {} _t3Rerender(); }
+function _t3Month(n) { _t3.mOff = n === 0 ? 0 : _t3.mOff + n; _t3.day = null; _t3Rerender(); }
 
 function _t3Render(items, work) {
   const wrap = document.getElementById('todo-strip');
@@ -3052,6 +3121,7 @@ function _t3Render(items, work) {
     '<button class="todo-head-refresh" onclick="_t3ToggleAdd()" title="새 할 일">＋ 추가</button>' +
     '<button class="todo-head-refresh" onclick="loadTodoStrip(true)" title="새로고침">↻</button>' +
     (work.sheetUrl ? '<a class="todo-head-link" href="' + _todoEsc(_safeUrl(work.sheetUrl)) + '" target="_blank" rel="noopener">시트 ↗</a>' : '') +
+    (_t3Only() ? '<a class="todo-head-link" href="portal_survey.html">전체 ↗</a>' : '') +
     '</div>';
   if (_t3.adding) {
     h += '<div class="t3-add"><input id="t3-add-title" type="text" maxlength="120" placeholder="할 일 (예: 연사 공문 상신)" onkeydown="if(event.key===\'Enter\')_t3Add()">' +
@@ -3059,7 +3129,7 @@ function _t3Render(items, work) {
   }
   h += _t3Strip(L);
 
-  h += '<div class="t3-sec">오늘 할 일 <span>' + top.length + '</span></div>';
+  h += '<div class="t3-sec" id="t3-today-sec">오늘 할 일 <span>' + top.length + '</span></div>';
   h += top.length ? top.map(function (x) { return _t3Row(x, true); }).join('') : '<div class="t3-none">지난·오늘 할 일 없음</div>';
 
   const rest = function (s) {
@@ -3081,18 +3151,30 @@ function _t3Render(items, work) {
 
   wrap.innerHTML = h;
   wrap.classList.add('show');
+  document.documentElement.classList.add('todo-ready');
   if (location.hash === '#todo' && !_t3._scrolled) { _t3._scrolled = true; wrap.scrollIntoView({ block: 'start' }); }
 }
 function _t3Rerender() { _t3Render(_t2Last.items, _t2Last.work); }
 function _t3Expand(i) { const x = _t3.list[i]; if (!x) return; _t3.exp = _t3.exp === x.key ? null : x.key; _t3Rerender(); }
 function _t3Chip(s) { _t3.chip = _t3.chip === s ? null : s; _t3.exp = null; _t3Rerender(); }
-function _t3Day(k) { _t3.day = _t3.day === k ? null : k; _t3.exp = null; _t3Rerender(); }
+function _t3Only() { return document.documentElement.classList.contains('todo-only'); }
+function _t3Day(k) {
+  if (k === _t3Ymd(_todoToday()) && _t3.day !== k) {
+    const arr = _t3.list.filter(function (x) { return x.ymd === k && x.sec !== 'docs'; });
+    if (arr.every(function (x) { return x.top; })) {
+      const el = document.getElementById('t3-today-sec');
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('t3-flash'); setTimeout(function () { el.classList.remove('t3-flash'); }, 900); }
+      return;
+    }
+  }
+  _t3.day = _t3.day === k ? null : k; _t3.exp = null; _t3Rerender();
+}
 function _t3ToggleAdd() { _t3.adding = !_t3.adding; _t3Rerender(); if (_t3.adding) { const el = document.getElementById('t3-add-title'); if (el) el.focus(); } }
 
 /* 목록에서 한 줄을 빼거나 값만 바꿔 바로 그린다 — 서버 응답 실패 시 되살린다 */
 function _t3Snap() { return JSON.stringify(_t2Last.work.todo || []); }
 function _t3Restore(s) { _t2Last.work.todo = JSON.parse(s); _t3Rerender(); }
-function _t3Find(x) { return (_t2Last.work.todo || []).filter(function (t) { return (t.src === 'cal' ? 'cal:' + t.calId : 'work:' + t.id) === x.key; })[0]; }
+function _t3Find(x) { return (_t2Last.work.todo || []).filter(function (t) { return _t3Key(t) === x.key; })[0]; }
 
 function _t3Check(i) {
   const x = _t3.list[i]; if (!x) return;
@@ -3106,7 +3188,14 @@ function _t3Check(i) {
   _t2Last.work.todo = (_t2Last.work.todo || []).filter(function (t) { return t !== _t3Find(x); });
   _t2DoneN++; _t3Rerender();
   const fail = function (m) { _t2DoneN = Math.max(0, _t2DoneN - 1); _t3Restore(snap); _todoToast(m); };
-  if (x.kind === 'work') {
+  if (x.kind === 'rep') {
+    _t2Work({ op: 'repdone', id: '', rep: x.rep, ymd: x.ymd }, function (ok, msg) {
+      if (!ok) { fail('저장하지 못했습니다 — ' + msg); return; }
+      _t2ShowUndo('「' + x.short + '」 이번 회 완료', function () {
+        _t2Work({ op: 'repundo', id: '', rep: x.rep, ymd: x.ymd }, function (ok2, m2) { if (ok2) { _t2DoneN = Math.max(0, _t2DoneN - 1); _t3Restore(snap); } else _todoToast('되돌리지 못했습니다 — ' + m2); });
+      });
+    });
+  } else if (x.kind === 'work') {
     _t2Work({ op: 'done', id: x.id }, function (ok, msg) {
       if (!ok) { fail('저장하지 못했습니다 — ' + msg); return; }
       _t2ShowUndo('「' + x.short + '」 완료', function () {
