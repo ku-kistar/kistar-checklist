@@ -1184,7 +1184,9 @@ function drawPg(){
   const n=(k,m)=>B.filter(d=>pgHit(d,k,m)).length;
   const cell=(k,m,cls)=>{const v=n(k,m); return `<td><span class="n${v?' cl':''}${cls?' '+cls:''}"${v?` onclick="drillPg('${k}','${m}')"`:''}>${v}</span></td>`;};
   const sep=p=>p.k==='tDP'||p.k==='mD'?' class="sep"':'';
-  pgBoard.innerHTML=`<div class="aihd"><div class="aitt">과정별 충족<span>양성인원 ${B.length}명 · 과목 기준과 규정상을 따로 셈</span></div></div>
+  pgBoard.innerHTML=`<div class="aihd"><div class="aitt">과정별 충족<span>양성인원 ${B.length}명 · 과목 기준과 규정상을 따로 셈</span></div>
+    <button class="btn" style="margin-left:auto" data-dl="과정 인증 대상자(CSV)" onclick="pgCertCsv('now')">인증 대상자 (과목 기준)</button>
+    <button class="btn" data-dl="과정 인증 대상자(CSV)" onclick="pgCertCsv('rule')">인증 대상자 (규정상)</button></div>
   <div class="pgwrap">
     <div class="pgbox"><h4>과목 기준<span>실제 이수한 과목으로 셈</span></h4>
       <table class="pgt"><thead><tr><th class="l">과정</th><th>충족</th><th>🔵 수강 중 포함 시</th></tr></thead><tbody>
@@ -1209,6 +1211,38 @@ function pgDetailHtml(d){
   ${PG_LIST.map(p=>`<tr><td>${esc(p.l)}</td><td>${tg(e.st[p.k])}</td><td>${tg(e.rule[p.k])}</td>
     <td class="pgx" style="white-space:normal">${e.now[p.k].length?esc(e.now[p.k].join(' · ')):'—'}</td></tr>`).join('')}
   </tbody></table>`;
+}
+
+// ★ 2026-10-28 T130 — 과정 이수 인증서 대상자 내려받기 (인증서발급대장 탭 열 순서와 같음)
+//   일련번호·발급일·발급 방법은 비워 두고, 담당자가 확인 후 시트에 붙여 넣는다
+const PG_CERT={tDP:'소자·공정 트랙',tMP:'소재·패키징 트랙',mD:'소자 마이크로',mP:'공정 마이크로',mM:'소재 마이크로',mK:'패키징 마이크로'};
+function pgEvidence(d,p){
+  const cat=CAT[d.dk]||[], tk=new Set(d.tk);
+  const pick=f=>cat.filter(c=>f(c)&&c.codes.some(x=>tk.has(x))).map(c=>c.ui||c.name);
+  const tr=pick(c=>(p.g||[]).includes(c.grp));
+  const jn=pick(c=>c.grp==='전공필수'||c.grp==='공동운영');
+  const pb=pick(c=>c.grp==='PBL');
+  const rc=p.g&&p.g.length===2 ? ['학부인정 '+Math.min(6,Number(d.ar.학부)||0)+'학점'] : [];
+  return [...tr,...jn,...pb,...rc].join(', ');
+}
+// 판정 학기 = 그 학생의 가장 최근 성적 학기 (학기 값을 코드에 적지 않는다)
+const lastSem=d=>(d.crs||[]).map(x=>String(x.s||'')).filter(Boolean).sort().pop()||'';
+function pgCertCsv(mode){
+  const L=DATA.filter(d=>d.st!=='융전포기'), rows=[];
+  L.forEach(d=>{ const e=pgEval(d);
+    PG_LIST.filter(p=>p.k!=='fuse').forEach(p=>{
+      const ok = mode==='rule' ? e.rule[p.k]==='ok' : e.st[p.k]==='ok';
+      if(!ok) return;
+      rows.push(['',p.k[0]==='t'?'전공트랙':'마이크로디그리',PG_CERT[p.k],d.sid,d.name,d.dept,
+        mode==='rule'&&e.st[p.k]!=='ok'?'규정상(융합전공 36 충족)':'과목 기준',lastSem(d),pgEvidence(d,p),'','','대상',d.st==='졸업'?'졸업':'']);
+    });
+  });
+  const h=['일련번호','과정','인증서 이름','학번','이름','학과','판정 기준','판정 학기','이수 과목(근거)','발급일','발급 방법','상태','비고'];
+  const t=[h,...rows].map(r=>r.map(c=>`"${csvSafe(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+t],{type:'text/csv;charset=utf-8'}));
+  a.download='과정인증_대상자_'+(mode==='rule'?'규정상':'과목기준')+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+  try{ if(typeof adminEvent==='function') adminEvent('내려받기','과정 인증 대상자 '+rows.length+'건'); }catch(e){}
 }
 
 function csv(){
