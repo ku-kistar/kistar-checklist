@@ -229,9 +229,9 @@ details.more summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--a
       <img id="sealImg" alt="직인">
       <div style="flex:1;min-width:220px">
         <div style="font-weight:600;font-size:13px">직인 이미지 <span id="sealSt" class="tag g">확인 중</span></div>
-        <div class="muted" style="margin-top:3px;line-height:1.6">배경이 투명한 PNG. 비공개 드라이브 폴더에만 저장되고, 이 화면(관리자 출입증)에서만 불러옵니다.</div>
+        <div class="muted" style="margin-top:3px;line-height:1.6">PNG · JPG 모두 됩니다 — 흰 배경은 자동으로 투명하게 바꾸고 여백을 잘라 냅니다. 비공개 드라이브 폴더에만 저장되고, 이 화면(관리자 출입증)에서만 불러옵니다.</div>
       </div>
-      <label class="btn">직인 바꾸기<input type="file" accept="image/png" id="sealFile" style="display:none" onchange="uploadSeal(this)"></label>
+      <label class="btn">직인 바꾸기<input type="file" accept="image/png,image/jpeg" id="sealFile" style="display:none" onchange="uploadSeal(this)"></label>
     </div>
     <div class="note">· 영문 교과목명·학과명은 사업단 번역입니다(pg_rules.js COURSE_EN · DEPT_EN). 공식 영문명이 정해지면 그 표만 고치고 PDF를 다시 만듭니다.<br>
       · 지원사업 영문 표기 「Advanced Industry Specialized University Program (Semiconductor)」는 KIAT 확인 전 임시 표기입니다.<br>
@@ -492,9 +492,20 @@ async function loadSeal(){
 function uploadSeal(inp){
   const f=inp.files&&inp.files[0]; inp.value=''; if(!f) return;
   const img=new Image(); img.onload=async()=>{
-    const s=Math.min(1,400/Math.max(img.width,img.height)), cv=document.createElement('canvas');
-    cv.width=Math.round(img.width*s); cv.height=Math.round(img.height*s); cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
-    URL.revokeObjectURL(img.src); dlg('직인 저장 중','',[]);
+    // 흰 배경을 투명하게 바꾸고, 도장 부분만 남게 여백을 잘라 낸다 (증서 글자·테두리를 흰 네모가 가리지 않게)
+    const c0=document.createElement('canvas'); c0.width=img.width; c0.height=img.height;
+    const g0=c0.getContext('2d'); g0.drawImage(img,0,0); const D=g0.getImageData(0,0,c0.width,c0.height), px=D.data;
+    let x0=c0.width, y0=c0.height, x1=-1, y1=-1;
+    for(let y=0;y<c0.height;y++) for(let x=0;x<c0.width;x++){ const i=(y*c0.width+x)*4, mn=Math.min(px[i],px[i+1],px[i+2]);
+      const ink=Math.max(0,Math.min(1,(235-mn)/90));          // 흰색 → 0 (투명) · 진한 색 → 1
+      px[i+3]=Math.round(px[i+3]*ink);
+      if(px[i+3]>40){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+    URL.revokeObjectURL(img.src);
+    if(x1<0){ dlg('직인을 찾지 못했습니다','이미지에 도장 부분이 보이지 않습니다. 다른 파일을 골라 주세요.',[['닫기',closeDlg]]); return; }
+    g0.putImageData(D,0,0);
+    const w=x1-x0+1, h=y1-y0+1, s=Math.min(1,400/Math.max(w,h)), cv=document.createElement('canvas');
+    cv.width=Math.round(w*s); cv.height=Math.round(h*s); cv.getContext('2d').drawImage(c0,x0,y0,w,h,0,0,cv.width,cv.height);
+    dlg('직인 저장 중','',[]);
     const r=await post({action:'certSetSeal',png:cv.toDataURL('image/png').split(',')[1]});
     if(r.status!=='ok'){ dlg('저장하지 못했습니다',r.message||'',[['닫기',closeDlg]]); return; }
     await loadSeal(); closeDlg();
