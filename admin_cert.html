@@ -103,6 +103,7 @@ table.t td.c{text-align:center}
 .kpi .add{font-size:12.5px;color:#1e4d8c;font-weight:600;margin-top:2px}
 .kpi .iss{font-size:12px;color:var(--text2);margin-top:2px}
 .kpi .sub2{border-top:1px solid var(--line);margin-top:10px;padding-top:8px;font-size:12px;color:var(--text2);display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-variant-numeric:tabular-nums}
+.kpi .dist{font-size:11.5px;color:var(--text2);margin-top:6px}.kpi .dist b{color:var(--text);font-weight:600}
 .kpi .sub2 b{color:var(--text);font-weight:600}
 .seg{display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden}
 .seg button{border:0;background:#fff;padding:6px 11px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--text2)}
@@ -178,7 +179,7 @@ details.more summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--a
       <div class="lg" style="margin-bottom:8px"><span><span class="dot ok"></span> 충족</span><span><span class="dot w"></span> 수강 완료 시 충족</span><span><span class="dot ok i"></span> 수료증 발급</span></div>
       <div class="muted" style="margin-bottom:6px">기본은 KIAT 관리번호 순입니다. 과정 이름(또는 학점)을 누르면 그 과정이 높은 순(충족 → 수강 완료 시 충족 → 미충족)으로 바뀌고, 한 번 더 누르면 관리번호 순으로 돌아갑니다.</div>
       <div class="tw"><table class="t mx"><thead><tr id="mxHead"><th class="so" data-k="seq">관리번호</th><th>학번</th><th>이름</th><th>학과</th><th>학년</th><th class="so" data-k="tot" style="text-align:right">학점</th>
-        <th class="so" data-k="fuse">융합전공</th><th class="so" data-k="tDP">트랙<br>소자·공정</th><th class="so" data-k="tMP">트랙<br>소재·패키징</th><th class="so" data-k="mD">MD<br>소자</th><th class="so" data-k="mP">MD<br>공정</th><th class="so" data-k="mM">MD<br>소재</th><th class="so" data-k="mK">MD<br>패키징</th></tr></thead>
+        <th class="so" data-k="fuse">융합전공</th><th class="so" data-k="nT" style="text-align:center">트랙<br>충족 수</th><th class="so" data-k="nM" style="text-align:center">MD<br>충족 수</th><th class="so" data-k="tDP">트랙<br>소자·공정</th><th class="so" data-k="tMP">트랙<br>소재·패키징</th><th class="so" data-k="mD">MD<br>소자</th><th class="so" data-k="mP">MD<br>공정</th><th class="so" data-k="mM">MD<br>소재</th><th class="so" data-k="mK">MD<br>패키징</th></tr></thead>
         <tbody id="mxBody"></tbody></table></div>
     </details>
   </div>
@@ -334,12 +335,14 @@ function drawStats(){
   const cnt=(k,v)=>S.filter(x=>x.o[k]===v).length;
   const iss=titles=>B.filter(d=>IS[d.sid]&&titles.some(t=>IS[d.sid].has(t))).length;
   const sub=ks=>ks.map(k=>{ const p=PG_LIST.find(x=>x.k===k); return `<span>${esc(p.l.replace(/ \d+$/,''))}</span><span><b>${cnt(k,'ok')}</b>${cnt(k,'wip')?` <span style="color:#1e4d8c">+${cnt(k,'wip')}</span>`:''}</span>`; }).join('');
+  const dist=ks=>{ const c={}; S.forEach(x=>{ const n=ks.filter(k=>x.o[k]==='ok').length; if(n) c[n]=(c[n]||0)+1; });
+    return '학생별 충족 개수 · '+(Object.keys(c).length?Object.keys(c).sort((a,b)=>b-a).map(n=>`${n}개 <b>${c[n]}</b>명`).join(' · '):'없음'); };
   const card=(h,k,ks,titles)=>{ const a=cnt(k,'ok'), w=cnt(k,'wip');
     return `<div class="kpi"><div class="h"><span>${h}</span><span>${pct(a,N)}%</span></div>
       <div class="big">${a}<small>/ ${N}명</small></div>
       <div class="add">${w?'+'+w+'명 이번 학기 수강 완료 시':'이번 학기 수강 완료 시 추가 없음'}</div>
       <div class="iss">${titles?'수료증 발급 '+iss(titles)+'명':'수료증 대상 아님 (융합전공은 학위 기재)'}</div>
-      ${ks?`<div class="sub2">${sub(ks)}</div>`:''}</div>`; };
+      ${ks?`<div class="sub2">${sub(ks)}</div><div class="dist">${dist(ks)}</div>`:''}</div>`; };
   kpis.innerHTML=card('융합전공 (36학점)','fuse',null,null)
     +card('전공트랙 (24학점) — 2개 중 1개 이상','trk',TRK,TRK.map(k=>PG_CERT[k]))
     +card('마이크로디그리 (12학점) — 4개 중 1개 이상','md',MDK,MDK.map(k=>PG_CERT[k]));
@@ -378,14 +381,18 @@ function drawMatrix(){
     &&(f==='ok'?KS.some(k=>x.o[k]==='ok'):f==='wip'?KS.some(k=>x.o[k]==='wip')&&!KS.some(k=>x.o[k]==='ok'):KS.some(k=>x.o[k]!=='no')))
     .sort((a,b)=>{ const R={ok:2,wip:1,no:0};
       if(MX_SORT==='tot') return b.d.tot-a.d.tot||bySeq(a.d,b.d);
+      if(MX_SORT==='nT'||MX_SORT==='nM'){ const ks=MX_SORT==='nT'?TRK:MDK, c=(x,v)=>ks.filter(k=>x.o[k]===v).length;
+        return c(b,'ok')-c(a,'ok')||c(b,'wip')-c(a,'wip')||bySeq(a.d,b.d); }
       if(MX_SORT!=='seq') return R[b.o[MX_SORT]]-R[a.o[MX_SORT]]||bySeq(a.d,b.d);
       return bySeq(a.d,b.d); });
   [...mxHead.querySelectorAll('th.so')].forEach(th=>th.classList.toggle('on',th.dataset.k===MX_SORT));
   mxCnt.textContent=L.length+'명';
+  const nCell=(x,ks)=>{ const a=ks.filter(k=>x.o[k]==='ok').length, w=ks.filter(k=>x.o[k]==='wip').length;
+    return `<td class="c" style="font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums">${a?`<b>${a}</b>`:'<span class="dash">0</span>'}<span class="muted">/${ks.length}</span>${w?` <span style="color:#1e4d8c;font-size:11.5px">+${w}</span>`:''}</td>`; };
   const dot=(x,k)=>{ const v=x.o[k], t=k==='fuse'?'':PG_CERT[k], i=t&&IS[x.d.sid]&&IS[x.d.sid].has(t);
     return v==='ok'?`<span class="dot ok${i?' i':''}" title="${i?'충족 · 수료증 발급':'충족'}"></span>`:v==='wip'?'<span class="dot w" title="수강 완료 시 충족"></span>':'<span class="dash">–</span>'; };
-  mxBody.innerHTML=L.length?L.map(x=>`<tr><td class="mono">${esc(x.d.seq||'—')}</td><td class="mono">${esc(x.d.sid)}</td><td>${esc(x.d.name)}</td><td>${esc(x.d.dept)}</td><td>${esc(x.d.yr)}</td><td class="n">${x.d.tot}</td>${KS.map(k=>`<td class="c">${dot(x,k)}</td>`).join('')}</tr>`).join('')
-    :'<tr><td colspan="13" class="empty">해당 학생이 없습니다.</td></tr>';
+  mxBody.innerHTML=L.length?L.map(x=>`<tr><td class="mono">${esc(x.d.seq||'—')}</td><td class="mono">${esc(x.d.sid)}</td><td>${esc(x.d.name)}</td><td>${esc(x.d.dept)}</td><td>${esc(x.d.yr)}</td><td class="n">${x.d.tot}</td><td class="c">${dot(x,'fuse')}</td>${nCell(x,TRK)}${nCell(x,MDK)}${KS.slice(1).map(k=>`<td class="c">${dot(x,k)}</td>`).join('')}</tr>`).join('')
+    :'<tr><td colspan="15" class="empty">해당 학생이 없습니다.</td></tr>';
 }
 function syncBasis(){ ST_B=fBasis.value; [...sgBasis.children].forEach(x=>x.classList.toggle('on',x.dataset.v===ST_B)); drawStats(); drawCand(); }
 function segInit(id,fn){ document.getElementById(id).addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
