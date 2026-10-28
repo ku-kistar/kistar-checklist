@@ -588,10 +588,11 @@ function border(cv,full){
       if(q<w){px=x+q;py=y;nx=0;ny=-1}else if(q<w+h){px=x+w;py=y+q-w;nx=1;ny=0}else if(q<2*w+h){px=x+w-(q-w-h);py=y+h;nx=0;ny=1}else{px=x;py=y+h-(q-2*w-h);nx=-1;ny=0}
       const o=amp*Math.sin(2*Math.PI*k*q/P+ph); i?g.lineTo(px+nx*o,py+ny*o):g.moveTo(px+nx*o,py+ny*o); }
     g.closePath(); g.strokeStyle=c; g.lineWidth=lw; g.globalAlpha=al; g.stroke(); g.globalAlpha=1; };
-  rect(20,20,754,1083,'#7C131B',2.5);
-  for(let i=0;i<4;i++) wave(40,40,714,1043,11,24,i*Math.PI/2,'#7C131B',.8,.8);
-  for(let i=0;i<3;i++) wave(40,40,714,1043,5,12,i*2.09+1,'#B8913F',.6,1);
-  rect(60,60,674,1003,'#7C131B',1.2); rect(66,66,662,991,'#7C131B',.5);
+  // ★ 2026-10-28 은은한 물결(시안 1번) — 7겹이 화면에서 뭉쳐 보이던 것을 3겹·가는 선으로
+  rect(20,20,754,1083,'#7C131B',2);
+  for(let i=0;i<2;i++) wave(41,41,712,1041,6,30,i*Math.PI,'#7C131B',.45,.55);
+  wave(41,41,712,1041,3,30,Math.PI/2,'#B8913F',.45,.8);
+  rect(58,58,678,1007,'#7C131B',1);
 }
 function pageEl(rec,lang,side,qr){
   const p=document.createElement('div'); p.className='page';
