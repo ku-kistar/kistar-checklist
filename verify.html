@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>인증서 진위 확인 · KI-STAR CENTER</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+:root{--ink:#1a1d23;--sub:#4a4f57;--line:#e2dcdc;--brand:#7C131B;--ok:#1b6e3c;--okbg:#eaf6ee;--bad:#a32d2d;--badbg:#fcebeb;--wait:#8a5a00;--waitbg:#fdf3dc;--bg:#f6f4f4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif;line-height:1.6}
+.wrap{max-width:560px;margin:0 auto;padding:28px 16px 40px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.brand{font-weight:700;color:var(--brand);font-size:15px;letter-spacing:.02em}
+.brand small{display:block;font-weight:500;color:var(--sub);font-size:12px;letter-spacing:0}
+.lang{display:flex;gap:4px}
+.lang button{border:1px solid var(--line);background:#fff;color:var(--sub);font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer;min-height:36px}
+.lang button[aria-pressed="true"]{border-color:var(--brand);color:var(--brand);font-weight:700}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 20px}
+h1{font-size:20px;margin:0 0 4px}
+.lead{margin:0 0 18px;color:var(--sub);font-size:14px}
+.badge{display:flex;align-items:center;gap:10px;border-radius:10px;padding:14px 16px;font-weight:700;font-size:17px;margin-bottom:16px}
+.badge svg{flex:none}
+.b-ok{background:var(--okbg);color:var(--ok)}
+.b-bad{background:var(--badbg);color:var(--bad)}
+.b-wait{background:var(--waitbg);color:var(--wait)}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 16px;margin:0;font-size:15px}
+dt{color:var(--sub)}
+dd{margin:0;font-weight:500;word-break:break-all}
+form{display:grid;gap:12px;margin-top:4px}
+label{font-size:13px;color:var(--sub);display:grid;gap:4px}
+input{font:inherit;font-size:16px;padding:10px 12px;border:1px solid #cfc8c8;border-radius:8px;min-height:44px;text-transform:uppercase}
+input:focus{outline:2px solid var(--brand);outline-offset:1px}
+.btn{font:inherit;font-weight:700;background:var(--brand);color:#fff;border:0;border-radius:8px;min-height:44px;cursor:pointer}
+.err{color:var(--bad);font-size:13px;min-height:1em;margin:0}
+.note{font-size:12.5px;color:var(--sub);margin:18px 2px 0}
+.note a{color:var(--brand)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="top">
+    <div class="brand">KI-STAR CENTER<small data-ko="고려대학교 차세대AI반도체특성화대학사업단" data-en="Korea University">고려대학교 차세대AI반도체특성화대학사업단</small></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" id="lk" aria-pressed="true">한국어</button>
+      <button type="button" id="le" aria-pressed="false">English</button>
+    </div>
+  </div>
+
+  <section class="card" aria-live="polite">
+    <h1 data-ko="인증서 진위 확인" data-en="Certificate Verification">인증서 진위 확인</h1>
+    <p class="lead" data-ko="사업단이 발급한 과정 이수 인증서가 맞는지 확인합니다." data-en="Confirm that a certificate was issued by the KI-STAR Center.">사업단이 발급한 과정 이수 인증서가 맞는지 확인합니다.</p>
+
+    <div id="result" class="hide"></div>
+
+    <form id="f" class="hide" novalidate>
+      <label><span data-ko="인증서 번호 (문서확인번호)" data-en="Certificate No.">인증서 번호 (문서확인번호)</span>
+        <input id="no" name="no" placeholder="KISTAR-2026-TDP-001" autocomplete="off" required></label>
+      <label><span data-ko="확인코드 (8자리)" data-en="Verification code (8 characters)">확인코드 (8자리)</span>
+        <input id="k" name="k" placeholder="ABCD2345" maxlength="8" autocomplete="off" required></label>
+      <p class="err" id="ferr"></p>
+      <button class="btn" type="submit" data-ko="확인하기" data-en="Verify">확인하기</button>
+    </form>
+
+    <p id="loading" class="lead hide" data-ko="확인하는 중입니다…" data-en="Checking…">확인하는 중입니다…</p>
+  </section>
+
+  <p class="note"><span data-ko="문의 : 차세대AI반도체특성화대학사업단 · 02-3290-4988 · " data-en="Inquiries : KI-STAR Center, Korea University · +82-2-3290-4988 · ">문의 : 차세대AI반도체특성화대학사업단 · 02-3290-4988 · </span><a href="https://kistar.korea.ac.kr/">kistar.korea.ac.kr</a><br>
+  <span data-ko="이 인증서는 사업단 자체 인증이며 고려대학교 학적부·성적증명서에는 기재되지 않습니다." data-en="This certificate is issued by the KI-STAR Center and is not recorded on the official Korea University transcript.">이 인증서는 사업단 자체 인증이며 고려대학교 학적부·성적증명서에는 기재되지 않습니다.</span></p>
+</main>
+
+<script>
+// 데이터허브 GAS (마스터 §2) — action=verifyCert · 번호(no) + 확인코드(k). 「c」는 구글이 따로 써서 쓰지 않는다.
+var API = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+var EN_TITLE = { TDP:'Semiconductor Device & Process Track', TMP:'Semiconductor Materials & Packaging Track',
+  MDV:'Micro-Credential in Semiconductor Devices', MPR:'Micro-Credential in Semiconductor Processes',
+  MMT:'Micro-Credential in Semiconductor Materials', MPK:'Micro-Credential in Semiconductor Packaging' };
+var lang = 'ko', last = null;
+try { var sp = new URLSearchParams(location.search); if (sp.get('lang') === 'en') lang = 'en'; } catch (e) {}
+
+function t(ko, en){ return lang === 'en' ? en : ko; }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function setLang(l){
+  lang = l;
+  document.documentElement.lang = l;
+  document.getElementById('lk').setAttribute('aria-pressed', l === 'ko');
+  document.getElementById('le').setAttribute('aria-pressed', l === 'en');
+  document.querySelectorAll('[data-ko]').forEach(function(el){ el.textContent = el.getAttribute('data-' + l); });
+  if (last) show(last.d, last.no);
+}
+var ICON = {
+  ok:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7 12.5l3.2 3L17 9"/></svg>',
+  bad:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8"/></svg>',
+  wait:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/></svg>'
+};
+function show(d, no){
+  last = { d: d, no: no };
+  var r = document.getElementById('result'), h = '';
+  var code = (String(no).split('-')[2] || '');
+  if (d && d.result === 'valid') {
+    h = '<div class="badge b-ok">' + ICON.ok + esc(t('유효한 인증서입니다', 'Valid certificate')) + '</div>' +
+      '<dl><dt>' + t('인증서 번호', 'Certificate No.') + '</dt><dd>' + esc(d.no) + '</dd>' +
+      '<dt>' + t('과정', 'Program') + '</dt><dd>' + esc(lang === 'en' && EN_TITLE[code] ? EN_TITLE[code] : d.title) + '</dd>' +
+      '<dt>' + t('성명', 'Name') + '</dt><dd>' + esc(d.name) + '</dd>' +
+      '<dt>' + t('발급일', 'Issued') + '</dt><dd>' + esc(d.issued) + '</dd>' +
+      '<dt>' + t('발급', 'Issuer') + '</dt><dd>' + t('고려대학교 차세대AI반도체특성화대학사업단장', 'Director, KI-STAR Center, Korea University') + '</dd></dl>';
+  } else if (d && d.result === 'revoked') {
+    h = '<div class="badge b-bad">' + ICON.bad + esc(t('취소된 인증서입니다', 'This certificate has been revoked')) + '</div>' +
+      '<dl><dt>' + t('인증서 번호', 'Certificate No.') + '</dt><dd>' + esc(d.no) + '</dd></dl>';
+  } else if (d && d.result === 'notissued') {
+    h = '<div class="badge b-wait">' + ICON.wait + esc(t('아직 발급되지 않은 번호입니다', 'Not yet issued')) + '</div>';
+  } else if (d && d.result === 'locked') {
+    h = '<div class="badge b-wait">' + ICON.wait + esc(t('확인 시도가 많아 10분 뒤에 다시 해 주세요', 'Too many attempts. Please try again in 10 minutes.')) + '</div>';
+  } else if (d && d.result === 'notfound') {
+    h = '<div class="badge b-bad">' + ICON.bad + esc(t('일치하는 인증서가 없습니다', 'No matching certificate')) + '</div>' +
+      '<p class="lead" style="margin:0">' + esc(t('인증서 번호와 확인코드를 다시 확인해 주세요.', 'Please check the certificate number and verification code.')) + '</p>';
+  } else {
+    h = '<div class="badge b-wait">' + ICON.wait + esc(t('지금은 확인할 수 없습니다. 잠시 뒤 다시 시도하거나 사업단으로 문의해 주세요.', 'Unable to verify right now. Please try again later or contact us.')) + '</div>';
+  }
+  r.innerHTML = h;
+  r.classList.remove('hide');
+}
+function check(no, k){
+  document.getElementById('loading').classList.remove('hide');
+  var cb = '__cv' + Date.now(), done = false;
+  var s = document.createElement('script');
+  function fin(d){ if (done) return; done = true; document.getElementById('loading').classList.add('hide'); show(d, no); try { delete window[cb]; } catch (e) { window[cb] = undefined; } s.remove(); }
+  window[cb] = fin;
+  s.crossOrigin = 'anonymous';
+  s.src = API + '?action=verifyCert&no=' + encodeURIComponent(no) + '&k=' + encodeURIComponent(k) + '&callback=' + cb;
+  s.onerror = function(){ fin(null); };
+  document.head.appendChild(s);
+  setTimeout(function(){ fin(null); }, 20000);
+}
+document.getElementById('lk').onclick = function(){ setLang('ko'); };
+document.getElementById('le').onclick = function(){ setLang('en'); };
+document.getElementById('f').onsubmit = function(ev){
+  ev.preventDefault();
+  var no = document.getElementById('no').value.trim().toUpperCase(), k = document.getElementById('k').value.trim().toUpperCase();
+  var e = document.getElementById('ferr');
+  if (!/^KISTAR-\d{4}-[A-Z]{3}-\d{3,4}$/.test(no)) { e.textContent = t('인증서 번호를 KISTAR-2026-TDP-001 형식으로 입력해 주세요.', 'Enter the certificate number like KISTAR-2026-TDP-001.'); return; }
+  if (!/^[A-Z0-9]{8}$/.test(k)) { e.textContent = t('확인코드 8자리를 입력해 주세요.', 'Enter the 8-character verification code.'); return; }
+  e.textContent = '';
+  check(no, k);
+};
+['no','k'].forEach(function(id){ document.getElementById(id).addEventListener('input', function(){ document.getElementById('ferr').textContent = ''; }); });
+
+setLang(lang);
+(function(){
+  var no = '', k = '';
+  try { var sp = new URLSearchParams(location.search); no = (sp.get('no') || '').trim().toUpperCase(); k = (sp.get('k') || '').trim().toUpperCase(); } catch (e) {}
+  if (no && k) { check(no, k); }
+  else { if (no) document.getElementById('no').value = no; document.getElementById('f').classList.remove('hide'); }
+})();
+</script>
+</body>
+</html>
