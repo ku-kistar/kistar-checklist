@@ -30,12 +30,13 @@
     'hub_course.html':          '교과목허브',
     'calendar.html':            '전체',
     'admin_staff.html':         '전체',           // T97 권한 관리 (2026-10-20)
-    'admin_ext_judge.html':     '외부마일리지'    // T115 외부마일리지 판정도구 (2026-10-24 — 내 PC 파일 → 대문 연결)
+    'admin_ext_judge.html':     '외부마일리지',   // T115 외부마일리지 판정도구 (2026-10-24 — 내 PC 파일 → 대문 연결)
+    'admin_cert.html':          '전체'            // T130 과정 이수 처리 · 수료증 (2026-10-28 — 직인 사용이라 「전체」만)
   };
 
   var EXEC_URL = 'https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
   var DL_PAGES = { 'admin_board.html': 1, 'admin_progress.html': 1, 'admin_mileage.html': 1 };       // 내려받기 버튼이 있는 화면
-  var LOG_VIEW = { 'admin_curriculum.html': 1, 'admin_bulk_pdf.html': 1, 'admin_staff.html': 1 };    // 서버가 열람을 안 남기는 화면
+  var LOG_VIEW = { 'admin_curriculum.html': 1, 'admin_bulk_pdf.html': 1, 'admin_staff.html': 1, 'admin_cert.html': 1 };    // 서버가 열람을 안 남기는 화면
 
   var auth = null;
   try { auth = JSON.parse(localStorage.getItem('kistar_auth_url2') || 'null'); } catch (e) {}

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script src="admin_guard.js"></script><!-- 직원은 권한 있는 화면만 — 이 화면은 「전체」 -->
+<script src="pg_rules.js?v=1028"></script><!-- 과정별 충족 판정 공용 (admin_progress 와 같은 규칙) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>과정 이수 처리 · 수료증 — 차세대반도체 융합전공</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<!--
+  ★ 2026-10-28 T130 과정 이수 처리 · 수료증 (데이터허브 GAS v142 CertVerify.gs)
+  흐름  ① 대상자 확인(과목 기준 · 규정상) → ② 선택 → 「이수 완료 처리」(certIssue: 번호·확인코드·발급일 · 상태 「발급」)
+        → ③ 이 화면에서 PDF 생성(국문 앞뒤 + 영문 성명이 있으면 영문 앞뒤) → certSavePdf(비공개 드라이브 폴더)
+        → ④ 학생은 데이터허브 대문 「내 수료증」에서 자기 PDF만 내려받는다 (getMyCertPdf)
+  직인  비공개 폴더의 seal.png — 관리자 출입증이 있을 때만 받아 온다(getCertSeal). 공개 저장소·페이지에 두지 않는다.
+  학생 데이터는 이 파일에 적지 않는다 (화면에서 불러온 값만 씀)
+-->
+<style>
+:root{--navy:#0b1f3a;--accent:#2563eb;--gold:#c9a84c;--bg:#f4f6f9;--card:#fff;--text:#1a2535;--text2:#5a6a7e;--text3:#8b98a9;
+--border:#dde3ec;--line:#eef1f6;--ok:#15803d;--okbg:#e8f5ec;--warn:#b45309;--warnbg:#fdf4e3;--dang:#b91c1c;--dangbg:#fbeaea;--crim:#7C131B}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo',-apple-system,sans-serif;color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+.top{background:var(--navy);color:#fff;padding:13px 26px;display:flex;align-items:center;gap:11px;position:sticky;top:0;z-index:60;flex-wrap:wrap}
+.top .badge{background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px}
+.top h1{font-weight:700;font-size:15px}
+.top a{margin-left:auto;color:rgba(255,255,255,.85);font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:7px}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:18px}
+.card h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.card h2 .n{font-size:12px;font-weight:500;color:var(--text2)}
+.sub{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.step{flex:1 1 200px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:12px;color:var(--text2);line-height:1.5}
+.step b{display:block;color:var(--text);font-size:13px;margin-bottom:2px}
+.step i{font-style:normal;display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--navy);color:#fff;font-size:11px;text-align:center;line-height:18px;margin-right:5px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+select,input[type=text],input.q{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:13px;background:#fff}
+.btn{padding:7px 13px;border:1px solid var(--border);background:#fff;border-radius:6px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--bg)}
+.btn.p{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.p:hover{background:#16305a}
+.btn.d{color:var(--dang);border-color:#f0c9c9}
+.btn.s{padding:4px 9px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:default}
+.cnt{font-size:12px;color:var(--text2);margin-left:auto}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.t{border-collapse:collapse;width:100%;font-size:13px}
+table.t th{background:#f7f9fc;color:var(--text2);font-weight:600;font-size:12px;text-align:left;padding:8px 9px;border-bottom:1px solid var(--border);white-space:nowrap}
+table.t td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr:last-child td{border-bottom:0}
+table.t td.c{text-align:center}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.w{background:var(--warnbg);color:var(--warn)}.tag.x{background:var(--dangbg);color:var(--dang)}.tag.g{background:#eef1f6;color:var(--text2)}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px}
+.muted{color:var(--text3);font-size:12px}
+.en{width:170px;padding:5px 8px;font-size:12.5px}
+.empty{padding:26px;text-align:center;color:var(--text3);font-size:13px}
+#gate{display:none;max-width:520px;margin:80px auto;background:#fff;border:1px solid var(--border);border-radius:10px;padding:28px;text-align:center}
+#loading{padding:60px;text-align:center;color:var(--text2)}
+.seal{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.seal img{width:72px;height:72px;object-fit:contain;border:1px dashed var(--border);border-radius:6px;background:#fff}
+.note{font-size:12px;color:var(--text2);line-height:1.7;background:#f7f9fc;border-radius:7px;padding:10px 12px;margin-top:10px}
+/* 진행 · 확인 창 */
+.mask{position:fixed;inset:0;background:rgba(11,31,58,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.mask.on{display:flex}
+.dlg{background:#fff;border-radius:12px;padding:22px 22px 18px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
+.dlg h3{font-size:15px;margin-bottom:8px}
+.dlg .body{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-line}
+.dlg textarea{width:100%;margin-top:10px;padding:8px;border:1px solid var(--border);border-radius:6px;font:inherit;font-size:13px;min-height:60px}
+.dlg .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.prog{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+/* 미리보기 */
+.pv{position:fixed;inset:0;background:rgba(20,20,20,.75);display:none;z-index:110;overflow:auto;padding:20px 12px}
+.pv.on{display:block}
+.pvbar{max-width:780px;margin:0 auto 12px;display:flex;gap:8px;align-items:center;color:#fff;font-size:13px}
+.pvbar .btn{margin-left:auto}
+.pvpages{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.pvp{width:397px;height:561.5px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,.35);background:#fff}
+.pvp>.page{transform:scale(.5);transform-origin:0 0}
+#stage{position:absolute;left:-20000px;top:0}
+/* 증서 한 장 (A4 · 794×1123) — 증서 글꼴은 명조, 관리 화면은 고딕 */
+.page{width:794px;height:1123px;position:relative;overflow:hidden;background:#fff;font-family:'Noto Serif KR',serif;color:#141414}
+.page .sans{font-family:'Noto Sans KR',sans-serif}
+.page .lab{display:inline-flex;justify-content:space-between;width:70px;margin-right:12px}.page .lab i{font-style:normal}
+.page .row{font-size:17px;line-height:2.1}
+.page table{border-collapse:collapse;width:100%}
+.page th,.page td{border:1px solid #333;padding:9px 8px;text-align:center}
+.page th{background:#F6F0EE;font-weight:700}
+.page td.l{text-align:left;padding-left:10px}
+.page .abs{position:absolute}
+@media(max-width:700px){.wrap{padding:16px 16px 50px}.card{padding:15px}.cnt{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="top"><span class="badge">관리자</span><h1>과정 이수 처리 · 수료증</h1>
+  <a href="portal_survey.html">데이터허브 대문</a></div>
+
+<div id="loading">불러오는 중…</div>
+<div id="gate"><b style="font-size:15px">이 화면을 열 수 없습니다</b><p id="gateMsg" style="margin-top:10px;color:var(--text2);font-size:13px;line-height:1.7"></p>
+  <a class="btn p" style="display:inline-block;margin-top:16px;text-decoration:none" href="portal_survey.html">데이터허브 대문으로</a></div>
+
+<div class="wrap" id="wrap" style="display:none">
+  <div class="steps">
+    <div class="step"><b><i>1</i>대상자 확인</b>과정별 충족 학생 (이수 현황과 같은 판정)</div>
+    <div class="step"><b><i>2</i>이수 완료 처리</b>고른 학생에게 번호 · 확인코드 · 발급일</div>
+    <div class="step"><b><i>3</i>PDF 만들기</b>비공개 드라이브 폴더에 저장</div>
+    <div class="step"><b><i>4</i>학생 내려받기</b>데이터허브 대문 「내 수료증」 — 본인 PDF만</div>
+  </div>
+
+  <div class="card">
+    <h2>① 이수 완료 처리 대상자 <span class="n" id="candN"></span></h2>
+    <div class="sub">이수 현황 화면의 「과정별 충족」과 같은 판정입니다. 확인한 학생만 골라 「이수 완료 처리」를 누르면 발급대장에 올라가고, 이어서 PDF를 만듭니다.<br>
+      이미 발급된 학생·과정은 목록에 나오지 않습니다. 이번 학기 수강 중 과목은 넣지 않습니다(성적이 들어온 과목만).</div>
+    <div class="bar">
+      <select id="fBasis" onchange="drawCand()"><option value="now">과목 기준만</option><option value="rule">규정상 포함 (융합전공 36 충족 → 전공트랙·MD)</option></select>
+      <select id="fKind" onchange="drawCand()"><option value="">모든 과정</option></select>
+      <select id="fDept" onchange="drawCand()"><option value="">전체 학과</option></select>
+      <input class="q" id="fQ" placeholder="이름 · 학번" oninput="drawCand()">
+      <span class="cnt" id="candCnt"></span>
+    </div>
+    <div class="tw"><table class="t"><thead><tr>
+      <th style="width:34px"><input type="checkbox" id="allC" onchange="toggleAll(this.checked)" aria-label="모두 선택"></th>
+      <th>과정</th><th>학번</th><th>이름</th><th>학과</th><th>학적</th><th>판정</th><th>교과목 학점</th><th>이수기간</th><th></th></tr></thead>
+      <tbody id="candBody"></tbody></table></div>
+    <div class="bar" style="margin-top:12px;margin-bottom:0">
+      <button class="btn p" id="issueBtn" onclick="askIssue()" disabled>선택한 0건 이수 완료 처리</button>
+      <span class="muted">처리하면 학생 대문에 「준비 중」으로 보이고, PDF가 저장되면 내려받을 수 있습니다.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>② 발급대장 <span class="n" id="ledN"></span></h2>
+    <div class="sub">데이터허브 시트 「인증서발급대장」과 같습니다. 영문 성명을 넣고 「PDF 다시 만들기」를 누르면 영문본(2쪽)이 함께 들어갑니다.<br>
+      「취소」하면 학생 화면에서 사라지고, QR 진위 확인에는 「발급 취소」로 나옵니다.</div>
+    <div class="bar">
+      <select id="lSt" onchange="drawLedger()"><option value="발급">발급</option><option value="취소">취소</option><option value="">전체</option></select>
+      <input class="q" id="lQ" placeholder="이름 · 학번 · 번호" oninput="drawLedger()">
+      <button class="btn" onclick="makeMissing()" id="missBtn">PDF 없는 것 모두 만들기</button>
+      <span class="cnt" id="ledCnt"></span>
+    </div>
+    <div class="tw"><table class="t"><thead><tr><th>번호</th><th>과정</th><th>학번</th><th>이름</th><th>영문 성명</th><th>발급일</th><th>상태</th><th>PDF</th><th></th></tr></thead>
+      <tbody id="ledBody"></tbody></table></div>
+  </div>
+
+  <div class="card">
+    <h2>③ 설정</h2>
+    <div class="seal">
+      <img id="sealImg" alt="직인">
+      <div style="flex:1;min-width:220px">
+        <div style="font-weight:600;font-size:13px">직인 이미지 <span id="sealSt" class="tag g">확인 중</span></div>
+        <div class="muted" style="margin-top:3px;line-height:1.6">배경이 투명한 PNG. 비공개 드라이브 폴더에만 저장되고, 이 화면(관리자 출입증)에서만 불러옵니다.</div>
+      </div>
+      <label class="btn">직인 바꾸기<input type="file" accept="image/png" id="sealFile" style="display:none" onchange="uploadSeal(this)"></label>
+    </div>
+    <div class="note">· 영문 교과목명·학과명은 사업단 번역입니다(pg_rules.js COURSE_EN · DEPT_EN). 공식 영문명이 정해지면 그 표만 고치고 PDF를 다시 만듭니다.<br>
+      · 지원사업 영문 표기 「Advanced Industry Specialized University Program (Semiconductor)」는 KIAT 확인 전 임시 표기입니다.<br>
+      · 성적은 넣지 않습니다(사업단 자체 이수증). 학적부·성적증명서에는 기재되지 않는다는 안내가 뒷면에 들어갑니다.</div>
+  </div>
+</div>
+
+<div class="mask" id="mask"><div class="dlg"><h3 id="dlgT"></h3><div class="body" id="dlgB"></div>
+  <textarea id="dlgIn" style="display:none" placeholder="사유 (선택)"></textarea>
+  <div class="prog" id="dlgP" style="display:none"><i id="dlgPi"></i></div>
+  <div class="acts" id="dlgA"></div></div></div>
+<div class="pv" id="pv" onclick="if(event.target===this)closePv()"><div class="pvbar"><span id="pvT"></span><button class="btn" onclick="closePv()">닫기</button></div><div class="pvpages" id="pvPages"></div></div>
+<div id="stage"></div>
+
+<script>
+const EXEC_URL='https://script.google.com/macros/s/AKfycbz-RfQ4-4xNSY4TZS1Mx31qEogYpvKTRZ7aqQVV3csrUDCJlC6u05rNaCs7j-mlQPZo/exec';
+const VERIFY_URL='https://ku-kistar.github.io/kistar-checklist/verify.html';
+const AUTH=(()=>{ try{ return JSON.parse(localStorage.getItem('kistar_auth_url2')||'null'); }catch(e){ return null; } })();
+const ADM=()=>({adminId:AUTH.studentId, adminBirth:(AUTH.birth||AUTH.birthDate||'')});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const jsA=v=>esc(JSON.stringify(String(v??'')));
+let DATA=[], LED=[], SEAL='', SEL=new Set(), CAND=[];
+
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb='cb_'+Math.random().toString(36).slice(2);
+    const t=setTimeout(()=>{cleanup();reject(new Error('응답 시간 초과'));},60000);
+    function cleanup(){clearTimeout(t);delete window[cb];if(sc.parentNode)sc.remove();}
+    window[cb]=d=>{cleanup();resolve(d);};
+    const q=Object.entries({...params,callback:cb}).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+    const sc=document.createElement('script'); sc.crossOrigin='anonymous';
+    sc.src=EXEC_URL+'?'+q; sc.onerror=()=>{cleanup();reject(new Error('네트워크 오류'));};
+    document.head.appendChild(sc);
+  });
+}
+function post(params){
+  const body=new URLSearchParams(Object.assign(ADM(),params));
+  return fetch(EXEC_URL,{method:'POST',body,credentials:'omit'}).then(r=>r.json())
+    .catch(()=>({status:'error',message:'네트워크 오류가 발생했습니다. 다시 시도해 주세요.'}));
+}
+function gate(msg){ loading.style.display='none'; wrap.style.display='none'; document.getElementById('gate').style.display='block'; gateMsg.textContent=msg; }
+
+// 이수현황 응답 → 판정에 필요한 값만 (admin_progress shape 와 같은 이름)
+const DK={'신소재공학부':'mseng','전기전자공학부':'ee','화공생명공학과':'cbe','기계공학부':'me','물리학과':'phys'};
+function pgShape(r){
+  return {sid:String(r.sid), name:r.name, dept:r.dept, st:r.status, tot:Number(r.total)||0,
+    ar:{학부:(r.area||{}).recog}, tk:r.codes||[], wish:r.wishCodes||[], dk:DK[r.dept]||'mseng',
+    crs:(r.semesters||[]).map(x=>{const i=x.indexOf(':');return {c:x.slice(0,i), s:x.slice(i+1)};})};
+}
+
+async function boot(){
+  if(!AUTH||!AUTH.studentId){ gate('데이터허브 대문에서 관리자 로그인 후 열어 주세요.'); return; }
+  const p=AUTH.perms; if(p&&p.length&&p.indexOf('전체')<0){ gate('이 화면은 「전체」 권한만 열 수 있습니다 (직인 사용).'); return; }
+  try{
+    const [pr,lg]=await Promise.all([
+      jsonp({action:'getProgress',studentId:AUTH.studentId,birthDate:ADM().adminBirth,page:'admin_cert.html',userAgent:navigator.userAgent}),
+      jsonp({action:'getCertLedger',...ADM()})]);
+    if(pr.status!=='ok'){ gate(pr.message||'이수 현황을 불러오지 못했습니다.'); return; }
+    if(lg.status!=='ok'){ gate(lg.message||'발급대장을 불러오지 못했습니다.'); return; }
+    DATA=pr.students.map(pgShape); LED=lg.rows||[];
+    loading.style.display='none'; wrap.style.display='block';
+    const ds=[...new Set(DATA.map(d=>d.dept))]; fDept.innerHTML+=ds.map(v=>`<option>${esc(v)}</option>`).join('');
+    fKind.innerHTML+=Object.entries(CERT_INFO).map(([c,i])=>`<option value="${c}">${esc(PG_CERT[i.k])}</option>`).join('');
+    drawCand(); drawLedger(); loadSeal();
+  }catch(e){ gate('불러오지 못했습니다 — '+e.message); }
+}
+async function reloadLedger(){ const lg=await jsonp({action:'getCertLedger',...ADM()}); if(lg.status==='ok'){ LED=lg.rows||[]; drawCand(); drawLedger(); } return lg; }
+
+/* ── ① 대상자 ── */
+const issuedKey=()=>{ const s=new Set(); LED.forEach(r=>{ if(String(r.status).trim()==='발급') s.add(String(r.sid).trim()+'|'+String(r.title).trim()); }); return s; };
+function buildCand(){
+  const basis=fBasis.value, have=issuedKey(), out=[];
+  DATA.filter(d=>d.st!=='융전포기').forEach(d=>{ const e=pgEval(d);
+    Object.entries(CERT_INFO).forEach(([code3,I])=>{
+      const now=e.st[I.k]==='ok', rule=e.rule[I.k]==='ok';
+      if(!(now||(basis==='rule'&&rule))) return;
+      const title=PG_CERT[I.k]; if(have.has(d.sid+'|'+title)) return;
+      const courses=pgCertCourses(d,code3), cr=courses.reduce((a,c)=>a+c.cr,0);
+      out.push({key:d.sid+'|'+code3,d,code3,I,title,basis:now?'과목 기준':'규정상(융합전공 36 충족)',courses,cr,period:pgCertPeriod(courses)});
+    });
+  });
+  return out;
+}
+function drawCand(){
+  CAND=buildCand();
+  const q=fQ.value.trim(), k=fKind.value, dp=fDept.value;
+  const L=CAND.filter(c=>(!k||c.code3===k)&&(!dp||c.d.dept===dp)&&(!q||c.d.name.includes(q)||c.d.sid.includes(q)));
+  [...SEL].forEach(x=>{ if(!CAND.some(c=>c.key===x)) SEL.delete(x); });
+  candN.textContent=CAND.length+'건'; candCnt.textContent=L.length+'건 표시 · 선택 '+SEL.size;
+  candBody.innerHTML=L.length?L.map(c=>`<tr>
+    <td class="c"><input type="checkbox" ${SEL.has(c.key)?'checked':''} onchange="pick(${jsA(c.key)},this.checked)" aria-label="선택"></td>
+    <td><b>${esc(c.title)}</b></td><td class="mono">${esc(c.d.sid)}</td><td>${esc(c.d.name)}</td><td>${esc(c.d.dept)}</td><td>${esc(c.d.st)}</td>
+    <td><span class="tag ${c.basis==='과목 기준'?'ok':'w'}">${esc(c.basis==='과목 기준'?'과목 기준':'규정상')}</span></td>
+    <td>${c.cr===c.I.cr?c.cr+'학점':`<span class="tag w">${c.cr} / ${c.I.cr}학점</span>`}</td>
+    <td class="muted">${esc(c.period||'—')}</td>
+    <td><button class="btn s" onclick="previewCand(${jsA(c.key)})">미리보기</button></td></tr>`).join('')
+    :'<tr><td colspan="10" class="empty">조건에 맞는 대상자가 없습니다.</td></tr>';
+  allC.checked=L.length>0&&L.every(c=>SEL.has(c.key));
+  issueBtn.disabled=!SEL.size; issueBtn.textContent='선택한 '+SEL.size+'건 이수 완료 처리';
+}
+function pick(k,on){ on?SEL.add(k):SEL.delete(k); drawCand(); }
+function toggleAll(on){ const q=fQ.value.trim(), k=fKind.value, dp=fDept.value;
+  CAND.filter(c=>(!k||c.code3===k)&&(!dp||c.d.dept===dp)&&(!q||c.d.name.includes(q)||c.d.sid.includes(q))).forEach(c=>on?SEL.add(c.key):SEL.delete(c.key)); drawCand(); }
+const candRec=c=>({no:'KISTAR-'+new Date().getFullYear()+'-'+c.code3+'-000',code3:c.code3,title:c.title,sid:c.d.sid,name:c.d.name,enName:'',dept:c.d.dept,
+  credits:c.cr,period:c.period,issued:new Date().toISOString().slice(0,10),courses:c.courses,code:'',sample:true});
+function previewCand(k){ const c=CAND.find(x=>x.key===k); if(c) preview(candRec(c)); }
+
+function askIssue(){
+  const L=CAND.filter(c=>SEL.has(c.key)); if(!L.length) return;
+  const short=L.filter(c=>c.cr!==c.I.cr).length;
+  dlg('이수 완료 처리',`${L.length}건을 이수 완료 처리합니다.\n\n`+L.slice(0,12).map(c=>`· ${c.d.name} (${c.d.sid}) — ${c.title}`).join('\n')+(L.length>12?`\n· 외 ${L.length-12}건`:'')+
+    (short?`\n\n※ 교과목 학점이 과정 학점보다 적은 건이 ${short}건 있습니다(규정상 대상). 수료증 앞면 이수학점은 실제 적힌 교과목 학점 합계로 나갑니다.`:'')+
+    '\n\n처리 후 번호·확인코드가 매겨지고 PDF를 이어서 만듭니다.',[['취소',closeDlg],['처리',()=>doIssue(L),'p']]);
+}
+async function doIssue(L){
+  dlg('이수 완료 처리 중','발급대장에 올리는 중…',[]);
+  const items=L.map(c=>({code3:c.code3,kind:c.code3[0]==='T'?'전공트랙':'마이크로디그리',title:c.title,sid:c.d.sid,name:c.d.name,dept:c.d.dept,
+    basis:c.basis,sem:lastSem(c.d),evidence:pgEvidence(c.d,PG_LIST.find(p=>p.k===c.I.k)),enName:'',period:c.period,credits:c.cr,courses:JSON.stringify(c.courses)}));
+  const r=await post({action:'certIssue',items:JSON.stringify(items)});
+  if(r.status!=='ok'){ dlg('처리하지 못했습니다',r.message||'오류',[['닫기',closeDlg]]); return; }
+  SEL.clear(); await reloadLedger();
+  const nos=(r.results||[]).filter(x=>x.no).map(x=>x.no), sk=(r.results||[]).filter(x=>x.skipped);
+  if(!nos.length){ dlg('처리 결과',`새로 처리된 건이 없습니다.\n`+sk.map(x=>`· ${x.sid} ${x.title} — ${x.skipped}`).join('\n'),[['닫기',closeDlg]]); return; }
+  await makePdfs(nos, `${nos.length}건 처리 완료`+(sk.length?` · 건너뜀 ${sk.length}건`:''));
+}
+
+/* ── ② 발급대장 ── */
+function drawLedger(){
+  const st=lSt.value, q=lQ.value.trim();
+  const L=LED.filter(r=>(!st||String(r.status).trim()===st)&&(!q||[r.name,r.sid,r.no].some(v=>String(v).includes(q))));
+  const nIss=LED.filter(r=>String(r.status).trim()==='발급').length, nMiss=LED.filter(r=>String(r.status).trim()==='발급'&&!r.hasPdf).length;
+  ledN.textContent=`발급 ${nIss}건`+(nMiss?` · PDF 없음 ${nMiss}건`:''); ledCnt.textContent=L.length+'건 표시';
+  missBtn.disabled=!nMiss;
+  ledBody.innerHTML=L.length?L.map(r=>{ const iss=String(r.status).trim()==='발급';
+    return `<tr><td class="mono">${esc(r.no)}</td><td>${esc(r.title)}</td><td class="mono">${esc(r.sid)}</td><td>${esc(r.name)}</td>
+    <td><input class="en" type="text" value="${esc(r.enName)}" placeholder="예: Gildong Hong" ${iss?'':'disabled'} onchange="saveEn(${jsA(r.no)},this)"></td>
+    <td class="muted">${esc(r.issued)}</td>
+    <td><span class="tag ${iss?'ok':String(r.status).trim()==='취소'?'x':'g'}">${esc(r.status||'—')}</span></td>
+    <td>${r.hasPdf?'<span class="tag ok">있음</span>':iss?'<span class="tag w">없음</span>':'—'}</td>
+    <td style="white-space:nowrap"><button class="btn s" onclick="previewNo(${jsA(r.no)})">미리보기</button>
+      ${iss?`<button class="btn s" onclick="makePdfs([${jsA(r.no)}])">${r.hasPdf?'PDF 다시 만들기':'PDF 만들기'}</button>
+      <button class="btn s d" onclick="askRevoke(${jsA(r.no)})">취소</button>`:''}</td></tr>`; }).join('')
+    :'<tr><td colspan="9" class="empty">발급된 수료증이 없습니다.</td></tr>';
+}
+const ledRec=r=>{ let cs=[]; try{ cs=JSON.parse(r.courses||'[]'); }catch(e){}
+  return {no:r.no,code3:String(r.no).split('-')[2],title:r.title,sid:r.sid,name:r.name,enName:String(r.enName||'').trim(),dept:r.dept,
+    credits:Number(r.credits)||cs.reduce((a,c)=>a+(+c.cr||0),0),period:r.period,issued:r.issued,courses:cs,code:r.code}; };
+function previewNo(no){ const r=LED.find(x=>x.no===no); if(r) preview(ledRec(r)); }
+async function saveEn(no,el){
+  const v=el.value.trim().replace(/\s+/g,' ');
+  if(v&&!/^[A-Za-z][A-Za-z .'\-]{1,78}$/.test(v)){ el.style.borderColor='var(--dang)'; return; }
+  el.disabled=true; const r=await jsonp({action:'certSetInfo',no,enName:v,...ADM()}).catch(e=>({status:'error',message:e.message})); el.disabled=false;
+  if(r.status!=='ok'){ el.style.borderColor='var(--dang)'; dlg('저장하지 못했습니다',r.message||'',[['닫기',closeDlg]]); return; }
+  el.style.borderColor='var(--ok)'; const x=LED.find(z=>z.no===no); if(x) x.enName=v;
+  if(x&&x.hasPdf) dlg('영문 성명 저장',`${x.name} — ${v||'(지움)'}\n\n이미 만든 PDF에는 반영되지 않았습니다. 지금 다시 만들까요?`,[['나중에',closeDlg],['PDF 다시 만들기',()=>makePdfs([no]),'p']]);
+}
+function askRevoke(no){ const r=LED.find(x=>x.no===no); if(!r) return;
+  dlg('발급 취소',`${r.name} (${r.sid}) — ${r.title}\n${r.no}\n\n취소하면 학생 화면에서 사라지고 QR 확인에는 「발급 취소」로 나옵니다. 되돌리려면 시트에서 상태를 「발급」으로 바꿉니다.`,
+    [['닫기',closeDlg],['취소 처리',async()=>{ const why=dlgIn.value.trim(); dlg('취소 처리 중','',[]);
+      const x=await jsonp({action:'certRevoke',no,reason:why,...ADM()}).catch(e=>({status:'error',message:e.message}));
+      if(x.status!=='ok'){ dlg('처리하지 못했습니다',x.message||'',[['닫기',closeDlg]]); return; }
+      await reloadLedger(); closeDlg(); },'d']],true);
+}
+function makeMissing(){ makePdfs(LED.filter(r=>String(r.status).trim()==='발급'&&!r.hasPdf).map(r=>r.no)); }
+
+/* ── ③ 직인 ── */
+async function loadSeal(){
+  const r=await jsonp({action:'getCertSeal',...ADM()}).catch(()=>({status:'error'}));
+  SEAL=r.status==='ok'&&r.png?'data:image/png;base64,'+r.png:'';
+  sealImg.src=SEAL||'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+  sealSt.className='tag '+(SEAL?'ok':'x'); sealSt.textContent=SEAL?'등록됨':'없음 — PDF를 만들 수 없습니다';
+}
+function uploadSeal(inp){
+  const f=inp.files&&inp.files[0]; inp.value=''; if(!f) return;
+  const img=new Image(); img.onload=async()=>{
+    const s=Math.min(1,400/Math.max(img.width,img.height)), cv=document.createElement('canvas');
+    cv.width=Math.round(img.width*s); cv.height=Math.round(img.height*s); cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    URL.revokeObjectURL(img.src); dlg('직인 저장 중','',[]);
+    const r=await post({action:'certSetSeal',png:cv.toDataURL('image/png').split(',')[1]});
+    if(r.status!=='ok'){ dlg('저장하지 못했습니다',r.message||'',[['닫기',closeDlg]]); return; }
+    await loadSeal(); closeDlg();
+  }; img.src=URL.createObjectURL(f);
+}
+
+/* ── 증서 그리기 (디자인 확정본 · A4 세로 794×1123) ── */
+const S2=s=>String(s).split('').map(x=>'<i>'+esc(x)+'</i>').join('');
+const MON=['Jan.','Feb.','Mar.','Apr.','May','Jun.','Jul.','Aug.','Sep.','Oct.','Nov.','Dec.'];
+const MONF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dKo=s=>{ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m?`${m[1]}년 ${m[2]}월 ${m[3]}일`:esc(s); };
+const dEn=s=>{ const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m?`${MONF[+m[2]-1]} ${+m[3]}, ${m[1]}`:esc(s); };
+const pEn=s=>String(s||'').replace(/(\d{4})\. (\d{2})\./g,(_,y,m)=>MON[+m-1]+' '+y).replace(' ~ ',' – ');
+const tEn=s=>String(s||'').replace('-여름','-S').replace('-겨울','-W');
+function certQr(rec){
+  if(rec.sample||!rec.code) return '';
+  const q=qrcode(0,'M'); q.addData(VERIFY_URL+'?no='+encodeURIComponent(rec.no)+'&k='+encodeURIComponent(rec.code)); q.make();
+  return q.createDataURL(6,0);
+}
+function pageHtml(rec,lang,side,qr){
+  const I=CERT_INFO[rec.code3], ko=lang==='ko', no=esc(rec.no), cs=rec.courses||[];
+  const foot=`<div class="abs" style="left:96px;top:968px;width:602px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #C9B9B9;padding-top:14px">
+    <img src="cert_assets/${ko?'lockup.png':'lockup_en.png'}" style="width:${ko?210:220}px">
+    <div class="sans" style="font-size:11.5px;line-height:1.55;color:#333;text-align:right">${ko?'교육부 · 한국산업기술진흥원(KIAT)<br>첨단산업특성화대학지원사업(반도체)':'Supported by the Ministry of Education and KIAT<br>Advanced Industry Specialized University Program (Semiconductor)'}</div></div>`;
+  const seal=SEAL?`<img src="${SEAL}" class="abs" style="left:${ko?600:566}px;top:${ko?862:858}px;width:${ko?96:92}px;opacity:.92">`:'';
+  if(side==='front'){
+    let h='<img src="cert_assets/symbol.png" class="abs" style="left:197px;top:350px;width:400px;opacity:.05"><div class="abs" style="left:0;top:0;width:794px;padding:96px 110px 0">';
+    if(ko) h+=`<div style="font-size:13px">문서확인번호 : ${no}</div>
+<div style="margin-top:44px;text-align:center;font-size:62px;font-weight:900;letter-spacing:.6em;padding-left:.6em">수료증</div>
+<div style="margin-top:44px;margin-left:250px;white-space:nowrap">
+<div class="row"><span class="lab">${S2('성명')}</span>: ${esc(rec.name)}</div>
+<div class="row"><span class="lab">${S2('소속')}</span>: 고려대학교 ${esc(rec.dept)}</div>
+<div class="row"><span class="lab">${S2('학번')}</span>: ${esc(rec.sid)}</div></div>
+<div style="margin-top:34px;font-size:19px;line-height:1.95;word-break:keep-all">위 사람은 고려대학교 차세대AI반도체특성화대학사업단이 운영하는 아래 교육과정을 이수하여 ${esc(I.fko)} 분야의 전문 역량을 갖추었기에 이 증서를 수여합니다.</div>
+<div style="margin-top:28px;text-align:center;font-size:17px;letter-spacing:.8em;padding-left:.8em">아래</div>
+<table style="margin-top:12px;font-size:16px"><tr><th style="width:40%">과 정 명</th><th style="width:20%">이수학점</th><th>이수기간</th></tr>
+<tr><td style="font-weight:700;font-size:18px">${esc(rec.title)}</td><td>${esc(rec.credits)}학점</td><td>${esc(rec.period)}</td></tr></table>
+<div style="margin-top:8px;font-size:12.5px;color:#444;text-align:right">※ 이수 교과목 내역은 뒷면 참조</div>
+<div style="margin-top:34px;text-align:center;font-size:20px;font-weight:700;letter-spacing:.06em">${dKo(rec.issued)}</div></div>
+<div class="abs" style="left:0;right:0;top:868px;text-align:center"><div style="font-size:19px;font-weight:700;letter-spacing:.5em;padding-left:.5em">고려대학교</div><div style="margin-top:6px;font-size:29px;font-weight:900;letter-spacing:.1em">차세대AI반도체특성화대학사업단장</div></div>`;
+    else h+=`<div style="font-size:13px">Certificate No. ${no}</div>
+<div style="margin-top:46px;text-align:center;font-size:40px;font-weight:700;letter-spacing:.12em">CERTIFICATE</div>
+<div style="text-align:center;font-size:20px;letter-spacing:.36em;margin-top:4px">OF COMPLETION</div>
+<div style="margin-top:46px;text-align:center;font-size:16px;font-style:italic;color:#333">This is to certify that</div>
+<div style="margin-top:10px;text-align:center;font-size:34px;font-weight:700;letter-spacing:.06em">${esc(rec.enName)}</div>
+<div style="margin-top:6px;text-align:center;font-size:15px;color:#333">${esc(DEPT_EN[rec.dept]||rec.dept)}, Korea University<br>Student ID ${esc(rec.sid)}</div>
+<div style="margin-top:28px;font-size:17.5px;line-height:1.85;text-align:center">has successfully completed the program below offered by<br>the KI-STAR Center, Korea University, and has demonstrated<br>professional competence in ${esc(I.fen)}.</div>
+<table style="margin-top:26px;font-size:16px"><tr><th style="width:48%">Program</th><th style="width:17%">Credits</th><th>Period</th></tr>
+<tr><td style="font-weight:700">${esc(I.en)}</td><td>${esc(rec.credits)}</td><td>${esc(pEn(rec.period))}</td></tr></table>
+<div style="margin-top:8px;font-size:12.5px;color:#444;text-align:right">* Course details on the reverse side</div>
+<div style="margin-top:30px;text-align:center;font-size:19px;font-weight:700">${dEn(rec.issued)}</div></div>
+<div class="abs" style="left:0;right:0;top:872px;text-align:center"><div style="font-size:24px;font-weight:700;letter-spacing:.04em">Director</div><div style="margin-top:4px;font-size:17px;letter-spacing:.08em">KI-STAR Center, Korea University</div></div>`;
+    return h+seal+foot;
+  }
+  const span={}; cs.forEach((r,i)=>{ if(i===0||cs[i-1].g!==r.g){ let n=1; while(cs[i+n]&&cs[i+n].g===r.g) n++; span[i]=n; } });
+  const tr=cs.map((r,i)=>'<tr>'+(span[i]?`<td rowspan="${span[i]}">${esc(ko?r.g:r.gEn)}</td>`:'')+
+    `<td class="l">${esc(ko?r.ko:(r.en||r.ko))}</td><td>${esc(r.code)}</td><td>${esc(r.cr)}</td><td style="white-space:nowrap">${esc(ko?r.term:tEn(r.term))}</td></tr>`).join('');
+  const tot=cs.reduce((a,r)=>a+(+r.cr||0),0), hasS=cs.some(r=>/여름|겨울/.test(r.term));
+  return `<div class="abs" style="left:0;top:0;width:794px;padding:84px 92px 0">
+<div style="display:flex;justify-content:space-between;font-size:13px"><span>${ko?'문서확인번호 : ':'Certificate No. '}${no}</span><span>${ko?'성명 : '+esc(rec.name):'Name : '+esc(rec.enName)} (${esc(rec.sid)})</span></div>
+<div style="margin-top:${ko?34:26}px;text-align:center;font-size:${ko?30:26}px;font-weight:900;letter-spacing:${ko?'.3em':'.14em'}">${ko?'이수 교과목 내역':'COURSE RECORD'}</div>
+<div style="margin-top:28px;font-size:15.5px;line-height:1.9">${ko?`<b>과　정　명</b> : ${esc(rec.title)} (${esc(I.kind)} · ${esc(rec.credits)}학점)<br><b>역량 분야</b> : ${esc(I.area.join(', '))}`:`<b>Program</b> : ${esc(I.en)} (${esc(rec.credits)} credits)<br><b>Competencies</b> : ${esc(I.areaEn.join(', '))}`}</div>
+<table style="margin-top:18px;font-size:${ko?14.5:13.5}px"><tr><th style="width:19%;white-space:nowrap">${ko?'구분':'Category'}</th><th>${ko?'교과목명':'Course Title'}</th><th style="width:14%">${ko?'학수번호':'Course No.'}</th><th style="width:9%">${ko?'학점':'Credits'}</th><th style="width:15%">${ko?'이수학기':'Term'}</th></tr>${tr}
+<tr><th colspan="3">${ko?'합　계':'Total'}</th><th>${tot}</th><th></th></tr></table>
+${!ko&&hasS?'<div style="margin-top:8px;font-size:12px;color:#555">* Term S = Summer session, W = Winter session.</div>':''}
+<div class="sans" style="margin-top:${ko?34:20}px;display:flex;gap:22px;align-items:center;border:1px solid #C9B9B9;padding:16px 18px">
+${qr?`<img src="${qr}" style="width:104px;height:104px;image-rendering:pixelated">`:'<div style="width:104px;height:104px;border:1px dashed #bbb;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999;text-align:center">QR<br>(발급 후)</div>'}
+<div style="font-size:13px;line-height:1.75;color:#222">${ko?'<b style="font-size:14px">진위 확인</b><br>휴대폰으로 QR을 찍으면 사업단 확인 페이지에서 발급 여부와 과정명을 확인할 수 있습니다.<br>확인 문의 : 차세대AI반도체특성화대학사업단 · 02-3290-4988 · kistar.korea.ac.kr':'<b style="font-size:14px">Verification</b><br>Scan the QR code to confirm the issuance and program of this certificate on the KI-STAR Center verification page.<br>Inquiries : KI-STAR Center, Korea University · +82-2-3290-4988 · kistar.korea.ac.kr'}</div></div>
+<div class="sans" style="margin-top:22px;font-size:12px;line-height:1.7;color:#444">${ko?'본 증서는 첨단산업특성화대학지원사업(반도체)의 일환으로 사업단이 자체 인증하여 발급하는 것으로, 고려대학교 학적부 및 성적증명서에는 기재되지 않습니다.':'This certificate is issued by the KI-STAR Center under the Advanced Industry Specialized University Program (Semiconductor). It is not recorded on the official academic transcript of Korea University.'}</div>
+<div style="margin-top:${ko?26:12}px;text-align:center"><img src="cert_assets/${ko?'lockup.png':'lockup_en.png'}" style="width:200px"></div></div>`;
+}
+// 테두리 — 앞면은 물결 무늬(위조 방지 느낌), 뒷면은 두 줄. canvas 로 그려 PDF 변환에서도 그대로 나온다
+function border(cv,full){
+  const R=2; cv.width=794*R; cv.height=1123*R; cv.style.cssText='position:absolute;left:0;top:0;width:794px;height:1123px';
+  const g=cv.getContext('2d'); g.scale(R,R);
+  const rect=(x,y,w,h,c,lw)=>{ g.strokeStyle=c; g.lineWidth=lw; g.globalAlpha=1; g.strokeRect(x,y,w,h); };
+  if(!full){ rect(20,20,754,1083,'#7C131B',2.5); rect(34,34,726,1055,'#B8913F',1); return; }
+  const wave=(x,y,w,h,amp,period,ph,c,lw,al)=>{ const P=2*(w+h),k=Math.round(P/period),n=Math.round(P/2); g.beginPath();
+    for(let i=0;i<=n;i++){ const q=i/n*P; let px,py,nx,ny;
+      if(q<w){px=x+q;py=y;nx=0;ny=-1}else if(q<w+h){px=x+w;py=y+q-w;nx=1;ny=0}else if(q<2*w+h){px=x+w-(q-w-h);py=y+h;nx=0;ny=1}else{px=x;py=y+h-(q-2*w-h);nx=-1;ny=0}
+      const o=amp*Math.sin(2*Math.PI*k*q/P+ph); i?g.lineTo(px+nx*o,py+ny*o):g.moveTo(px+nx*o,py+ny*o); }
+    g.closePath(); g.strokeStyle=c; g.lineWidth=lw; g.globalAlpha=al; g.stroke(); g.globalAlpha=1; };
+  rect(20,20,754,1083,'#7C131B',2.5);
+  for(let i=0;i<4;i++) wave(40,40,714,1043,11,24,i*Math.PI/2,'#7C131B',.8,.8);
+  for(let i=0;i<3;i++) wave(40,40,714,1043,5,12,i*2.09+1,'#B8913F',.6,1);
+  rect(60,60,674,1003,'#7C131B',1.2); rect(66,66,662,991,'#7C131B',.5);
+}
+function pageEl(rec,lang,side,qr){
+  const p=document.createElement('div'); p.className='page';
+  const cv=document.createElement('canvas'); p.appendChild(cv); border(cv,side==='front');
+  const c=document.createElement('div'); c.innerHTML=pageHtml(rec,lang,side,qr); p.appendChild(c); return p;
+}
+const SIDES=rec=>[['ko','front'],['ko','back']].concat(rec.enName?[['en','front'],['en','back']]:[]);
+
+function preview(rec){
+  const qr=certQr(rec); pvPages.innerHTML='';
+  SIDES(rec).forEach(([l,s])=>{ const w=document.createElement('div'); w.className='pvp'; w.appendChild(pageEl(rec,l,s,qr)); pvPages.appendChild(w); });
+  pvT.textContent=`${rec.name} · ${rec.title} · ${rec.sample?'미리보기(처리 전 — 번호·QR 없음)':rec.no}`+(rec.enName?'':' · 영문 성명 없음 → 국문만')+(SEAL?'':' · 직인 없음');
+  pv.classList.add('on');
+}
+function closePv(){ pv.classList.remove('on'); pvPages.innerHTML=''; }
+
+/* ── PDF 만들기 → 비공개 폴더 저장 ── */
+async function pdfOf(rec){
+  const qr=certQr(rec), {jsPDF}=window.jspdf, pdf=new jsPDF({unit:'mm',format:'a4',compress:true});
+  const sides=SIDES(rec);
+  for(let i=0;i<sides.length;i++){
+    const el=pageEl(rec,sides[i][0],sides[i][1],qr); stage.innerHTML=''; stage.appendChild(el);
+    await Promise.all([...el.querySelectorAll('img')].map(im=>im.complete?Promise.resolve():new Promise(r=>{im.onload=im.onerror=r;})));
+    await document.fonts.ready; await new Promise(r=>setTimeout(r,60));
+    const cv=await html2canvas(el,{scale:2,backgroundColor:'#ffffff',logging:false,useCORS:true});
+    if(i) pdf.addPage();
+    pdf.addImage(cv.toDataURL('image/jpeg',0.9),'JPEG',0,0,210,297);
+  }
+  stage.innerHTML='';
+  pdf.setProperties({title:rec.no+' '+rec.title,subject:'KI-STAR 과정 이수 수료증',creator:'KI-STAR Center, Korea University'});
+  return pdf.output('datauristring').split(',')[1];
+}
+async function makePdfs(nos,head){
+  if(!SEAL){ dlg('직인이 없습니다','③ 설정에서 직인 이미지를 먼저 등록해 주세요.',[['닫기',closeDlg]]); return; }
+  const fail=[]; dlg((head?head+' — ':'')+'PDF 만드는 중','',[]); dlgP.style.display='block';
+  for(let i=0;i<nos.length;i++){
+    const r=LED.find(x=>x.no===nos[i]); dlgB.textContent=`${i+1} / ${nos.length} · ${r?r.name+' — '+r.title:nos[i]}`; dlgPi.style.width=(i/nos.length*100)+'%';
+    try{ if(!r) throw new Error('대장에 없음');
+      const b64=await pdfOf(ledRec(r)); const x=await post({action:'certSavePdf',no:r.no,pdf:b64});
+      if(x.status!=='ok') throw new Error(x.message||'저장 실패');
+    }catch(e){ fail.push(nos[i]+' — '+e.message); }
+  }
+  dlgPi.style.width='100%'; await reloadLedger();
+  dlg('PDF 저장 '+(fail.length?'(일부 실패)':'완료'),`${nos.length-fail.length}건 저장했습니다. 학생은 데이터허브 대문 「내 수료증」에서 내려받습니다.`+(fail.length?'\n\n실패\n'+fail.join('\n'):''),[['닫기',closeDlg]]);
+}
+
+/* ── 확인 창 (브라우저 alert/confirm 대신) ── */
+function dlg(t,b,acts,withInput){
+  dlgT.textContent=t; dlgB.textContent=b; dlgP.style.display='none'; dlgPi.style.width='0';
+  dlgIn.style.display=withInput?'block':'none'; dlgIn.value='';
+  dlgA.innerHTML=''; (acts||[]).forEach(([l,f,c])=>{ const x=document.createElement('button'); x.className='btn'+(c?' '+c:''); x.textContent=l; x.onclick=f; dlgA.appendChild(x); });
+  mask.classList.add('on');
+}
+function closeDlg(){ mask.classList.remove('on'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(pv.classList.contains('on')) closePv(); else if(dlgA.children.length) closeDlg(); } });
+boot();
+</script>
+</body>
+</html>
