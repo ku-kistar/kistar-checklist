@@ -475,6 +475,66 @@ tr.hidden,.card.hidden{display:none}
   .chk-chip{margin-left:0}
   .chk-banner{flex-direction:column;gap:4px}
 }
+/* ★ 2026-11-05 — 판정 대시보드 · Claude 판정 근거 박스 */
+.jdash{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.jd-card{background:var(--surf);border:1px solid var(--gray-b);border-top:4px solid var(--gray-m);border-radius:8px;padding:9px 10px;cursor:pointer;text-align:left;font-family:inherit;box-shadow:var(--sh);transition:transform .1s,box-shadow .1s}
+.jd-card:hover{transform:translateY(-1px)}
+.jd-card.on{outline:2px solid var(--ink);outline-offset:1px}
+.jd-card .jd-l{font-size:11.5px;font-weight:700;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jd-card .jd-n{font-size:22px;font-weight:800;line-height:1.25;margin-top:2px}
+.jd-card .jd-s{font-size:10.5px;color:var(--ink3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jd-card.zero{opacity:.55}
+.jd-done{border-top-color:#047857}.jd-done .jd-n{color:#047857}
+.jd-check{border-top-color:#d97706}.jd-check .jd-n{color:#b45309}
+.jd-new{border-top-color:#1d4ed8}.jd-new .jd-n{color:#1d4ed8}
+.jd-wait{border-top-color:#7c3aed}.jd-wait .jd-n{color:#6d28d9}
+.jd-pend{border-top-color:#dc2626}.jd-pend .jd-n{color:#b91c1c}
+.jd-rej{border-top-color:#9f1239}.jd-rej .jd-n{color:#9f1239}
+.jd-skip{border-top-color:#6b7280}.jd-skip .jd-n{color:#4b5563}
+.jd-help{font-size:11.5px;color:var(--ink3);margin:-4px 0 10px;line-height:1.5}
+.ev-box{border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12.5px;line-height:1.6}
+.ev-box .ev-t{font-weight:800;font-size:12.5px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ev-box .ev-row{display:flex;gap:8px;align-items:flex-start}
+.ev-box .ev-k{flex-shrink:0;font-weight:700;min-width:74px}
+.ev-box .ev-v{flex:1;min-width:0;word-break:keep-all;overflow-wrap:anywhere}
+.ev-done{background:#ecfdf5;border:1px solid #6ee7b7;color:#064e3b}
+.ev-done .ev-t{color:#047857}
+.ev-check{background:#fffbeb;border:1px solid #fcd34d;color:#78350f}
+.ev-check .ev-t{color:#b45309}
+.ev-check .ev-need .ev-v{color:#b91c1c;font-weight:600}
+.ev-check .ev-rec .ev-v{color:#1d4ed8;font-weight:600}
+.ev-note{font-size:11px;font-weight:600;color:var(--ink3)}
+.b-cl{background:#d97706;color:#fff;border:1px solid #d97706}
+.b-ai{background:#ecfdf5;color:#047857;border:1px solid #6ee7b7}
+.judge-card.cl-card{border-left:5px solid #d97706}
+@media (max-width:1024px){.jdash{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:767px){
+  .jdash{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .jd-card .jd-n{font-size:19px}
+  .ev-box .ev-row{flex-direction:column;gap:0}
+  .ev-box .ev-k{min-width:0}
+}
+/* 2026-11-06 카드 3구역 */
+.zone{border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.zone-h{font-size:12px;font-weight:800;letter-spacing:.02em;margin-bottom:8px}
+.zone-look{background:#fff;border:2px solid #fde68a}
+.zone-look .zone-h{color:#b45309}
+.zone-look .ev-box{margin:0}
+.zone-empty{font-size:13px;color:#6b7280}
+.ask-box{margin-top:8px;display:flex;gap:10px;align-items:flex-start;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:9px 12px;font-size:13.5px;line-height:1.55;color:#7f1d1d}
+.ask-box b{white-space:nowrap;color:#b91c1c}
+.zone-stu{background:#f1f5f9;border:1px solid #cbd5e1}
+.zone-stu .zone-h{color:#334155}
+.stu-tbl{display:grid;grid-template-columns:96px 1fr;gap:7px 12px;align-items:center}
+.stu-k{font-size:12px;color:#64748b;font-weight:600}
+.stu-v{font-size:13.5px;color:#0f172a;line-height:1.5;word-break:keep-all}
+.stu-v.strong{font-weight:700}
+.claim-pill{display:inline-block;background:#1e3a8a;color:#fff;border-radius:999px;padding:2px 10px;font-weight:800;font-size:13px}
+.diff-note{margin-left:8px;color:#c2410c;font-weight:700;font-size:12.5px}
+.zone-act{background:#fafafa;border:1px dashed #d1d5db}
+.zone-act .zone-h{color:#6b7280}
+.zone-act .jc-action{margin-bottom:0}
+@media(max-width:767px){.stu-tbl{grid-template-columns:76px 1fr}.zone{padding:10px}}
 </style>
 </head>
 <body>
@@ -499,7 +559,7 @@ tr.hidden,.card.hidden{display:none}
     <div class="nav-label" style="margin-top:6px">참고</div>
     <button class="nav-btn" onclick="showPanel('crit',this)"><span class="nav-icon">📐</span> 마일리지 기준표</button>
   </nav>
-  <div class="sb-foot">차세대AI반도체특성화대학사업단<br>☎ 02-3290-4988<br>판정도구 2026-10-24판 · 데이터허브 대문 연결<br><a href="portal_survey.html" style="color:rgba(255,255,255,.55)">⌂ 데이터허브 대문</a></div>
+  <div class="sb-foot">차세대AI반도체특성화대학사업단<br>☎ 02-3290-4988<br>판정도구 2026-11-06판 · 대시보드 · 3구역 카드<br><a href="portal_survey.html" style="color:rgba(255,255,255,.55)">⌂ 데이터허브 대문</a></div>
 </aside>
 
 <!-- 메인 -->
@@ -516,7 +576,7 @@ tr.hidden,.card.hidden{display:none}
   </div>
   <div class="content">
     <div class="sem-bar" id="sem-bar"></div>
-    <div class="panel on" id="panel-judge"><div id="judge-list"></div></div>
+    <div class="panel on" id="panel-judge"><div id="judge-dash"></div><div id="judge-list"></div></div>
     <div class="panel" id="panel-group"><div id="group-list"></div></div>
     <div class="panel" id="panel-overview">
       <div class="kpi-grid" id="kpi-grid"></div>
@@ -1047,8 +1107,55 @@ const KPI_DEF = {
   notInput: { label:'⏳ 허브 미반영',  fn:(s,id)=> (s.v==='ok'||s.v==='adj') && !DH_DONE[id] },
   pend:     { label:'⚠️ 보류',        fn:(s,id)=> s.v==='pend' },
   rej:      { label:'❌ 반려',         fn:(s,id)=> s.v==='rej' },
-  skip:     { label:'⛔ 제외',         fn:(s,id)=> s.v==='skip' }
+  skip:     { label:'⛔ 제외',         fn:(s,id)=> s.v==='skip' },
+  // ★ 2026-11-05 — 대시보드 구분 (한 건은 한 구분에만 들어간다)
+  c_done:   { label:'✅ 완료 (허브 반영)',     cat:'done'  },
+  c_check:  { label:'🔎 확인 필요',            cat:'check' },
+  c_new:    { label:'🆕 새 제출 (미검토)',     cat:'new'   },
+  c_wait:   { label:'📥 허브 입력 대기',       cat:'wait'  },
+  c_pend:   { label:'⏸ 보류',                 cat:'pend'  },
+  c_rej:    { label:'❌ 반려',                 cat:'rej'   },
+  c_skip:   { label:'⛔ 제외',                 cat:'skip'  }
 };
+
+// ★ 2026-11-05 — Claude 판정 근거 = 판정대기 R열(내부메모)
+//   「[완료] 증빙: … | 근거: … | 기간: … | 허브: …」  = 데이터허브 반영까지 끝낸 건
+//   「[확인] 확인됨: … | 확인 필요: … | 추천: …」     = 선생님 확인이 필요한 건 (학생 화면은 「검토 중」 그대로)
+function hasAsk(t){t=String(t||'').trim();return !!t && !/^(\.|-|x|X|없음|없습니다\.?|없어요|해당\s*없음|test)$/i.test(t);}
+function parseMemo(m){
+  const t = String(m || '').trim();
+  const mt = t.match(/^\[(완료|확인)\]\s*/);
+  if(!mt) return null;
+  const parts = t.slice(mt[0].length).split(/\s*\|\s*/).filter(Boolean).map(x=>{
+    const i = x.indexOf(':');
+    return i > 0 ? [x.slice(0,i).trim(), x.slice(i+1).trim()] : ['', x.trim()];
+  });
+  return { type: mt[1] === '완료' ? 'done' : 'check', parts };
+}
+const EV_ICON = {'증빙':'📎','근거':'📐','기간':'📅','허브':'✅','확인됨':'✔️','확인 필요':'❗','추천':'👉'};
+function evBox(m, decided){
+  const p = parseMemo(m); if(!p) return '';
+  const rows = p.parts.map(([k,v])=>{
+    const cls = k==='확인 필요' ? ' ev-need' : (k==='추천' ? ' ev-rec' : '');
+    return `<div class="ev-row${cls}"><span class="ev-k">${EV_ICON[k]||'•'} ${esc(k||'메모')}</span><span class="ev-v">${esc(v)}</span></div>`;
+  }).join('');
+  const title = p.type==='done'
+    ? '🤖 Claude 확정 근거 <span class="ev-note">· 데이터허브 입력 완료</span>'
+    : (decided ? '🔎 Claude 검토 메모 <span class="ev-note">· 판정 후에도 기록으로 남김</span>'
+               : '🔎 Claude 검토 — 확인이 필요합니다 <span class="ev-note">· 학생 화면은 「검토 중」</span>');
+  return `<div class="ev-box ${p.type==='done'?'ev-done':'ev-check'}"><div class="ev-t">${title}</div>${rows}</div>`;
+}
+// 대시보드 구분 — 시트 판정(반려·제외·보류) → 허브 반영 → Claude 확인 필요 → 판정됐으나 허브 전 → 새 제출
+function catOf(r){
+  const s = ST[r._id] || {};
+  if(s.v==='rej')  return 'rej';
+  if(s.v==='skip') return 'skip';
+  if(s.v==='pend') return 'pend';
+  if(DH_DONE[r._id]) return 'done';
+  if(s.cl) return 'check';
+  if((s.v==='ok'||s.v==='adj') && (s.done || !s.isNew)) return 'wait';
+  return 'new';
+}
 
 // ── 학기 판별 ──
 // 판정 완료 건: 제출일시가 SEM_SWITCH 이전이면 1학기 (제출일시는 바뀌지 않는 값)
@@ -1146,6 +1253,16 @@ function loadData() {
         if (sV==='skip' || sV==='rej') s0.j = null;   // ★ 2026-10-12 — 제외·반려는 M열에 값이 남아 있어도 점수로 보지 않는다
         else if (!isNaN(sP)) { s0.j = sP; s0.isNew = false; s0.chk = false; }
       }
+      // ★ 2026-11-05 — 시트 R열(내부메모)·P열(학생안내메모)은 브라우저 저장본보다 항상 우선
+      //   (전에는 한 번 연 건은 시트 메모를 다시 읽지 않아 Claude 메모가 안 보였다)
+      const s1 = ST[r._id];
+      if (r['내부메모'])    s1.memo = r['내부메모'];
+      if (r['학생안내메모']) s1.studentMsg = r['학생안내메모'];
+      // 「[확인]」 메모 + 시트 미판정 + 허브 미반영 = 선생님 확인 필요.
+      //   자동판정 점수·판정을 비워 두어 「입력완료 처리」가 바로 눌리지 않게 한다 (판정을 고르면 다시 나타남)
+      const pm = parseMemo(s1.memo);
+      s1.cl = !!(pm && pm.type === 'check' && !isJudgedRow(r) && !DH_DONE[r._id]);
+      if (s1.cl) { s1.v = ''; s1.j = null; s1.chk = false; s1.done = false; s1.isNew = false; }
     });
     saveST(); saveDhDone(DH_DONE);
     document.getElementById('loading-tag').textContent = `총 ${DATA.length}건 로드됨`;
@@ -1195,6 +1312,29 @@ function renderSbKpi() {
   // 모바일 하단 탭바 뱃지
   const bnavTodo=document.getElementById('bnav-cnt-todo');
   if(bnavTodo)bnavTodo.textContent=todoCount;
+  renderDash();
+}
+
+// ★ 2026-11-05 — 빠른 판정 상단 대시보드 (칸을 누르면 그 건만 보기)
+function renderDash(){
+  const el = document.getElementById('judge-dash'); if(!el) return;
+  const cnt = {done:0,check:0,new:0,wait:0,pend:0,rej:0,skip:0}, pts = {done:0,wait:0};
+  VIEW().forEach(r=>{ const c = catOf(r); cnt[c]++; const j = ST[r._id]?.j; if(pts[c]!==undefined && j) pts[c]+=j; });
+  const cell = (key, cls, label, n, sub) => {
+    const on = kpiFilter===key ? ' on' : '';
+    return `<button class="jd-card ${cls}${on}${n?'':' zero'}" onclick="toggleKpiFilter('${key}')" title="${label} 건만 보기">`
+         + `<div class="jd-l">${label}</div><div class="jd-n">${n}<span style="font-size:12px;font-weight:600;margin-left:2px">건</span></div><div class="jd-s">${sub}</div></button>`;
+  };
+  el.innerHTML = '<div class="jdash">'
+    + cell('c_done',  'jd-done',  '✅ 완료',        cnt.done,  `허브 반영 · ${pts.done}점`)
+    + cell('c_check', 'jd-check', '🔎 확인 필요',   cnt.check, '선생님 확인 대기')
+    + cell('c_new',   'jd-new',   '🆕 새 제출',     cnt.new,   'Claude 검토 전')
+    + cell('c_wait',  'jd-wait',  '📥 허브 입력 대기', cnt.wait, `판정됨 · ${pts.wait}점`)
+    + cell('c_pend',  'jd-pend',  '⏸ 보류',        cnt.pend,  '학생에게 「확인 필요」')
+    + cell('c_rej',   'jd-rej',   '❌ 반려',        cnt.rej,   '학생에게 사유 공개')
+    + cell('c_skip',  'jd-skip',  '⛔ 제외',        cnt.skip,  '중복·비교과 처리 등')
+    + '</div>'
+    + (cnt.check ? '<div class="jd-help">🔎 확인 필요 카드의 노란 상자에 Claude가 확인한 것과 확인이 필요한 것을 적어 두었습니다. 판정을 고르면 점수 입력과 「입력완료 처리」가 나타납니다.</div>' : '');
 }
 
 function calc() {
@@ -1207,7 +1347,7 @@ function calc() {
     else if(s.v==='adj')adj++;
     else if(s.v==='pend')pend++;
     else if(s.v==='rej')rej++;
-    else skip++;
+    else if(s.v==='skip')skip++;      // ★ 2026-11-05 — 판정 전('' · 확인 필요)은 제외에 세지 않는다
     if(s.done)done++;
     if(DH_DONE[r._id])dh++;                       // 시트 Q열 기준 (실제 반영)
     if((s.v==='ok'||s.v==='adj')&&s.j)pts+=s.j;
@@ -1221,7 +1361,8 @@ function renderJudge() {
   list.innerHTML = '';
   let sorted = [...VIEW()].filter(r=>{
     if(kpiFilter && KPI_DEF[kpiFilter]){
-      if(!KPI_DEF[kpiFilter].fn(ST[r._id]||{}, r._id)) return false;
+      const _d = KPI_DEF[kpiFilter];
+      if(_d.cat ? catOf(r)!==_d.cat : !_d.fn(ST[r._id]||{}, r._id)) return false;
     }
     if(!searchWord)return true;
     return(r['이름']+r['학번']+r['프로그램명']+r['학생신청항목']).toLowerCase().includes(searchWord);
@@ -1230,8 +1371,8 @@ function renderJudge() {
   // ── 정렬: 보류(4) → 확정미입력(1) → 조정미입력(2) → 확인필요(3) → 입력완료(5) → 반려/제외(6) ──
   sorted.sort((a,b)=>{
     const sa=ST[a._id]||{}, sb=ST[b._id]||{};
-    const rankA = sa.chk ? 0 : sa.done ? 5 : (sa.v==='rej'||sa.v==='skip') ? 6 : calcPri(a,sa);   // 판단 필요 = 맨 위
-    const rankB = sb.chk ? 0 : sb.done ? 5 : (sb.v==='rej'||sb.v==='skip') ? 6 : calcPri(b,sb);
+    const rankA = (sa.cl||sa.chk) ? 0 : sa.done ? 5 : (sa.v==='rej'||sa.v==='skip') ? 6 : calcPri(a,sa);   // 확인 필요·판단 필요 = 맨 위
+    const rankB = (sb.cl||sb.chk) ? 0 : sb.done ? 5 : (sb.v==='rej'||sb.v==='skip') ? 6 : calcPri(b,sb);
     return rankA-rankB || (a['제출일시']||'').localeCompare(b['제출일시']||'');
   });
 
@@ -1289,8 +1430,10 @@ function renderJudge() {
     if(isDone) cardClass += ' done-compact';
     else if(isSkip) cardClass += ' skip-compact';
     else if(s.v==='pend') cardClass += ' pend-card';
-    if(s.chk && !isCollapsed) cardClass += ' chk-card';
+    if(s.cl) cardClass += ' cl-card';
+    else if(s.chk && !isCollapsed) cardClass += ' chk-card';
     else if(isNew) cardClass += ' is-new';
+    const pmemo = parseMemo(s.memo);
 
     const div = document.createElement('div');
     div.className = cardClass;
@@ -1316,8 +1459,9 @@ function renderJudge() {
   </div>
   <div class="jc-badges">
     ${s.chk?'<span class="badge b-chk" id="chkb_'+r._id+'">⚠️ 판단 필요</span>':''}
-    ${!isCollapsed&&!s.chk?`<span class="pri-badge ${PRI_CLS[pri]}">${PRI_LBL[pri]}</span>`:''}
-    <span class="badge ${V_BC[s.v]||'b-skip'}" id="vbadge_${r._id}">${V_LBL[s.v]||'미판정'}</span>
+    ${pmemo&&pmemo.type==='done'?'<span class="badge b-ai" title="Claude가 증빙을 확인해 확정·허브 입력한 건">🤖 Claude 확정</span>':''}
+    ${!isCollapsed&&!s.chk&&!s.cl?`<span class="pri-badge ${PRI_CLS[pri]}">${PRI_LBL[pri]}</span>`:''}
+    ${s.cl?`<span class="badge b-cl" id="vbadge_${r._id}">🔎 확인 필요</span>`:`<span class="badge ${V_BC[s.v]||'b-skip'}" id="vbadge_${r._id}">${V_LBL[s.v]||'미판정'}</span>`}
     ${DH_DONE[r._id]?'<span class="badge b-dh">✅ 허브반영</span>':''}
     ${isDone?'<span class="badge b-ok" style="background:#047857;color:#fff;border-color:#047857">✔ 입력완료</span>':''}
     ${s.j?`<span style="font-size:12px;font-weight:700;color:${isDone?'var(--green)':'var(--blue)'};">${s.j}점</span>`:''}
@@ -1325,17 +1469,25 @@ function renderJudge() {
   ${!isCollapsed?`<span class="jc-arr open" id="arr_${r._id}">▲</span>`:'<span style="font-size:11px;color:var(--ink3);flex-shrink:0">펼치기</span>'}
 </div>
 <div class="jc-body" id="jcb_${r._id}" style="${isCollapsed?'display:none':''}">
-  ${s.chk?`<div class="chk-banner" id="chkn_${r._id}"><b>⚠️ 관리자 판단 필요</b><span>${esc(s.hint||'')}<br>증빙을 확인한 뒤 점수와 판정을 직접 넣어 주세요. 넣으면 이 알림은 사라집니다.</span></div>`:''}
-  ${claimPt?`<div class="score-compare">
-    <span class="lbl">학생 신청</span>
-    <span class="claim-score ${isDiff?'diff':''}">${claimPt}점</span>
-    ${isDiff?`<span class="arrow-icon">→</span><span class="judge-score-display">${s.j}점</span><span class="score-diff-note">기준 적용 조정</span>`:''}
-  </div>`:''}
-  <div class="jc-grid">
-    <div class="jc-section"><h5>💬 학생 진술</h5><div class="jc-text">${esc(r['학생신청항목']||'(없음)')}</div></div>
-    <div class="jc-section"><h5>📁 증빙 자료 (${linkIds.length}개)</h5><div class="jc-links">${linksHtml}</div></div>
+  <div class="zone zone-look">
+    <div class="zone-h">① 선생님이 볼 것</div>
+    ${pmemo ? evBox(s.memo, !s.cl)
+      : (s.chk ? `<div class="chk-banner" id="chkn_${r._id}"><b>⚠️ 관리자 판단 필요</b><span>${esc(s.hint||'')}<br>증빙을 확인한 뒤 점수와 판정을 직접 넣어 주세요.</span></div>`
+               : `<div class="zone-empty">${esc(s.hint||'특이사항 없음')}</div>`)}
+    ${hasAsk(r['학생문의'])?`<div class="ask-box"><b>❗ 학생 문의</b><span>${esc(r['학생문의'])}</span></div>`:''}
   </div>
-  ${r['학생문의']?`<div class="note-text">💬 학생 문의: ${esc(r['학생문의'])}</div>`:''}
+  <div class="zone zone-stu">
+    <div class="zone-h">② 학생이 낸 내용</div>
+    <div class="stu-tbl">
+      <div class="stu-k">프로그램</div><div class="stu-v strong">${esc(r['프로그램명']||'')}</div>
+      <div class="stu-k">활동 기간</div><div class="stu-v strong">${esc(r['활동기간']||'')}</div>
+      <div class="stu-k">신청 항목</div><div class="stu-v">${esc(r['학생신청항목']||'(없음)')}</div>
+      <div class="stu-k">신청 점수</div><div class="stu-v"><span class="claim-pill">${claimPt?claimPt+'점':'-'}</span>${isDiff?`<span class="diff-note">→ ${s.j}점으로 조정</span>`:''}</div>
+      <div class="stu-k">증빙 (${linkIds.length})</div><div class="stu-v"><div class="jc-links">${linksHtml}</div></div>
+    </div>
+  </div>
+  <div class="zone zone-act">
+    <div class="zone-h">③ 판정 · 메모</div>
   <div class="admin-memo-wrap" style="margin-bottom:8px">
     <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px">
       📝 내부 메모 <span style="font-weight:400;color:#9ca3af">(학생 비공개 — CSV 비고란 포함)</span>
@@ -1374,6 +1526,7 @@ function renderJudge() {
       ${s.v==='skip'||s.v==='rej'?'disabled':''} onchange="onJ('${r._id}',this.value)">
     <span class="act-label">점</span>
     <select class="v-sel" id="vs_${r._id}" onchange="onV('${r._id}',this.value)">
+      ${!s.v?'<option value="" selected>— 판정 선택 —</option>':''}
       <option value="ok" ${s.v==='ok'?'selected':''}>✅ 확정</option>
       <option value="adj" ${s.v==='adj'?'selected':''}>🔶 조정</option>
       <option value="pend" ${s.v==='pend'?'selected':''}>⚠️ 보류</option>
@@ -1385,7 +1538,8 @@ function renderJudge() {
           ? `<span class="done-tag">✔ 입력완료</span><button class="undo-btn" onclick="onDone('${r._id}')">취소</button>`
           : `<button class="confirm-btn" onclick="onDone('${r._id}')">✔ 입력완료 처리</button>`)
       : ''}
-    <span class="auto-hint" title="자동 판정 근거">${esc(s.hint||'')}</span>
+    <span class="auto-hint" title="자동 판정 근거"${s.cl?' style="display:none"':''}>${s.cl?'':esc(s.hint||'')}</span>
+  </div>
   </div>
 </div>`;
     list.appendChild(div);
@@ -1447,6 +1601,7 @@ function onJ(id,val){
 function onV(id,val){
   if(!ST[id])ST[id]={};
   ST[id].v=val;
+  if(val) ST[id].cl=false;          // ★ 2026-11-05 — 확인 필요 건도 판정을 고르면 바로 처리할 수 있다
   if(val==='skip'||val==='rej'){ ST[id].j=null; const _si=document.getElementById('si_'+id); if(_si) _si.value=''; }   // ★ 2026-10-12 — 제외·반려는 M열(판정점수)을 비운다
   if(val!=='pend') clearChk(id);
   ST[id].isNew=false;
@@ -1462,7 +1617,7 @@ function onV(id,val){
   // 카드 클래스
   const card=document.getElementById('jc_'+id);
   if(card){
-    card.className='judge-card'+(s.done&&canDone?' done':'')+(s.isNew?' is-new':'')+(s.chk?' chk-card':'');
+    card.className='judge-card'+(s.done&&canDone?' done':'')+(s.isNew?' is-new':'')+(s.chk?' chk-card':'')+(s.cl?' cl-card':'');
   }
   // 입력완료 버튼 동적 업데이트
   const action=card?.querySelector('.jc-action');
