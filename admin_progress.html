@@ -105,6 +105,10 @@ font-variant-numeric:tabular-nums}
 .st.ok{background:var(--okbg);color:var(--ok)}
 .st.go{background:#eaf0fb;color:#1d4ed8}
 .st.no{background:#f0f2f5;color:var(--text2)}
+/* ★ 2026-11-10 졸업생 구분 — 졸업은 졸업사정으로 확정. 36 미만이면 데이터 불일치 경고 */
+.st.grad{background:#1f3a5f;color:#fff}
+.st.gwarn{background:#fdecea;color:#b42318}
+.tbl tbody tr.gradrow td{background:rgba(31,58,95,.06)}
 .need{font-weight:700;color:var(--dang)}
 .need.z{color:#c8cfd9;font-weight:400}
 .empty{padding:60px;text-align:center;color:var(--text2)}
@@ -937,12 +941,13 @@ function tblHtml(L){
     ${AREAS.map((a,i)=>`<th class="${i===0?'div':''}">${a[0]}</th>`).join('')}
     <th class="div">2026-2 수강</th><th>추가 필요</th><th class="div pgc">과정 (과목 기준)</th></tr></thead><tbody>
     ${L.map((d,idx)=>{const p=Math.round(d.tot/36*100);
-      const st=!d.dg.active?['no',d.st]:d.tot>=36?['ok','충족']:d.dg.sev?['go','조치 필요']:['no','진행 중'];   // ★ 2026-10-20 학적(수료·휴학·졸업 등)이 먼저 — 36학점 충족이어도 수료생은 「수료」
+      const st=d.st==='졸업'?(d.tot>=36?['grad','🎓 졸업']:['gwarn','⚠ 졸업 · 불일치'])   // ★ 2026-11-10 졸업생 구분 · 36 미만 = 졸업사정과 불일치(데이터 확인)
+        :!d.dg.active?['no',d.st]:d.tot>=36?['ok','충족']:d.dg.sev?['go','조치 필요']:['no','진행 중'];   // ★ 2026-10-20 학적(수료·휴학·졸업 등)이 먼저 — 36학점 충족이어도 수료생은 「수료」
       // 미이수 드릴다운은 학년이 바뀌는 지점에 구분줄을 넣는다. 55명이면 경계가 안 보인다.
       const brk = String(drill_).startsWith('ai:') && (idx===0 || L[idx-1].yr!==d.yr)
         ? `<tr class="ybrk"><td colspan="${4+AREAS.length+3}">${d.yr}학년
              <span>${L.filter(x=>x.yr===d.yr).length}명</span></td></tr>` : '';
-      return brk+`<tr onclick="open_(${jsA(d.sid)})">
+      return brk+`<tr onclick="open_(${jsA(d.sid)})"${d.st==='졸업'?` class="gradrow" title="${d.tot>=36?'졸업 — 졸업사정으로 확정':'졸업생인데 이수현황이 36학점 미만 — 성적 데이터 확인 필요'}"`:''}>
       <td class="l"><span class="seq">${esc(d.seq)}</span><b>${esc(d.name)}</b>
         <span style="color:var(--text3)"> ${esc(d.sid)} · ${esc(d.dept)}</span></td>
       <td>${esc(d.yr)}</td><td><span class="st ${st[0]}">${esc(st[1])}</span></td>
@@ -976,7 +981,7 @@ function open_(sid){
   <div style="display:flex;align-items:baseline;gap:9px;margin-bottom:12px">
     <span style="font-size:34px;font-weight:800;letter-spacing:-1.5px">${d.tot}</span>
     <span style="color:var(--text2)">/ 36학점</span>
-    <span style="margin-left:auto" class="st ${['졸업','융전포기'].includes(d.st)?'no':d.tot>=36?'ok':'go'}">${['졸업','융전포기'].includes(d.st)?d.st:d.tot>=36?'요건 충족':'남은 학점 '+(36-d.tot)}</span></div>
+    <span style="margin-left:auto" class="st ${d.st==='졸업'?(d.tot>=36?'grad':'gwarn'):d.st==='융전포기'?'no':d.tot>=36?'ok':'go'}">${d.st==='졸업'?(d.tot>=36?'🎓 졸업':'⚠ 졸업 · 졸업사정과 불일치 (남은 '+(36-d.tot)+')'):d.st==='융전포기'?d.st:d.tot>=36?'요건 충족':'남은 학점 '+(36-d.tot)}</span></div>
   ${AREAS.map(([k,m,l])=>`<div class="arow"><span class="an">${l}</span>
     <span class="ab ${d.ar[k]>=m?'full':''}"><i style="width:${d.ar[k]/m*100}%"></i></span>
     <span class="av">${d.ar[k]}/${m}</span></div>`
