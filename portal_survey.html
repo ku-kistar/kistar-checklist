@@ -228,6 +228,9 @@ body{font-family:'Noto Sans KR','Malgun Gothic','맑은 고딕',-apple-system,Bl
 .admin-card[data-hue="doc"]{--hue:#f59e0b}
 .admin-card[data-hue="survey"]{--hue:#a78bfa}
 .admin-card[data-hue="cal"]{--hue:#64748b}
+.admin-card[data-hue="work"]{--hue:#e879f9}
+#adm-links-card .admin-links-grp{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.42);margin:6px 0 1px;letter-spacing:.02em}
+#adm-links-card .admin-links-grp:first-child{margin-top:0}
 .admin-card[data-hue] .admin-card-head svg{color:var(--hue)}
 
 /* ── ★ 지금 할 일 · 작업 현황 (2026-08-14 신설 · 2026-10-02 작업현황 탭 합침) ──
@@ -1253,6 +1256,17 @@ html.todo-only.todo-ready #todo-only-note{display:none}
           <div class="admin-card-foot"><b>내 PC</b> — 배너 편집기 (banner_template.html)</div>
         </div>
 
+        <!-- ⑥ 업무 자료 — ★ 2026-11-11 T157 · 링크는 데이터허브 시트 「바로가기」 탭 (Links.gs getAdminLinks · 「전체」만)
+             Public 저장소라 시트·드라이브 주소를 소스에 넣지 않는다 — 로그인 뒤 서버가 내려준다 -->
+        <div class="admin-card" data-hue="work" id="adm-links-card" style="display:none">
+          <div class="admin-card-head">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2.5h3.5l1 1.5H11a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-7.5A.5.5 0 0 1 2 2.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            <span class="admin-card-title">업무 자료</span>
+          </div>
+          <div class="admin-card-btns" id="adm-links-list"></div>
+          <div class="admin-card-foot">목록은 데이터허브 시트 <b>「바로가기」 탭</b>에서 고칩니다 (표시 OFF = 숨김)</div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1893,7 +1907,7 @@ function showUserBar() {
     //   ReferenceError 가 나고 스크립트 평가가 그 자리에서 멈춰,
     //   아래쪽 mileageData 등이 초기화되지 않아 마일리지 화면이 통째로 죽는다.
     //   (관리자 경로에서만 발생 — 학생은 이 블록에 들어오지 않는다)
-    if (_full) setTimeout(function () { loadTodoStrip(); }, 0);
+    if (_full) setTimeout(function () { loadTodoStrip(); loadAdminLinks(); }, 0);
   }
   // 학점교류생 배너
   const existingBanner = document.getElementById('exchange-banner');
@@ -3423,6 +3437,39 @@ function loadTodoStrip(force) {
              '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
     try { work = _todoFromWork(d); } catch (e) {}
     step();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ⑥ 업무 자료 카드 — ★ 2026-11-11 T157
+//  데이터허브 시트 「바로가기」 탭 → Links.gs getAdminLinks (「전체」만 · 캐시 없음)
+//  링크는 https:// 만 받고, 글자는 모두 textContent 로 넣는다 (학생 입력값 처리 기준과 같은 방식)
+// ═══════════════════════════════════════════════════════════
+function loadAdminLinks() {
+  const auth = checkAuth();
+  const card = document.getElementById('adm-links-card'), list = document.getElementById('adm-links-list');
+  if (!card || !list) return;
+  if (!auth || !_admCan(auth, '전체')) { card.style.display = 'none'; return; }
+  _todoJsonp(EXEC_URL + '?action=getAdminLinks' +
+             '&adminId=' + encodeURIComponent(auth.studentId || '') +
+             '&adminBirth=' + encodeURIComponent(auth.birth || auth.birthDate || ''), function (d) {
+    const links = (d && d.status === 'ok' && Array.isArray(d.links)) ? d.links : [];
+    list.textContent = '';
+    let grp = null;
+    links.forEach(function (x) {
+      const url = String(x.url || '');
+      if (!/^https:\/\/[^\s"'<>]+$/.test(url)) return;
+      const g = String(x.group || '');
+      if (g && g !== grp) { const h = document.createElement('div'); h.className = 'admin-links-grp'; h.textContent = g; list.appendChild(h); }
+      grp = g;
+      const a = document.createElement('a');
+      a.className = 'admin-link'; a.href = url; a.target = '_blank'; a.rel = 'noopener';
+      const n = document.createElement('div'); n.className = 'admin-link-name'; n.textContent = String(x.name || '');
+      a.appendChild(n);
+      if (x.desc) { const ds = document.createElement('div'); ds.className = 'admin-link-desc'; ds.textContent = String(x.desc); a.appendChild(ds); }
+      list.appendChild(a);
+    });
+    card.style.display = list.querySelector('.admin-link') ? '' : 'none';
   });
 }
 
