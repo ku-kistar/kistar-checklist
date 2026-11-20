@@ -2163,7 +2163,8 @@ function loadForms() {
     document.getElementById('errorState').classList.add('show');
   },20000);   // ★ 10초→20초 (2026-10-06) — 마감 직전 몰릴 때 「불러오지 못했습니다」 방지
   const s=document.createElement('script'); s.crossOrigin = 'anonymous';   // 구글 계정 여러 개여도 정상 (2026-10-13)
-  s.id='__jsonp'; s.src=SCRIPT_URL+'?callback='+cbName;
+  // ★ v144 T187 — 학번을 함께 보낸다: 설문관리 N열 「대상」(기수·학년·학번) 카드는 서버가 그 학생에게만 내려 준다 (미리보기 중이면 그 학생)
+  s.id='__jsonp'; s.src=SCRIPT_URL+'?callback='+cbName+'&studentId='+encodeURIComponent(_admViewSid(auth)||'');
   s.onerror=()=>{ clearTimeout(loadTO); if(window[cbName]) delete window[cbName]; document.getElementById('skeletonGrid').style.display='none'; document.getElementById('errorState').classList.add('show'); };
   document.head.appendChild(s);
 }
@@ -3648,8 +3649,7 @@ function _admPrevApply(sid) {
     }
   });
   loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();
-  loadDocStatus();   // 활동계획서·결과보고서 카드 상태도 그 학생 기준으로
-  _planPersonalRefresh();   // ★ T185 개인 마감 활동계획서 카드도 그 학생 기준으로
+  loadForms();   // ★ T187 카드 목록(대상 카드 · 개인 마감 카드 · 서류 상태)을 그 학생 기준으로 다시 받는다
 }
 
 function _admPrevClear() {
@@ -3660,8 +3660,7 @@ function _admPrevClear() {
   if (auth && auth.studentId) {
     loadMileage(auth.studentId); loadExtMileage(auth.studentId);
     loadSurveys(auth.studentId); loadInjeId();
-    loadDocStatus();
-    _planPersonalRefresh();   // ★ T185
+    loadForms();   // ★ T187 카드 목록을 관리자 본인 기준으로 되돌린다
   }
 }
 
