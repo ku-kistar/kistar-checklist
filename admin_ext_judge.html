@@ -477,6 +477,7 @@ tr.hidden,.card.hidden{display:none}
 }
 /* ★ 2026-11-05 — 판정 대시보드 · Claude 판정 근거 박스 */
 .jdash{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.jdash.has-sync{grid-template-columns:repeat(8,minmax(0,1fr))}
 .jd-card{background:var(--surf);border:1px solid var(--gray-b);border-top:4px solid var(--gray-m);border-radius:8px;padding:9px 10px;cursor:pointer;text-align:left;font-family:inherit;box-shadow:var(--sh);transition:transform .1s,box-shadow .1s}
 .jd-card:hover{transform:translateY(-1px)}
 .jd-card.on{outline:2px solid var(--ink);outline-offset:1px}
@@ -492,6 +493,12 @@ tr.hidden,.card.hidden{display:none}
 .jd-rej{border-top-color:#9f1239}.jd-rej .jd-n{color:#9f1239}
 .jd-skip{border-top-color:#6b7280}.jd-skip .jd-n{color:#4b5563}
 .jd-help{font-size:11.5px;color:var(--ink3);margin:-4px 0 10px;line-height:1.5}
+/* ★ T189 — 대조 필요 알림 · 되돌리기 버튼 · 입력 실패 목록 */
+.jd-sync{background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;border-radius:8px;padding:8px 12px;font-size:12px;line-height:1.5;margin-bottom:10px}
+.jd-sync a{color:#991b1b;font-weight:700}
+.revert-btn{padding:4px 10px;border:1px solid var(--gray-b);border-radius:5px;background:#fff;color:var(--ink2);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.revert-btn:hover{border-color:var(--ink3)}
+.di-fail{color:var(--red);font-size:12px;margin-top:4px;font-weight:600}
 .ev-box{border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12.5px;line-height:1.6}
 .ev-box .ev-t{font-weight:800;font-size:12.5px;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .ev-box .ev-row{display:flex;gap:8px;align-items:flex-start}
@@ -507,9 +514,9 @@ tr.hidden,.card.hidden{display:none}
 .b-cl{background:#d97706;color:#fff;border:1px solid #d97706}
 .b-ai{background:#ecfdf5;color:#047857;border:1px solid #6ee7b7}
 .judge-card.cl-card{border-left:5px solid #d97706}
-@media (max-width:1024px){.jdash{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:1024px){.jdash,.jdash.has-sync{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:767px){
-  .jdash{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .jdash,.jdash.has-sync{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
   .jd-card .jd-n{font-size:19px}
   .ev-box .ev-row{flex-direction:column;gap:0}
   .ev-box .ev-k{min-width:0}
@@ -553,13 +560,13 @@ tr.hidden,.card.hidden{display:none}
     <button class="nav-btn on" onclick="showPanel('judge',this)"><span class="nav-icon">⚡</span> 빠른 판정<span class="nav-cnt nc-pend" id="nc-todo">—</span></button>
     <button class="nav-btn" onclick="showPanel('group',this)"><span class="nav-icon">🗂️</span> 동일활동 그룹<span class="nav-cnt nc-group" id="nc-group">—</span></button>
     <button class="nav-btn" onclick="showPanel('overview',this)"><span class="nav-icon">📊</span> 전체 현황</button>
-    <button class="nav-btn" onclick="showPanel('done',this)"><span class="nav-icon">✅</span> 판정완료</button>
+    <button class="nav-btn" onclick="showPanel('done',this)"><span class="nav-icon">✅</span> 판정 마침 목록</button>
     <div class="nav-label" style="margin-top:6px">내보내기</div>
     <button class="nav-btn" onclick="showPanel('csv',this)"><span class="nav-icon">📥</span> 데이터허브 직접 입력</button>
     <div class="nav-label" style="margin-top:6px">참고</div>
     <button class="nav-btn" onclick="showPanel('crit',this)"><span class="nav-icon">📐</span> 마일리지 기준표</button>
   </nav>
-  <div class="sb-foot">차세대AI반도체특성화대학사업단<br>☎ 02-3290-4988<br>판정도구 2026-11-06판 · 대시보드 · 3구역 카드<br><a href="portal_survey.html" style="color:rgba(255,255,255,.55)">⌂ 데이터허브 대문</a></div>
+  <div class="sb-foot">차세대AI반도체특성화대학사업단<br>☎ 02-3290-4988<br>판정도구 2026-11-20판 · 숫자 기준 통일 · 공개 전 확인<br><a href="portal_survey.html" style="color:rgba(255,255,255,.55)">⌂ 데이터허브 대문</a></div>
 </aside>
 
 <!-- 메인 -->
@@ -761,7 +768,7 @@ const STUDENT_MSG_PRESETS = {
   ],
   pend: [
     { label: '추가 서류 필요', text: '추가 증빙 서류가 필요합니다. 사업단으로 문의해주세요.' },
-    { label: '이수시간 확인 필요', text: '증빙 자료의 이수시간 확인이 필요합니다. 수료증을 다시 제출해주세요.' },
+    { label: '이수시간 재확인', text: '증빙 자료의 이수시간 확인이 필요합니다. 수료증을 다시 제출해주세요.' },
     { label: '내부 검토 중', text: '현재 내부 검토 중입니다. 결과는 추후 안내드립니다.' },
     { label: '직접 입력', text: '' }
   ],
@@ -774,10 +781,33 @@ const STUDENT_MSG_PRESETS = {
     { label: '직접 입력', text: '' }
   ],
   skip: [
+    { label: '별도 처리', text: '해당 활동은 사업단 비교과 등으로 별도 처리되어 외부활동 마일리지로는 반영되지 않습니다.' },
     { label: '교과 처리', text: '해당 활동은 교과 마일리지로 별도 처리됩니다.' },
     { label: '직접 입력', text: '' }
   ]
 };
+// ★ 2026-11-20 T189 — 판정을 바꾸면 그 판정의 첫 문구를 기본으로 넣는다.
+//   지금 칸이 비었거나 다른 판정의 자동문구면 바꾸고, 선생님이 직접 쓴 글이면 그대로 둔다.
+const ALL_PRESET_TEXTS = Object.values(STUDENT_MSG_PRESETS).flat().map(p=>p.text).filter(Boolean);
+function presetOptions(v, cur){
+  const list = STUDENT_MSG_PRESETS[v];
+  if(!list) return '<option value="">— 판정을 먼저 고르세요 —</option>';
+  return '<option value="">— 자동문구 선택 —</option>' + list.map(p=>
+    `<option value="${esc(p.text===''?'__custom__':p.text)}" ${(cur&&cur===p.text)?'selected':''}>${p.label}</option>`).join('');
+}
+function defaultMsgFor(v, cur){
+  const c = String(cur||'').trim();
+  if(c && ALL_PRESET_TEXTS.indexOf(c) < 0) return cur;          // 직접 쓴 글은 유지
+  if(v === 'skip') return '';                                    // 제외는 기본 숨김 — 문구를 고를 때만 학생에게 「ℹ️ 별도 처리」로 보인다 (10-08 규칙)
+  const list = STUDENT_MSG_PRESETS[v];
+  return list ? list[0].text : '';                               // 판정 전('') = 비움
+}
+// ★ T189 — 보류·반려·제외는 고르는 즉시 학생 화면에 보인다 → 확인창
+const PUBLIC_LBL = {pend:'학생 화면에 「⚠️ 확인 필요」로 보입니다.', rej:'학생 화면에 「❌ 반려」로 보입니다.', skip:'학생 화면에서는 숨겨집니다 (학생 안내 문구를 고르면 「ℹ️ 별도 처리」로 보임).'};
+function confirmPublic(val, name){
+  if(!PUBLIC_LBL[val]) return true;
+  return confirm(`${name ? name + ' — ' : ''}${V_LBL[val]}\n\n제출 시트에 바로 저장되고 ${PUBLIC_LBL[val]}\n잘못 골랐으면 카드의 「↩ 미판정으로 되돌리기」로 되돌릴 수 있습니다.\n\n진행할까요?`);
+}
 
 // ★ 2026-10-24 T115 — 학생이 폼에 쓴 값(이름·학번·프로그램명·진술·문의 등)은 글자로만 넣는다.
 //   그대로 innerHTML에 넣으면 학생이 넣은 코드가 이 창에서 실행돼 교번·생년월일·출입증을 읽어 갈 수 있었다.
@@ -794,7 +824,14 @@ function sidKey(v){ return String(v == null ? '' : v).replace(/[^0-9A-Za-z가-�
 
 function loadDhDone(){try{return JSON.parse(localStorage.getItem(DH_DONE_KEY)||'{}')}catch{return{}}}
 function saveDhDone(map){try{localStorage.setItem(DH_DONE_KEY,JSON.stringify(map))}catch{}}
-let DH_DONE = loadDhDone();
+// ★ 2026-11-20 T189 — 「데이터허브 반영」은 제출 시트 Q열(데이터허브반영일시)이 정본이다.
+//   DH_LS  = 브라우저 저장본 (이 브라우저에서 데이터허브 입력이 성공한 기록)
+//   DH_DONE = 화면에서 「데이터허브 반영」으로 보는 건 = 시트 Q열 있음 + 이번 창에서 입력 성공한 건
+//   DH_SYNC = 브라우저 저장본에는 있는데 시트 Q열이 빈 건 → 「대조 필요」 (완료로 세지 않는다)
+//   (11/20 입력에 실패한 4건이 브라우저에만 「완료」로 남아 판정 대상에서 빠졌던 문제)
+let DH_LS   = loadDhDone();
+let DH_DONE = {};
+let DH_SYNC = {};
 
 // ══════════════════════════════════════════
 // 시트 동기화 (v3 신규)
@@ -802,6 +839,7 @@ let DH_DONE = loadDhDone();
 //  - L열 '확정/조정'은 데이터허브 반영된 건에만 (미반영이면 '미판정' 유지)
 // ══════════════════════════════════════════
 const SYNC_TIMERS = {};
+const SYNC_FULL   = {};   // ★ T189 — 대기 중인 저장에 판정 변경이 섞였는지 (메모 저장이 판정 저장을 덮지 않게)
 let   SYNC_BUSY   = 0;
 
 function sheetStatusOf(id){
@@ -825,10 +863,18 @@ function showSync(txt, cls){
 }
 
 // 실제 전송 (JSONP)
-function pushRow(id){
+// ★ 2026-11-20 T189 — full=false(메모만 바꿈)이면 판정상태·판정점수·반영일은 시트에 있던 값 그대로 보낸다.
+//   전에는 메모만 써도 브라우저의 자동판정 점수가 M열(판정점수)에 저장돼 「판정한 건」으로 바뀌었다.
+function pushRow(id, full){
   const r = DATA.find(x => x._id === id);
   if(!r || !r._rowIndex){ return; }
   const s = ST[id] || {};
+  const L = full ? sheetStatusOf(id) : (r._shL || '미판정');
+  const M = full ? (s.j === null || s.j === undefined ? '' : s.j) : (r._shM == null ? '' : r._shM);
+  const Q = full ? (DH_DONE[id] ? 'Y' : '') : (r._shQ ? 'Y' : '');
+
+  // 보내는 순간 「시트 값」으로 기억 — 바로 뒤에 메모만 저장해도 이 판정값을 그대로 보낸다 (응답 순서와 무관)
+  if(full){ r._shL = L; r._shM = M; r._shQ = !!Q; r['판정상태'] = L; r['판정점수'] = M; }
 
   SYNC_BUSY++;
   showSync('⏳ 시트 저장 중…');
@@ -849,11 +895,11 @@ function pushRow(id){
   const q = [
     'action=updateStatus',
     'rowIndex=' + encodeURIComponent(r._rowIndex),
-    '판정상태=' + encodeURIComponent(sheetStatusOf(id)),
-    '판정점수=' + encodeURIComponent(s.j === null || s.j === undefined ? '' : s.j),
+    '판정상태=' + encodeURIComponent(L),
+    '판정점수=' + encodeURIComponent(M),
     '학생안내메모=' + encodeURIComponent(s.studentMsg || ''),
     '내부메모=' + encodeURIComponent(s.memo || ''),
-    '데이터허브반영일=' + encodeURIComponent(DH_DONE[id] ? 'Y' : ''),
+    '데이터허브반영일=' + encodeURIComponent(Q),
     'callback=' + cb
   ].join('&');
 
@@ -868,11 +914,14 @@ function pushRow(id){
 }
 
 // 연타 대비 디바운스 (0.8초)
-function syncRow(id, immediate){
+// ★ T189 — memoOnly=true 는 메모(내부메모·학생안내메모)만 바뀐 저장. 대기 중에 판정 변경이 있었으면 판정까지 저장한다
+function syncRow(id, immediate, memoOnly){
   if(!id) return;
+  if(!memoOnly) SYNC_FULL[id] = true;
   if(SYNC_TIMERS[id]) clearTimeout(SYNC_TIMERS[id]);
-  if(immediate){ pushRow(id); return; }
-  SYNC_TIMERS[id] = setTimeout(()=>{ delete SYNC_TIMERS[id]; pushRow(id); }, 800);
+  const go = () => { delete SYNC_TIMERS[id]; const f = !!SYNC_FULL[id]; delete SYNC_FULL[id]; pushRow(id, f); };
+  if(immediate){ go(); return; }
+  SYNC_TIMERS[id] = setTimeout(go, 800);
 }
 
 // ── 1학기 기준 자동 판정 함수 (2026-1 보관 — 수정하지 않음) ──
@@ -1081,7 +1130,7 @@ function calcPri(r, s) {
   if (s.v === 'adj') return 2;
   return 1;
 }
-const PRI_LBL = {1:'⚡ 즉시확정',2:'🔵 빠른확정',3:'🟡 확인필요',4:'🔴 보류',5:'⛔ 제외'};
+const PRI_LBL = {1:'⚡ 즉시확정',2:'🔵 빠른확정',3:'🟡 학생 문의',4:'🔴 보류',5:'⛔ 제외'};
 const PRI_CLS = {1:'pri-1',2:'pri-2',3:'pri-3',4:'pri-4',5:'pri-5'};
 const V_LBL = {ok:'✅ 확정',adj:'🔶 조정',pend:'⚠️ 보류',rej:'❌ 반려',skip:'⛔ 제외'};
 const V_BC  = {ok:'b-ok',adj:'b-adj',pend:'b-pend',rej:'b-rej',skip:'b-skip'};
@@ -1100,23 +1149,26 @@ let searchWord = '';
 let kpiFilter  = '';   // v4: 사이드바 KPI 클릭 필터. '' = 전체
 let RESYNC_IDS = [];   // v4: 시트와 어긋난 반영완료 건
 // KPI 항목별 필터 정의 — 라벨과 판정 조건을 한 곳에 둔다
+// ★ 2026-11-20 T189 — 숫자 기준은 하나(catOf). 좌측 KPI · 빠른 판정 상단 · 전체 현황이 모두 이 구분을 쓴다.
+//   용어: 「판정 마침」 = 선생님이 판정을 끝낸 상태 / 「데이터허브 반영」 = 마일리지내역에 실제로 들어간 상태(시트 Q열)
+//   「확인」 말뜻 구분: 🔎 선생님 확인(Claude [확인] 메모 건) · ⚙ 자동판정 불가 · ❗ 확인할 점(메모 속 항목) · 학생 화면의 보류 표시 「⚠️ 확인 필요」
 const KPI_DEF = {
-  chk:      { label:'⚠️ 판단 필요',   fn:(s,id)=> !!s.chk },
-  judged:   { label:'확정·조정',      fn:(s,id)=> s.v==='ok'||s.v==='adj' },
-  dh:       { label:'✅ 허브반영',     fn:(s,id)=> !!DH_DONE[id] },
-  notInput: { label:'⏳ 허브 미반영',  fn:(s,id)=> (s.v==='ok'||s.v==='adj') && !DH_DONE[id] },
-  pend:     { label:'⚠️ 보류',        fn:(s,id)=> s.v==='pend' },
-  rej:      { label:'❌ 반려',         fn:(s,id)=> s.v==='rej' },
-  skip:     { label:'⛔ 제외',         fn:(s,id)=> s.v==='skip' },
-  // ★ 2026-11-05 — 대시보드 구분 (한 건은 한 구분에만 들어간다)
-  c_done:   { label:'✅ 완료 (허브 반영)',     cat:'done'  },
-  c_check:  { label:'🔎 확인 필요',            cat:'check' },
-  c_new:    { label:'🆕 새 제출 (미검토)',     cat:'new'   },
-  c_wait:   { label:'📥 허브 입력 대기',       cat:'wait'  },
-  c_pend:   { label:'⏸ 보류',                 cat:'pend'  },
-  c_rej:    { label:'❌ 반려',                 cat:'rej'   },
-  c_skip:   { label:'⛔ 제외',                 cat:'skip'  }
+  chk:      { label:'⚙ 자동판정 불가',  fn:(s,id)=> !!s.chk },
+  c_done:   { label:'✅ 완료 (데이터허브 반영)', cat:'done'  },
+  c_sync:   { label:'⚠ 대조 필요',              cat:'sync'  },
+  c_check:  { label:'🔎 선생님 확인',            cat:'check' },
+  c_new:    { label:'🆕 새 제출',                cat:'new'   },
+  c_wait:   { label:'📥 데이터허브 입력 대기',   cat:'wait'  },
+  c_pend:   { label:'⏸ 보류',                   cat:'pend'  },
+  c_rej:    { label:'❌ 반려',                   cat:'rej'   },
+  c_skip:   { label:'⛔ 제외',                   cat:'skip'  }
 };
+const CAT_ORDER = ['done','sync','check','new','wait','pend','rej','skip'];
+function catCounts(){
+  const cnt = {done:0,sync:0,check:0,new:0,wait:0,pend:0,rej:0,skip:0}, pts = {done:0,wait:0};
+  VIEW().forEach(r=>{ const c = catOf(r); cnt[c]++; const j = ST[r._id]?.j; if(pts[c]!==undefined && j) pts[c]+=j; });
+  return {cnt, pts, total: VIEW().length};
+}
 
 // ★ 2026-11-05 — Claude 판정 근거 = 판정대기 R열(내부메모)
 //   「[완료] 증빙: … | 근거: … | 기간: … | 허브: …」  = 데이터허브 반영까지 끝낸 건
@@ -1133,16 +1185,17 @@ function parseMemo(m){
   return { type: mt[1] === '완료' ? 'done' : 'check', parts };
 }
 const EV_ICON = {'증빙':'📎','근거':'📐','기간':'📅','허브':'✅','확인됨':'✔️','확인 필요':'❗','추천':'👉'};
+const EV_KEY_LBL = {'확인 필요':'확인할 점', '허브':'데이터허브'};   // ★ T189 — 메모 원문은 그대로, 화면 이름만
 function evBox(m, decided){
   const p = parseMemo(m); if(!p) return '';
   const rows = p.parts.map(([k,v])=>{
     const cls = k==='확인 필요' ? ' ev-need' : (k==='추천' ? ' ev-rec' : '');
-    return `<div class="ev-row${cls}"><span class="ev-k">${EV_ICON[k]||'•'} ${esc(k||'메모')}</span><span class="ev-v">${esc(v)}</span></div>`;
+    return `<div class="ev-row${cls}"><span class="ev-k">${EV_ICON[k]||'•'} ${esc(EV_KEY_LBL[k]||k||'메모')}</span><span class="ev-v">${esc(v)}</span></div>`;
   }).join('');
   const title = p.type==='done'
-    ? '🤖 Claude 확정 근거 <span class="ev-note">· 데이터허브 입력 완료</span>'
+    ? '🤖 Claude 확정 근거 <span class="ev-note">· 데이터허브 반영</span>'
     : (decided ? '🔎 Claude 검토 메모 <span class="ev-note">· 판정 후에도 기록으로 남김</span>'
-               : '🔎 Claude 검토 — 확인이 필요합니다 <span class="ev-note">· 학생 화면은 「검토 중」</span>');
+               : '🔎 Claude 검토 — 선생님 확인 <span class="ev-note">· 학생 화면은 「검토 중」</span>');
   return `<div class="ev-box ${p.type==='done'?'ev-done':'ev-check'}"><div class="ev-t">${title}</div>${rows}</div>`;
 }
 // 대시보드 구분 — 시트 판정(반려·제외·보류) → 허브 반영 → Claude 확인 필요 → 판정됐으나 허브 전 → 새 제출
@@ -1152,6 +1205,7 @@ function catOf(r){
   if(s.v==='skip') return 'skip';
   if(s.v==='pend') return 'pend';
   if(DH_DONE[r._id]) return 'done';
+  if(DH_SYNC[r._id]) return 'sync';      // ★ T189 — 브라우저에만 반영 기록 · 시트 Q열 없음
   if(s.cl) return 'check';
   if((s.v==='ok'||s.v==='adj') && (s.done || !s.isNew)) return 'wait';
   return 'new';
@@ -1210,14 +1264,20 @@ function loadData() {
       return;
     }
     DATA = res.records || [];
+    DH_DONE = {}; DH_SYNC = {};   // ★ T189 — 매번 시트 Q열로 다시 만든다
     // 기존 판정 상태 없는 신규 건 초기화
     DATA.forEach((r, i) => {
       // _id: 분리처리 건은 중복여부 컬럼값 포함하여 고유 ID 생성
       const dupFlag = r['중복여부'] || '';
       r._id = sidKey(r['학번']) + '_' + String(r['제출일시']||'').replace(/\D/g,'') + (dupFlag ? '_' + dupFlag.replace(/[^a-zA-Z0-9가-힣]/g,'') : '');
-      // 시트의 데이터허브반영일이 있으면 반영완료로 간주 (localStorage보다 우선)
+      // ★ T189 — 데이터허브 반영 = 시트 Q열(데이터허브반영일시)만. 브라우저에만 있는 기록은 「대조 필요」
       const dhCell = r['데이터허브반영일시'] || r['데이터허브반영일'] || '';
-      if (dhCell) DH_DONE[r._id] = true;
+      if (dhCell) { DH_DONE[r._id] = true; DH_LS[r._id] = true; }
+      else if (DH_LS[r._id]) DH_SYNC[r._id] = true;
+      // 시트에 지금 들어 있는 값 (메모만 저장할 때 이 값을 그대로 보낸다)
+      r._shL = String(r['판정상태'] || '').trim() || '미판정';
+      r._shM = String(r['판정점수'] ?? '').trim();
+      r._shQ = !!dhCell;
       r._sem = rowSem(r);
       // 2학기 미판정 건은 예전 버전(1학기 규칙)으로 캐시된 자동판정이 있으면 새 규칙으로 다시 계산
       const cached = ST[r._id];
@@ -1234,7 +1294,7 @@ function loadData() {
         const judged  = !!sheetV || hasPt;
         ST[r._id] = {
           j:    (sheetV==='skip' || sheetV==='rej') ? null : (hasPt ? sheetPt : auto.score),   // ★ 2026-10-12
-          v:    sheetV || (auto.score !== null ? 'ok' : 'pend'),
+          v:    sheetV || (auto.score !== null ? 'ok' : ''),   // ★ T189 — 자동판정 점수가 없으면 「판정 전」(전엔 브라우저에서만 「보류」로 잡혔다)
           done: judged,
           hint: auto.hint,
           chk:  !judged && !!auto.chk,            // 2026-2: 관리자 판단 필요
@@ -1250,6 +1310,8 @@ function loadData() {
         const sV = SHEET_V[String(r['판정상태'] || '').trim()] || '';
         const sP = parseInt(r['판정점수']);
         if (sV) { s0.v = sV; s0.isNew = false; s0.chk = false; if (sV==='rej'||sV==='skip') s0.done = false; }
+        // ★ T189 — 보류·반려·제외는 고르는 즉시 시트에 저장된다. 시트가 미판정인데 브라우저만 보류·반려·제외면 낡은 기록 → 판정 전으로
+        else if (s0.v==='pend' || s0.v==='rej' || s0.v==='skip') { s0.v = ''; s0.j = null; s0.done = false; }
         if (sV==='skip' || sV==='rej') s0.j = null;   // ★ 2026-10-12 — 제외·반려는 M열에 값이 남아 있어도 점수로 보지 않는다
         else if (!isNaN(sP)) { s0.j = sP; s0.isNew = false; s0.chk = false; }
       }
@@ -1264,7 +1326,7 @@ function loadData() {
       s1.cl = !!(pm && pm.type === 'check' && !isJudgedRow(r) && !DH_DONE[r._id]);
       if (s1.cl) { s1.v = ''; s1.j = null; s1.chk = false; s1.done = false; s1.isNew = false; }
     });
-    saveST(); saveDhDone(DH_DONE);
+    saveST(); saveDhDone(DH_LS);
     document.getElementById('loading-tag').textContent = `총 ${DATA.length}건 로드됨`;
     renderAll();
   };
@@ -1296,18 +1358,19 @@ function kpiCell(key, label, value, cls){
 }
 
 function renderSbKpi() {
-  const c = calc();
-  const notInput = VIEW().filter(r=>{const s=ST[r._id];return s&&(s.v==='ok'||s.v==='adj')&&!DH_DONE[r._id];}).length;   // 판정됐지만 아직 허브 미반영
+  // ★ T189 — 빠른 판정 상단·전체 현황과 같은 구분(catOf)
+  const {cnt, pts, total} = catCounts();
   document.getElementById('sb-kpi').innerHTML = `
-    ${kpiCell('',        '총 제출',    c.total,        'kv-blue')}
-    ${kpiCell('chk',     '⚠️ 판단 필요', c.chk+'건',   'kv-chk')}
-    ${kpiCell('judged',  '확정 합계',  c.pts+'점',     'kv-ok')}
-    ${kpiCell('dh',      '✅ 허브반영', c.dh+'건',      'kv-ok')}
-    ${kpiCell('notInput','⏳ 미반영',   notInput+'건',  'kv-warn')}
-    ${kpiCell('pend',    '⚠️ 보류',    c.pend+'건',    'kv-pend')}
-    ${kpiCell('rej',     '❌ 반려',     c.rej+'건',     'kv-rej')}
-    ${kpiCell('skip',    '⛔ 제외',     c.skip+'건',    'kv-dim')}`;
-  const todoCount = VIEW().filter(r=>!ST[r._id]?.done&&(ST[r._id]?.v==='ok'||ST[r._id]?.v==='adj')).length;
+    ${kpiCell('',        '총 제출',          total,              'kv-blue')}
+    ${kpiCell('c_done',  '✅ 완료',          cnt.done+'건 · '+pts.done+'점', 'kv-ok')}
+    ${cnt.sync ? kpiCell('c_sync', '⚠ 대조 필요', cnt.sync+'건', 'kv-rej') : ''}
+    ${kpiCell('c_check', '🔎 선생님 확인',   cnt.check+'건',     'kv-chk')}
+    ${kpiCell('c_new',   '🆕 새 제출',       cnt.new+'건',       'kv-blue')}
+    ${kpiCell('c_wait',  '📥 입력 대기',     cnt.wait+'건',      'kv-warn')}
+    ${kpiCell('c_pend',  '⏸ 보류',          cnt.pend+'건',      'kv-pend')}
+    ${kpiCell('c_rej',   '❌ 반려',          cnt.rej+'건',       'kv-rej')}
+    ${kpiCell('c_skip',  '⛔ 제외',          cnt.skip+'건',      'kv-dim')}`;
+  const todoCount = cnt.sync + cnt.check + cnt.new + cnt.wait;   // 할 일 = 대조 필요 + 선생님 확인 + 새 제출 + 입력 대기
   document.getElementById('nc-todo').textContent = todoCount;
   // 모바일 하단 탭바 뱃지
   const bnavTodo=document.getElementById('bnav-cnt-todo');
@@ -1318,23 +1381,24 @@ function renderSbKpi() {
 // ★ 2026-11-05 — 빠른 판정 상단 대시보드 (칸을 누르면 그 건만 보기)
 function renderDash(){
   const el = document.getElementById('judge-dash'); if(!el) return;
-  const cnt = {done:0,check:0,new:0,wait:0,pend:0,rej:0,skip:0}, pts = {done:0,wait:0};
-  VIEW().forEach(r=>{ const c = catOf(r); cnt[c]++; const j = ST[r._id]?.j; if(pts[c]!==undefined && j) pts[c]+=j; });
+  const {cnt, pts} = catCounts();
   const cell = (key, cls, label, n, sub) => {
     const on = kpiFilter===key ? ' on' : '';
     return `<button class="jd-card ${cls}${on}${n?'':' zero'}" onclick="toggleKpiFilter('${key}')" title="${label} 건만 보기">`
          + `<div class="jd-l">${label}</div><div class="jd-n">${n}<span style="font-size:12px;font-weight:600;margin-left:2px">건</span></div><div class="jd-s">${sub}</div></button>`;
   };
-  el.innerHTML = '<div class="jdash">'
-    + cell('c_done',  'jd-done',  '✅ 완료',        cnt.done,  `허브 반영 · ${pts.done}점`)
-    + cell('c_check', 'jd-check', '🔎 확인 필요',   cnt.check, '선생님 확인 대기')
+  el.innerHTML = (cnt.sync ? '<div class="jd-sync">⚠ <b>대조 필요 ' + cnt.sync + '건</b> — 이 브라우저에는 데이터허브 입력 기록이 있는데 제출 시트에는 반영일시가 없습니다. 완료로 세지 않았습니다. <a href="#" onclick="toggleKpiFilter(\'c_sync\');return false">이 건만 보기</a> · 「데이터허브 직접 입력」 탭에서 정리</div>' : '')
+    + '<div class="jdash' + (cnt.sync ? ' has-sync' : '') + '">'
+    + cell('c_done',  'jd-done',  '✅ 완료',        cnt.done,  `데이터허브 반영 · ${pts.done}점`)
+    + (cnt.sync ? cell('c_sync', 'jd-rej', '⚠ 대조 필요', cnt.sync, '시트 반영일시 없음') : '')
+    + cell('c_check', 'jd-check', '🔎 선생님 확인', cnt.check, 'Claude 메모 보고 판정')
     + cell('c_new',   'jd-new',   '🆕 새 제출',     cnt.new,   'Claude 검토 전')
-    + cell('c_wait',  'jd-wait',  '📥 허브 입력 대기', cnt.wait, `판정됨 · ${pts.wait}점`)
-    + cell('c_pend',  'jd-pend',  '⏸ 보류',        cnt.pend,  '학생에게 「확인 필요」')
+    + cell('c_wait',  'jd-wait',  '📥 입력 대기',   cnt.wait,  `판정 마침 · ${pts.wait}점`)
+    + cell('c_pend',  'jd-pend',  '⏸ 보류',        cnt.pend,  '학생 화면: ⚠️ 확인 필요')
     + cell('c_rej',   'jd-rej',   '❌ 반려',        cnt.rej,   '학생에게 사유 공개')
     + cell('c_skip',  'jd-skip',  '⛔ 제외',        cnt.skip,  '중복·비교과 처리 등')
     + '</div>'
-    + (cnt.check ? '<div class="jd-help">🔎 확인 필요 카드의 노란 상자에 Claude가 확인한 것과 확인이 필요한 것을 적어 두었습니다. 판정을 고르면 점수 입력과 「입력완료 처리」가 나타납니다.</div>' : '');
+    + (cnt.check ? '<div class="jd-help">🔎 선생님 확인 카드의 노란 상자에 Claude가 확인한 것과 확인할 점을 적어 두었습니다. 판정을 고르면 점수 입력과 「✔ 판정 마침」이 나타납니다.</div>' : '');
 }
 
 function calc() {
@@ -1398,22 +1462,15 @@ function renderJudge() {
 
   sorted.forEach((r,idx)=>{
     const s = ST[r._id]||{};
-    const pri = calcPri(r,s);
     const canDone = s.v==='ok'||s.v==='adj';
     const isSkip = s.v==='rej'||s.v==='skip';
     const isDone = !!s.done && canDone;
-    const claimPt = parseInt(r['학생신청점수'])||0;
-    const isDiff = claimPt && s.j && claimPt !== s.j;
-    const isNew = s.isNew;
-    // 접힘 여부: 입력완료 or 반려/제외
-    const isCollapsed = isDone || isSkip;
-
     // 구분선
     if(isDone && !shownDone){
       shownDone=true;
       const sep=document.createElement('div');
       sep.className='judge-section-sep';
-      sep.innerHTML='✅ 입력완료 — 접힌 상태 (클릭하면 펼침)';
+      sep.innerHTML='✅ 판정 마침 · 데이터허브 반영 — 접힌 상태 (클릭하면 펼침)';
       list.appendChild(sep);
     }
     if(isSkip && !shownSkip){
@@ -1423,21 +1480,39 @@ function renderJudge() {
       sep.innerHTML='❌ 반려·제외';
       list.appendChild(sep);
     }
+    const div = document.createElement('div');
+    div.id = 'jc_'+r._id;
+    div.dataset.idx = idx+1;
+    fillCard(div, r, idx+1, null);
+    list.appendChild(div);
+  });
+}
 
-    // 카드 클래스
+// ★ 2026-11-20 T189 — 카드 한 장 그리기 (목록 그릴 때 · 판정을 바꿨을 때 같은 함수)
+//   open: true/false = 펼침 상태 유지, null = 기본(판정 마침·반려·제외는 접힘)
+function fillCard(div, r, no, open){
+    const s = ST[r._id]||{};
+    const pri = calcPri(r,s);
+    const canDone = s.v==='ok'||s.v==='adj';
+    const isSkip = s.v==='rej'||s.v==='skip';
+    const isDone = !!s.done && canDone;
+    const isDh = !!DH_DONE[r._id];
+    const claimPt = parseInt(r['학생신청점수'])||0;
+    const isDiff = claimPt && s.j && claimPt !== s.j;
+    const isNew = s.isNew;
+    const isCollapsed = open === null ? (isDone || isSkip) : !open;
+    const canRevert = (s.v==='pend' || isSkip) && !isDh;
+
     let cardClass = 'judge-card';
-    if(DH_DONE[r._id]) cardClass += ' dh-in';        // v4: 데이터허브 반영완료
+    if(isDh) cardClass += ' dh-in';
     if(isDone) cardClass += ' done-compact';
     else if(isSkip) cardClass += ' skip-compact';
     else if(s.v==='pend') cardClass += ' pend-card';
     if(s.cl) cardClass += ' cl-card';
     else if(s.chk && !isCollapsed) cardClass += ' chk-card';
     else if(isNew) cardClass += ' is-new';
-    const pmemo = parseMemo(s.memo);
-
-    const div = document.createElement('div');
     div.className = cardClass;
-    div.id = 'jc_'+r._id;
+    const pmemo = parseMemo(s.memo);
 
     // 증빙 링크 파싱
     const rawLinks = r['증빙링크'] || '';
@@ -1446,9 +1521,18 @@ function renderJudge() {
       ? linkIds.map((id,i)=>`<a href="https://drive.google.com/open?id=${id}" target="_blank" class="link-btn">📎 증빙${i+1}</a>`).join('')
       : '<span style="font-size:11px;color:var(--ink3)">증빙 링크 없음</span>';
 
+    // 판정 상태 칸 — 데이터허브 반영 > 판정 마침 > 판정 마침 버튼
+    let doneHtml = '';
+    if(canDone){
+      if(isDh)        doneHtml = `<span class="done-tag">✅ 데이터허브 반영</span>`;
+      else if(s.done) doneHtml = `<span class="done-tag">✔ 판정 마침</span><button class="undo-btn" onclick="onDone('${r._id}')">취소</button>`;
+      else            doneHtml = `<button class="confirm-btn" onclick="onDone('${r._id}')">✔ 판정 마침</button>`;
+    }
+    const msgOk = !!STUDENT_MSG_PRESETS[s.v];
+
     div.innerHTML = `
 <div class="jc-head${isCollapsed?' collapsed':''}" onclick="toggleCard('${r._id}')">
-  <div class="jc-no">${idx+1}</div>
+  <div class="jc-no">${no}</div>
   <div class="jc-who">
     <div class="jc-nm">${esc(r['이름'])}${isNew&&!isCollapsed?'<span class="badge b-new" style="margin-left:4px">NEW</span>':''}</div>
     <div class="jc-sid">${esc(r['학번'])} · ${esc(r['소속(학부)']||'')}</div>
@@ -1458,21 +1542,21 @@ function renderJudge() {
     <div class="jc-prog-sub">📅 ${esc(String(r['제출일시']||'').slice(0,10))} · ⏱️ ${esc(r['활동기간']||'')} · 증빙 ${linkIds.length}개</div>
   </div>
   <div class="jc-badges">
-    ${s.chk?'<span class="badge b-chk" id="chkb_'+r._id+'">⚠️ 판단 필요</span>':''}
-    ${pmemo&&pmemo.type==='done'?'<span class="badge b-ai" title="Claude가 증빙을 확인해 확정·허브 입력한 건">🤖 Claude 확정</span>':''}
-    ${!isCollapsed&&!s.chk&&!s.cl?`<span class="pri-badge ${PRI_CLS[pri]}">${PRI_LBL[pri]}</span>`:''}
-    ${s.cl?`<span class="badge b-cl" id="vbadge_${r._id}">🔎 확인 필요</span>`:`<span class="badge ${V_BC[s.v]||'b-skip'}" id="vbadge_${r._id}">${V_LBL[s.v]||'미판정'}</span>`}
-    ${DH_DONE[r._id]?'<span class="badge b-dh">✅ 허브반영</span>':''}
-    ${isDone?'<span class="badge b-ok" style="background:#047857;color:#fff;border-color:#047857">✔ 입력완료</span>':''}
+    ${s.chk?'<span class="badge b-chk" id="chkb_'+r._id+'">⚙ 자동판정 불가</span>':''}
+    ${pmemo&&pmemo.type==='done'?'<span class="badge b-ai" title="Claude가 증빙을 확인해 확정·데이터허브 입력한 건">🤖 Claude 확정</span>':''}
+    ${!isCollapsed&&!s.chk&&!s.cl&&s.v?`<span class="pri-badge ${PRI_CLS[pri]}">${PRI_LBL[pri]}</span>`:''}
+    ${s.cl?`<span class="badge b-cl" id="vbadge_${r._id}">🔎 선생님 확인</span>`:`<span class="badge ${V_BC[s.v]||'b-skip'}" id="vbadge_${r._id}">${V_LBL[s.v]||'판정 전'}</span>`}
+    ${isDh?'<span class="badge b-dh">✅ 데이터허브 반영</span>':(isDone?'<span class="badge b-ok" style="background:#047857;color:#fff;border-color:#047857">✔ 판정 마침</span>':'')}
+    ${DH_SYNC[r._id]?'<span class="badge b-rej" title="이 브라우저에는 데이터허브 입력 기록이 있는데 제출 시트 반영일시가 비어 있습니다">⚠ 대조 필요</span>':''}
     ${s.j?`<span style="font-size:12px;font-weight:700;color:${isDone?'var(--green)':'var(--blue)'};">${s.j}점</span>`:''}
   </div>
-  ${!isCollapsed?`<span class="jc-arr open" id="arr_${r._id}">▲</span>`:'<span style="font-size:11px;color:var(--ink3);flex-shrink:0">펼치기</span>'}
+  ${!isCollapsed?`<span class="jc-arr open" id="arr_${r._id}">▲</span>`:'<span style="font-size:11px;color:var(--ink3);flex-shrink:0" id="arr_'+r._id+'">펼치기</span>'}
 </div>
 <div class="jc-body" id="jcb_${r._id}" style="${isCollapsed?'display:none':''}">
   <div class="zone zone-look">
     <div class="zone-h">① 선생님이 볼 것</div>
     ${pmemo ? evBox(s.memo, !s.cl)
-      : (s.chk ? `<div class="chk-banner" id="chkn_${r._id}"><b>⚠️ 관리자 판단 필요</b><span>${esc(s.hint||'')}<br>증빙을 확인한 뒤 점수와 판정을 직접 넣어 주세요.</span></div>`
+      : (s.chk ? `<div class="chk-banner" id="chkn_${r._id}"><b>⚙ 자동판정 불가</b><span>${esc(s.hint||'')}<br>증빙을 확인한 뒤 점수와 판정을 직접 넣어 주세요.</span></div>`
                : `<div class="zone-empty">${esc(s.hint||'특이사항 없음')}</div>`)}
     ${hasAsk(r['학생문의'])?`<div class="ask-box"><b>❗ 학생 문의</b><span>${esc(r['학생문의'])}</span></div>`:''}
   </div>
@@ -1490,7 +1574,7 @@ function renderJudge() {
     <div class="zone-h">③ 판정 · 메모</div>
   <div class="admin-memo-wrap" style="margin-bottom:8px">
     <div style="font-size:11px;font-weight:700;color:var(--ink3);margin-bottom:4px">
-      📝 내부 메모 <span style="font-weight:400;color:#9ca3af">(학생 비공개 — CSV 비고란 포함)</span>
+      📝 내부 메모 <span style="font-weight:400;color:#9ca3af">(학생 비공개 · 메모만 저장 — 판정·점수는 바뀌지 않음)</span>
     </div>
     <input type="text" class="admin-memo-inp" id="memo_${r._id}"
       value="${esc(s.memo||'')}"
@@ -1502,15 +1586,12 @@ function renderJudge() {
   </div>
   <div style="margin-bottom:10px;padding:10px;background:#f0fdf4;border:1px solid #6ee7b7;border-radius:6px">
     <div style="font-size:11px;font-weight:700;color:#047857;margin-bottom:6px">
-      📢 학생 안내 메모 <span style="font-weight:400;color:#6b7280">(학생 포털에 공개)</span>
+      📢 학생 안내 메모 <span style="font-weight:400;color:#6b7280">(학생 포털에 공개 · 판정을 바꾸면 그 판정의 문구로 바뀜 · 직접 쓴 글은 유지)</span>
     </div>
-    <select id="smsg_sel_${r._id}"
+    <select id="smsg_sel_${r._id}" ${msgOk?'':'disabled'}
       onchange="onStudentMsgPreset('${r._id}',this)"
       style="width:100%;padding:5px 8px;border:1px solid #6ee7b7;border-radius:5px;font-size:12px;font-family:inherit;background:#fff;margin-bottom:5px">
-      <option value="">— 자동문구 선택 —</option>
-      ${(STUDENT_MSG_PRESETS[s.v]||STUDENT_MSG_PRESETS.skip).map(p=>
-        `<option value="${esc(p.text===''?'__custom__':p.text)}" ${(s.studentMsg&&s.studentMsg===p.text)?'selected':''}>${p.label}</option>`
-      ).join('')}
+      ${presetOptions(s.v, s.studentMsg)}
     </select>
     <input type="text" id="smsg_inp_${r._id}"
       value="${esc(s.studentMsg||'')}"
@@ -1523,27 +1604,31 @@ function renderJudge() {
   <div class="jc-action">
     <span class="act-label">판정 점수</span>
     <input type="number" class="score-inp" inputmode="numeric" id="si_${r._id}" value="${s.j??''}" min="0" max="50"
-      ${s.v==='skip'||s.v==='rej'?'disabled':''} onchange="onJ('${r._id}',this.value)">
+      ${isSkip||isDh?'disabled':''} onchange="onJ('${r._id}',this.value)">
     <span class="act-label">점</span>
-    <select class="v-sel" id="vs_${r._id}" onchange="onV('${r._id}',this.value)">
+    <select class="v-sel" id="vs_${r._id}" onchange="onV('${r._id}',this.value)" ${isDh?'disabled title="데이터허브에 반영된 건은 여기서 바꾸지 않습니다"':''}>
       ${!s.v?'<option value="" selected>— 판정 선택 —</option>':''}
       <option value="ok" ${s.v==='ok'?'selected':''}>✅ 확정</option>
       <option value="adj" ${s.v==='adj'?'selected':''}>🔶 조정</option>
-      <option value="pend" ${s.v==='pend'?'selected':''}>⚠️ 보류</option>
-      <option value="rej" ${s.v==='rej'?'selected':''}>❌ 반려</option>
-      <option value="skip" ${s.v==='skip'?'selected':''}>⛔ 제외</option>
+      <option value="pend" ${s.v==='pend'?'selected':''}>⚠️ 보류 (학생 공개)</option>
+      <option value="rej" ${s.v==='rej'?'selected':''}>❌ 반려 (학생 공개)</option>
+      <option value="skip" ${s.v==='skip'?'selected':''}>⛔ 제외 (학생 공개)</option>
     </select>
-    ${canDone
-      ? (s.done
-          ? `<span class="done-tag">✔ 입력완료</span><button class="undo-btn" onclick="onDone('${r._id}')">취소</button>`
-          : `<button class="confirm-btn" onclick="onDone('${r._id}')">✔ 입력완료 처리</button>`)
-      : ''}
+    ${doneHtml}
+    ${canRevert?`<button class="revert-btn" onclick="revertJudge('${r._id}')" title="판정상태를 미판정으로, 판정점수를 비웁니다. 학생 화면은 「검토 중」으로 돌아갑니다">↩ 미판정으로 되돌리기</button>`:''}
     <span class="auto-hint" title="자동 판정 근거"${s.cl?' style="display:none"':''}>${s.cl?'':esc(s.hint||'')}</span>
   </div>
   </div>
 </div>`;
-    list.appendChild(div);
-  });
+}
+// 판정을 바꾼 카드만 다시 그린다 (펼침 상태 유지)
+function refreshCard(id){
+  const div = document.getElementById('jc_'+id);
+  const r = DATA.find(x=>x._id===id);
+  if(!div || !r) return;
+  const body = document.getElementById('jcb_'+id);
+  const open = body ? body.style.display.indexOf('none') < 0 : null;
+  fillCard(div, r, div.dataset.idx || '', open);
 }
 
 function toggleCard(id) {
@@ -1563,27 +1648,26 @@ function toggleCard(id) {
 function onMemo(id, val) {
   if(!ST[id]) ST[id] = {};
   ST[id].memo = val;
-  saveST(); syncRow(id);
+  saveST(); syncRow(id, false, true);      // ★ T189 — 메모만 저장 (판정상태·판정점수는 시트 값 그대로)
 }
 function onStudentMsg(id, val) {
   if(!ST[id]) ST[id] = {};
   ST[id].studentMsg = val;
-  saveST(); syncRow(id);
+  saveST(); syncRow(id, false, true);      // ★ T189 — 메모만 저장
 }
 function onStudentMsgPreset(id, selectEl) {
   const val = selectEl.value;
+  const inp = document.getElementById('smsg_inp_'+id);
   if(val === '__custom__') {
     // 직접 입력 선택 시 텍스트박스 활성화
-    const inp = document.getElementById('smsg_inp_'+id);
     if(inp) { inp.style.display='block'; inp.focus(); }
   } else {
-    const inp = document.getElementById('smsg_inp_'+id);
     if(inp) { inp.style.display = val ? 'none' : 'block'; inp.value = val; }
     onStudentMsg(id, val);
   }
 }
 
-// 관리자가 직접 점수·판정을 넣으면 「판단 필요」 알림을 내린다
+// 관리자가 직접 점수·판정을 넣으면 「자동판정 불가」 알림을 내린다
 function clearChk(id){
   if(!ST[id]||!ST[id].chk) return;
   ST[id].chk=false;
@@ -1598,72 +1682,46 @@ function onJ(id,val){
   ST[id].isNew=false;
   saveST();renderSbKpi();syncRow(id);
 }
-function onV(id,val){
+// ★ T189 — 판정 바꾸기 공통 (빠른 판정·그룹 같이 씀). false = 취소됨
+function applyVerdict(id, val){
+  const r = DATA.find(x=>x._id===id);
+  if(DH_DONE[id]) { alert('데이터허브에 반영된 건은 여기서 판정을 바꾸지 않습니다.'); return false; }
+  if(!confirmPublic(val, r ? r['이름'] : '')) return false;      // 보류·반려·제외 = 학생 화면에 바로 공개
   if(!ST[id])ST[id]={};
-  ST[id].v=val;
-  if(val) ST[id].cl=false;          // ★ 2026-11-05 — 확인 필요 건도 판정을 고르면 바로 처리할 수 있다
-  if(val==='skip'||val==='rej'){ ST[id].j=null; const _si=document.getElementById('si_'+id); if(_si) _si.value=''; }   // ★ 2026-10-12 — 제외·반려는 M열(판정점수)을 비운다
+  const s = ST[id];
+  s.v=val;
+  if(val) s.cl=false;                 // ★ 2026-11-05 — 선생님 확인 건도 판정을 고르면 바로 처리할 수 있다
+  if(val==='skip'||val==='rej'){ s.j=null; }   // ★ 2026-10-12 — 제외·반려는 M열(판정점수)을 비운다
+  if(val==='pend'||val==='rej'||val==='skip') s.done=false;
+  s.studentMsg = defaultMsgFor(val, s.studentMsg);              // ★ T189 — 판정에 맞는 기본 문구
   if(val!=='pend') clearChk(id);
-  ST[id].isNew=false;
-  saveST();renderSbKpi();syncRow(id);
-  const s=ST[id];
-  const canDone=val==='ok'||val==='adj';
-  // 뱃지 업데이트
-  const vb=document.getElementById('vbadge_'+id);
-  if(vb){vb.className='badge '+(V_BC[val]||'b-skip');vb.textContent=V_LBL[val]||val;}
-  // 점수 입력 비활성화
-  const si=document.getElementById('si_'+id);
-  if(si)si.disabled=(val==='skip'||val==='rej');
-  // 카드 클래스
-  const card=document.getElementById('jc_'+id);
-  if(card){
-    card.className='judge-card'+(s.done&&canDone?' done':'')+(s.isNew?' is-new':'')+(s.chk?' chk-card':'')+(s.cl?' cl-card':'');
-  }
-  // 입력완료 버튼 동적 업데이트
-  const action=card?.querySelector('.jc-action');
-  if(action){
-    const old=action.querySelectorAll('.confirm-btn,.undo-btn,.done-tag');
-    old.forEach(b=>b.remove());
-    if(canDone){
-      if(s.done){
-        const tag=document.createElement('span');tag.className='done-tag';tag.textContent='✔ 입력완료';action.insertBefore(tag,action.querySelector('.auto-hint'));
-        const ub=document.createElement('button');ub.className='undo-btn';ub.textContent='취소';ub.onclick=()=>onDone(id);action.insertBefore(ub,action.querySelector('.auto-hint'));
-      } else {
-        const cb=document.createElement('button');cb.className='confirm-btn';cb.textContent='✔ 입력완료 처리';cb.onclick=()=>onDone(id);action.insertBefore(cb,action.querySelector('.auto-hint'));
-      }
-    }
-  }
-  // 입력완료 헤드 뱃지 정리 (확정 아닐 때 제거)
-  const badges=card?.querySelector('.jc-badges');
-  if(badges&&!canDone){
-    const old=badges.querySelector('.b-ok:last-child');if(old)old.remove();
-  }
+  s.isNew=false;
+  saveST(); syncRow(id, true);
+  return true;
+}
+function onV(id,val){
+  const prev = ST[id]?.v || '';
+  if(!applyVerdict(id, val)){ const sel=document.getElementById('vs_'+id); if(sel) sel.value=prev; return; }
+  renderSbKpi(); refreshCard(id);
+}
+// ★ T189 — 보류·반려·제외를 미판정으로 되돌린다 (L 미판정 · M 비움 · 학생 안내 메모 비움 → 학생 화면 「검토 중」)
+function revertJudge(id){
+  const r = DATA.find(x=>x._id===id); const s = ST[id]; if(!s) return;
+  if(!confirm(`${r?r['이름']+' — ':''}${V_LBL[s.v]||''} 판정을 되돌립니다.\n\n제출 시트 판정상태 → 미판정 · 판정점수·학생 안내 메모 → 비움\n학생 화면은 「검토 중」으로 돌아갑니다.\n\n진행할까요?`)) return;
+  s.v=''; s.j=null; s.done=false; s.studentMsg=''; s.isNew=false;
+  const pm = parseMemo(s.memo);
+  s.cl = !!(pm && pm.type==='check');   // Claude [확인] 메모가 있으면 다시 「선생님 확인」
+  saveST(); syncRow(id, true);
+  renderSbKpi(); refreshCard(id);
+  const gm=document.getElementById('gm_'+id); if(gm) renderGroup();
 }
 function onDone(id){
   if(!ST[id])ST[id]={};
+  if(DH_DONE[id]) return;                 // 데이터허브 반영 건은 판정 마침 취소 불가
   ST[id].done=!ST[id].done;
   ST[id].isNew=false;
   saveST();renderSbKpi();syncRow(id);
-  // 카드 갱신
-  const s=ST[id];
-  const card=document.getElementById('jc_'+id);
-  const canDone=s.v==='ok'||s.v==='adj';
-  if(card)card.className='judge-card'+(s.done&&canDone?' done':'')+(s.isNew?' is-new':'')+(s.chk?' chk-card':'');
-  const badges=card?.querySelector('.jc-badges');
-  if(badges){
-    const old=badges.querySelector('.b-ok:last-child');if(old)old.remove();
-    if(s.done){const nb=document.createElement('span');nb.className='badge b-ok';nb.textContent='✔ 입력완료';badges.appendChild(nb);}
-  }
-  const action=card?.querySelector('.jc-action');
-  if(action&&canDone){
-    const old=action.querySelectorAll('.confirm-btn,.undo-btn,.done-tag');old.forEach(b=>b.remove());
-    if(s.done){
-      const tag=document.createElement('span');tag.className='done-tag';tag.textContent='✔ 입력완료';action.insertBefore(tag,action.querySelector('.auto-hint'));
-      const ub=document.createElement('button');ub.className='undo-btn';ub.textContent='취소';ub.onclick=()=>onDone(id);action.insertBefore(ub,action.querySelector('.auto-hint'));
-    }else{
-      const cb=document.createElement('button');cb.className='confirm-btn';cb.textContent='✔ 입력완료 처리';cb.onclick=()=>onDone(id);action.insertBefore(cb,action.querySelector('.auto-hint'));
-    }
-  }
+  refreshCard(id);
 }
 
 // ── 동일활동 그룹 뷰 ──
@@ -1694,7 +1752,7 @@ function renderGroup() {
       const rawLinks = r['증빙링크']||'';
       const linkIds = [...rawLinks.matchAll(/id=([a-zA-Z0-9_-]{10,})/g)].map(m=>m[1]);
       const linksHtml = linkIds.map((id,i)=>`<a href="https://drive.google.com/open?id=${id}" target="_blank" class="link-btn">📎${i+1}</a>`).join('');
-      const gmCanDone = s.v==='ok'||s.v==='adj';
+      const gmCanDone = (s.v==='ok'||s.v==='adj') && !DH_DONE[r._id];
       return `<div class="gc-member ${s.done?'done':''} ${s.isNew?'is-new':''} ${s.v==='rej'?'r-skip':''}" id="gm_${r._id}">
         <div class="gm-who">
           <div class="gm-nm">${esc(r['이름'])}${s.isNew?'<span class="badge b-new" style="margin-left:3px;font-size:9px">NEW</span>':''}</div>
@@ -1704,11 +1762,12 @@ function renderGroup() {
         <div class="gm-links">${linksHtml}</div>
         <div class="gm-score">
           <input type="number" class="gm-inp" inputmode="numeric" id="gmi_${r._id}" value="${s.j??''}" placeholder="점"
-            ${s.v==='rej'||s.v==='skip'?'disabled':''}
+            ${s.v==='rej'||s.v==='skip'||DH_DONE[r._id]?'disabled':''}
             onchange="onJ('${r._id}',this.value)">
           <span style="font-size:11px;color:var(--ink3)">점</span>
         </div>
-        <select class="v-sel" style="font-size:11px;padding:3px 6px" id="gmvs_${r._id}" onchange="gmOnV('${r._id}',this.value)">
+        <select class="v-sel" style="font-size:11px;padding:3px 6px" id="gmvs_${r._id}" onchange="gmOnV('${r._id}',this.value)" ${DH_DONE[r._id]?'disabled':''}>
+          ${!s.v?'<option value="" selected>— 판정 —</option>':''}
           <option value="ok" ${s.v==='ok'?'selected':''}>✅ 확정</option>
           <option value="adj" ${s.v==='adj'?'selected':''}>🔶 조정</option>
           <option value="pend" ${s.v==='pend'?'selected':''}>⚠️ 보류</option>
@@ -1718,7 +1777,7 @@ function renderGroup() {
         <button class="gm-done-btn ${s.done?'done':''} ${!gmCanDone?'disabled':''}"
           id="gmdb_${r._id}" onclick="${gmCanDone?`gmDone('${r._id}')`:''}"
           ${!gmCanDone?'style="opacity:.35;cursor:default"':''}>
-          ${s.done?'✔ 완료':'입력완료'}
+          ${DH_DONE[r._id]?'✅ 데이터허브':(s.done?'✔ 판정 마침':'판정 마침')}
         </button>
       </div>`;
     }).join('');
@@ -1729,11 +1788,11 @@ function renderGroup() {
   <div class="gc-title">${esc(g.name)}${hasNew?'<span class="badge b-new" style="margin-left:6px">NEW 멤버</span>':''}</div>
   <span class="gc-sub">${esc(g.members[0]['활동기간']||'')}</span>
   <span class="gc-cnt">${g.members.length}명</span>
-  ${allDone?'<span class="badge b-ok" style="margin-left:4px">전원완료</span>':''}
+  ${allDone?'<span class="badge b-ok" style="margin-left:4px">전원 판정 마침</span>':''}
   <span class="gc-arrow open" id="gca_${safeKey}">▲</span>
 </div>
 <div class="gc-bulk" id="gcbulk_${safeKey}">
-  <span>일괄 판정</span>
+  <span>일괄 판정 <span style="font-weight:400;color:var(--ink3)">(판정 전인 건만 · 데이터허브 반영·판정 마침·보류·반려·제외는 건너뜀)</span></span>
   <input type="number" class="bulk-score" inputmode="numeric" id="bulk_${safeKey}" placeholder="점" value="${ST[g.members[0]._id]?.j??''}">
   <span style="font-size:12px;color:var(--ink3)">점</span>
   <button class="bulk-btn" onclick="bulkJudge(${jsA(safeKey)},${jsA(g.members.map(r=>r._id))})">전원 일괄 적용</button>
@@ -1759,73 +1818,69 @@ function toggleGroup(bodyId,arrowId){
   if(arrow){arrow.textContent=hidden?'▲':'▼';hidden?arrow.classList.add('open'):arrow.classList.remove('open');}
 }
 
+// ★ 2026-11-20 T189 — 판정 전인 건만 적용 (전에는 반려·제외·데이터허브 반영 건까지 덮어썼다)
+function bulkEligible(id){
+  const s = ST[id] || {};
+  if(DH_DONE[id] || DH_SYNC[id]) return false;
+  if(s.done) return false;
+  if(s.v==='pend' || s.v==='rej' || s.v==='skip') return false;
+  return true;
+}
 function bulkJudge(safeKey,ids){
   const inp=document.getElementById('bulk_'+safeKey);
-  const score=inp?.value===''?null:parseInt(inp?.value||'0');
-  ids.forEach(id=>{
+  if(!inp || inp.value===''){ alert('일괄 적용할 점수를 넣어 주세요.'); return; }
+  const score=parseInt(inp.value);
+  if(isNaN(score)){ alert('점수는 숫자로 넣어 주세요.'); return; }
+  const go   = ids.filter(bulkEligible);
+  const skip = ids.filter(id=>!bulkEligible(id));
+  if(!go.length){ alert('적용할 건이 없습니다 — 모두 데이터허브 반영·판정 마침·보류·반려·제외 건입니다.'); return; }
+  const nm = id => { const r = DATA.find(x=>x._id===id); return r ? r['이름'] : id; };
+  if(!confirm(`${score}점 「확정」 일괄 적용\n\n적용 ${go.length}명: ${go.map(nm).join(', ')}`
+     + (skip.length ? `\n건너뜀 ${skip.length}명: ${skip.map(nm).join(', ')}` : '')
+     + `\n\n학생 화면은 그대로 「검토 중」입니다 (데이터허브에 넣을 때 확정으로 바뀜).\n진행할까요?`)) return;
+  go.forEach(id=>{
     if(!ST[id])ST[id]={};
-    ST[id].j=score;ST[id].v='ok';ST[id].isNew=false;clearChk(id);
-    const gmi=document.getElementById('gmi_'+id);if(gmi)gmi.value=score??'';
+    const s=ST[id];
+    s.j=score; s.v='ok'; s.isNew=false; s.cl=false; clearChk(id);
+    s.studentMsg = defaultMsgFor('ok', s.studentMsg);
+    const gmi=document.getElementById('gmi_'+id);if(gmi)gmi.value=score;
   });
-  saveST();renderSbKpi();
-  ids.forEach((id,k)=>setTimeout(()=>syncRow(id,true), k*250));
-  alert(`✅ ${ids.length}명에게 ${score}점 일괄 적용!\n판정 뷰에서 확인 후 입력완료 처리해주세요.`);
+  saveST();renderSbKpi();renderGroup();
+  go.forEach((id,k)=>setTimeout(()=>syncRow(id,true), k*250));
+  alert(`✅ ${go.length}명에게 ${score}점 적용${skip.length?` · ${skip.length}명 건너뜀`:''}\n빠른 판정에서 확인 후 「✔ 판정 마침」을 눌러 주세요.`);
 }
 
 function gmOnV(id, val) {
-  if(!ST[id])ST[id]={};
-  ST[id].v = val;
-  if(val==='skip'||val==='rej'){ ST[id].j=null; const _gi=document.getElementById('gmi_'+id); if(_gi) _gi.value=''; }   // ★ 2026-10-12 — 제외·반려는 점수를 비운다
-  if(val!=='pend') clearChk(id);
-  ST[id].isNew = false;
-  saveST(); renderSbKpi(); syncRow(id);
-  const gm = document.getElementById('gm_'+id);
-  if(gm) {
-    const s = ST[id];
-    const canDone = val==='ok'||val==='adj';
-    gm.className = 'gc-member' + (s.done&&canDone?' done':'') + (s.isNew?' is-new':'') + (val==='rej'||val==='skip'?' r-skip':'');
-    const inp = document.getElementById('gmi_'+id);
-    if(inp) inp.disabled = (val==='rej'||val==='skip');
-    const btn = document.getElementById('gmdb_'+id);
-    if(btn) {
-      btn.className = 'gm-done-btn' + (s.done&&canDone?' done':'') + (!canDone?' disabled':'');
-      btn.style.opacity = canDone?'':'0.35';
-      btn.style.cursor = canDone?'':'default';
-      btn.onclick = canDone ? function(){gmDone(id)} : null;
-    }
-  }
+  const prev = ST[id]?.v || '';
+  if(!applyVerdict(id, val)){ const sel=document.getElementById('gmvs_'+id); if(sel) sel.value=prev; return; }
+  renderSbKpi(); renderGroup(); refreshCard(id);
 }
 
 function gmDone(id){
-  if(!ST[id])ST[id]={};
-  ST[id].done=!ST[id].done;ST[id].isNew=false;
-  saveST();renderSbKpi();syncRow(id);
-  const gm=document.getElementById('gm_'+id);const s=ST[id];
-  if(gm){gm.className='gc-member'+(s.done?' done':'');}
-  const btn=document.getElementById('gmdb_'+id);
-  if(btn){btn.className='gm-done-btn'+(s.done?' done':'');btn.textContent=s.done?'✔ 완료':'입력완료';}
+  onDone(id);
+  renderGroup();
 }
 
 // ── 전체 현황 ──
 function renderOverview(){
-  const c=calc();const t=c.total||1;
+  // ★ T189 — 좌측 KPI·빠른 판정 상단과 같은 구분(catOf)
+  const {cnt, pts, total} = catCounts(); const t = total||1;
+  const todo = cnt.sync + cnt.check + cnt.new + cnt.wait;
   document.getElementById('kpi-grid').innerHTML=`
-    <div class="kpi-card c-blue"><div class="kpi-label">총 제출 건수</div><div class="kpi-value blue">${c.total}</div><div class="kpi-sub">제외 ${c.skip}건 포함</div></div>
-    <div class="kpi-card c-ok"><div class="kpi-label">확정 합계 점수</div><div class="kpi-value ok">${c.pts}점</div><div class="kpi-sub">확정+조정 ${c.ok+c.adj}건</div></div>
-    <div class="kpi-card c-pend"><div class="kpi-label">보류 건수</div><div class="kpi-value pend">${c.pend}</div><div class="kpi-sub">판정 필요</div></div>
-    <div class="kpi-card c-ok">
-      <div class="kpi-label">데이터허브 입력 현황</div>
-      <div class="kpi-value ok">${c.done}<span style="font-size:14px;color:var(--ink3)">건 완료</span></div>
-      <div class="kpi-sub" style="display:flex;gap:10px;margin-top:6px">
-        <span style="color:var(--amber)">⏳ 미입력 ${c.ok+c.adj-c.done}건</span>
-        <span style="color:var(--red)">⚠️ 보류 ${c.pend}건</span>
-      </div>
-    </div>`;
-  document.getElementById('status-bars').innerHTML=`
-    <div class="bar-row"><div class="bar-label"><span>✅ 확정</span><span style="font-weight:600;color:var(--green)">${c.ok}건</span></div><div class="bar-track"><div class="bar-fill bf-ok" style="width:${Math.round(c.ok/t*100)}%"></div></div></div>
-    <div class="bar-row"><div class="bar-label"><span>🔶 조정</span><span style="font-weight:600;color:var(--amber)">${c.adj}건</span></div><div class="bar-track"><div class="bar-fill bf-warn" style="width:${Math.round(c.adj/t*100)}%"></div></div></div>
-    <div class="bar-row"><div class="bar-label"><span>⚠️ 보류</span><span style="font-weight:600;color:var(--red)">${c.pend}건</span></div><div class="bar-track"><div class="bar-fill bf-pend" style="width:${Math.round(c.pend/t*100)}%"></div></div></div>
-    <div class="bar-row"><div class="bar-label"><span>❌ 반려/제외</span><span style="font-weight:600;color:var(--gray-m)">${c.skip}건</span></div><div class="bar-track"><div class="bar-fill bf-gray" style="width:${Math.round(c.skip/t*100)}%"></div></div></div>`;
+    <div class="kpi-card c-blue"><div class="kpi-label">총 제출 건수</div><div class="kpi-value blue">${total}</div><div class="kpi-sub">반려 ${cnt.rej} · 제외 ${cnt.skip}건 포함</div></div>
+    <div class="kpi-card c-ok"><div class="kpi-label">✅ 완료 (데이터허브 반영)</div><div class="kpi-value ok">${cnt.done}<span style="font-size:14px;color:var(--ink3)">건 · ${pts.done}점</span></div><div class="kpi-sub">제출 시트 반영일시 기준</div></div>
+    <div class="kpi-card c-pend"><div class="kpi-label">판정할 건</div><div class="kpi-value pend">${todo}</div><div class="kpi-sub">선생님 확인 ${cnt.check} · 새 제출 ${cnt.new} · 입력 대기 ${cnt.wait}${cnt.sync?' · 대조 필요 '+cnt.sync:''}</div></div>
+    <div class="kpi-card c-ok"><div class="kpi-label">⏸ 보류</div><div class="kpi-value pend">${cnt.pend}</div><div class="kpi-sub">학생 화면: ⚠️ 확인 필요</div></div>`;
+  const bar = (lbl, n, cls, color) => `<div class="bar-row"><div class="bar-label"><span>${lbl}</span><span style="font-weight:600;color:${color}">${n}건</span></div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${Math.round(n/t*100)}%"></div></div></div>`;
+  document.getElementById('status-bars').innerHTML =
+      bar('✅ 완료', cnt.done, 'bf-ok', 'var(--green)')
+    + (cnt.sync ? bar('⚠ 대조 필요', cnt.sync, 'bf-pend', 'var(--red)') : '')
+    + bar('🔎 선생님 확인', cnt.check, 'bf-warn', 'var(--amber)')
+    + bar('🆕 새 제출', cnt.new, 'bf-warn', 'var(--blue)')
+    + bar('📥 입력 대기', cnt.wait, 'bf-warn', 'var(--amber)')
+    + bar('⏸ 보류', cnt.pend, 'bf-pend', 'var(--red)')
+    + bar('❌ 반려', cnt.rej, 'bf-gray', 'var(--gray-m)')
+    + bar('⛔ 제외', cnt.skip, 'bf-gray', 'var(--gray-m)');
   const pq=document.getElementById('pend-quick');
   const pendItems=VIEW().filter(r=>ST[r._id]?.v==='pend');
   pq.innerHTML=pendItems.length?pendItems.map(r=>{
@@ -1848,15 +1903,15 @@ function goToPend(){
 function renderDoneList(){
   const list=document.getElementById('done-list');
   const items=VIEW().filter(r=>ST[r._id]?.done);
-  if(!items.length){list.innerHTML='<div class="empty">입력완료 처리된 건 없음</div>';return;}
+  if(!items.length){list.innerHTML='<div class="empty">판정 마친 건 없음</div>';return;}
   list.innerHTML=items.map(r=>{
     const s=ST[r._id];
     return `<div class="judge-card done" style="padding:11px 14px;display:flex;align-items:center;gap:10px;">
       <div style="min-width:80px"><div style="font-weight:700">${esc(r['이름'])}</div><div style="font-size:11px;color:var(--ink3)">${esc(r['학번'])}</div></div>
       <div style="flex:1;font-size:13px;font-weight:500">${esc(r['프로그램명'])}</div>
       <div style="font-weight:700;color:var(--green);font-size:15px">${s.j??'?'}점</div>
-      <span class="badge b-ok">✔ 완료</span>
-      <button onclick="onDone('${r._id}')" style="padding:3px 9px;border:1px solid var(--green-b);border-radius:5px;background:#fff;color:var(--green);font-size:11px;cursor:pointer;font-family:inherit">취소</button>
+      ${DH_DONE[r._id]?'<span class="badge b-dh">✅ 데이터허브 반영</span>':'<span class="badge b-ok">✔ 판정 마침</span>'}
+      <button onclick="onDone('${r._id}');renderDoneList()" ${DH_DONE[r._id]?'disabled ':''}style="padding:3px 9px;border:1px solid var(--green-b);border-radius:5px;background:#fff;color:var(--green);font-size:11px;cursor:pointer;font-family:inherit">취소</button>
     </div>`;
   }).join('');
 }
@@ -1886,15 +1941,29 @@ function renderDirectPanel() {
       + `<em>${esc(String(r['판정상태']||'').trim() || '(빈칸)')} → ${esc(sheetStatusOf(r._id))}</em></div>`).join('');
     const box = document.createElement('div');
     box.className = 'resync-box';
-    box.innerHTML = `<div class="rs-head">🔄 시트와 어긋난 반영완료 ${RESYNC_IDS.length}건`
+    box.innerHTML = `<div class="rs-head">🔄 판정상태가 어긋난 데이터허브 반영 ${RESYNC_IDS.length}건`
       + `<button class="rs-btn" onclick="runResync()">시트에 반영</button></div>`
-      + `<div class="rs-note">데이터허브엔 들어갔는데 판정상태가 「미판정」으로 남은 건입니다. `
+      + `<div class="rs-note">데이터허브에 반영(반영일시 있음)됐는데 판정상태가 「미판정」으로 남은 건입니다. `
       + `학생 화면이 「검토 중」에 머무는 원인입니다. 누르면 <b>판정상태·처리일시·반영일시만</b> 갱신하며, `
       + `데이터허브는 건드리지 않습니다.</div>${rows}`;
     list.appendChild(box);
   }
 
-  // 판정완료(done) + 데이터허브 반영완료(dhDone) 건 모두 표시
+  // ★ T189 — 대조 필요: 이 브라우저에만 반영 기록 · 시트 반영일시 없음
+  const syncRows = VIEW().filter(r=>DH_SYNC[r._id]);
+  if(syncRows.length){
+    const box = document.createElement('div');
+    box.className = 'resync-box';
+    box.innerHTML = `<div class="rs-head">⚠ 대조 필요 ${syncRows.length}건</div>`
+      + `<div class="rs-note">이 브라우저에는 데이터허브 입력 기록이 있는데 제출 시트 반영일시(Q열)가 비어 있습니다. 완료로 세지 않습니다. `
+      + `데이터허브 「마일리지내역」 탭에서 학번으로 찾아 <b>있으면</b> 「있음 — 시트 기록」, <b>없으면</b> 「없음 — 표시 지우기」를 누르세요.</div>`
+      + syncRows.map(r=>`<div class="rs-row"><b>${esc(r['이름'])}</b><span>${esc(r['학번'])} · ${esc(r['프로그램명'])}</span>`
+        + `<button class="rs-btn" onclick="markAsDhDone(${jsA(r._id)})">있음 — 시트 기록</button>`
+        + `<button class="rs-btn" style="background:#fff;color:var(--ink2);border:1px solid var(--gray-b)" onclick="clearDhSync(${jsA(r._id)})">없음 — 표시 지우기</button></div>`).join('');
+    list.appendChild(box);
+  }
+
+  // 판정 마침 + 데이터허브 반영 건 모두 표시
   const candidates = VIEW().filter(r=>{
     const s=ST[r._id];
     return (s?.v==='ok'||s?.v==='adj') && s?.j;
@@ -1910,10 +1979,10 @@ function renderDirectPanel() {
 
   const unreflected = candidates.filter(r=>ST[r._id]?.done && !DH_DONE[r._id]).length;
   const dhDoneCnt   = candidates.filter(r=>DH_DONE[r._id]).length;
-  if(countEl) countEl.textContent = `전체 ${candidates.length}건 · 미반영 ${unreflected}건 · 반영완료 ${dhDoneCnt}건`;
+  if(countEl) countEl.textContent = `전체 ${candidates.length}건 · 입력 대기 ${unreflected}건 · 데이터허브 반영 ${dhDoneCnt}건`;
 
   if(!candidates.length){
-    list.innerHTML='<div style="padding:20px;font-size:12px;color:var(--ink3);text-align:center">판정완료된 건이 없습니다.</div>';
+    list.insertAdjacentHTML('beforeend','<div style="padding:20px;font-size:12px;color:var(--ink3);text-align:center">판정 마친 건이 없습니다.</div>');
     return;
   }
 
@@ -1929,14 +1998,14 @@ function renderDirectPanel() {
       shownMid=true;
       const sep=document.createElement('div');
       sep.style.cssText='padding:6px 16px;font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);border-bottom:1px solid var(--green-b)';
-      sep.textContent='⬇ 미반영 — 선택 후 입력하기';
+      sep.textContent='⬇ 입력 대기 (판정 마침) — 선택 후 입력하기';
       list.appendChild(sep);
     }
     if(isDhDone && !shownDone){
       shownDone=true;
       const sep=document.createElement('div');
       sep.style.cssText='padding:6px 16px;font-size:11px;font-weight:700;color:var(--ink3);background:var(--gray-l);border-bottom:1px solid var(--gray-b)';
-      sep.textContent='✅ 데이터허브 반영 완료';
+      sep.textContent='✅ 데이터허브 반영';
       list.appendChild(sep);
     }
 
@@ -1950,11 +2019,11 @@ function renderDirectPanel() {
 
     // "이미 반영됨" 버튼 (미반영 건에만 표시)
     const statusHtml = isDhDone
-      ? '<span style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);padding:2px 8px;border-radius:10px;border:1px solid var(--green-b);white-space:nowrap;flex-shrink:0">✅ 반영완료</span>'
+      ? '<span style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);padding:2px 8px;border-radius:10px;border:1px solid var(--green-b);white-space:nowrap;flex-shrink:0">✅ 데이터허브 반영</span>'
       : (!s?.done
-        ? '<span style="font-size:11px;color:var(--ink3);white-space:nowrap;flex-shrink:0">판정완료 필요</span>'
+        ? '<span style="font-size:11px;color:var(--ink3);white-space:nowrap;flex-shrink:0">판정 마침 필요</span>'
         : `<span style="display:flex;align-items:center;gap:5px;flex-shrink:0">
-             <span style="font-size:11px;color:var(--amber);white-space:nowrap">⏳ 미반영</span>
+             <span style="font-size:11px;color:var(--amber);white-space:nowrap">⏳ 입력 대기</span>
              <button onclick="markAsDhDone('${r._id}')"
                style="padding:2px 8px;border:1px solid var(--blue-b);border-radius:5px;background:var(--blue-l);color:var(--blue);font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">
                이미 반영됨
@@ -1986,11 +2055,22 @@ function renderDirectPanel() {
 
 // ── "이미 반영됨" 클릭 → GAS 호출 없이 DH_DONE만 업데이트 ──
 function markAsDhDone(id) {
-  DH_DONE[id] = true;
-  saveDhDone(DH_DONE);
+  const r = DATA.find(x=>x._id===id);
+  if(!confirm(`${r?r['이름']+' — '+(r['프로그램명']||'')+'\n\n':''}데이터허브 「마일리지내역」 탭에 이 건이 실제로 있는 것을 확인하셨나요?\n\n확인 = 제출 시트에 판정상태·반영일시를 기록합니다 (데이터허브에는 보내지 않음).`)) return;
+  DH_DONE[id] = true; DH_LS[id] = true; delete DH_SYNC[id];
+  saveDhDone(DH_LS);
   syncRow(id, true);
   renderSbKpi();
   renderDirectPanel();
+}
+
+// ★ T189 — 데이터허브에 없음을 확인한 「대조 필요」 건: 브라우저 표시만 지운다 (시트·데이터허브 변경 없음)
+function clearDhSync(id){
+  const r = DATA.find(x=>x._id===id);
+  if(!confirm(`${r?r['이름']+' — '+(r['프로그램명']||'')+'\n\n':''}데이터허브 「마일리지내역」에 이 건이 없는 것을 확인하셨나요?\n\n확인 = 이 브라우저의 반영 표시만 지웁니다. 판정할 건으로 돌아갑니다.`)) return;
+  delete DH_LS[id]; delete DH_SYNC[id];
+  saveDhDone(DH_LS);
+  renderSbKpi(); renderJudge(); renderDirectPanel();
 }
 
 function updateSelectCount() {
@@ -2046,24 +2126,20 @@ function directInput() {
       // 전체 완료
       btn.textContent = `✔ 선택한 ${records.length}건 입력하기`;
       btn.disabled = false;
+      // ★ 2026-11-20 T189 — 「데이터허브 반영」 표시는 성공한 건(okIds)만. 전에는 선택한 건 전부를 반영으로 표시해
+      //   실패한 건(11/20 201·209·212·221행 4건)이 판정 대상에서 빠질 뻔했다.
+      saveDhDone(DH_LS);
+      renderSbKpi();
+      renderDirectPanel();
+      renderJudge();
       if(resultEl){
-        resultEl.style.cssText = 'display:block;padding:10px 16px;font-size:13px;font-weight:600;color:var(--green);background:var(--green-l);border-bottom:1px solid var(--green-b)';
-        resultEl.innerHTML = `✅ ${successCount}건이 데이터허브 마일리지내역 탭에 반영됐습니다!`
+        const nm = id => { const x = DATA.find(d=>d._id===id); return x ? x['이름'] + ' · ' + (x['프로그램명']||'').slice(0,20) : id; };
+        const allOk = !failedIds.length;
+        resultEl.style.cssText = 'display:block;padding:10px 16px;font-size:13px;font-weight:600;border-bottom:1px solid var(--gray-b);'
+          + (allOk ? 'color:var(--green);background:var(--green-l)' : 'color:var(--red);background:#fef2f2');
+        resultEl.innerHTML = `${allOk?'✅':'⚠️'} 데이터허브 반영 ${okIds.length}건 (${successCount}행)`
+          + (failedIds.length ? ` · <b>실패 ${failedIds.length}건 — 반영 표시 안 함, 다시 선택해 입력하세요</b><div class="di-fail">${failedIds.map(id=>'✖ '+esc(nm(id))).join('<br>')}</div>` : '')
           + (notFoundAll.length ? `<br><span style="color:var(--amber);font-size:12px">⚠️ 명단 미확인: ${esc(notFoundAll.join(', '))}</span>` : '');
-        // 반영완료 상태 저장
-        checked.forEach(chk=>{
-          const id = chk.id.replace('chk_','');
-          DH_DONE[id] = true;
-          const row = document.getElementById('drow_'+id);
-          if(row){
-            row.style.background='var(--green-l)';
-            chk.disabled=true;chk.checked=true;
-          }
-        });
-        saveDhDone(DH_DONE);
-        renderSbKpi();
-        updateSelectCount();
-        renderDirectPanel();
       }
       return;
     }
@@ -2076,7 +2152,7 @@ function directInput() {
       delete window[cb];
       if(res && res.status === 'ok' && (res.added || 0) > 0){
         successCount += res.added;
-        DH_DONE[rid] = true;      // 성공한 건만 반영완료
+        DH_DONE[rid] = true; DH_LS[rid] = true; delete DH_SYNC[rid];   // 성공한 건만 데이터허브 반영
         okIds.push(rid);
         // v4: 허브 반영이 끝났으니 시트 L열(확정/조정)·Q열(반영일시)도 갱신한다.
         //     이 호출이 없으면 L열이 '미판정'으로 남아 학생 화면이 「검토 중」에 머문다.
@@ -2085,6 +2161,7 @@ function directInput() {
         if(_rec) _rec['판정상태'] = sheetStatusOf(rid);
       } else {
         failedIds.push(rid);
+        if(res && res.message) console.warn('실패 사유', rid, res.message);
         if(res && /인증|권한|출입증|만료|로그인/.test(res.message || '')) _DH_TOK = null;   // ★ T40 — 출입증이 거절되면 다음 입력 때 비밀번호를 다시 묻는다
         console.error('데이터허브 입력 실패', rid, res);
       }
@@ -2185,7 +2262,7 @@ function _pwAsk(id, cb){
 }
 
 // ── 패널 전환 ──
-const PT={judge:'⚡ 빠른 판정',group:'🗂️ 동일활동 그룹',overview:'📊 전체 현황',done:'✅ 판정완료',csv:'📥 데이터허브 직접 입력',crit:'📐 마일리지 기준표'};
+const PT={judge:'⚡ 빠른 판정',group:'🗂️ 동일활동 그룹',overview:'📊 전체 현황',done:'✅ 판정 마침 목록',csv:'📥 데이터허브 직접 입력',crit:'📐 마일리지 기준표'};
 function showPanel(id,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
@@ -2253,7 +2330,7 @@ function renderSemBar(){
     + opts.map(([v,l])=>`<button class="${semFilter===v?'on':''}" aria-pressed="${semFilter===v}" onclick="setSem('${v}')">${l}</button>`).join('')
     + '</div>'
     + (note ? `<span class="sem-note">${note}</span>` : '')
-    + `<button class="chk-chip${n?'':' zero'}${on?' on':''}" ${n?'':'disabled'} onclick="toggleKpiFilter('chk')" title="관리자 판단이 필요한 건만 보기">⚠️ 판단 필요 ${n}건</button>`;
+    + `<button class="chk-chip${n?'':' zero'}${on?' on':''}" ${n?'':'disabled'} onclick="toggleKpiFilter('chk')" title="자동판정이 안 된 건만 보기">⚙ 자동판정 불가 ${n}건</button>`;
   const sub = document.getElementById('sb-sub');
   if(sub) sub.textContent = (semFilter ? semFilter+'학기' : '전체 학기') + ' · GAS 실시간 연동';
 }
