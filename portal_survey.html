@@ -2089,6 +2089,46 @@ function renderForms(forms) {
   }
 }
 
+/* ★ T185 (2026-11-20) — 개인 마감 활동계획서 카드
+   설문관리 form_plan D열은 OFF 그대로 둔다 (ON 하면 기존 학생도 다시 열려 고칠 수 있게 된다).
+   대신 로그인 학생(미리보기 중이면 그 학생)의 명단 F열 마감을 getDeadline으로 받아
+   마감 전이면 활동계획서 카드를 이 학생 화면에만 붙인다 — 4기(2027-1 전형 합격자) 12/4 마감용.
+   · 서버 목록에 form_plan이 이미 있으면(D열 ON) 아무것도 하지 않는다
+   · getDeadline은 날짜만 준다(시각 없음) → 그날 23:59까지 카드를 보이고 마감 표기는 날짜만
+     (제출 판정은 서버 getDocStatus가 명단 F열 시각으로 한다)
+   · 카드 이름·설명·아이콘은 설문관리 form_plan 행과 같은 값 */
+var _planBaseForms = [];
+var _planPersonalReq = 0;
+var _planPersonalOn = false;
+function _planPersonalRefresh() {
+  const auth = checkAuth(); if (!auth) return;
+  const sid = _admViewSid(auth);
+  const my = ++_planPersonalReq;
+  const base = _planBaseForms || [];
+  const show = function (extra) {
+    if (my !== _planPersonalReq) return;               // 그 사이 다른 학생으로 바뀜
+    if (!extra && !_planPersonalOn) return;            // 바뀐 것 없음
+    _planPersonalOn = !!extra;
+    const list = extra ? base.concat([extra]) : base;
+    renderForms(list); loadDocStatus(); if (extra) _syncPlanDue(list);
+  };
+  if (!sid || base.some(function (f) { return f.id === 'form_plan'; })) { show(null); return; }
+  const ctl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const to = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
+  fetch(SCRIPT_URL + '?action=getDeadline&studentId=' + encodeURIComponent(sid), ctl ? { signal: ctl.signal } : {})
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      clearTimeout(to);
+      const m = String((d && d.status === 'ok' && d.deadline) || '').match(/^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}):(\d{2}))?/);
+      if (!m) { show(null); return; }
+      const due = m[4] ? new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]) : new Date(+m[1], +m[2]-1, +m[3], 23, 59, 59);
+      if (Date.now() > due.getTime()) { show(null); return; }
+      show({ id: 'form_plan', name: '활동계획서 제출', desc: '학기별 활동계획서를 제출합니다.',
+             deadline: m[0], link: 'form_plan.html', icon: '📋', theme: 'blue' });
+    })
+    .catch(function () { clearTimeout(to); show(null); });
+}
+
 let cbName=null, loadTO=null;
 function loadForms() {
   const auth = checkAuth();
@@ -2110,10 +2150,12 @@ function loadForms() {
     const _forms = data.forms||[];
     // 설문관리 D열 ON인 survey_* 행만 모은다 (2026-08-20)
     ACTIVE_SURVEY_IDS = new Set(_forms.map(f=>f.id).filter(id=>String(id).indexOf('survey_')===0));
+    _planBaseForms = _forms;           // ★ T185 서버 카드 목록 (개인 마감 카드는 따로 붙인다)
     renderForms(_forms);
     renderSurveyCards();
     loadDocStatus();
     _syncPlanDue(_forms);
+    _planPersonalRefresh();            // ★ T185 설문관리 OFF여도 명단 F열 마감 전이면 활동계획서 카드
   };
   loadTO=setTimeout(()=>{
     if(window[cbName]) delete window[cbName];
@@ -3607,6 +3649,7 @@ function _admPrevApply(sid) {
   });
   loadMileage(sid); loadExtMileage(sid); loadSurveys(sid); loadInjeId();
   loadDocStatus();   // 활동계획서·결과보고서 카드 상태도 그 학생 기준으로
+  _planPersonalRefresh();   // ★ T185 개인 마감 활동계획서 카드도 그 학생 기준으로
 }
 
 function _admPrevClear() {
@@ -3618,6 +3661,7 @@ function _admPrevClear() {
     loadMileage(auth.studentId); loadExtMileage(auth.studentId);
     loadSurveys(auth.studentId); loadInjeId();
     loadDocStatus();
+    _planPersonalRefresh();   // ★ T185
   }
 }
 
