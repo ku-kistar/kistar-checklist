@@ -110,6 +110,13 @@ function show(d, no){
       '<dt>' + t('성명', 'Name') + '</dt><dd>' + esc(d.name) + '</dd>' +
       '<dt>' + t('발급일', 'Issued') + '</dt><dd>' + esc(d.issued) + '</dd>' +
       '<dt>' + t('발급', 'Issuer') + '</dt><dd>' + t('고려대학교 차세대AI반도체특성화대학사업단장', 'Director, KI-STAR Center, Korea University') + '</dd></dl>';
+  } else if (d && d.result === 'sample') {
+    h = '<div class="badge b-wait">' + ICON.ok + esc(t('견본 인증서입니다 · 실제 발급 시 아래처럼 표시됩니다', 'Sample certificate · this is how a real one is shown')) + '</div>' +
+      '<dl><dt>' + t('인증서 번호', 'Certificate No.') + '</dt><dd>' + esc(d.no) + ' (' + t('견본', 'sample') + ')</dd>' +
+      '<dt>' + t('과정', 'Program') + '</dt><dd>' + esc(lang === 'en' && EN_TITLE[code] ? EN_TITLE[code] : d.title) + '</dd>' +
+      '<dt>' + t('성명', 'Name') + '</dt><dd>' + esc(d.name) + '</dd>' +
+      '<dt>' + t('발급일', 'Issued') + '</dt><dd>' + esc(d.issued) + '</dd>' +
+      '<dt>' + t('발급', 'Issuer') + '</dt><dd>' + t('고려대학교 차세대AI반도체특성화대학사업단장', 'Director, KI-STAR Center, Korea University') + '</dd></dl>';
   } else if (d && d.result === 'revoked') {
     h = '<div class="badge b-bad">' + ICON.bad + esc(t('취소된 인증서입니다', 'This certificate has been revoked')) + '</div>' +
       '<dl><dt>' + t('인증서 번호', 'Certificate No.') + '</dt><dd>' + esc(d.no) + '</dd></dl>';
@@ -155,6 +162,10 @@ setLang(lang);
 (function(){
   var no = '', k = '';
   try { var sp = new URLSearchParams(location.search); no = (sp.get('no') || '').trim().toUpperCase(); k = (sp.get('k') || '').trim().toUpperCase(); } catch (e) {}
+  // 견본 이수증(확인코드 SAMPLE)은 발급대장을 조회하지 않고 견본 화면만 보여 준다
+  var SAMPLE_TITLE = { MDV:'소자 마이크로 과정', MPR:'공정 마이크로 과정', MMT:'소재 마이크로 과정', MPK:'패키징 마이크로 과정', TDP:'소자·공정 트랙', TMP:'소재·패키징 트랙' };
+  var sc = (no.split('-')[2] || '');
+  if (no && k === 'SAMPLE' && SAMPLE_TITLE[sc]) { show({ result:'sample', no:no, title:SAMPLE_TITLE[sc], name:'김고려', issued:'2027-07-15' }, no); return; }
   if (no && k) { check(no, k); }
   else { if (no) document.getElementById('no').value = no; document.getElementById('f').classList.remove('hide'); }
 })();
