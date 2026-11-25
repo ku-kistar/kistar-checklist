@@ -1157,22 +1157,17 @@ function drawPg(){
   const n=(k,m)=>B.filter(d=>pgHit(d,k,m)).length;
   const cell=(k,m,cls)=>{const v=n(k,m); return `<td><span class="n${v?' cl':''}${cls?' '+cls:''}"${v?` onclick="drillPg('${k}','${m}')"`:''}>${v}</span></td>`;};
   const sep=p=>p.k==='tDP'||p.k==='mD'?' class="sep"':'';
-  pgBoard.innerHTML=`<div class="aihd"><div class="aitt">과정별 충족<span>양성인원 ${B.length}명 · 과목 기준과 규정상을 따로 셈</span></div>
+  pgBoard.innerHTML=`<div class="aihd"><div class="aitt">과정별 충족<span>양성인원 ${B.length}명 · 과정별 요건을 채운 경우만 셈</span></div>
     <button class="btn" style="margin-left:auto" data-dl="과정 인증 대상자(CSV)" onclick="pgCertCsv('now')">인증 대상자 (과목 기준)</button>
-    <button class="btn" data-dl="과정 인증 대상자(CSV)" onclick="pgCertCsv('rule')">인증 대상자 (규정상)</button></div>
+</div>
   <div class="pgwrap">
     <div class="pgbox"><h4>과목 기준<span>실제 이수한 과목으로 셈</span></h4>
       <table class="pgt"><thead><tr><th class="l">과정</th><th>충족</th><th>🔵 수강 중 포함 시</th></tr></thead><tbody>
       ${PG_LIST.map(p=>`<tr${sep(p)}><td class="l">${esc(p.l)}</td>${cell(p.k,'now')}${p.k==='fuse'?'<td class="pgx">—</td>':cell(p.k,'wip','w')}</tr>`).join('')}
       </tbody></table></div>
-    <div class="pgbox"><h4>규정상<span>융합전공 36 충족 = 전공트랙·MD 모두 충족</span></h4>
-      <table class="pgt"><thead><tr><th class="l">과정</th><th>충족</th><th>과목 기준과 차이</th></tr></thead><tbody>
-      ${PG_LIST.map(p=>{const d1=n(p.k,'rule')-n(p.k,'now');
-        return `<tr${sep(p)}><td class="l">${esc(p.l)}</td>${cell(p.k,'rule')}<td class="pgx">${d1?'+'+d1+'명':'—'}</td></tr>`;}).join('')}
-      </tbody></table></div>
   </div>
-  <div class="pgnote">전공트랙 = 해당 두 분야 과목 3개 + PBL + 공동운영 2과목(AI반도체개론 포함) + 학부인정 6학점 ·
-    마이크로디그리 = 해당 분야 1과목 + PBL + 공동운영 2과목 (사업계획서 3차년도 운영유형 · 운영표 기준).
+  <div class="pgnote">전공트랙 = 해당 두 분야 과목 3개 + PBL + AI반도체개론·반도체공정실습 + 학부인정 6학점 ·
+    마이크로 과정 = 해당 분야 1과목 + PBL + AI반도체개론·반도체공정실습 (2026-11-25 사업단 결정 · 인제대 개설 과목 제외 · 융합전공 36 충족만으로는 인정 안 함).
     「수강 중 포함 시」 = 이번 학기 수강 과목을 모두 이수한다고 가정한 인원(이미 충족한 학생 제외). 숫자를 누르면 아래 명단이 바뀝니다.</div>`;
 }
 function pgDetailHtml(d){
@@ -1180,8 +1175,8 @@ function pgDetailHtml(d){
   const e=pgEval(d);
   const tg=v=>`<span class="pg ${v}">${v==='ok'?'충족':v==='wip'?'🔵 수강 중 포함 시 충족':'미충족'}</span>`;
   return `<div class="sec">과정별 충족</div>
-  <table class="ct"><thead><tr><th>과정</th><th>과목 기준</th><th>규정상</th><th>부족한 것 (과목 기준)</th></tr></thead><tbody>
-  ${PG_LIST.map(p=>`<tr><td>${esc(p.l)}</td><td>${tg(e.st[p.k])}</td><td>${tg(e.rule[p.k])}</td>
+  <table class="ct"><thead><tr><th>과정</th><th>충족</th><th>부족한 것</th></tr></thead><tbody>
+  ${PG_LIST.map(p=>`<tr><td>${esc(p.l)}</td><td>${tg(e.st[p.k])}</td>
     <td class="pgx" style="white-space:normal">${e.now[p.k].length?esc(e.now[p.k].join(' · ')):'—'}</td></tr>`).join('')}
   </tbody></table>`;
 }

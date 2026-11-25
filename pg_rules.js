@@ -10,13 +10,16 @@ const CAT = {"mseng": [{"codes":["KISE302","KMSE330"], "name": "AI반도체개�
 // ── ★ 2026-10-27 T19 과정별 충족 — 융합전공 36 · 전공트랙 24(2개) · 마이크로디그리 12(4개) ─────────
 //   근거: 3차년도 사업계획서(고려대) p.44 운영유형 — 융합전공 = 개설교과 30 + 학부인정 6 /
 //         전공트랙 = 개설교과 18 + 학부인정 6 / 마이크로디그리 = 개설교과 12 · 사업단 운영표(2026-01-27)
-//     전공트랙 = 트랙 과목 3개(9) + PBL(3) + 공동운영 2과목(6) + 학부인정(6)
-//     마이크로디그리 = 그 트랙 1과목(3) + PBL(3) + 공동운영 2과목(6)
+//     전공트랙 = 트랙 과목 3개(9) + PBL(3) + AI반도체개론·반도체공정실습(6) + 학부인정(6)
+//     마이크로 과정 = 그 분야 1과목(3) + PBL(3) + AI반도체개론·반도체공정실습(6)
 //   과목 기준 = 실제 이수한 과목으로 셈 (🔵 = 이번 학기 수강 중 과목까지 넣으면 충족)
-//   규정상   = 융합전공 36학점 충족이면 상위 과정 이수로 보고 전공트랙·MD 모두 충족
-//   PG_RULE 은 담당자 확정 전 기본값 — 트랙 3과목은 두 분야 합산 · 산학은 PBL만 · 공동운영은 AI반도체개론 + 1과목
+//   ★ 2026-11-25 사업단 결정 — 전공트랙·마이크로 과정 필수 = AI반도체개론 + 반도체공정실습(둘 다) + PBL
+//     인제대 개설 공동운영 과목(진공장비실습 313KISE · 반도체머신러닝 312KISE)은 전공트랙·마이크로 과정 판정에 넣지 않는다
+//     (융합전공 36학점 체크리스트의 공동운영 칸은 그대로 — 이 파일은 전공트랙·마이크로 과정 판정만 바꾼다)
+//     융합전공 36 충족만으로 전공트랙·마이크로 과정을 인정하지 않는다 — 과정별 요건을 채운 경우만 (「규정상」 폐지)
+//   트랙 3과목은 두 분야 합산 · 산학은 PBL만
 //   이 판정은 화면에서만 계산한다 (이수현황 시트·GAS 무변경)
-const PG_RULE={AI:['KISE302','KMSE330'],JOINT:['KISE301','313KISE','312KISE'],PBL:['KISE407','KISE408'],TRACK_N:3,RECOG:6};
+const PG_RULE={AI:['KISE302','KMSE330'],JOINT:['KISE301'],PBL:['KISE407','KISE408'],TRACK_N:3,RECOG:6};
 const PG_LIST=[
   {k:'fuse', l:'융합전공 36', s:'융합전공'},
   {k:'tDP',  l:'전공트랙 소자·공정 24', s:'트랙 소자·공정', g:['소자','공정']},
@@ -37,7 +40,7 @@ function pgEval(d){
     const cnt={}; ['소자','공정','소재','패키징'].forEach(g=>{cnt[g]=cat.filter(c=>c.grp===g&&has(c.codes)).length;});
     const rcAdd=withWish ? cat.filter(c=>c.grp==='학부인정'&&!c.codes.some(x=>tk.has(x))&&c.codes.some(x=>wish.includes(x))).length*3 : 0;
     const recog=Math.min(PG_RULE.RECOG,(Number(d.ar.학부)||0)+rcAdd);
-    const base=[]; if(!ai) base.push('AI반도체개론'); if(!jn) base.push('공동운영 1과목'); if(!pbl) base.push('PBL');
+    const base=[]; if(!ai) base.push('AI반도체개론'); if(!jn) base.push('반도체공정실습'); if(!pbl) base.push('PBL');
     const out={fuse: d.tot>=36 ? [] : ['남은 '+(36-d.tot)+'학점']};
     PG_LIST.forEach(p=>{ if(!p.g) return;
       const m=[...base];
@@ -52,17 +55,17 @@ function pgEval(d){
   const now=run(false), wip=run(true), st={}, rule={};
   PG_LIST.forEach(p=>{
     st[p.k] = !now[p.k].length ? 'ok' : (p.k!=='fuse' && !wip[p.k].length) ? 'wip' : 'no';
-    rule[p.k] = d.tot>=36 ? 'ok' : st[p.k];
+    rule[p.k] = st[p.k];   // ★ 2026-11-25 규정상(융합전공 36 → 전부 충족) 폐지 — 과목 기준과 같음
   });
   return d._pg={now,wip,st,rule};
 }
 
-const PG_CERT={tDP:'소자·공정 트랙',tMP:'소재·패키징 트랙',mD:'소자 마이크로',mP:'공정 마이크로',mM:'소재 마이크로',mK:'패키징 마이크로'};
+const PG_CERT={tDP:'소자·공정 트랙',tMP:'소재·패키징 트랙',mD:'소자 마이크로 과정',mP:'공정 마이크로 과정',mM:'소재 마이크로 과정',mK:'패키징 마이크로 과정'};   // ★ 2026-11-25 「○○ 마이크로 과정」 표기
 function pgEvidence(d,p){
   const cat=CAT[d.dk]||[], tk=new Set(d.tk);
   const pick=f=>cat.filter(c=>f(c)&&c.codes.some(x=>tk.has(x))).map(c=>c.ui||c.name);
   const tr=pick(c=>(p.g||[]).includes(c.grp));
-  const jn=pick(c=>c.grp==='전공필수'||c.grp==='공동운영');
+  const jn=pick(c=>c.grp==='전공필수'||(c.grp==='공동운영'&&c.codes.some(x=>PG_RULE.JOINT.includes(x))));
   const pb=pick(c=>c.grp==='PBL');
   const rc=p.g&&p.g.length===2 ? ['학부인정 '+Math.min(6,Number(d.ar.학부)||0)+'학점'] : [];
   return [...tr,...jn,...pb,...rc].join(', ');
@@ -112,7 +115,7 @@ const semKey=s=>{ const m=/^(\d{4})-(1|2|여름|겨울)$/.exec(semLast(s)); if(!
 function semMonths(s){ const m=/^(\d{4})-(1|2|여름|겨울)$/.exec(semLast(s)); if(!m) return null; const y=+m[1];
   return {'1':[[y,3],[y,6]],'여름':[[y,6],[y,8]],'2':[[y,9],[y,12]],'겨울':[[y,12],[y+1,2]]}[m[2]]; }
 // 수료증에 적을 교과목 — 과정 구성(사업계획서 운영유형)대로 칸마다 정한 수만 (학기 이른 순)
-//   전공트랙: 공동운영 2(AI반도체개론 포함) · 트랙 3 · PBL 1 · 학부인정 2 = 24학점 / 마이크로: 공동운영 2 · 분야 1 · PBL 1 = 12학점
+//   전공트랙: 공동운영 2(AI반도체개론 · 반도체공정실습) · 트랙 3 · PBL 1 · 학부인정 2 = 24학점 / 마이크로: 공동운영 2 · 분야 1 · PBL 1 = 12학점
 //   규정상(융합전공 36) 대상은 칸이 덜 찰 수 있다 — 관리 화면에서 학점으로 표시한다
 function pgCertCourses(d,code3){
   const I=CERT_INFO[code3], p=PG_LIST.find(x=>x.k===I.k), cat=CAT[d.dk]||[], sem={};
@@ -120,7 +123,7 @@ function pgCertCourses(d,code3){
   const took=c=>c.codes.find(x=>sem[x]!==undefined);
   const row=(g,gEn,c)=>{ const code=took(c); return {g,gEn,ko:c.ui||c.name,en:COURSE_EN[c.codes[0]]||COURSE_EN[code]||'',code,cr:3,term:sem[code]||''}; };
   const pick=(f,n)=>cat.filter(c=>f(c)&&took(c)).map(c=>({c,k:semKey(sem[took(c)])||'9'})).sort((a,b)=>a.k.localeCompare(b.k)).slice(0,n).map(x=>x.c);
-  const ai=pick(c=>c.grp==='전공필수',1), jn=pick(c=>c.grp==='공동운영',2-ai.length);
+  const ai=pick(c=>c.grp==='전공필수',1), jn=pick(c=>c.grp==='공동운영'&&c.codes.some(x=>PG_RULE.JOINT.includes(x)),1);
   const tr=I.cr===24?3:1, fld=pick(c=>p.g.includes(c.grp),tr), pbl=pick(c=>c.grp==='PBL',1);
   const out=[...ai,...jn].map(c=>row('공동운영','Joint Course',c))
     .concat(fld.map(c=>row(I.cr===24?'트랙 교과':'분야 교과',I.cr===24?'Track Course':'Field Course',c)))
